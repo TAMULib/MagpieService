@@ -11,21 +11,41 @@ package edu.tamu.app.model.impl;
 
 import java.io.File;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import edu.tamu.app.model.Document;
 
+@Entity
+@Table(name="all_documents")
 public class DocumentImpl implements Document {
 	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="id", nullable=false)
 	private Long id;
 	
+	@Column(name="filename")
 	private String filename;
 	
 	private File file;
 	
+	@Column(name="path")
+	private String path;
+	
+	@Column(name="status")
 	private String status;
 	
-	public DocumentImpl(Long id, String filename, String status) {
+	public DocumentImpl() {
 		super();
-		this.id = id;
+	}
+	
+	public DocumentImpl(String filename, String status) {
+		super();
 		this.filename = filename;
 		this.status = status;
 	}
@@ -35,6 +55,15 @@ public class DocumentImpl implements Document {
 		this.id = id;
 		this.filename = filename;
 		this.file = file;
+		this.status = status;
+	}
+	
+	public DocumentImpl(Long id, String filename, File file, String path, String status) {
+		super();
+		this.id = id;
+		this.filename = filename;
+		this.file = file;
+		this.path = path;
 		this.status = status;
 	}
 
@@ -60,6 +89,14 @@ public class DocumentImpl implements Document {
 
 	public void setFile(File file) {
 		this.file = file;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 	public String getStatus() {
