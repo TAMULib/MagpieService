@@ -14,7 +14,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.Credentials;
@@ -29,7 +28,6 @@ import edu.tamu.app.model.repo.UserRepo;
  *
  */
 @RestController
-@RequestMapping("rest/user")
 @MessageMapping("/user")
 public class UserController {
 
