@@ -51,6 +51,9 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 	@Value("${app.authority.admins}")
 	private String[] admins;
 	
+	@Value("${app.authority.managers}")
+	private String[] managers;
+	
 	@Autowired
 	private UserRepo userRepo;
 	
@@ -104,6 +107,13 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 			
 			Credentials shib = new Credentials(tokenMap);
 			String shibUin = shib.getUin();
+			
+			for(String uin : managers) {
+				if(uin.equals(shibUin)) {
+					shib.setRole("ROLE_MANAGER");					
+				}
+			}
+			
 			for(String uin : admins) {
 				if(uin.equals(shibUin)) {
 					shib.setRole("ROLE_ADMIN");					
@@ -152,6 +162,13 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 		    	}					
 		    	Credentials shib = new Credentials(tokenMap);	
 		    	String shibUin = shib.getUin();
+		    	
+		    	for(String uin : managers) {
+					if(uin.equals(shibUin)) {
+						shib.setRole("ROLE_MANAGER");					
+					}
+				}
+		    	
 				for(String uin : admins) {
 					if(uin.equals(shibUin)) {
 						shib.setRole("ROLE_ADMIN");					
