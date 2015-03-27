@@ -55,12 +55,8 @@ public class DocumentController {
 		
 		for (int i = 0; i < listOfFiles.length; i++) {
 			if (listOfFiles[i].isFile()) {
-				System.out.println("File " + listOfFiles[i].getName());
-				
-				Document doc = new DocumentImpl(Long.parseLong(String.valueOf(i)), listOfFiles[i].getName(), "Unassigned");
-				 
-				docs.add(doc);
-				
+				Document doc = new DocumentImpl(Long.parseLong(String.valueOf(i)), listOfFiles[i].getName(), "Unassigned");				 
+				docs.add(doc);				
 			} else if (listOfFiles[i].isDirectory()) {
 				System.out.println("Directory " + listOfFiles[i].getName());
 			}
