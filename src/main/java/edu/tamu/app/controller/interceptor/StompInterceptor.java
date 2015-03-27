@@ -9,10 +9,8 @@
  */
 package edu.tamu.app.controller.interceptor;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +48,9 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 	
 	@Value("${app.authority.admins}")
 	private String[] admins;
+	
+	@Value("${app.authority.managers}")
+	private String[] managers;
 	
 	@Autowired
 	private UserRepo userRepo;
@@ -104,6 +105,13 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 			
 			Credentials shib = new Credentials(tokenMap);
 			String shibUin = shib.getUin();
+			
+			for(String uin : managers) {
+				if(uin.equals(shibUin)) {
+					shib.setRole("ROLE_MANAGER");					
+				}
+			}
+			
 			for(String uin : admins) {
 				if(uin.equals(shibUin)) {
 					shib.setRole("ROLE_ADMIN");					
@@ -152,6 +160,13 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 		    	}					
 		    	Credentials shib = new Credentials(tokenMap);	
 		    	String shibUin = shib.getUin();
+		    	
+		    	for(String uin : managers) {
+					if(uin.equals(shibUin)) {
+						shib.setRole("ROLE_MANAGER");					
+					}
+				}
+		    	
 				for(String uin : admins) {
 					if(uin.equals(shibUin)) {
 						shib.setRole("ROLE_ADMIN");					
