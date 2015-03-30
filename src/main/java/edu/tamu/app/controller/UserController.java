@@ -68,5 +68,13 @@ public class UserController {
 		//      calling methods will just obtain credentials
 		return new ApiResImpl("success", shib, new RequestId(id));
 	}
+	
+	@MessageMapping("/all")
+	@SendToUser
+	public ApiResImpl allUsers(Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);
+		return new ApiResImpl("success", userRepo.findAll(), new RequestId(requestId));
+	}
 
 }
