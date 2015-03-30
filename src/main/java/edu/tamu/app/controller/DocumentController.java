@@ -50,9 +50,10 @@ public class DocumentController {
 	
 	@MessageMapping("/{filename}")
 	@SendToUser
-	public ApiResImpl documentByFilename(@PathVariable("filename") String homeDBpatronId, Message<?> message) throws Exception {
-		
-		return null;
+	public ApiResImpl documentByFilename(@PathVariable("filename") String filename, Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);
+		return new ApiResImpl("success", docRepo.getDocumentByFilename(filename), new RequestId(requestId));
 	}
 	
 }
