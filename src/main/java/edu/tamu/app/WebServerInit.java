@@ -14,8 +14,12 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import edu.tamu.app.service.SyncService;
 
 /** 
  * Web server initialization.
@@ -28,7 +32,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @EnableConfigurationProperties
 public class WebServerInit extends SpringBootServletInitializer {
-
+		
 	/**
 	 * Entry point to the application from within servlet.
 	 *
@@ -36,7 +40,10 @@ public class WebServerInit extends SpringBootServletInitializer {
 	 *
 	 */
     public static void main(String[] args) {
-        SpringApplication.run(WebServerInit.class, args);
+        SpringApplication.run(WebServerInit.class, args);        
+        ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();  
+        taskExecutor.initialize();
+        taskExecutor.execute(new SyncService());
     }
     
     /**
@@ -49,7 +56,20 @@ public class WebServerInit extends SpringBootServletInitializer {
    	 */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(WebServerInit.class);
+    	SpringApplicationBuilder builder = application.sources(WebServerInit.class);    	 
+    	ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();
+    	taskExecutor.initialize();
+        taskExecutor.execute(new SyncService());
+        return builder;
     }
-
+    
+    @Bean
+    private static ThreadPoolTaskExecutor configureTaskExecutor() {
+    	ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+    	taskExecutor.setCorePoolSize(5);
+    	taskExecutor.setMaxPoolSize(10);
+    	taskExecutor.setQueueCapacity(25);
+    	return taskExecutor;
+    }
+   
 }
