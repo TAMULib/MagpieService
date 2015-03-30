@@ -28,9 +28,6 @@ public class DocumentImpl implements Document {
 	
 	private File file;
 	
-	@Column(name="path")
-	private String path;
-	
 	@Column(name="status")
 	private String status;
 	
@@ -50,14 +47,6 @@ public class DocumentImpl implements Document {
 		this.file = file;
 		this.status = status;
 	}
-	
-	public DocumentImpl(String filename, File file, String path, String status) {
-		super();
-		this.filename = filename;
-		this.file = file;
-		this.path = path;
-		this.status = status;
-	}
 
 	public String getFilename() {
 		return filename;
@@ -73,14 +62,6 @@ public class DocumentImpl implements Document {
 
 	public void setFile(File file) {
 		this.file = file;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
 	}
 
 	public String getStatus() {

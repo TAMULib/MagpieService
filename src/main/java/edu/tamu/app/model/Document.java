@@ -47,18 +47,6 @@ public interface Document {
 	 * 
 	 * @return
 	 */
-	public String getPath();
-
-	/**
-	 * 
-	 * @param path
-	 */
-	public void setPath(String path);
-	
-	/**
-	 * 
-	 * @return
-	 */
 	public String getStatus();
 
 	/**
