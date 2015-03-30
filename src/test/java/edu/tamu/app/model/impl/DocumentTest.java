@@ -45,12 +45,7 @@ public class DocumentTest {
 		DocumentImpl assertDocument = documentRepo.getDocumentByFilename("testFile1");
 		Assert.assertEquals("Test Document 1 was not added.", testDocument1.getFilename(), assertDocument.getFilename());
 		
-		try {
-			documentRepo.save(testDocument2);
-		}
-		catch(Exception e) {
-			
-		}		
+		documentRepo.save(testDocument2);		
 		List<DocumentImpl> allDocuments = (List<DocumentImpl>) documentRepo.findAll();
 		Assert.assertEquals("Duplicate filename found.", 1, allDocuments.size());
 		

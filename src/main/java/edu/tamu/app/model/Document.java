@@ -23,18 +23,6 @@ public interface Document {
 	 * 
 	 * @return
 	 */
-	public Long getId();
-
-	/**
-	 * 
-	 * @param id
-	 */
-	public void setId(Long id);
-
-	/**
-	 * 
-	 * @return
-	 */
 	public String getFilename();
 
 	/**
