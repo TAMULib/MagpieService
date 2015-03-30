@@ -44,21 +44,16 @@ public class UserTest {
 		testUser2.setUin(Long.parseLong("123456789"));
 		
 		userRepo.save(testUser1);		
-		UserImpl assertUser = userRepo.getUserByUin(Long.parseLong("123456789"));		
-		Assert.assertEquals("Test User1 was not added.", testUser1.getUin(), assertUser.getUin());
+		UserImpl assertUser = userRepo.getUserByUin(Long.parseLong("123456789"));
+		Assert.assertEquals("Test User 1 was not added.", testUser1.getUin(), assertUser.getUin());
 	
 		userRepo.save(testUser2);		
 		List<UserImpl> allUsers = (List<UserImpl>) userRepo.findAll();		
 		Assert.assertEquals("Duplicate UIN found.", 1, allUsers.size());
 		
-		//testUser1.setFirstName("Change");
-		userRepo.save(testUser1);
-		testUser1 = userRepo.getUserByUin(Long.parseLong("123456789"));
-		//Assert.assertEquals("Update fail.", "Change", testUser1.getFirstName());
-		
 		userRepo.delete(testUser1);		
 		allUsers = (List<UserImpl>) userRepo.findAll();		
-		Assert.assertEquals("Test User1 was not removed.", 0, allUsers.size());
+		Assert.assertEquals("Test User 1 was not removed.", 0, allUsers.size());
 		
 	}
 }

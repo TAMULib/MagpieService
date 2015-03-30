@@ -29,7 +29,7 @@ public class DocumentImpl implements Document {
 	@Column(name="id", nullable=false)
 	private Long id;
 	
-	@Column(name="filename")
+	@Column(name="filename", unique=true)
 	private String filename;
 	
 	private File file;
