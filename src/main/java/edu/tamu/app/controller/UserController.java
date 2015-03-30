@@ -9,6 +9,9 @@
  */
 package edu.tamu.app.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.tamu.app.model.Credentials;
 import edu.tamu.app.model.RequestId;
 import edu.tamu.app.model.impl.ApiResImpl;
+import edu.tamu.app.model.impl.UserImpl;
 import edu.tamu.app.model.repo.UserRepo;
 
 /** 
@@ -74,7 +78,12 @@ public class UserController {
 	public ApiResImpl allUsers(Message<?> message) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);
-		return new ApiResImpl("success", userRepo.findAll(), new RequestId(requestId));
+		Map<Long,UserImpl> userMap = new HashMap<Long,UserImpl>();
+		Long index = (long) 0;
+		for (UserImpl i : userRepo.findAll()) {
+			userMap.put(index++,i);
+		}
+		return new ApiResImpl("success", userMap, new RequestId(requestId));
 	}
 
 }
