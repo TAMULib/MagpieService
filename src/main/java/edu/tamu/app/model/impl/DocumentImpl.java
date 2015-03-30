@@ -13,8 +13,6 @@ import java.io.File;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -25,11 +23,7 @@ import edu.tamu.app.model.Document;
 public class DocumentImpl implements Document {
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="id", nullable=false)
-	private Long id;
-	
-	@Column(name="filename", unique=true)
+	@Column(name="filename")
 	private String filename;
 	
 	private File file;
@@ -50,29 +44,19 @@ public class DocumentImpl implements Document {
 		this.status = status;
 	}
 
-	public DocumentImpl(Long id, String filename, File file, String status) {
+	public DocumentImpl(String filename, File file, String status) {
 		super();
-		this.id = id;
 		this.filename = filename;
 		this.file = file;
 		this.status = status;
 	}
 	
-	public DocumentImpl(Long id, String filename, File file, String path, String status) {
+	public DocumentImpl(String filename, File file, String path, String status) {
 		super();
-		this.id = id;
 		this.filename = filename;
 		this.file = file;
 		this.path = path;
 		this.status = status;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getFilename() {

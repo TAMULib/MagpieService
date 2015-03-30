@@ -18,7 +18,7 @@ import edu.tamu.app.model.User;
 
 @Entity
 @Table(name="all_users")
-public class UserImpl implements User{
+public class UserImpl implements User {
 	
 	@Id
 	@Column(name="uin", nullable=false)
