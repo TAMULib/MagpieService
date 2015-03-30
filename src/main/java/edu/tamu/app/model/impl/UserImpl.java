@@ -24,6 +24,12 @@ public class UserImpl implements User {
 	@Column(name="uin", nullable=false)
 	private Long uin;
 	
+	@Column(name="firstname")
+	private String firstName;
+	
+	@Column(name="lastname")
+	private String lastName;
+	
 	@Column(name="role")
 	private String role;
 	
@@ -35,6 +41,22 @@ public class UserImpl implements User {
 	@Override
 	public Long getUin() {
 		return uin;
+	}
+	
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 	@Override
