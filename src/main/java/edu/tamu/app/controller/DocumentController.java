@@ -40,6 +40,12 @@ public class DocumentController {
 	@Autowired
 	private DocumentRepo docRepo;
 	
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
 	@MessageMapping("/all")
 	@SendToUser
 	public ApiResImpl allDocuments(Message<?> message) throws Exception {
@@ -48,6 +54,13 @@ public class DocumentController {
 		return new ApiResImpl("success", docRepo.findAll(), new RequestId(requestId));
 	}
 	
+	/**
+	 * 
+	 * @param filename
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
 	@MessageMapping("/{filename}")
 	@SendToUser
 	public ApiResImpl documentByFilename(@PathVariable("filename") String filename, Message<?> message) throws Exception {

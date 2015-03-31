@@ -44,6 +44,9 @@ public class SyncService implements Runnable, ApplicationContextAware {
 	
 	private static ApplicationContext ac;
 		
+	/**
+	 * 
+	 */
 	@Override
 	public void run() {
 		
@@ -106,6 +109,9 @@ public class SyncService implements Runnable, ApplicationContextAware {
 		
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public void setApplicationContext(ApplicationContext ac) throws BeansException {
 		SyncService.ac = ac;

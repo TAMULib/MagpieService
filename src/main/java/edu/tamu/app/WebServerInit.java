@@ -63,6 +63,12 @@ public class WebServerInit extends SpringBootServletInitializer {
         return builder;
     }
     
+    /**
+     * Thread pool task executor configuration.
+     * 
+     * @return		ThreadPoolTaskExecutor
+     * 
+     */
     @Bean
     private static ThreadPoolTaskExecutor configureTaskExecutor() {
     	ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();

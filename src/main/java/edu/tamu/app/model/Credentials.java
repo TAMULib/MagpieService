@@ -19,15 +19,9 @@ import java.util.Map;
  */
 public class Credentials {
 	
-	//private String uid;
 	private String lastName;
 	private String firstName;
-	//private String otherNames;
-	//private String entitlement;
 	private String netid;
-	//private String affiliation;
-	//private String scopedAffiliation; 
-	//private String orcid;
 	private String uin;
 	private String exp;
 	private String email;
@@ -41,30 +35,14 @@ public class Credentials {
 	 */
 	public Credentials(Map<String, String> token) {
 		
-		//this.uid = token.get("uid");
 		this.lastName = token.get("lastName");
 		this.firstName = token.get("firstName");
-		//this.otherNames = token.get("otherNames");
-		//this.entitlement = token.get("entitlement");
 		this.netid = token.get("netid");
-		//this.affiliation = token.get("affiliation");
-		//this.scopedAffiliation = token.get("scopedAffiliation");
-		//this.orcid = token.get("orcid");
 		this.uin = token.get("uin");
 		this.exp = token.get("exp");
 		this.email = token.get("email");
 		this.role = token.get("role");
 	}
-	
-	/*
-	public String getUid() {
-		return this.uid;
-	}
-	
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-	*/
 	
 	/**
 	 * Gets last name.
@@ -106,24 +84,6 @@ public class Credentials {
 		this.firstName = firstName;
 	}
 	
-	/*
-	public String getOtherNames() {
-		return this.otherNames;
-	}
-	
-	public void setOtherNames(String otherNames) {
-		this.otherNames = otherNames;
-	}
-	
-	public String getEntitlement() {
-		return this.entitlement;
-	}
-	
-	public void setEntitlement(String entitlement) {
-		this.entitlement = entitlement;
-	}
-	*/
-	
 	/**
 	 * Gets netid.
 	 * 
@@ -143,32 +103,6 @@ public class Credentials {
 	public void setNetId(String netid) {
 		this.netid = netid;
 	}
-	
-	/*
-	public String getAffiliation() {
-		return this.affiliation;
-	}
-	
-	public void setAffiliation(String affiliation) {
-		this.affiliation = affiliation;
-	}
-	
-	public String getScopedAffiliation() {
-		return this.scopedAffiliation;
-	}
-	
-	public void setScopedAffiliation(String scopedAffiliation) {
-		this.scopedAffiliation = scopedAffiliation;
-	}
-	
-	public String getOrcid() {
-		return this.orcid;
-	}
-	
-	public void setOrcid(String orcid) {
-		this.orcid = orcid;
-	}
-	*/
 	
 	/**
 	 * Gets UIN.
@@ -248,5 +182,6 @@ public class Credentials {
 	 */
 	public void setRole(String role) {
 		this.role = role;
-	}	
+	}
+	
 }

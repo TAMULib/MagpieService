@@ -161,9 +161,11 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 		    	Credentials shib = new Credentials(tokenMap);	
 		    	String shibUin = shib.getUin();
 		    	
+		    	shib.setRole("ROLE_USER");
+		    	
 		    	for(String uin : managers) {
 					if(uin.equals(shibUin)) {
-						shib.setRole("ROLE_MANAGER");					
+						shib.setRole("ROLE_MANAGER");	
 					}
 				}
 		    	
@@ -178,7 +180,6 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 				System.out.println(Long.parseLong(shib.getUin()));
 				
 		    	if(userRepo.getUserByUin(Long.parseLong(shib.getUin())) == null) {
-		    		
 		    		
 		    		UserImpl newUser = new UserImpl();
 		    		

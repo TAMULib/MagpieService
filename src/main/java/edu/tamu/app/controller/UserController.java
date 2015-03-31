@@ -19,6 +19,9 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.tamu.app.model.Credentials;
 import edu.tamu.app.model.RequestId;
 import edu.tamu.app.model.impl.ApiResImpl;
@@ -37,6 +40,10 @@ public class UserController {
 
 	@Autowired
 	private UserRepo userRepo;
+	
+	@Autowired
+	private ObjectMapper objectMapper;
+
 
 	/**
 	 * Websocket endpoint to request credentials.
@@ -54,7 +61,7 @@ public class UserController {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);		
 		Credentials shib = (Credentials) accessor.getSessionAttributes().get("shib");
 		if(shib != null && userRepo.getUserByUin(Long.parseLong(shib.getUin())) == null) 
-			return new ApiResImpl("failure", "user not registered");		
+			return new ApiResImpl("failure", "user not registered");
 		return shib != null ? credentials(shib, accessor.getNativeHeader("id").get(0)) : new ApiResImpl("refresh", "EXPIRED_JWT", new RequestId(accessor.getNativeHeader("id").get(0)));
 	}
 
@@ -70,9 +77,16 @@ public class UserController {
 		System.out.println("Creating credentials with id " + id);
 		//TODO: all business logic for credentials should take place here 
 		//      calling methods will just obtain credentials
+		shib.setRole(userRepo.getUserByUin(Long.parseLong(shib.getUin())).getRole());
 		return new ApiResImpl("success", shib, new RequestId(id));
 	}
 	
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
 	@MessageMapping("/all")
 	@SendToUser
 	public ApiResImpl allUsers(Message<?> message) throws Exception {
@@ -84,6 +98,30 @@ public class UserController {
 			userMap.put(index++,i);
 		}
 		return new ApiResImpl("success", userMap, new RequestId(requestId));
+	}
+	
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
+	@MessageMapping("/update_role")
+	@SendToUser
+	public ApiResImpl updateRole(Message<?> message) throws Exception {		
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);		
+		String data = accessor.getNativeHeader("data").get(0).toString();		
+		Map<String,String> map = new HashMap<String,String>();		
+		try {
+			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		UserImpl user = userRepo.getUserByUin(Long.decode(map.get("uin")));		
+		user.setRole(map.get("role"));		
+		userRepo.save(user);
+		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
 
 }
