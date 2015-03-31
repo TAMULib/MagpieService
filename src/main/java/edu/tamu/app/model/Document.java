@@ -55,4 +55,17 @@ public interface Document {
 	 */
 	public void setStatus(String status);
 	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getAnnotator();
+
+	/**
+	 * 
+	 * @param annotator
+	 */
+	public void setAnnotator(String annotator);
+	
+	
 }
