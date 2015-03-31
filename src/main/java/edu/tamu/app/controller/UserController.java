@@ -10,6 +10,7 @@
 package edu.tamu.app.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,6 @@ public class UserController {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
-
 
 	/**
 	 * Websocket endpoint to request credentials.
@@ -91,13 +91,10 @@ public class UserController {
 	@SendToUser
 	public ApiResImpl allUsers(Message<?> message) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
-		Map<Long,UserImpl> userMap = new HashMap<Long,UserImpl>();
-		Long index = (long) 0;
-		for (UserImpl i : userRepo.findAll()) {
-			userMap.put(index++,i);
-		}
-		return new ApiResImpl("success", userMap, new RequestId(requestId));
+		String requestId = accessor.getNativeHeader("id").get(0);		
+		Map<String,List<UserImpl>> map = new HashMap<String,List<UserImpl>>();
+		map.put("list", userRepo.findAll());		
+		return new ApiResImpl("success", map, new RequestId(requestId));
 	}
 	
 	/**

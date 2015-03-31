@@ -36,6 +36,10 @@ public class DocumentImpl implements Document {
 	@Column(name="status")
 	private String status;
 	
+
+	@Column(name="annotator")
+	private String annotator;
+	
 	/**
 	 * 
 	 */
@@ -107,6 +111,20 @@ public class DocumentImpl implements Document {
 	 */
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	
+	/**
+	 * 
+	 */
+	public String getAnnotator() {
+		return annotator;
+	}
+
+	/**
+	 * 
+	 */
+	public void setAnnotator(String annotator) {
+		this.annotator = annotator;
 	}
 	
 }
