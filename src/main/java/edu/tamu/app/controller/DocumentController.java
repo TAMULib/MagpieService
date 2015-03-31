@@ -102,7 +102,7 @@ public class DocumentController {
 		}		
 		DocumentImpl doc = docRepo.getDocumentByFilename(map.get("filename"));	
 		doc.setAnnotator(map.get("uin"));
-		doc.setStatus("Assigned");
+		doc.setStatus(map.get("status"));
 		docRepo.save(doc);
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
