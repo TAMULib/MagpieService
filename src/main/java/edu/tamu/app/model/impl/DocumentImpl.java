@@ -18,6 +18,11 @@ import javax.persistence.Table;
 
 import edu.tamu.app.model.Document;
 
+/**
+ * 
+ * @author 
+ *
+ */
 @Entity
 @Table(name="all_documents")
 public class DocumentImpl implements Document {
@@ -31,16 +36,30 @@ public class DocumentImpl implements Document {
 	@Column(name="status")
 	private String status;
 	
+	/**
+	 * 
+	 */
 	public DocumentImpl() {
 		super();
 	}
 	
+	/**
+	 * 
+	 * @param filename
+	 * @param status
+	 */
 	public DocumentImpl(String filename, String status) {
 		super();
 		this.filename = filename;
 		this.status = status;
 	}
 
+	/**
+	 * 
+	 * @param filename
+	 * @param file
+	 * @param status
+	 */
 	public DocumentImpl(String filename, File file, String status) {
 		super();
 		this.filename = filename;
@@ -48,26 +67,44 @@ public class DocumentImpl implements Document {
 		this.status = status;
 	}
 
+	/**
+	 * 
+	 */
 	public String getFilename() {
 		return filename;
 	}
 
+	/**
+	 * 
+	 */
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
 	
+	/**
+	 * 
+	 */
 	public File getFile() {
 		return file;
 	}
 
+	/**
+	 * 
+	 */
 	public void setFile(File file) {
 		this.file = file;
 	}
 
+	/**
+	 * 
+	 */
 	public String getStatus() {
 		return status;
 	}
 
+	/**
+	 * 
+	 */
 	public void setStatus(String status) {
 		this.status = status;
 	}

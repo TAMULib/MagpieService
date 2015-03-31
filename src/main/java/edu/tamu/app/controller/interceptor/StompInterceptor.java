@@ -181,7 +181,6 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 				
 		    	if(userRepo.getUserByUin(Long.parseLong(shib.getUin())) == null) {
 		    		
-		    		
 		    		UserImpl newUser = new UserImpl();
 		    		
 					newUser.setUin(Long.parseLong(shib.getUin()));

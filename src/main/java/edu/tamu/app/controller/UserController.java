@@ -77,12 +77,16 @@ public class UserController {
 		System.out.println("Creating credentials with id " + id);
 		//TODO: all business logic for credentials should take place here 
 		//      calling methods will just obtain credentials
-		
 		shib.setRole(userRepo.getUserByUin(Long.parseLong(shib.getUin())).getRole());
-		
 		return new ApiResImpl("success", shib, new RequestId(id));
 	}
 	
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
 	@MessageMapping("/all")
 	@SendToUser
 	public ApiResImpl allUsers(Message<?> message) throws Exception {
@@ -96,6 +100,12 @@ public class UserController {
 		return new ApiResImpl("success", userMap, new RequestId(requestId));
 	}
 	
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
 	@MessageMapping("/update_role")
 	@SendToUser
 	public ApiResImpl updateRole(Message<?> message) throws Exception {		
@@ -110,7 +120,7 @@ public class UserController {
 		}		
 		UserImpl user = userRepo.getUserByUin(Long.decode(map.get("uin")));		
 		user.setRole(map.get("role"));		
-		userRepo.save(user);		
+		userRepo.save(user);
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
 
