@@ -100,8 +100,8 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		DocumentImpl doc = docRepo.getDocumentByFilename(map.get("filename"));	
-		if(map.get("status") == "Assign") {
+		DocumentImpl doc = docRepo.getDocumentByFilename(map.get("filename"));
+		if(map.get("status") == "Assigned") {
 			doc.setAnnotator(map.get("uin"));
 		}
 		else {
