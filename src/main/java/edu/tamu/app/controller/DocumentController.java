@@ -9,7 +9,6 @@
  */
 package edu.tamu.app.controller;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,7 +23,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -80,33 +78,22 @@ public class DocumentController {
 	 */
 	@MessageMapping("/get")
 	@SendToUser
-	public ApiResImpl documentByFilename(Message<?> message) throws Exception {
-		
-		System.out.println("*** ENTERED METHOD documentByFilename ***");
-		
+	public ApiResImpl documentByFilename(Message<?> message) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
-		
+		String requestId = accessor.getNativeHeader("id").get(0);		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
-		Map<String,String> headerMap = new HashMap<String,String>();		
+		Map<String,String> map = new HashMap<String,String>();
 		try {
-			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		
-		String filename = headerMap.get("filename");
-		
-		Map<String,String> documentMap = new HashMap<String,String>();
-		
+		String filename = map.get("filename");	
+		map.clear();		
 		byte[] encoded = Files.readAllBytes(Paths.get(directory+"/"+filename));
 		String documentText = new String(encoded, Charset.forName("UTF-8"));
-		documentMap.put("text", documentText);
-		
-		System.out.println("We got the following filename " + filename + " with text: " + documentText);
-		
-		
-		return new ApiResImpl("success", documentMap, new RequestId(requestId));
+		map.put("text", documentText);		
+		return new ApiResImpl("success", map, new RequestId(requestId));
 	}
 	
 	/**
