@@ -9,6 +9,10 @@
  */
 package edu.tamu.app.controller;
 
+import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,12 +78,35 @@ public class DocumentController {
 	 * @return
 	 * @throws Exception
 	 */
-	@MessageMapping("/{filename}")
+	@MessageMapping("/get")
 	@SendToUser
-	public ApiResImpl documentByFilename(@PathVariable("filename") String filename, Message<?> message) throws Exception {
+	public ApiResImpl documentByFilename(Message<?> message) throws Exception {
+		
+		System.out.println("*** ENTERED METHOD documentByFilename ***");
+		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);
-		return new ApiResImpl("success", docRepo.getDocumentByFilename(filename), new RequestId(requestId));
+		
+		String data = accessor.getNativeHeader("data").get(0).toString();		
+		Map<String,String> headerMap = new HashMap<String,String>();		
+		try {
+			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		
+		String filename = headerMap.get("filename");
+		
+		Map<String,String> documentMap = new HashMap<String,String>();
+		
+		byte[] encoded = Files.readAllBytes(Paths.get(directory+"/"+filename));
+		String documentText = new String(encoded, Charset.forName("UTF-8"));
+		documentMap.put("text", documentText);
+		
+		System.out.println("We got the following filename " + filename + " with text: " + documentText);
+		
+		
+		return new ApiResImpl("success", documentMap, new RequestId(requestId));
 	}
 	
 	/**
