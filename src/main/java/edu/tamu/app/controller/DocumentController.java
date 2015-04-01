@@ -95,7 +95,7 @@ public class DocumentController {
 			encoded = Files.readAllBytes(Paths.get(directory+"/"+filename));
 		}
 		catch(Exception e) {
-			map.put("text", "File does not exists!");
+			map.put("text", "File does not exist!");
 			return new ApiResImpl("success", map, new RequestId(requestId));
 		}
 		map.put("text", new String(encoded, Charset.forName("UTF-8")));
