@@ -8,7 +8,7 @@ else
 	COUNT=0
 	while [ $COUNT -lt $TILL ]; 
 	do
-        	touch "dissertation_"$COUNT".txt"
+        	echo foo > "dissertation_"$COUNT".txt"
         	let COUNT=COUNT+1
 	done
 fi
