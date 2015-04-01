@@ -89,10 +89,16 @@ public class DocumentController {
 			e.printStackTrace();
 		}		
 		String filename = map.get("filename");	
-		map.clear();		
-		byte[] encoded = Files.readAllBytes(Paths.get(directory+"/"+filename));
-		String documentText = new String(encoded, Charset.forName("UTF-8"));
-		map.put("text", documentText);		
+		map.clear();
+		byte[] encoded = null;
+		try{
+			encoded = Files.readAllBytes(Paths.get(directory+"/"+filename));
+		}
+		catch(Exception e) {
+			map.put("text", "File does not exists!");
+			return new ApiResImpl("success", map, new RequestId(requestId));
+		}
+		map.put("text", new String(encoded, Charset.forName("UTF-8")));
 		return new ApiResImpl("success", map, new RequestId(requestId));
 	}
 	
