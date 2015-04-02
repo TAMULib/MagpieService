@@ -57,29 +57,47 @@ public class MetadataFieldController {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	@MessageMapping("/get")
 	@SendToUser
 	public ApiResImpl get(Message<?> message) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
-		Map<String,String> map = new HashMap<String,String>();
+		Map<String, String> headerMap = new HashMap<String, String>();
 		try {
-			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		String document = map.get("filename");
+		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByFilename(headerMap.get("filename"));
 		
+		Map<String, Object> metadataMap = new HashMap<String, Object>();
 		
+		for (MetadataFieldImpl field : fields) {
+			if(field.isRepeatable()) {
+				
+				Map<String, String> map = new HashMap<String, String>();
+				
+				if(metadataMap.containsKey(field.getLabel())) {
+					map = (Map<String, String>) metadataMap.get(field.getLabel());
+				}
+				
+				map.put(String.valueOf(field.getIndex()), field.getValue());
+				
+				metadataMap.put(field.getLabel(), map);
+			}
+			else {
+				metadataMap.put(field.getLabel(), field.getValue());
+			}
+		}
 		
-		return new ApiResImpl("success", "", new RequestId(requestId));
+		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
 	}
 	
 	/**
 	 * 
-	 * @param filename
 	 * @param message
 	 * @return
 	 * @throws Exception
@@ -145,5 +163,5 @@ public class MetadataFieldController {
 		
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
-	
+		
 }

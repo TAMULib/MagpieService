@@ -122,11 +122,11 @@ public class DocumentController {
 		}		
 		DocumentImpl doc = docRepo.getDocumentByFilename(map.get("filename"));
 		System.out.println(map);
-		if(map.get("status").equals("Assigned")) {
-			doc.setAnnotator(map.get("uin"));
+		if(map.get("status").equals("Unassigned")) {
+			doc.setAnnotator("");
 		}
 		else {
-			doc.setAnnotator("");
+			doc.setAnnotator(map.get("uin"));			
 		}
 		doc.setStatus(map.get("status"));
 		docRepo.save(doc);
