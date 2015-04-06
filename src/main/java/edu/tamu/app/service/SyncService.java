@@ -19,15 +19,21 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.model.RequestId;
+import edu.tamu.app.model.impl.ApiResImpl;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
 
@@ -43,7 +49,7 @@ import edu.tamu.app.model.repo.DocumentRepo;
 public class SyncService implements Runnable, ApplicationContextAware {
 	
 	private static ApplicationContext ac;
-		
+	
 	/**
 	 * 
 	 */
@@ -52,6 +58,8 @@ public class SyncService implements Runnable, ApplicationContextAware {
 		
 		DocumentRepo docRepo = (DocumentRepo) ac.getBean("documentRepo");
 		Environment env = ac.getEnvironment();
+		
+		SimpMessagingTemplate simpMessagingTemplate = (SimpMessagingTemplate) ac.getBean("brokerMessagingTemplate");
 		
 		String directory = env.getProperty("app.directory");
 		
@@ -83,6 +91,11 @@ public class SyncService implements Runnable, ApplicationContextAware {
                     	if(docRepo.getDocumentByFilename(fileName.toString()) == null) {					
         					DocumentImpl doc = new DocumentImpl(fileName.toString(), "Unassigned");
         					docRepo.save(doc);
+        					
+        					Map<String,List<DocumentImpl>> docMap = new HashMap<String,List<DocumentImpl>>();
+        					docMap.put("list", docRepo.findAll());
+        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
+        					
         				}
                     }                    
                     else if(kind == ENTRY_MODIFY) {

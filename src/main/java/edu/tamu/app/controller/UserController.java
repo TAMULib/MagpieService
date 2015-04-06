@@ -16,6 +16,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +45,9 @@ public class UserController {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	@Autowired 
+	private SimpMessagingTemplate simpMessagingTemplate; 
 
 	/**
 	 * Websocket endpoint to request credentials.
@@ -118,6 +122,13 @@ public class UserController {
 		UserImpl user = userRepo.getUserByUin(Long.decode(map.get("uin")));		
 		user.setRole(map.get("role"));		
 		userRepo.save(user);
+		
+		Map<String, Object> userMap = new HashMap<String, Object>();
+		userMap.put("list", userRepo.findAll());
+		userMap.put("changedUserUin", map.get("uin"));
+		
+		this.simpMessagingTemplate.convertAndSend("/channel/users", new ApiResImpl("success", userMap, new RequestId(requestId)));
+		
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
 

@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
@@ -52,6 +53,9 @@ public class DocumentController {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	@Autowired 
+	private SimpMessagingTemplate simpMessagingTemplate; 
 	
 	/**
 	 * 
@@ -108,9 +112,9 @@ public class DocumentController {
 	 * @return
 	 * @throws Exception
 	 */
-	@MessageMapping("/update_annotator")
+	@MessageMapping("/update")
 	@SendToUser
-	public ApiResImpl updateRole(Message<?> message) throws Exception {		
+	public ApiResImpl update(Message<?> message) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
@@ -122,14 +126,20 @@ public class DocumentController {
 		}		
 		DocumentImpl doc = docRepo.getDocumentByFilename(map.get("filename"));
 		System.out.println(map);
-		if(map.get("status").equals("Assigned")) {
-			doc.setAnnotator(map.get("uin"));
+		if(map.get("status").equals("Unassigned")) {
+			doc.setAnnotator("");
 		}
 		else {
-			doc.setAnnotator("");
+			doc.setAnnotator(map.get("uin"));			
 		}
 		doc.setStatus(map.get("status"));
 		docRepo.save(doc);
+		
+		
+		Map<String,List<DocumentImpl>> docMap = new HashMap<String,List<DocumentImpl>>();
+		docMap.put("list", docRepo.findAll());
+		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId(requestId)));
+		
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
 	

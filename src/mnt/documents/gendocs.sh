@@ -8,8 +8,11 @@ else
 	COUNT=0
 	while [ $COUNT -lt $TILL ]; 
 	do
-        	echo foo > "dissertation_"$COUNT".txt"
+        	echo "Hello, World! This is test dissertation "$COUNT"." > "dissertation_"$COUNT".txt"
         	let COUNT=COUNT+1
+		if [ $(($COUNT%50)) == 0 ]; then
+			sleep 10
+		fi 
 	done
 fi
 #eof
