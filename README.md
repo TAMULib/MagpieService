@@ -1,4 +1,4 @@
-SpringSeedApp
-=============
+Metadata Assignment Service
+===========================
 
-This is a bare bones app for starting new Spring MVC applications.
+Spring MVC applications which provides an interface to annotate documents.
