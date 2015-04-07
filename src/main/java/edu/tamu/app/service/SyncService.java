@@ -20,7 +20,6 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.BeansException;
@@ -89,11 +88,18 @@ public class SyncService implements Runnable, ApplicationContextAware {
                                          
                     if (kind == ENTRY_CREATE) {
                     	if(docRepo.getDocumentByFilename(fileName.toString()) == null) {					
-        					DocumentImpl doc = new DocumentImpl(fileName.toString(), "Unassigned");
+        					DocumentImpl doc = new DocumentImpl(fileName.toString(), "Open");
         					docRepo.save(doc);
         					
+        					/*
         					Map<String,List<DocumentImpl>> docMap = new HashMap<String,List<DocumentImpl>>();
         					docMap.put("list", docRepo.findAll());
+        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
+        					*/
+        					
+        					Map<String, Object> docMap = new HashMap<String, Object>();
+        					docMap.put("document", doc);
+        					docMap.put("isNew", "true");
         					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
         					
         				}

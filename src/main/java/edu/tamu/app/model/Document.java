@@ -9,8 +9,6 @@
  */
 package edu.tamu.app.model;
 
-import java.io.File;
-
 /**
  * Document interface.
  * 
@@ -30,18 +28,6 @@ public interface Document {
 	 * @param filename
 	 */
 	public void setFilename(String filename);
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public File getFile();
-
-	/**
-	 * 
-	 * @param file
-	 */
-	public void setFile(File file);
 	
 	/**
 	 * 

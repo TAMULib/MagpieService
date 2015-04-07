@@ -9,8 +9,6 @@
  */
 package edu.tamu.app.model.impl;
 
-import java.io.File;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -30,9 +28,7 @@ public class DocumentImpl implements Document {
 	@Id
 	@Column(name="filename")
 	private String filename;
-	
-	private File file;
-	
+		
 	@Column(name="status")
 	private String status;
 	
@@ -60,19 +56,6 @@ public class DocumentImpl implements Document {
 
 	/**
 	 * 
-	 * @param filename
-	 * @param file
-	 * @param status
-	 */
-	public DocumentImpl(String filename, File file, String status) {
-		super();
-		this.filename = filename;
-		this.file = file;
-		this.status = status;
-	}
-
-	/**
-	 * 
 	 */
 	public String getFilename() {
 		return filename;
@@ -85,20 +68,6 @@ public class DocumentImpl implements Document {
 		this.filename = filename;
 	}
 	
-	/**
-	 * 
-	 */
-	public File getFile() {
-		return file;
-	}
-
-	/**
-	 * 
-	 */
-	public void setFile(File file) {
-		this.file = file;
-	}
-
 	/**
 	 * 
 	 */
