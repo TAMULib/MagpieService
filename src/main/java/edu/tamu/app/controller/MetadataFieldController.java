@@ -51,8 +51,7 @@ public class MetadataFieldController {
 	private ObjectMapper objectMapper;
 	
 	/**
-	 * 
-	 * @param filename
+	 *
 	 * @param message
 	 * @return
 	 * @throws Exception
@@ -96,6 +95,23 @@ public class MetadataFieldController {
 		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
 	}
 	
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
+	@MessageMapping("/all")
+	@SendToUser
+	public ApiResImpl all(Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);
+		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
+		metadataMap.put("list", metadataRepo.findAll());
+		System.out.println(metadataRepo.findAll().size());
+		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
+	}
+
 	/**
 	 * 
 	 * @param message
