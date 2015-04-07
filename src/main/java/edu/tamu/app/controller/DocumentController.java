@@ -58,10 +58,14 @@ public class DocumentController {
 	private SimpMessagingTemplate simpMessagingTemplate; 
 	
 	/**
+	 * Endpoint to return all documents.
 	 * 
-	 * @param message
-	 * @return
-	 * @throws Exception
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
 	 */
 	@MessageMapping("/all")
 	@SendToUser
@@ -74,11 +78,13 @@ public class DocumentController {
 	}
 	
 	/**
+	 * Endpoint to return document by filename.
 	 * 
-	 * @param filename
-	 * @param message
-	 * @return
-	 * @throws Exception
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
 	 */
 	@MessageMapping("/get")
 	@SendToUser
@@ -107,10 +113,14 @@ public class DocumentController {
 	}
 	
 	/**
+	 * Endpoint to update document status or annotator.
 	 * 
-	 * @param message
-	 * @return
-	 * @throws Exception
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
 	 */
 	@MessageMapping("/update")
 	@SendToUser
@@ -134,12 +144,6 @@ public class DocumentController {
 		}
 		doc.setStatus(map.get("status"));
 		docRepo.save(doc);
-		
-		/*
-		Map<String,List<DocumentImpl>> docMap = new HashMap<String,List<DocumentImpl>>();
-		docMap.put("list", docRepo.findAll());
-		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId(requestId)));
-		*/
 		
 		Map<String, Object> docMap = new HashMap<String, Object>();
 		docMap.put("document", doc);

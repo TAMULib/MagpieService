@@ -51,10 +51,34 @@ public class MetadataFieldController {
 	private ObjectMapper objectMapper;
 	
 	/**
-	 *
-	 * @param message
-	 * @return
-	 * @throws Exception
+	 * Endpoint to return all metadata fields.
+	 * 
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/all")
+	@SendToUser
+	public ApiResImpl all(Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);
+		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
+		metadataMap.put("list", metadataRepo.findAll());
+		System.out.println(metadataRepo.findAll().size());
+		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
+	}
+	
+	/**
+	 * Endpoint to return metadata fileds by filename.
+	 * 
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
 	 */
 	@SuppressWarnings("unchecked")
 	@MessageMapping("/get")
@@ -96,27 +120,14 @@ public class MetadataFieldController {
 	}
 	
 	/**
+	 * Endpoint to add new metadata field to a document.
 	 * 
-	 * @param message
-	 * @return
-	 * @throws Exception
-	 */
-	@MessageMapping("/all")
-	@SendToUser
-	public ApiResImpl all(Message<?> message) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
-		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
-		metadataMap.put("list", metadataRepo.findAll());
-		System.out.println(metadataRepo.findAll().size());
-		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
-	}
-
-	/**
+	 * @param 		message			Message<?>
 	 * 
-	 * @param message
-	 * @return
-	 * @throws Exception
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
 	 */
 	@MessageMapping("/add")
 	@SendToUser

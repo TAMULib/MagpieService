@@ -85,11 +85,16 @@ public class UserController {
 		return new ApiResImpl("success", shib, new RequestId(id));
 	}
 	
+	
 	/**
+	 * Endpoint to return all users.
 	 * 
-	 * @param message
-	 * @return
-	 * @throws Exception
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
 	 */
 	@MessageMapping("/all")
 	@SendToUser
@@ -102,10 +107,14 @@ public class UserController {
 	}
 	
 	/**
+	 * Endpoint to update users role.
 	 * 
-	 * @param message
-	 * @return
-	 * @throws Exception
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
 	 */
 	@MessageMapping("/update_role")
 	@SendToUser
