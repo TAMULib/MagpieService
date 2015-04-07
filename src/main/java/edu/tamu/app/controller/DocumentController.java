@@ -126,7 +126,7 @@ public class DocumentController {
 		}		
 		DocumentImpl doc = docRepo.getDocumentByFilename(map.get("filename"));
 		System.out.println(map);
-		if(map.get("status").equals("Unassigned")) {
+		if(map.get("status").equals("Open")) {
 			doc.setAnnotator("");
 		}
 		else {
@@ -135,9 +135,15 @@ public class DocumentController {
 		doc.setStatus(map.get("status"));
 		docRepo.save(doc);
 		
-		
+		/*
 		Map<String,List<DocumentImpl>> docMap = new HashMap<String,List<DocumentImpl>>();
 		docMap.put("list", docRepo.findAll());
+		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId(requestId)));
+		*/
+		
+		Map<String, Object> docMap = new HashMap<String, Object>();
+		docMap.put("document", doc);
+		docMap.put("isNew", "false");
 		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId(requestId)));
 		
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
