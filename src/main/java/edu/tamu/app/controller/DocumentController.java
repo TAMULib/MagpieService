@@ -18,6 +18,11 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -78,6 +83,74 @@ public class DocumentController {
 	}
 	
 	/**
+	 * Endpoint to return page documents.
+	 * 
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/page")
+	@SendToUser
+	public ApiResImpl pageDocuments(Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);
+		String data = accessor.getNativeHeader("data").get(0).toString();		
+		Map<String,String> headerMap = new HashMap<String,String>();
+		try {
+			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+	    Direction sortDirection;	    
+	    if(headerMap.get("direction").equals("asc")) {
+	    	sortDirection = Sort.Direction.ASC;
+	    }
+	    else {
+	    	sortDirection = Sort.Direction.DESC;
+	    }	    
+		String filename = headerMap.get("filename");
+		String status = headerMap.get("status");
+		String annotator = headerMap.get("annotator");
+		
+		Pageable request = new PageRequest(Integer.parseInt(headerMap.get("page")) - 1, Integer.parseInt(headerMap.get("size")), sortDirection, headerMap.get("field"));
+		Page<DocumentImpl> documents = null;				
+		if(filename.length() > 0) {			
+			if(status.length() > 0) {				
+				if(annotator.length() > 0) {
+					documents = docRepo.findByFilenameAndStatusAndAnnotatorContainingIgnoreCase(request, filename, status, annotator);	
+				}
+				else {
+					documents = docRepo.findByFilenameAndStatusContainingIgnoreCase(request, filename, status);	
+				}				
+			}
+			else if(annotator.length() > 0) {
+				documents = docRepo.findByFilenameAndAnnotatorContainingIgnoreCase(request, filename, annotator);				
+			}
+			else {
+				documents = docRepo.findByFilenameContainingIgnoreCase(request, filename);				
+			}			
+		}
+		else if(status.length() > 0) {			
+			if(annotator.length() > 0) {
+				documents = docRepo.findByStatusAndAnnotatorContainingIgnoreCase(request, status, annotator);
+			}
+			else {
+				documents = docRepo.findByStatusContainingIgnoreCase(request, status);
+			}			
+		}
+		else if(annotator.length() > 0) {
+			documents = docRepo.findByAnnotatorContainingIgnoreCase(request, status);			
+		}
+		else {
+			documents = docRepo.findAll(request);
+		}	    
+	    return new ApiResImpl("success", documents, new RequestId(requestId));
+	}
+	
+	/**
 	 * Endpoint to return document by filename.
 	 * 
 	 * @param 		message			Message<?>
@@ -97,7 +170,7 @@ public class DocumentController {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
 		String filename = map.get("filename");	
 		map.clear();
 		byte[] encoded = null;
@@ -134,7 +207,7 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		DocumentImpl doc = docRepo.getDocumentByFilename(map.get("filename"));
+		DocumentImpl doc = docRepo.findByFilename(map.get("filename"));
 		System.out.println(map);
 		if(map.get("status").equals("Open")) {
 			doc.setAnnotator("");

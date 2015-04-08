@@ -42,7 +42,7 @@ public class DocumentTest {
 		DocumentImpl testDocument2 = new DocumentImpl("testFile1", "Unassigned");
 		
 		documentRepo.save(testDocument1);
-		DocumentImpl assertDocument = documentRepo.getDocumentByFilename("testFile1");
+		DocumentImpl assertDocument = documentRepo.findByFilename("testFile1");
 		Assert.assertEquals("Test Document 1 was not added.", testDocument1.getFilename(), assertDocument.getFilename());
 		
 		documentRepo.save(testDocument2);		

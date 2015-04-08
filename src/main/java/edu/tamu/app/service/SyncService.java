@@ -87,7 +87,7 @@ public class SyncService implements Runnable, ApplicationContextAware {
                     System.out.println(kind.name() + ": " + fileName);
                                          
                     if (kind == ENTRY_CREATE) {
-                    	if(docRepo.getDocumentByFilename(fileName.toString()) == null) {					
+                    	if(docRepo.findByFilename(fileName.toString()) == null) {					
         					DocumentImpl doc = new DocumentImpl(fileName.toString(), "Open");
         					docRepo.save(doc);
         					
