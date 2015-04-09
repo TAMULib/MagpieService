@@ -14,24 +14,27 @@ public class RequestId {
 	private String id;
 	
 	/**
+	 * Constructs new RequestId.
 	 * 
-	 * @param id
+	 * @param 		id			String
 	 */
 	public RequestId(String id) {
 		this.id = id;
 	}
 
 	/**
+	 * Gets id.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getId() {
 		return id;
 	}
 
 	/**
+	 * Sets id.
 	 * 
-	 * @param id
+	 * @param 		id			String
 	 */
 	public void setId(String id) {
 		this.id = id;

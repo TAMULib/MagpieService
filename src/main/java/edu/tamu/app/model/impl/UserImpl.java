@@ -39,6 +39,9 @@ public class UserImpl implements User {
 	private String role;
 	
 	/**
+	 * Sets UIN.
+	 * 
+	 * @param 		uin				Long
 	 * 
 	 */
 	@Override
@@ -47,6 +50,9 @@ public class UserImpl implements User {
 	}
 	
 	/**
+	 * Gets UIN.
+	 * 
+	 * @return		Long
 	 * 
 	 */
 	@Override
@@ -55,34 +61,45 @@ public class UserImpl implements User {
 	}
 	
 	/**
+	 * Gets firstName.
 	 * 
+	 * @return		String
 	 */
 	public String getFirstName() {
 		return firstName;
 	}
 
 	/**
+	 * Sets firstName.
 	 * 
+	 * @param 		firstName		String
 	 */
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
 
 	/**
+	 * Gets lastName.
 	 * 
+	 * @return		String
 	 */
 	public String getLastName() {
 		return lastName;
 	}
 
 	/**
+	 * Sets lastName.
 	 * 
+	 * @param 		lastName		String
 	 */
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
 
 	/**
+	 * Sets role.
+	 * 
+	 * @param 		role			String
 	 * 
 	 */
 	@Override
@@ -91,6 +108,9 @@ public class UserImpl implements User {
 	}
 
 	/**
+	 * Gets role.
+	 * 
+	 * @return		String
 	 * 
 	 */
 	@Override

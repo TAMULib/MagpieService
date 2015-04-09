@@ -19,7 +19,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +36,6 @@ import edu.tamu.app.model.repo.MetadataFieldRepo;
  *
  */
 @Component
-@RestController
 @MessageMapping("/metadata")
 public class MetadataFieldController {
 	
@@ -99,7 +97,7 @@ public class MetadataFieldController {
 		Map<String, Object> metadataMap = new HashMap<String, Object>();
 		
 		for (MetadataFieldImpl field : fields) {
-			if(field.isRepeatable()) {
+			if(field.getIsRepeatable()) {
 				
 				Map<String, String> map = new HashMap<String, String>();
 				

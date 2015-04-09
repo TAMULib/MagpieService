@@ -106,6 +106,8 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 			Credentials shib = new Credentials(tokenMap);
 			String shibUin = shib.getUin();
 			
+			shib.setRole("ROLE_USER");
+			
 			for(String uin : managers) {
 				if(uin.equals(shibUin)) {
 					shib.setRole("ROLE_MANAGER");					

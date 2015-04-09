@@ -18,74 +18,86 @@ package edu.tamu.app.model;
 public interface MetadataField {
 	
 	/**
-	 * 	
-	 * @return
+	 * 	Gets id.
+	 * 
+	 * @return		Long
 	 */
 	public Long getId();
 
 	/**
+	 * Sets id.
 	 * 
-	 * @param id
+	 * @param 		id				Long
 	 */
 	public void setId(Long id);
 	
 	/**
+	 * Gets filename.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getFilename();
 
 	/**
+	 * Sets filename.
 	 * 
-	 * @param filename
+	 * @param 		filename		String
 	 */
 	public void setFilename(String filename);
 
 	/**
+	 * Gets label.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getLabel();
 
 	/**
+	 * Sets label.
 	 * 
-	 * @param label
+	 * @param 		label			String
 	 */
 	public void setLabel(String label);
 
 	/**
+	 * Gets value.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getValue();
 
 	/**
+	 * Sets value.
 	 * 
-	 * @param value
+	 * @param 		value			String
 	 */
 	public void setValue(String value);
 
 	/**
+	 * Gets isRepeatable.
 	 * 
-	 * @return
+	 * @return		boolean
 	 */
-	public boolean isRepeatable();
+	public boolean getIsRepeatable();
 
 	/**
+	 * Sets isRepeatable.
 	 * 
-	 * @param isRepeatable
+	 * @param 		isRepeatable	boolean
 	 */
 	public void setRepeatable(boolean isRepeatable);
 	
 	/**
+	 * Gets index.
 	 * 
-	 * @return
+	 * @return		int
 	 */
 	public int getIndex();
 
 	/**
+	 * Sets index.
 	 * 
-	 * @param index
+	 * @param 		index			int
 	 */
 	public void setIndex(int index);
 	

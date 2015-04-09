@@ -48,7 +48,7 @@ public class MetadataFieldImpl implements MetadataField {
 	private int index;
 	
 	/**
-	 * 
+	 * Empty constructor.
 	 */
 	public MetadataFieldImpl() {
 		super();
@@ -86,96 +86,108 @@ public class MetadataFieldImpl implements MetadataField {
 	}
 
 	/**
-	 * 	
-	 * @return
+	 * 	Gets id.
+	 * 
+	 * @return		Long
 	 */
 	public Long getId() {
 		return id;
 	}
 
 	/**
+	 * Sets id.
 	 * 
-	 * @param id
+	 * @param 		id				Long
 	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
 	/**
+	 * Gets filename.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getFilename() {
 		return filename;
 	}
 
 	/**
+	 * Sets filename.
 	 * 
-	 * @param filename
+	 * @param 		filename		String
 	 */
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
 
 	/**
+	 * Gets label.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getLabel() {
 		return label;
 	}
 
 	/**
+	 * Sets label.
 	 * 
-	 * @param label
+	 * @param 		label			String
 	 */
 	public void setLabel(String label) {
 		this.label = label;
 	}
 
 	/**
+	 * Gets value.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getValue() {
 		return value;
 	}
 
 	/**
+	 * Sets value.
 	 * 
-	 * @param value
+	 * @param 		value			String
 	 */
 	public void setValue(String value) {
 		this.value = value;
 	}
 
 	/**
+	 * Gets isRepeatable.
 	 * 
-	 * @return
+	 * @return		boolean
 	 */
-	public boolean isRepeatable() {
+	public boolean getIsRepeatable() {
 		return isRepeatable;
 	}
 
 	/**
+	 * Sets isRepeatable.
 	 * 
-	 * @param isRepeatable
+	 * @param 		isRepeatable	boolean
 	 */
 	public void setRepeatable(boolean isRepeatable) {
 		this.isRepeatable = isRepeatable;
 	}
 
 	/**
+	 * Gets index.
 	 * 
-	 * @return
+	 * @return		int
 	 */
 	public int getIndex() {
 		return index;
 	}
 
 	/**
+	 * Sets index.
 	 * 
-	 * @param index
+	 * @param 		index			int
 	 */
 	public void setIndex(int index) {
 		this.index = index;

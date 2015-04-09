@@ -34,26 +34,30 @@ public interface User {
 	public Long getUin();
 	
 	/**
+	 * Gets firstName.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getFirstName();
 
 	/**
+	 * Sets firstName.
 	 * 
-	 * @param firstName
+	 * @param 		firstName		String
 	 */
 	public void setFirstName(String firstName);
 
 	/**
+	 * Gets lastName.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getLastName();
 
 	/**
+	 * Sets lastName.
 	 * 
-	 * @param lastName
+	 * @param 		lastName		String
 	 */
 	public void setLastName(String lastName);
 	

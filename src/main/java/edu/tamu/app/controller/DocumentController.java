@@ -29,7 +29,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +45,6 @@ import edu.tamu.app.model.RequestId;
  *
  */
 @Component
-@RestController
 @MessageMapping("/document")
 public class DocumentController {
 
@@ -113,8 +111,7 @@ public class DocumentController {
 	    }	    
 		String filename = headerMap.get("filename");
 		String status = headerMap.get("status");
-		String annotator = headerMap.get("annotator");
-		
+		String annotator = headerMap.get("annotator");		
 		Pageable request = new PageRequest(Integer.parseInt(headerMap.get("page")) - 1, Integer.parseInt(headerMap.get("size")), sortDirection, headerMap.get("field"));
 		Page<DocumentImpl> documents = null;				
 		if(filename.length() > 0) {			

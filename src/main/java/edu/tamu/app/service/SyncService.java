@@ -50,7 +50,7 @@ public class SyncService implements Runnable, ApplicationContextAware {
 	private static ApplicationContext ac;
 	
 	/**
-	 * 
+	 * SyncService runnable.
 	 */
 	@Override
 	public void run() {
@@ -91,12 +91,6 @@ public class SyncService implements Runnable, ApplicationContextAware {
         					DocumentImpl doc = new DocumentImpl(fileName.toString(), "Open");
         					docRepo.save(doc);
         					
-        					/*
-        					Map<String,List<DocumentImpl>> docMap = new HashMap<String,List<DocumentImpl>>();
-        					docMap.put("list", docRepo.findAll());
-        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
-        					*/
-        					
         					Map<String, Object> docMap = new HashMap<String, Object>();
         					docMap.put("document", doc);
         					docMap.put("isNew", "true");
@@ -129,7 +123,9 @@ public class SyncService implements Runnable, ApplicationContextAware {
 	}
 
 	/**
+	 * Sets application context.
 	 * 
+	 * @param		ac			ApplicationContext
 	 */
 	@Override
 	public void setApplicationContext(ApplicationContext ac) throws BeansException {

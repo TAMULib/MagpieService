@@ -18,38 +18,44 @@ package edu.tamu.app.model;
 public interface Document {
 
 	/**
+	 * Gets filename.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getFilename();
 
 	/**
+	 * Sets filename.
 	 * 
-	 * @param filename
+	 * @param 		filename			String
 	 */
 	public void setFilename(String filename);
 	
 	/**
+	 * Gets status.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getStatus();
 
 	/**
+	 * Sets status.
 	 * 
-	 * @param status
+	 * @param 		status				String
 	 */
 	public void setStatus(String status);
 	
 	/**
+	 * Gets annotator.
 	 * 
-	 * @return
+	 * @return		String
 	 */
 	public String getAnnotator();
 
 	/**
+	 * Sets annotator.
 	 * 
-	 * @param annotator
+	 * @param 		annotator			String
 	 */
 	public void setAnnotator(String annotator);
 	
