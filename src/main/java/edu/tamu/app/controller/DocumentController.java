@@ -120,14 +120,14 @@ public class DocumentController {
 		if(filename.length() > 0) {			
 			if(status.length() > 0) {				
 				if(annotator.length() > 0) {
-					documents = docRepo.findByFilenameAndStatusAndAnnotatorContainingIgnoreCase(request, filename, status, annotator);	
+					documents = docRepo.findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, filename, status, annotator);	
 				}
 				else {
-					documents = docRepo.findByFilenameAndStatusContainingIgnoreCase(request, filename, status);	
+					documents = docRepo.findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCase(request, filename, status);	
 				}				
 			}
 			else if(annotator.length() > 0) {
-				documents = docRepo.findByFilenameAndAnnotatorContainingIgnoreCase(request, filename, annotator);				
+				documents = docRepo.findByFilenameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, filename, annotator);				
 			}
 			else {
 				documents = docRepo.findByFilenameContainingIgnoreCase(request, filename);				
@@ -135,7 +135,7 @@ public class DocumentController {
 		}
 		else if(status.length() > 0) {			
 			if(annotator.length() > 0) {
-				documents = docRepo.findByStatusAndAnnotatorContainingIgnoreCase(request, status, annotator);
+				documents = docRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status, annotator);
 			}
 			else {
 				documents = docRepo.findByStatusContainingIgnoreCase(request, status);
