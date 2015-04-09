@@ -2,3 +2,5 @@
 .project
 .classpath
 .settings
+src/mnt/documents/*
+!src/mtn/document/gendocs.sh

@@ -1,4 +1,5 @@
 #/bin/bash
+#Generates test documents
 if [ $# -eq 0 ]
 then
 	echo "Usage: gendocs [number of files created]"
