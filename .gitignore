@@ -4,3 +4,4 @@
 .settings
 src/main/resources/static/mnt/documents/*
 !src/main/resources/static/mnt/documents/gendocs.sh
+!src/main/resources/static/mnt/documents/sample.pdf

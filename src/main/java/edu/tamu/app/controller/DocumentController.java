@@ -231,8 +231,17 @@ public class DocumentController {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);
 		
+		String data = accessor.getNativeHeader("data").get(0).toString();		
+		Map<String,String> map = new HashMap<String,String>();		
+		try {
+			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		DocumentImpl doc = docRepo.findByFilename(map.get("filename"));
+		
 		Map<String, Object> pdfMap = new HashMap<String, Object>();
-		pdfMap.put("uri", "http://localhost:9000/mnt/pdfs/ISAACRiskAssessment2014.pdf");
+		pdfMap.put("uri", doc.getPdfUri());
 		
 		return new ApiResImpl("success", pdfMap, new RequestId(requestId));
 	}
