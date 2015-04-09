@@ -225,4 +225,16 @@ public class DocumentController {
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
 	
+	@MessageMapping("/pdf")
+	@SendToUser
+	public ApiResImpl pdf(Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);
+		
+		Map<String, Object> pdfMap = new HashMap<String, Object>();
+		pdfMap.put("uri", "http://localhost:9000/mnt/pdfs/ISAACRiskAssessment2014.pdf");
+		
+		return new ApiResImpl("success", pdfMap, new RequestId(requestId));
+	}
+	
 }
