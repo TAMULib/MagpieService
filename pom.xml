@@ -2,23 +2,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.tamu</groupId>
-	<artifactId>springseed</artifactId>
+	<artifactId>metadatatool</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Spring Seed App</name>
-	<description>A simple spring seed application for Library projects.</description>
-
-	<!--This section should be completed when initial development has begun 
-		(ctrl+shift+f to format) -->
-	<!--<developers> <developer> <id></id> <name></name> <email><email> <url></url> 
-		<organization></organization> <organizationUrl></organizationUrl> <roles> 
-		<role></role> <role></role> </roles> <timezone></timezone> <properties> <picUrl></picUrl> 
-		</properties> </developer> </developers> -->
+	<name>Scanned Document Metadata Tool</name>
+	<description>A simple application to create metadata for scanned documents.</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.2.0.RELEASE</version>
-		
+		<version>1.2.0.RELEASE</version>		
 	</parent>
 
 	<properties>

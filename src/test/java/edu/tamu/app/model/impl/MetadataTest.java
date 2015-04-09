@@ -17,7 +17,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 
 import edu.tamu.app.config.TestDataSourceConfiguration;
-import edu.tamu.app.model.repo.UserRepo;
+import edu.tamu.app.model.repo.MetadataFieldRepo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestDataSourceConfiguration.class})
@@ -25,10 +25,10 @@ import edu.tamu.app.model.repo.UserRepo;
     DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class,
     DbUnitTestExecutionListener.class })
-public class UserTest {
+public class MetadataTest {
 	
 	@Autowired
-	private UserRepo userRepo;
+	private MetadataFieldRepo metadataRepo;
 	
 	@Before
 	public void setUp() {
@@ -37,23 +37,16 @@ public class UserTest {
 	@Test
 	public void testMethod() {
 		
-		UserImpl testUser1 = new UserImpl();
-		testUser1.setUin(Long.parseLong("123456789"));
+		MetadataFieldImpl testMetadataField1 = new MetadataFieldImpl();
+		testMetadataField1.setFilename("dissertation1.txt");
 		
-		UserImpl testUser2 = new UserImpl();
-		testUser2.setUin(Long.parseLong("123456789"));
-		
-		userRepo.save(testUser1);		
-		UserImpl assertUser = userRepo.getUserByUin(Long.parseLong("123456789"));
-		Assert.assertEquals("Test User 1 was not added.", testUser1.getUin(), assertUser.getUin());
+		metadataRepo.save(testMetadataField1);		
+		List<MetadataFieldImpl> assertMetadataFields = metadataRepo.getMetadataFieldsByFilename("dissertation1.txt");
+		Assert.assertEquals("Test User 1 was not added.", testMetadataField1.getFilename(), assertMetadataFields.get(0).getFilename());
 	
-		userRepo.save(testUser2);		
-		List<UserImpl> allUsers = (List<UserImpl>) userRepo.findAll();		
-		Assert.assertEquals("Duplicate UIN found.", 1, allUsers.size());
-		
-		userRepo.delete(testUser1);		
-		allUsers = (List<UserImpl>) userRepo.findAll();		
-		Assert.assertEquals("Test User 1 was not removed.", 0, allUsers.size());
+		metadataRepo.delete(testMetadataField1);		
+		List<MetadataFieldImpl> allMetadataFields = (List<MetadataFieldImpl>) metadataRepo.findAll();		
+		Assert.assertEquals("Test MetadataField 1 was not removed.", 0, allMetadataFields.size());
 		
 	}
 }

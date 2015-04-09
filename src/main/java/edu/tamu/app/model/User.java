@@ -34,6 +34,30 @@ public interface User {
 	public Long getUin();
 	
 	/**
+	 * 
+	 * @return
+	 */
+	public String getFirstName();
+
+	/**
+	 * 
+	 * @param firstName
+	 */
+	public void setFirstName(String firstName);
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getLastName();
+
+	/**
+	 * 
+	 * @param lastName
+	 */
+	public void setLastName(String lastName);
+	
+	/**
 	 * Sets role.
 	 * 
 	 * @param 		role			String

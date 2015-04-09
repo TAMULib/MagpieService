@@ -2,10 +2,10 @@
  * ControllerConfig.java 
  * 
  * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
+ *     $Id$
+ *
+ * Revisions:
+ *     $Log$
  */
 package edu.tamu.app.config;
 
@@ -24,13 +24,10 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
-import edu.tamu.app.controller.interceptor.RestInterceptor;
 
 /** 
  * Web MVC Configuration for application controller.
@@ -87,27 +84,5 @@ public class ControllerConfig extends WebMvcConfigurerAdapter{
 	    
 	    return objectMapper;
 	}
-	
-	/**
-	 * Rest interceptor bean.
-	 *
-	 * @return      RestInterceptor
-	 *
-	 */
-	@Bean
-	public RestInterceptor jwtInterceptor() {
-	    return new RestInterceptor();
-	}
-
-	/**
-	 * Add interceptor to interceptor registry.
-	 *
-	 * @param       registry	   InterceptorRegistry
-	 *
-	 */
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-	    registry.addInterceptor(jwtInterceptor()).addPathPatterns("/rest/**");
-	}
-	
+		
 }

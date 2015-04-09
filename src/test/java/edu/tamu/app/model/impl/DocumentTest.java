@@ -17,7 +17,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 
 import edu.tamu.app.config.TestDataSourceConfiguration;
-import edu.tamu.app.model.repo.UserRepo;
+import edu.tamu.app.model.repo.DocumentRepo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestDataSourceConfiguration.class})
@@ -25,10 +25,10 @@ import edu.tamu.app.model.repo.UserRepo;
     DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class,
     DbUnitTestExecutionListener.class })
-public class UserTest {
+public class DocumentTest {
 	
 	@Autowired
-	private UserRepo userRepo;
+	private DocumentRepo documentRepo;
 	
 	@Before
 	public void setUp() {
@@ -37,23 +37,21 @@ public class UserTest {
 	@Test
 	public void testMethod() {
 		
-		UserImpl testUser1 = new UserImpl();
-		testUser1.setUin(Long.parseLong("123456789"));
+		DocumentImpl testDocument1 = new DocumentImpl("testFile1", "Unassigned");
 		
-		UserImpl testUser2 = new UserImpl();
-		testUser2.setUin(Long.parseLong("123456789"));
+		DocumentImpl testDocument2 = new DocumentImpl("testFile1", "Unassigned");
 		
-		userRepo.save(testUser1);		
-		UserImpl assertUser = userRepo.getUserByUin(Long.parseLong("123456789"));
-		Assert.assertEquals("Test User 1 was not added.", testUser1.getUin(), assertUser.getUin());
-	
-		userRepo.save(testUser2);		
-		List<UserImpl> allUsers = (List<UserImpl>) userRepo.findAll();		
-		Assert.assertEquals("Duplicate UIN found.", 1, allUsers.size());
+		documentRepo.save(testDocument1);
+		DocumentImpl assertDocument = documentRepo.findByFilename("testFile1");
+		Assert.assertEquals("Test Document 1 was not added.", testDocument1.getFilename(), assertDocument.getFilename());
 		
-		userRepo.delete(testUser1);		
-		allUsers = (List<UserImpl>) userRepo.findAll();		
-		Assert.assertEquals("Test User 1 was not removed.", 0, allUsers.size());
+		documentRepo.save(testDocument2);		
+		List<DocumentImpl> allDocuments = (List<DocumentImpl>) documentRepo.findAll();
+		Assert.assertEquals("Duplicate filename found.", 1, allDocuments.size());
+		
+		documentRepo.delete(testDocument1);
+		allDocuments = (List<DocumentImpl>) documentRepo.findAll();
+		Assert.assertEquals("Test Document 1 was not removed.", 0, allDocuments.size());
 		
 	}
 }
