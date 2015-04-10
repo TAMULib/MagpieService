@@ -101,4 +101,18 @@ public interface MetadataField {
 	 */
 	public void setIndex(int index);
 	
+	/**
+	 * Gets status.
+	 * 
+	 * @return		String
+	 */
+	public String getStatus();
+
+	/**
+	 * Sets status.
+	 * 
+	 * @param 		status			String
+	 */
+	public void setStatus(String status);
+	
 }
