@@ -170,7 +170,7 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		String filename = map.get("filename");	
+		String filename = map.get("filename");
 		map.clear();
 		byte[] encoded = null;
 		try{
@@ -181,6 +181,10 @@ public class DocumentController {
 			return new ApiResImpl("success", map, new RequestId(requestId));
 		}
 		map.put("text", new String(encoded, Charset.forName("UTF-8")));
+		DocumentImpl doc = docRepo.findByFilename(filename);
+		map.put("annotator", doc.getAnnotator());
+		map.put("notes", doc.getNotes());
+		
 		return new ApiResImpl("success", map, new RequestId(requestId));
 	}
 	
@@ -214,7 +218,10 @@ public class DocumentController {
 		else {
 			doc.setAnnotator(map.get("uin"));			
 		}
+		
+		doc.setNotes(map.get("notes"));
 		doc.setStatus(map.get("status"));
+		
 		docRepo.save(doc);
 		
 		Map<String, Object> docMap = new HashMap<String, Object>();
