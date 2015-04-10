@@ -47,6 +47,9 @@ public class MetadataFieldImpl implements MetadataField {
 	@Column(name="index")
 	private int index;
 	
+	@Column(name="status")
+	private String status;
+	
 	/**
 	 * Empty constructor.
 	 */
@@ -83,6 +86,19 @@ public class MetadataFieldImpl implements MetadataField {
 		this.value = value;
 		this.isRepeatable = isRepeatable;
 		this.index = index;
+	}
+	
+	/**
+	 * 
+	 */
+	public MetadataFieldImpl(String filename, String label, String value, boolean isRepeatable, int index, String status) {
+		super();
+		this.filename = filename;
+		this.label = label;
+		this.value = value;
+		this.isRepeatable = isRepeatable;
+		this.index = index;
+		this.status = status;
 	}
 
 	/**
@@ -191,6 +207,24 @@ public class MetadataFieldImpl implements MetadataField {
 	 */
 	public void setIndex(int index) {
 		this.index = index;
+	}
+	
+	/**
+	 * Gets status.
+	 * 
+	 * @return		String
+	 */
+	public String getStatus() {
+		return status;
+	}
+
+	/**
+	 * Sets status.
+	 * 
+	 * @param 		status			String
+	 */
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 }
