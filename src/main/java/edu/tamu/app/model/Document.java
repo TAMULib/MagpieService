@@ -59,5 +59,19 @@ public interface Document {
 	 */
 	public void setAnnotator(String annotator);
 	
+	/**
+	 * Gets notes.
+	 * 
+	 * @return		String
+	 */
+	public String getNotes();
+
+	/**
+	 * Sets notes.
+	 * 
+	 * @param 		annotator			String
+	 */
+	public void setNotes(String notes);
+	
 	
 }
