@@ -108,25 +108,25 @@ public class DocumentController {
 	    else {
 	    	sortDirection = Sort.Direction.DESC;
 	    }	    
-		String filename = headerMap.get("filename");
+		String name = headerMap.get("name");
 		String status = headerMap.get("status");
 		String annotator = headerMap.get("annotator");
 		Pageable request = new PageRequest(Integer.parseInt(headerMap.get("page")) - 1, Integer.parseInt(headerMap.get("size")), sortDirection, headerMap.get("field"));
 		Page<DocumentImpl> documents = null;				
-		if(filename.length() > 0) {			
+		if(name.length() > 0) {			
 			if(status.length() > 0) {				
 				if(annotator.length() > 0) {
-					documents = docRepo.findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, filename, status, annotator);	
+					documents = docRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status, annotator);	
 				}
 				else {
-					documents = docRepo.findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCase(request, filename, status);	
+					documents = docRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCase(request, name, status);	
 				}				
 			}
 			else if(annotator.length() > 0) {
-				documents = docRepo.findByFilenameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, filename, annotator);				
+				documents = docRepo.findByNameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, annotator);				
 			}
 			else {
-				documents = docRepo.findByFilenameContainingIgnoreCase(request, filename);				
+				documents = docRepo.findByNameContainingIgnoreCase(request, name);				
 			}			
 		}
 		else if(status.length() > 0) {			
@@ -168,7 +168,7 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		DocumentImpl doc = docRepo.findByFilename(map.get("filename"));
+		DocumentImpl doc = docRepo.findByName(map.get("name"));
 		System.out.println(map);
 		if(map.get("status").equals("Open")) {
 			doc.setAnnotator("");
@@ -207,7 +207,7 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		DocumentImpl doc = docRepo.findByFilename(map.get("filename"));
+		DocumentImpl doc = docRepo.findByName(map.get("name"));
 		
 		Map<String, Object> txtMap = new HashMap<String, Object>();
 		txtMap.put("uri", doc.getTxtUri());
@@ -234,7 +234,7 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		DocumentImpl doc = docRepo.findByFilename(map.get("filename"));
+		DocumentImpl doc = docRepo.findByName(map.get("name"));
 		
 		Map<String, Object> pdfMap = new HashMap<String, Object>();
 		pdfMap.put("uri", doc.getPdfUri());

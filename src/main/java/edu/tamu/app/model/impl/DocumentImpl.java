@@ -26,8 +26,8 @@ import edu.tamu.app.model.Document;
 public class DocumentImpl implements Document {
 	
 	@Id
-	@Column(name="filename")
-	private String filename;
+	@Column(name="name")
+	private String name;
 	
 	@Column(name="txt_uri")
 	private String txtUri;
@@ -51,24 +51,24 @@ public class DocumentImpl implements Document {
 	
 	/**
 	 * 
-	 * @param filename
+	 * @param name
 	 * @param status
 	 */
-	public DocumentImpl(String filename, String status) {
+	public DocumentImpl(String name, String status) {
 		super();
-		this.filename = filename;
+		this.name = name;
 		this.status = status;
 	}
 	
 	/**
 	 * 
-	 * @param filename
+	 * @param name
 	 * @param uri
 	 * @param status
 	 */
-	public DocumentImpl(String filename, String txtUri, String pdfUri, String status) {
+	public DocumentImpl(String name, String txtUri, String pdfUri, String status) {
 		super();
-		this.filename = filename;
+		this.name = name;
 		this.txtUri = txtUri;
 		this.pdfUri = pdfUri;
 		this.status = status;
@@ -77,15 +77,15 @@ public class DocumentImpl implements Document {
 	/**
 	 * 
 	 */
-	public String getFilename() {
-		return filename;
+	public String getName() {
+		return name;
 	}
 
 	/**
 	 * 
 	 */
-	public void setFilename(String filename) {
-		this.filename = filename;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**

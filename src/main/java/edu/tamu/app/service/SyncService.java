@@ -90,7 +90,7 @@ public class SyncService implements Runnable, ApplicationContextAware {
                     
                                            
                     if (kind == ENTRY_CREATE) {
-                    	if((docRepo.findByFilename(docString) == null)) {
+                    	if((docRepo.findByName(docString) == null)) {
                     		
                     		String pdfUri = "http://localhost:9000/mnt/documents/"+docString+"/"+docString+".pdf";
                     		String txtUri = "http://localhost:9000/mnt/documents/"+docString+"/"+docString+".txt";
