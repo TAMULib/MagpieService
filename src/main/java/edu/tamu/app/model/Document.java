@@ -9,6 +9,8 @@
  */
 package edu.tamu.app.model;
 
+import edu.tamu.app.model.impl.DocumentProfileImpl;
+
 /**
  * Document interface.
  * 
@@ -86,6 +88,20 @@ public interface Document {
 	 * @param 		annotator			String
 	 */
 	public void setNotes(String notes);
+	
+	/**
+	 * Gets documentProfile.
+	 * 
+	 * @return		DocumentProfileImpl
+	 */
+	public DocumentProfileImpl getDocumentProfile();
+
+	/**
+	 * Sets documentProfile.
+	 * 
+	 * @param 		profile			DocumentProfileImpl
+	 */
+	public void setDocumentProfile(DocumentProfileImpl profile);
 	
 	
 }

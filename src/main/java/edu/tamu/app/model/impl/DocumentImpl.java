@@ -12,6 +12,7 @@ package edu.tamu.app.model.impl;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import edu.tamu.app.model.Document;
@@ -26,7 +27,6 @@ import edu.tamu.app.model.Document;
 public class DocumentImpl implements Document {
 	
 	@Id
-	@Column(name="name")
 	private String name;
 	
 	@Column(name="txt_uri")
@@ -35,20 +35,21 @@ public class DocumentImpl implements Document {
 	@Column(name="pdf_uri")
 	private String pdfUri;
 		
-	@Column(name="status")
 	private String status;
 	
-	@Column(name="annotator")
 	private String annotator;
 	
-	@Column(name="notes")
 	private String notes;
+	
+	@OneToOne
+	private DocumentProfileImpl profile;
 	
 	/**
 	 * 
 	 */
 	public DocumentImpl() {
 		super();
+		this.profile = new DocumentProfileImpl("DISSERTSTION");
 	}
 	
 	/**
@@ -60,6 +61,7 @@ public class DocumentImpl implements Document {
 		super();
 		this.name = name;
 		this.status = status;
+		this.profile = new DocumentProfileImpl("DISSERTSTION");
 	}
 	
 	/**
@@ -74,6 +76,7 @@ public class DocumentImpl implements Document {
 		this.txtUri = txtUri;
 		this.pdfUri = pdfUri;
 		this.status = status;
+		this.profile = new DocumentProfileImpl("DISSERTSTION");
 	}
 
 	/**
@@ -174,6 +177,24 @@ public class DocumentImpl implements Document {
 	 */
 	public void setNotes(String notes) {
 		this.notes = notes;
+	}
+	
+	/**
+	 * Gets document profile.
+	 * 
+	 * @return		DocumentProfileImpl
+	 */
+	public DocumentProfileImpl getDocumentProfile() {
+		return profile;
+	}
+
+	/**
+	 * Sets documentProfile.
+	 * 
+	 * @param 		type			DocumentProfileImpl
+	 */
+	public void setDocumentProfile(DocumentProfileImpl profile) {
+		this.profile = profile;
 	}
 	
 }
