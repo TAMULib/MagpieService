@@ -26,49 +26,49 @@ import edu.tamu.app.model.impl.DocumentImpl;
 public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	
 	/**
-	 * Retrieve document by filename.
+	 * Retrieve document by name.
 	 * 
-	 * @param 		filename			String
+	 * @param 		name			String
 	 * 
 	 * @return		DocumentImpl
 	 * 
 	 */
-	public DocumentImpl findByFilename(String filename);
+	public DocumentImpl findByName(String name);
 	
 	/**
-	 * Retrieve document by filename.
+	 * Retrieve document by name.
 	 * 
 	 * @param 		page				Pageable
-	 * @param 		filename			String
+	 * @param 		name			String
 	 * 
 	 * @return		Page<DocumentImpl>
 	 * 
 	 */
-	public Page<DocumentImpl> findByFilenameContainingIgnoreCase(Pageable page, String filename);
+	public Page<DocumentImpl> findByNameContainingIgnoreCase(Pageable page, String name);
 	
 	/**
-	 * Retrieve document by filename and status.
+	 * Retrieve document by name and status.
 	 * 
 	 * @param 		page				Pageable
-	 * @param 		filename			String
+	 * @param 		name			String
 	 * @param 		status				String
 	 * 
 	 * @return		Page<DocumentImpl>
 	 * 
 	 */
-	public Page<DocumentImpl> findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrFilenameContainingIgnoreCaseAndStatusContainingIgnoreCase(Pageable page, String filename1, String status1, String filename2, String status2);
+	public Page<DocumentImpl> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCase(Pageable page, String name1, String status1, String name2, String status2);
 	
 	/**
-	 * Retrieve document by filename and annotator.
+	 * Retrieve document by name and annotator.
 	 * 
 	 * @param 		page				Pageable
-	 * @param 		filename			String
+	 * @param 		name			String
 	 * @param 		annotator			String
 	 * 
 	 * @return		Page<DocumentImpl>
 	 * 
 	 */
-	public Page<DocumentImpl> findByFilenameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String filename, String annotator);
+	public Page<DocumentImpl> findByNameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String name, String annotator);
 	
 	
 	/**
@@ -106,16 +106,16 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	public Page<DocumentImpl> findByAnnotatorContainingIgnoreCase(Pageable page, String annotator);
 		
 	/**
-	 * Retrieve document by filename and status.
+	 * Retrieve document by name and status.
 	 * 
 	 * @param 		page				Pageable
-	 * @param 		filename			String
+	 * @param 		name			String
 	 * @param 		status				String
 	 * @param 		annotator			String
 	 * 
 	 * @return		Page<DocumentImpl>
 	 * 
 	 */
-	public Page<DocumentImpl> findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String filename1, String status1, String annotator1, String filename2, String status2, String annotator2);
+	public Page<DocumentImpl> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String name1, String status1, String annotator1, String name2, String status2, String annotator2);
 	
 }

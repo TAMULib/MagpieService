@@ -18,18 +18,18 @@ package edu.tamu.app.model;
 public interface Document {
 
 	/**
-	 * Gets filename.
+	 * Gets name.
 	 * 
 	 * @return		String
 	 */
-	public String getFilename();
+	public String getName();
 
 	/**
-	 * Sets filename.
+	 * Sets name.
 	 * 
-	 * @param 		filename			String
+	 * @param 		name			String
 	 */
-	public void setFilename(String filename);
+	public void setName(String name);
 	
 	/**
 	 * Gets pdf uri.

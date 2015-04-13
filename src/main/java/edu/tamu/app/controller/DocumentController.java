@@ -108,7 +108,7 @@ public class DocumentController {
 	    else {
 	    	sortDirection = Sort.Direction.DESC;
 	    }
-		String filename = headerMap.get("filename");
+		String name = headerMap.get("name");
 		String annotator = headerMap.get("annotator");
 		String[] status = new String[2];
 		status[0] = headerMap.get("status");
@@ -120,20 +120,21 @@ public class DocumentController {
 		}
 		Pageable request = new PageRequest(Integer.parseInt(headerMap.get("page")) - 1, Integer.parseInt(headerMap.get("size")), sortDirection, headerMap.get("field"));
 		Page<DocumentImpl> documents = null;				
-		if(filename.length() > 0) {			
+
+		if(name.length() > 0) {			
 			if(status[0].length() > 0) {
 				if(annotator.length() > 0) {
-					documents = docRepo.findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, filename, status[0], annotator, filename, status[1], annotator);	
+					documents = docRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator, name, status[1], annotator);	
 				}
 				else {
-					documents = docRepo.findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrFilenameContainingIgnoreCaseAndStatusContainingIgnoreCase(request, filename, status[0], filename, status[1]);	
+					documents = docRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCase(request, name, status[0], name, status[1]);	
 				}				
 			}
 			else if(annotator.length() > 0) {
-				documents = docRepo.findByFilenameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, filename, annotator);				
+				documents = docRepo.findByNameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, annotator);				
 			}
 			else {
-				documents = docRepo.findByFilenameContainingIgnoreCase(request, filename);
+				documents = docRepo.findByNameContainingIgnoreCase(request, name);
 			}			
 		}
 		else if(status[0].length() > 0) {
@@ -174,8 +175,8 @@ public class DocumentController {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
-		}		
-		DocumentImpl doc = docRepo.findByFilename(map.get("filename"));
+		}	
+		DocumentImpl doc = docRepo.findByName(map.get("name"));
 		if(map.get("status").equals("Open")) {
 			doc.setAnnotator("");
 		}
@@ -213,7 +214,7 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		DocumentImpl doc = docRepo.findByFilename(map.get("filename"));
+		DocumentImpl doc = docRepo.findByName(map.get("name"));
 		
 		Map<String, Object> txtMap = new HashMap<String, Object>();
 		txtMap.put("uri", doc.getTxtUri());
@@ -240,7 +241,7 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		DocumentImpl doc = docRepo.findByFilename(map.get("filename"));
+		DocumentImpl doc = docRepo.findByName(map.get("name"));
 		
 		Map<String, Object> pdfMap = new HashMap<String, Object>();
 		pdfMap.put("uri", doc.getPdfUri());
