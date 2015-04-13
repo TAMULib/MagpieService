@@ -32,8 +32,8 @@ public class MetadataFieldImpl implements MetadataField {
 	@Column(name="id")
 	private Long id;
 	
-	@Column(name="filename")
-	private String filename;
+	@Column(name="name")
+	private String name;
 	
 	@Column(name="label")
 	private String label;
@@ -60,17 +60,17 @@ public class MetadataFieldImpl implements MetadataField {
 	/**
 	 * 
 	 */
-	public MetadataFieldImpl(String filename) {
+	public MetadataFieldImpl(String name) {
 		super();
-		this.filename = filename;
+		this.name = name;
 	}
 	
 	/**
 	 * 
 	 */
-	public MetadataFieldImpl(String filename, String label, String value, boolean isRepeatable) {
+	public MetadataFieldImpl(String name, String label, String value, boolean isRepeatable) {
 		super();
-		this.filename = filename;
+		this.name = name;
 		this.label = label;
 		this.value = value;
 		this.isRepeatable = isRepeatable;
@@ -79,9 +79,9 @@ public class MetadataFieldImpl implements MetadataField {
 	/**
 	 * 
 	 */
-	public MetadataFieldImpl(String filename, String label, String value, boolean isRepeatable, int index) {
+	public MetadataFieldImpl(String name, String label, String value, boolean isRepeatable, int index) {
 		super();
-		this.filename = filename;
+		this.name = name;
 		this.label = label;
 		this.value = value;
 		this.isRepeatable = isRepeatable;
@@ -91,9 +91,9 @@ public class MetadataFieldImpl implements MetadataField {
 	/**
 	 * 
 	 */
-	public MetadataFieldImpl(String filename, String label, String value, boolean isRepeatable, int index, String status) {
+	public MetadataFieldImpl(String name, String label, String value, boolean isRepeatable, int index, String status) {
 		super();
-		this.filename = filename;
+		this.name = name;
 		this.label = label;
 		this.value = value;
 		this.isRepeatable = isRepeatable;
@@ -120,21 +120,21 @@ public class MetadataFieldImpl implements MetadataField {
 	}
 
 	/**
-	 * Gets filename.
+	 * Gets name.
 	 * 
 	 * @return		String
 	 */
-	public String getFilename() {
-		return filename;
+	public String getName() {
+		return name;
 	}
 
 	/**
-	 * Sets filename.
+	 * Sets name.
 	 * 
-	 * @param 		filename		String
+	 * @param 		name			String
 	 */
-	public void setFilename(String filename) {
-		this.filename = filename;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**

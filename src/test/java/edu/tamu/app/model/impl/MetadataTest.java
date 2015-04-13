@@ -38,11 +38,11 @@ public class MetadataTest {
 	public void testMethod() {
 		
 		MetadataFieldImpl testMetadataField1 = new MetadataFieldImpl();
-		testMetadataField1.setFilename("dissertation1.txt");
+		testMetadataField1.setName("dissertation1.txt");
 		
 		metadataRepo.save(testMetadataField1);		
-		List<MetadataFieldImpl> assertMetadataFields = metadataRepo.getMetadataFieldsByFilename("dissertation1.txt");
-		Assert.assertEquals("Test User 1 was not added.", testMetadataField1.getFilename(), assertMetadataFields.get(0).getFilename());
+		List<MetadataFieldImpl> assertMetadataFields = metadataRepo.getMetadataFieldsByName("dissertation1.txt");
+		Assert.assertEquals("Test User 1 was not added.", testMetadataField1.getName(), assertMetadataFields.get(0).getName());
 	
 		metadataRepo.delete(testMetadataField1);		
 		List<MetadataFieldImpl> allMetadataFields = (List<MetadataFieldImpl>) metadataRepo.findAll();		

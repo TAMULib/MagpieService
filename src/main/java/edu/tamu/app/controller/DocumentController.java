@@ -181,7 +181,7 @@ public class DocumentController {
 			doc.setAnnotator("");
 		}
 		else {
-			doc.setAnnotator(map.get("uin"));			
+			doc.setAnnotator(map.get("uin"));
 		}
 		doc.setNotes(map.get("notes"));
 		doc.setStatus(map.get("status"));

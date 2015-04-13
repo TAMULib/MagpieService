@@ -77,7 +77,7 @@ public class DocumentImpl implements Document {
 	}
 
 	/**
-	 * Gets filename.
+	 * Gets name.
 	 * 
 	 * @return		String
 	 */
@@ -86,9 +86,9 @@ public class DocumentImpl implements Document {
 	}
 
 	/**
-	 * Sets filename.
+	 * Sets name.
 	 * 
-	 * @param 		filename			String
+	 * @param 		name				String
 	 */
 	public void setName(String name) {
 		this.name = name;

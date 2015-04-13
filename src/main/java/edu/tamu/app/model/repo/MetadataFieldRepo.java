@@ -27,19 +27,19 @@ import edu.tamu.app.model.impl.MetadataFieldImpl;
 public interface MetadataFieldRepo extends JpaRepository <MetadataFieldImpl, Long>{
 	
 	/**
-	 * Retrieve metadata by filename.
+	 * Retrieve metadata by name.
 	 * 
-	 * @param 		filename			String
+	 * @param 		name				String
 	 * 
 	 * @return		MetadataFieldImpl
 	 * 
 	 */
-	public List<MetadataFieldImpl> getMetadataFieldsByFilename(String filename);
+	public List<MetadataFieldImpl> getMetadataFieldsByName(String name);
 	
 	/**
 	 * Retrieve metadata by status.
 	 * 
-	 * @param 		status			String
+	 * @param 		status				String
 	 * 
 	 * @return		MetadataFieldImpl
 	 * 
@@ -47,14 +47,14 @@ public interface MetadataFieldRepo extends JpaRepository <MetadataFieldImpl, Lon
 	public List<MetadataFieldImpl> getMetadataFieldsByStatus(String status);
 
 	/**
-	 * Deletes metadata by filename.
+	 * Deletes metadata by name.
 	 * 
-	 * @param 		filename			String
+	 * @param 		name				String
 	 * 
 	 * @return		Long
 	 * 
 	 */
 	@Transactional
-	public Long deleteByFilename(String filename);
+	public Long deleteByName(String name);
 
 }

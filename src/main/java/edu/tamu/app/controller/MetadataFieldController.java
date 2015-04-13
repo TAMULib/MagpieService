@@ -91,7 +91,7 @@ public class MetadataFieldController {
 	}
 	
 	/**
-	 * Endpoint to clearn all metadata fields for filename.
+	 * Endpoint to clearn all metadata fields for name.
 	 * 
 	 * @param 		message			Message<?>
 	 * 
@@ -112,12 +112,12 @@ public class MetadataFieldController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		Long removed = metadataRepo.deleteByFilename(map.get("filename"));		
+		Long removed = metadataRepo.deleteByName(map.get("name"));		
 		return new ApiResImpl("success", "removed " + removed, new RequestId(requestId));
 	}
 	
 	/**
-	 * Endpoint to return metadata fileds by filename.
+	 * Endpoint to return metadata fileds by name.
 	 * 
 	 * @param 		message			Message<?>
 	 * 
@@ -139,7 +139,7 @@ public class MetadataFieldController {
 			e.printStackTrace();
 		}
 		
-		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByFilename(headerMap.get("filename"));
+		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(headerMap.get("name"));
 		
 		Map<String, Object> metadataMap = new HashMap<String, Object>();
 		
@@ -191,7 +191,7 @@ public class MetadataFieldController {
 		
 		if(Boolean.parseBoolean(map.get("isRepeatable"))) {
 			
-			List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByFilename(map.get("filename"));
+			List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(map.get("name"));
 
 			for (MetadataFieldImpl field : fields) {
 				
@@ -211,7 +211,7 @@ public class MetadataFieldController {
 			
 		}
 		else {
-			List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByFilename(map.get("filename"));
+			List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(map.get("name"));
 
 			for (MetadataFieldImpl field : fields) {
 				
@@ -224,7 +224,7 @@ public class MetadataFieldController {
 		}
 		
 		if(metadata == null) {
-			metadata = new MetadataFieldImpl(map.get("filename"), 
+			metadata = new MetadataFieldImpl(map.get("name"), 
 					   map.get("label"), 
 					   map.get("value"),
 					   Boolean.parseBoolean(map.get("isRepeatable")),
@@ -260,7 +260,7 @@ public class MetadataFieldController {
 			e.printStackTrace();
 		}	
 		
-		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByFilename(map.get("filename"));
+		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(map.get("name"));
 
 		for (MetadataFieldImpl field : fields) {
 			
