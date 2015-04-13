@@ -72,6 +72,32 @@ public class MetadataFieldController {
 	}
 	
 	/**
+	 * Endpoint to clearn all metadata fields for filename.
+	 * 
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/clear")
+	@SendToUser
+	public ApiResImpl clear(Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);
+		String data = accessor.getNativeHeader("data").get(0).toString();
+		Map<String,String> map = new HashMap<String,String>();
+		try {
+			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		Long removed = metadataRepo.deleteByFilename(map.get("filename"));		
+		return new ApiResImpl("success", "removed " + removed, new RequestId(requestId));
+	}
+	
+	/**
 	 * Endpoint to return metadata fileds by filename.
 	 * 
 	 * @param 		message			Message<?>
@@ -86,7 +112,7 @@ public class MetadataFieldController {
 	public ApiResImpl get(Message<?> message) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);		
-		String data = accessor.getNativeHeader("data").get(0).toString();		
+		String data = accessor.getNativeHeader("data").get(0).toString();
 		Map<String, String> headerMap = new HashMap<String, String>();
 		try {
 			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
@@ -140,7 +166,7 @@ public class MetadataFieldController {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
-		}	
+		}
 		
 		MetadataFieldImpl metadata = null;
 		

@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.tamu.app.model.impl.MetadataFieldImpl;
 
@@ -34,5 +35,16 @@ public interface MetadataFieldRepo extends JpaRepository <MetadataFieldImpl, Lon
 	 * 
 	 */
 	public List<MetadataFieldImpl> getMetadataFieldsByFilename(String filename);
+	
+	/**
+	 * Deletes metadata by filename.
+	 * 
+	 * @param 		filename			String
+	 * 
+	 * @return		Long
+	 * 
+	 */
+	@Transactional
+	public Long deleteByFilename(String filename);
 
 }
