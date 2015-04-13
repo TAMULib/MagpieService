@@ -236,38 +236,5 @@ public class MetadataFieldController {
 		
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
-	
-	/**
-	 * Endpoint to publish metadata field to a document.
-	 * 
-	 * @param 		message			Message<?>
-	 * 
-	 * @return		ApiResImpl
-	 * 
-	 * @throws 		Exception
-	 * 
-	 */
-	@MessageMapping("/publish")
-	@SendToUser
-	public ApiResImpl publish(Message<?> message) throws Exception {		
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);		
-		String data = accessor.getNativeHeader("data").get(0).toString();		
-		Map<String,String> map = new HashMap<String,String>();
-		try {
-			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}	
-		
-		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(map.get("name"));
-
-		for (MetadataFieldImpl field : fields) {
-			
-			field.setStatus("Published");
-			metadataRepo.save(field);
-		}
-		return new ApiResImpl("success", "ok", new RequestId(requestId));
-	}
 		
 }
