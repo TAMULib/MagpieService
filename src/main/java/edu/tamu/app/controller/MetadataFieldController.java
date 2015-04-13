@@ -67,7 +67,26 @@ public class MetadataFieldController {
 		String requestId = accessor.getNativeHeader("id").get(0);
 		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
 		metadataMap.put("list", metadataRepo.findAll());
-		System.out.println(metadataRepo.findAll().size());
+		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
+	}
+	
+	/**
+	 * Endpoint to return all published metadata fields.
+	 * 
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/published")
+	@SendToUser
+	public ApiResImpl published(Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);
+		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
+		metadataMap.put("list", metadataRepo.getMetadataFieldsByStatus("Published"));
 		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
 	}
 	
@@ -183,11 +202,45 @@ public class MetadataFieldController {
 					   map.get("label"), 
 					   map.get("value"),
 					   Boolean.parseBoolean(map.get("isRepeatable")),
-					   Integer.parseInt(map.get("index")));
+					   Integer.parseInt(map.get("index")),
+					   map.get("status"));
 		}
 		
 		metadataRepo.save(metadata);
 		
+		return new ApiResImpl("success", "ok", new RequestId(requestId));
+	}
+	
+	/**
+	 * Endpoint to publish metadata field to a document.
+	 * 
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/publish")
+	@SendToUser
+	public ApiResImpl publish(Message<?> message) throws Exception {		
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);		
+		String data = accessor.getNativeHeader("data").get(0).toString();		
+		Map<String,String> map = new HashMap<String,String>();
+		try {
+			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
+		
+		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByFilename(map.get("filename"));
+
+		for (MetadataFieldImpl field : fields) {
+			
+			field.setStatus("Published");
+			metadataRepo.save(field);
+		}
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
 		

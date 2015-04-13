@@ -56,7 +56,7 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * @return		Page<DocumentImpl>
 	 * 
 	 */
-	public Page<DocumentImpl> findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCase(Pageable page, String filename, String status);
+	public Page<DocumentImpl> findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrFilenameContainingIgnoreCaseAndStatusContainingIgnoreCase(Pageable page, String filename1, String status1, String filename2, String status2);
 	
 	/**
 	 * Retrieve document by filename and annotator.
@@ -80,7 +80,7 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * @return		Page<DocumentImpl>
 	 * 
 	 */
-	public Page<DocumentImpl> findByStatusContainingIgnoreCase(Pageable page, String status);
+	public Page<DocumentImpl> findByStatusContainingIgnoreCaseOrStatusContainingIgnoreCase(Pageable page, String status1, String status2);
 	
 	/**
 	 * Retrieve document by status and annotator.
@@ -92,8 +92,7 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * @return		Page<DocumentImpl>
 	 * 
 	 */
-	public Page<DocumentImpl> findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String status, String annotator);
-	
+	public Page<DocumentImpl> findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String status1, String annotator1, String status2, String annotator2);
 	
 	/**
 	 * Retrieve document by annotator.
@@ -117,6 +116,6 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * @return		Page<DocumentImpl>
 	 * 
 	 */
-	public Page<DocumentImpl> findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String filename, String status, String annotator);
+	public Page<DocumentImpl> findByFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrFilenameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String filename1, String status1, String annotator1, String filename2, String status2, String annotator2);
 	
 }
