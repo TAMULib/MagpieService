@@ -32,6 +32,20 @@ public interface Document {
 	public void setFilename(String filename);
 	
 	/**
+	 * Gets pdf uri.
+	 * 
+	 * @return		String
+	 */
+	public String getPdfUri();
+
+	/**
+	 * Sets pdf uri.
+	 * 
+	 * @param 		uri					String
+	 */
+	public void setPdfUri(String uri);
+	
+	/**
 	 * Gets status.
 	 * 
 	 * @return		String

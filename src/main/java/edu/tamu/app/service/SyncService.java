@@ -83,12 +83,19 @@ public class SyncService implements Runnable, ApplicationContextAware {
                     @SuppressWarnings("unchecked")
                     WatchEvent<Path> ev = (WatchEvent<Path>) event;
                     Path fileName = ev.context();
-                     
+                    
+                    String docString = fileName.toString();
+                    
                     System.out.println(kind.name() + ": " + fileName);
-                                         
+                    
+                                           
                     if (kind == ENTRY_CREATE) {
-                    	if(docRepo.findByFilename(fileName.toString()) == null) {					
-        					DocumentImpl doc = new DocumentImpl(fileName.toString(), "Open");
+                    	if((docRepo.findByFilename(docString) == null)) {
+                    		
+                    		String pdfUri = "http://localhost:9000/mnt/documents/"+docString+"/"+docString+".pdf";
+                    		String txtUri = "http://localhost:9000/mnt/documents/"+docString+"/"+docString+".txt";
+                         		
+        					DocumentImpl doc = new DocumentImpl(docString, txtUri, pdfUri, "Open");
         					docRepo.save(doc);
         					
         					Map<String, Object> docMap = new HashMap<String, Object>();

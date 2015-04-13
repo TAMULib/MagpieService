@@ -28,6 +28,12 @@ public class DocumentImpl implements Document {
 	@Id
 	@Column(name="filename")
 	private String filename;
+	
+	@Column(name="txt_uri")
+	private String txtUri;
+	
+	@Column(name="pdf_uri")
+	private String pdfUri;
 		
 	@Column(name="status")
 	private String status;
@@ -55,6 +61,20 @@ public class DocumentImpl implements Document {
 		this.filename = filename;
 		this.status = status;
 	}
+	
+	/**
+	 * 
+	 * @param filename
+	 * @param uri
+	 * @param status
+	 */
+	public DocumentImpl(String filename, String txtUri, String pdfUri, String status) {
+		super();
+		this.filename = filename;
+		this.txtUri = txtUri;
+		this.pdfUri = pdfUri;
+		this.status = status;
+	}
 
 	/**
 	 * Gets filename.
@@ -72,6 +92,34 @@ public class DocumentImpl implements Document {
 	 */
 	public void setFilename(String filename) {
 		this.filename = filename;
+	}
+
+	/**
+	 * 
+	 */
+	public String getTxtUri() {
+		return txtUri;
+	}
+
+	/**
+	 * 
+	 */
+	public void setTxtUri(String uri) {
+		this.txtUri = uri;
+	}
+	
+	/**
+	 * 
+	 */
+	public String getPdfUri() {
+		return pdfUri;
+	}
+
+	/**
+	 * 
+	 */
+	public void setPdfUri(String uri) {
+		this.pdfUri = uri;
 	}
 	
 	/**
