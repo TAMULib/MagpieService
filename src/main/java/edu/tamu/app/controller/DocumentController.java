@@ -9,9 +9,6 @@
  */
 package edu.tamu.app.controller;
 
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,41 +147,6 @@ public class DocumentController {
 	}
 	
 	/**
-	 * Endpoint to return document by filename.
-	 * 
-	 * @param 		message			Message<?>
-	 * 
-	 * @return		ApiResImpl
-	 * 
-	 * @throws 		Exception
-	 */
-	@MessageMapping("/get")
-	@SendToUser
-	public ApiResImpl documentByFilename(Message<?> message) throws Exception {		
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);		
-		String data = accessor.getNativeHeader("data").get(0).toString();		
-		Map<String,String> map = new HashMap<String,String>();
-		try {
-			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		String filename = map.get("filename");	
-		map.clear();
-		byte[] encoded = null;
-		try{
-			encoded = Files.readAllBytes(Paths.get(directory+"/"+filename));
-		}
-		catch(Exception e) {
-			map.put("text", "File does not exist!");
-			return new ApiResImpl("success", map, new RequestId(requestId));
-		}
-		map.put("text", new String(encoded, Charset.forName("UTF-8")));
-		return new ApiResImpl("success", map, new RequestId(requestId));
-	}
-	
-	/**
 	 * Endpoint to update document status or annotator.
 	 * 
 	 * @param 		message			Message<?>
@@ -225,6 +187,40 @@ public class DocumentController {
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
 	
+	
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
+	@MessageMapping("/txt")
+	@SendToUser
+	public ApiResImpl txt(Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);
+		
+		String data = accessor.getNativeHeader("data").get(0).toString();		
+		Map<String,String> map = new HashMap<String,String>();		
+		try {
+			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		DocumentImpl doc = docRepo.findByFilename(map.get("filename"));
+		
+		Map<String, Object> txtMap = new HashMap<String, Object>();
+		txtMap.put("uri", doc.getTxtUri());
+		
+		return new ApiResImpl("success", txtMap, new RequestId(requestId));
+	}
+	
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
 	@MessageMapping("/pdf")
 	@SendToUser
 	public ApiResImpl pdf(Message<?> message) throws Exception {

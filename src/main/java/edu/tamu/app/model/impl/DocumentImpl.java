@@ -29,6 +29,9 @@ public class DocumentImpl implements Document {
 	@Column(name="filename")
 	private String filename;
 	
+	@Column(name="txt_uri")
+	private String txtUri;
+	
 	@Column(name="pdf_uri")
 	private String pdfUri;
 		
@@ -63,10 +66,11 @@ public class DocumentImpl implements Document {
 	 * @param uri
 	 * @param status
 	 */
-	public DocumentImpl(String filename, String uri, String status) {
+	public DocumentImpl(String filename, String txtUri, String pdfUri, String status) {
 		super();
 		this.filename = filename;
-		this.pdfUri = uri;
+		this.txtUri = txtUri;
+		this.pdfUri = pdfUri;
 		this.status = status;
 	}
 
@@ -84,6 +88,20 @@ public class DocumentImpl implements Document {
 		this.filename = filename;
 	}
 
+	/**
+	 * 
+	 */
+	public String getTxtUri() {
+		return txtUri;
+	}
+
+	/**
+	 * 
+	 */
+	public void setTxtUri(String uri) {
+		this.txtUri = uri;
+	}
+	
 	/**
 	 * 
 	 */
