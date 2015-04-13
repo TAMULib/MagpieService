@@ -80,6 +80,34 @@ public class DocumentController {
 	}
 	
 	/**
+	 * Endpoint to return document by filename.
+	 * 
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 */
+	@MessageMapping("/get")
+	@SendToUser
+	public ApiResImpl documentByName(Message<?> message) throws Exception {		
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);		
+		String data = accessor.getNativeHeader("data").get(0).toString();		
+		Map<String,String> headerMap = new HashMap<String,String>();
+		try {
+			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		DocumentImpl doc = docRepo.findByName(headerMap.get("name"));
+		Map<String,String> map = new HashMap<String,String>();
+		map.put("annotator", doc.getAnnotator());
+		map.put("notes", doc.getNotes());
+		return new ApiResImpl("success", map, new RequestId(requestId));
+	}
+	
+	/**
 	 * Endpoint to return page documents.
 	 * 
 	 * @param 		message			Message<?>
