@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import edu.tamu.app.model.MetadataField;
@@ -49,6 +50,9 @@ public class MetadataFieldImpl implements MetadataField {
 	
 	@Column(name="status")
 	private String status;
+	
+	@ManyToOne
+	private DocumentProfileImpl profile;
 	
 	/**
 	 * Empty constructor.
@@ -225,6 +229,14 @@ public class MetadataFieldImpl implements MetadataField {
 	 */
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public DocumentProfileImpl getProfile() {
+		return profile;
+	}
+
+	public void setProfile(DocumentProfileImpl profile) {
+		this.profile = profile;
 	}
 
 }

@@ -101,8 +101,9 @@ public class DocumentController {
 			e.printStackTrace();
 		}
 		DocumentImpl doc = docRepo.findByName(headerMap.get("name"));
-		Map<String,String> map = new HashMap<String,String>();
+		Map<String,Object> map = new HashMap<String,Object>();
 		map.put("annotator", doc.getAnnotator());
+		map.put("profile", doc.getDocumentProfile());
 		map.put("notes", doc.getNotes());
 		return new ApiResImpl("success", map, new RequestId(requestId));
 	}
