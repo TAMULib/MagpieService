@@ -9,8 +9,11 @@
  */
 package edu.tamu.app.model.impl;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -27,6 +30,9 @@ import edu.tamu.app.model.Document;
 public class DocumentImpl implements Document {
 	
 	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Long id;
+	
 	private String name;
 	
 	@Column(name="txt_uri")
@@ -41,7 +47,7 @@ public class DocumentImpl implements Document {
 	
 	private String notes;
 	
-	@OneToOne
+	@OneToOne(cascade = CascadeType.PERSIST)
 	private DocumentProfileImpl profile;
 	
 	/**
@@ -49,7 +55,7 @@ public class DocumentImpl implements Document {
 	 */
 	public DocumentImpl() {
 		super();
-		this.profile = new DocumentProfileImpl("DISSERTSTION");
+		this.profile = new DocumentProfileImpl("DISSERTATION");
 	}
 	
 	/**
@@ -61,7 +67,7 @@ public class DocumentImpl implements Document {
 		super();
 		this.name = name;
 		this.status = status;
-		this.profile = new DocumentProfileImpl("DISSERTSTION");
+		this.profile = new DocumentProfileImpl("DISSERTATION");
 	}
 	
 	/**
