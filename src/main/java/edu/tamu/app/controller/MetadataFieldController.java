@@ -142,7 +142,6 @@ public class MetadataFieldController {
 		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(headerMap.get("name"));
 		
 		Map<String, Object> metadataMap = new HashMap<String, Object>();
-		
 		for (MetadataFieldImpl field : fields) {
 			if(field.getIsRepeatable()) {
 				
