@@ -1,0 +1,43 @@
+{
+	"dissertationProject":  [
+		{
+			"label": "dc.abstract",
+			"gloss": "Abstract",
+			"repeatable": false,
+			"inputType": "TEXTAREA"
+		},
+		{
+			"label": "dc.committee.chair",
+			"gloss": "Committee Chair",
+			"repeatable": true,
+			"inputType": "TEXT"
+		},
+		{
+			"label": "dc.committee.member",
+			"gloss": "Committee Member",
+			"repeatable": true,
+			"inputType": "TEXT"
+		}
+	],
+	
+	"thesisProject":  [
+		{
+			"label": "dc.abstract",
+			"gloss": "Abstract",
+			"repeatable": false,
+			"inputType": "TEXTAREA"
+		},
+		{
+			"label": "dc.committee.chair",
+			"gloss": "Committee Chair",
+			"repeatable": true,
+			"inputType": "TEXT"
+		},
+		{
+			"label": "dc.committee.member",
+			"gloss": "Committee Member",
+			"repeatable": true,
+			"inputType": "TEXT"
+		}
+	]
+}

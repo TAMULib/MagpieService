@@ -37,9 +37,9 @@ public class DocumentTest {
 	@Test
 	public void testMethod() {
 		
-		DocumentImpl testDocument1 = new DocumentImpl("testFile1", "Unassigned");
+		DocumentImpl testDocument1 = new DocumentImpl("testFile1", "Unassigned", null, null, null);
 		
-		DocumentImpl testDocument2 = new DocumentImpl("testFile1", "Unassigned");
+		DocumentImpl testDocument2 = new DocumentImpl("testFile1", "Unassigned", null, null, null);
 		
 		documentRepo.save(testDocument1);
 		DocumentImpl assertDocument = documentRepo.findByName("testFile1");

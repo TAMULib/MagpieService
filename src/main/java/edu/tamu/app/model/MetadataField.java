@@ -9,8 +9,6 @@
  */
 package edu.tamu.app.model;
 
-import edu.tamu.app.model.impl.DocumentProfileImpl;
-
 /**
  * Document interface.
  * 
@@ -116,9 +114,5 @@ public interface MetadataField {
 	 * @param 		status			String
 	 */
 	public void setStatus(String status);
-	
-	public DocumentProfileImpl getProfile();
-
-	public void setProfile(DocumentProfileImpl profile);
 	
 }

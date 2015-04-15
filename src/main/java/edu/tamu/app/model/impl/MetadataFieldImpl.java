@@ -14,7 +14,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import edu.tamu.app.model.MetadataField;
@@ -30,29 +29,20 @@ public class MetadataFieldImpl implements MetadataField {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="id")
 	private Long id;
 	
-	@Column(name="name")
 	private String name;
 	
-	@Column(name="label")
 	private String label;
 		
-	@Column(name="value")
 	private String value;
 	
 	@Column(name="is_repeatable")
 	private boolean isRepeatable;
 	
-	@Column(name="index")
 	private int index;
 	
-	@Column(name="status")
 	private String status;
-	
-	@ManyToOne
-	private DocumentProfileImpl profile;
 	
 	/**
 	 * Empty constructor.
@@ -229,14 +219,6 @@ public class MetadataFieldImpl implements MetadataField {
 	 */
 	public void setStatus(String status) {
 		this.status = status;
-	}
-
-	public DocumentProfileImpl getProfile() {
-		return profile;
-	}
-
-	public void setProfile(DocumentProfileImpl profile) {
-		this.profile = profile;
 	}
 
 }

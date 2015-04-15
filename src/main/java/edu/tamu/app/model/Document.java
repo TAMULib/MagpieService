@@ -9,7 +9,9 @@
  */
 package edu.tamu.app.model;
 
-import edu.tamu.app.model.impl.DocumentProfileImpl;
+import java.util.List;
+
+import edu.tamu.app.model.impl.MetadataLabelImpl;
 
 /**
  * Document interface.
@@ -19,6 +21,10 @@ import edu.tamu.app.model.impl.DocumentProfileImpl;
  */
 public interface Document {
 
+	public Long getId();
+	
+	public void setId(Long id);
+	
 	/**
 	 * Gets name.
 	 * 
@@ -89,19 +95,8 @@ public interface Document {
 	 */
 	public void setNotes(String notes);
 	
-	/**
-	 * Gets documentProfile.
-	 * 
-	 * @return		DocumentProfileImpl
-	 */
-	public DocumentProfileImpl getDocumentProfile();
+	public List<MetadataLabelImpl> getMetadataLabels();
 
-	/**
-	 * Sets documentProfile.
-	 * 
-	 * @param 		profile			DocumentProfileImpl
-	 */
-	public void setDocumentProfile(DocumentProfileImpl profile);
-	
+	public void setMetadataLabels(List<MetadataLabelImpl> metadataLabels);
 	
 }

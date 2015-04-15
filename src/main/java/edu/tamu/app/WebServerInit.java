@@ -9,6 +9,9 @@
  */
 package edu.tamu.app;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -32,6 +35,8 @@ import edu.tamu.app.service.SyncService;
 @EnableAutoConfiguration
 @EnableConfigurationProperties
 public class WebServerInit extends SpringBootServletInitializer {
+	
+	public static List<String> projects = new ArrayList<String>();
 		
 	/**
 	 * Entry point to the application from within servlet.
@@ -40,10 +45,15 @@ public class WebServerInit extends SpringBootServletInitializer {
 	 *
 	 */
     public static void main(String[] args) {
+    	
+    	projects.add("dissertationProject");
+    	
         SpringApplication.run(WebServerInit.class, args);        
         ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();  
         taskExecutor.initialize();
-        taskExecutor.execute(new SyncService());
+        for(String project : projects) {
+    		taskExecutor.execute(new SyncService(project));
+    	}	
     }
     
     /**
@@ -56,10 +66,17 @@ public class WebServerInit extends SpringBootServletInitializer {
    	 */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+    	
+    	projects.add("dissertationProject");
+    	
     	SpringApplicationBuilder builder = application.sources(WebServerInit.class);    	 
     	ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();
     	taskExecutor.initialize();
-        taskExecutor.execute(new SyncService());
+    	
+    	for(String project : projects) {
+    		taskExecutor.execute(new SyncService(project));
+    	}	
+    		
         return builder;
     }
     
