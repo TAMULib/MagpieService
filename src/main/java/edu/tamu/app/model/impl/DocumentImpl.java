@@ -9,13 +9,15 @@
  */
 package edu.tamu.app.model.impl;
 
-import javax.persistence.CascadeType;
+import java.util.List;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import edu.tamu.app.model.Document;
@@ -47,27 +49,14 @@ public class DocumentImpl implements Document {
 	
 	private String notes;
 	
-	@OneToOne(cascade = CascadeType.PERSIST)
-	private DocumentProfileImpl profile;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<MetadataLabelImpl> metadataLabels;
 	
 	/**
 	 * 
 	 */
 	public DocumentImpl() {
-		super();
-		this.profile = new DocumentProfileImpl("DISSERTATION");
-	}
-	
-	/**
-	 * 
-	 * @param name
-	 * @param status
-	 */
-	public DocumentImpl(String name, String status) {
-		super();
-		this.name = name;
-		this.status = status;
-		this.profile = new DocumentProfileImpl("DISSERTATION");
+		super();	
 	}
 	
 	/**
@@ -76,13 +65,13 @@ public class DocumentImpl implements Document {
 	 * @param uri
 	 * @param status
 	 */
-	public DocumentImpl(String name, String txtUri, String pdfUri, String status) {
+	public DocumentImpl(String name, String txtUri, String pdfUri, String status, List<MetadataLabelImpl> metadataLabels) {
 		super();
 		this.name = name;
 		this.txtUri = txtUri;
 		this.pdfUri = pdfUri;
 		this.status = status;
-		this.profile = new DocumentProfileImpl("DISSERTSTION");
+		this.metadataLabels = metadataLabels;
 	}
 
 	/**
@@ -185,22 +174,20 @@ public class DocumentImpl implements Document {
 		this.notes = notes;
 	}
 	
-	/**
-	 * Gets document profile.
-	 * 
-	 * @return		DocumentProfileImpl
-	 */
-	public DocumentProfileImpl getDocumentProfile() {
-		return profile;
+	public Long getId() {
+		return id;
 	}
 
-	/**
-	 * Sets documentProfile.
-	 * 
-	 * @param 		type			DocumentProfileImpl
-	 */
-	public void setDocumentProfile(DocumentProfileImpl profile) {
-		this.profile = profile;
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public List<MetadataLabelImpl> getMetadataLabels() {
+		return metadataLabels;
+	}
+
+	public void setMetadataLabels(List<MetadataLabelImpl> metadataLabels) {
+		this.metadataLabels = metadataLabels;
 	}
 	
 }
