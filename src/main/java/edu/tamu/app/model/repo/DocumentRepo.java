@@ -9,6 +9,8 @@
  */
 package edu.tamu.app.model.repo;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,6 +36,16 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * 
 	 */
 	public DocumentImpl findByName(String name);
+	
+	/**
+	 * Retrieve document by name.
+	 * 
+	 * @param 		name				String
+	 * 
+	 * @return		DocumentImpl
+	 * 
+	 */
+	public List<DocumentImpl> getAllByStatus(String status);
 	
 	/**
 	 * Retrieve document by name.

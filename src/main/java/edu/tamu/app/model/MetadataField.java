@@ -9,6 +9,8 @@
  */
 package edu.tamu.app.model;
 
+import java.util.List;
+
 /**
  * Document interface.
  * 
@@ -44,75 +46,25 @@ public interface MetadataField {
 	 * @param 		name			String
 	 */
 	public void setName(String name);
-
-	/**
-	 * Gets label.
-	 * 
-	 * @return		String
-	 */
+	
 	public String getLabel();
 
-	/**
-	 * Sets label.
-	 * 
-	 * @param 		label			String
-	 */
 	public void setLabel(String label);
+
 
 	/**
 	 * Gets value.
 	 * 
 	 * @return		String
 	 */
-	public String getValue();
+	public List<String> getValues();
 
 	/**
 	 * Sets value.
 	 * 
 	 * @param 		value			String
 	 */
-	public void setValue(String value);
+	public void setValues(List<String> values);
 
-	/**
-	 * Gets isRepeatable.
-	 * 
-	 * @return		boolean
-	 */
-	public boolean getIsRepeatable();
-
-	/**
-	 * Sets isRepeatable.
-	 * 
-	 * @param 		isRepeatable	boolean
-	 */
-	public void setRepeatable(boolean isRepeatable);
-	
-	/**
-	 * Gets index.
-	 * 
-	 * @return		int
-	 */
-	public int getIndex();
-
-	/**
-	 * Sets index.
-	 * 
-	 * @param 		index			int
-	 */
-	public void setIndex(int index);
-	
-	/**
-	 * Gets status.
-	 * 
-	 * @return		String
-	 */
-	public String getStatus();
-
-	/**
-	 * Sets status.
-	 * 
-	 * @param 		status			String
-	 */
-	public void setStatus(String status);
 	
 }
