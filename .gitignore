@@ -2,4 +2,4 @@
 .project
 .classpath
 .settings
-src/main/resources/static/mnt/documents/*
+src/main/resources/static/mnt/projects/*

@@ -9,9 +9,6 @@
  */
 package edu.tamu.app;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -36,24 +33,17 @@ import edu.tamu.app.service.SyncService;
 @EnableConfigurationProperties
 public class WebServerInit extends SpringBootServletInitializer {
 	
-	public static List<String> projects = new ArrayList<String>();
-		
 	/**
 	 * Entry point to the application from within servlet.
 	 *
 	 * @param       args    		String[]
 	 *
 	 */
-    public static void main(String[] args) {
-    	
-    	projects.add("dissertationProject");
-    	
+    public static void main(String[] args) {    	
         SpringApplication.run(WebServerInit.class, args);        
         ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();  
         taskExecutor.initialize();
-        for(String project : projects) {
-    		taskExecutor.execute(new SyncService(project));
-    	}	
+    	taskExecutor.execute(new SyncService("projects"));
     }
     
     /**
@@ -65,18 +55,11 @@ public class WebServerInit extends SpringBootServletInitializer {
    	 *
    	 */
     @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-    	
-    	projects.add("dissertationProject");
-    	
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {    	
     	SpringApplicationBuilder builder = application.sources(WebServerInit.class);    	 
     	ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();
     	taskExecutor.initialize();
-    	
-    	for(String project : projects) {
-    		taskExecutor.execute(new SyncService(project));
-    	}	
-    		
+    	taskExecutor.execute(new SyncService("projects"));
         return builder;
     }
     
@@ -86,7 +69,7 @@ public class WebServerInit extends SpringBootServletInitializer {
      * @return		ThreadPoolTaskExecutor
      * 
      */
-    @Bean
+    @Bean(name="taskExecutor")
     private static ThreadPoolTaskExecutor configureTaskExecutor() {
     	ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
     	taskExecutor.setCorePoolSize(5);

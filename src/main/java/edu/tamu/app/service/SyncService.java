@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -58,12 +59,12 @@ import edu.tamu.app.model.repo.DocumentRepo;
 public class SyncService implements Runnable, ApplicationContextAware {
 	
 	private static ApplicationContext ac;
-	private String project;
+	private String folder;
 	
 	public SyncService(){}
 	
-	public SyncService(String project) {
-		this.project = project;
+	public SyncService(String folder) {
+		this.folder = folder;
 	}
 		
 	/**
@@ -78,7 +79,7 @@ public class SyncService implements Runnable, ApplicationContextAware {
 		
 		SimpMessagingTemplate simpMessagingTemplate = (SimpMessagingTemplate) ac.getBean("brokerMessagingTemplate");
 		
-		String directory = env.getProperty("app.directory") + "/" + project;
+		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) ac.getBean("taskExecutor");
 		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -91,8 +92,9 @@ public class SyncService implements Runnable, ApplicationContextAware {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
-		 
+		
 		ObjectMapper om = (ObjectMapper) ac.getBean("objectMapper");
+		
 		Map<String, Object> projectMap = null;
 		
 		try {
@@ -100,18 +102,28 @@ public class SyncService implements Runnable, ApplicationContextAware {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+	
 		List<MetadataLabelImpl> metadataLabels = new ArrayList<MetadataLabelImpl>();
 		
-		for(Object metadata : (List<Object>) projectMap.get(project)) {
+		String directory = env.getProperty("app.directory") + "/" + folder;
+		
+		if(!folder.equals("projects")) {
 			
-			Map<String, Object> mMap = (Map<String, Object>) metadata;
+			directory = env.getProperty("app.directory") + "/projects/" + folder;
+			List<Object> profile = (List<Object>) projectMap.get(folder);
 			
-			MetadataLabelImpl profile = new MetadataLabelImpl((String) mMap.get("label"), 
-															  (String) mMap.get("gloss"), 
-															  (boolean) mMap.get("repeatable"), 
-															  InputType.valueOf((String) mMap.get("inputType")));
-			metadataLabels.add(profile);
+			if(profile == null) profile = (List<Object>) projectMap.get("default");
+			
+			for(Object metadata : profile) {
+				
+				Map<String, Object> mMap = (Map<String, Object>) metadata;
+				
+				MetadataLabelImpl metadataProfile = new MetadataLabelImpl((String) mMap.get("label"), 
+																  (String) mMap.get("gloss"), 
+																  (boolean) mMap.get("repeatable"), 
+																  InputType.valueOf((String) mMap.get("inputType")));
+				metadataLabels.add(metadataProfile);
+			}
 		}
 		
 		try {
@@ -131,30 +143,36 @@ public class SyncService implements Runnable, ApplicationContextAware {
 
                 for (WatchEvent<?> event : key.pollEvents()) {
                     WatchEvent.Kind<?> kind = event.kind();
-                    
                     WatchEvent<Path> ev = (WatchEvent<Path>) event;
                     Path fileName = ev.context();
                     
                     String docString = fileName.toString();
                     
                     System.out.println(kind.name() + ": " + fileName);
-                    
-                                           
+
                     if (kind == ENTRY_CREATE) {
-                    	if((docRepo.findByName(docString) == null)) {
-                    		
-                    		String pdfUri = "http://localhost:9000/mnt/documents/"+project+"/"+docString+"/"+docString+".pdf";
-                    		String txtUri = "http://localhost:9000/mnt/documents/"+project+"/"+docString+"/"+docString+".txt";
-                         		
-        					DocumentImpl doc = new DocumentImpl(docString, txtUri, pdfUri, "Open", metadataLabels);
-        					docRepo.save(doc);
-        					
-        					Map<String, Object> docMap = new HashMap<String, Object>();
-        					docMap.put("document", doc);
-        					docMap.put("isNew", "true");
-        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
-        					
-        				}
+                    	
+                    	if(folder.equals("projects")) {
+                    		taskExecutor.execute(new SyncService(docString));
+                    	}
+                    	else {
+                    	
+	                    	if((docRepo.findByName(docString) == null)) {
+	                    		
+	                    		String pdfUri = "http://localhost:9000/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";
+	                    		String txtUri = "http://localhost:9000/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
+	                         		
+	        					DocumentImpl doc = new DocumentImpl(docString, txtUri, pdfUri, "Open", metadataLabels);
+	        					docRepo.save(doc);
+	        					
+	        					Map<String, Object> docMap = new HashMap<String, Object>();
+	        					docMap.put("document", doc);
+	        					docMap.put("isNew", "true");
+	        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
+	        					
+	        				}
+                    	}
+                    	
                     }                    
                     else if(kind == ENTRY_MODIFY) {
                     	

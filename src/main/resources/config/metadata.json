@@ -1,5 +1,5 @@
 {
-	"dissertationProject":  [
+	"dissertation":  [
 		{
 			"label": "dc.abstract",
 			"gloss": "Abstract",
@@ -20,24 +20,27 @@
 		}
 	],
 	
-	"thesisProject":  [
+	"thesis":  [
 		{
-			"label": "dc.abstract",
-			"gloss": "Abstract",
+			"label": "dc.author",
+			"gloss": "Author",
+			"repeatable": true,
+			"inputType": "TEXT"
+		},
+		{
+			"label": "dc.advisor",
+			"gloss": "Advisor",
+			"repeatable": true,
+			"inputType": "TEXT"
+		}
+	],
+
+	"default":  [
+		{
+			"label": "dc.description",
+			"gloss": "Description",
 			"repeatable": false,
 			"inputType": "TEXTAREA"
-		},
-		{
-			"label": "dc.committee.chair",
-			"gloss": "Committee Chair",
-			"repeatable": true,
-			"inputType": "TEXT"
-		},
-		{
-			"label": "dc.committee.member",
-			"gloss": "Committee Member",
-			"repeatable": true,
-			"inputType": "TEXT"
 		}
 	]
 }

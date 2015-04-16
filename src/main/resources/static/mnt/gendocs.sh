@@ -2,18 +2,21 @@
 #Generates test documents
 if [ $# -eq 0 ]
 then
-	echo "Usage: gendocs [number of files created]"
+	echo "Usage: gendocs [project name] [number of files created]"
 else
-	TILL="$1"
+	TILL="$2"
 	echo $TILL
 	COUNT=0
 	
+	mkdir $1
+	sleep 30
+
 	while [ $COUNT -lt $TILL ]; 
 	do
-    	mkdir "dissertationProject/dissertation_"$COUNT
+    	mkdir $1"/"$1"_"$COUNT
     	
-    	echo "Hello, World! This is test dissertation "$COUNT"." > "dissertationProject/dissertation_"$COUNT"/dissertation_"$COUNT".txt"
-    	cp ../sample.pdf "dissertationProject/dissertation_"$COUNT"/dissertation_"$COUNT".pdf"
+    	echo "Hello, World! This is test "$1" "$COUNT"." > $1"/"$1"_"$COUNT"/"$1"_"$COUNT".txt"
+    	cp ../sample.pdf $1"/"$1"_"$COUNT"/"$1"_"$COUNT".pdf"
     	let COUNT=COUNT+1
 		
 		if [ $(($COUNT%50)) == 0 ]; then
