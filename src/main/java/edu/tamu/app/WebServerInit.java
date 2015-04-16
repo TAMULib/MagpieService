@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import edu.tamu.app.service.SyncService;
+import edu.tamu.app.service.WatcherService;
 
 /** 
  * Web server initialization.
@@ -43,7 +44,8 @@ public class WebServerInit extends SpringBootServletInitializer {
         SpringApplication.run(WebServerInit.class, args);        
         ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();  
         taskExecutor.initialize();
-    	taskExecutor.execute(new SyncService("projects"));
+        taskExecutor.execute(new SyncService());
+    	//taskExecutor.execute(new WatcherService("projects"));
     }
     
     /**
@@ -56,10 +58,11 @@ public class WebServerInit extends SpringBootServletInitializer {
    	 */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {    	
-    	SpringApplicationBuilder builder = application.sources(WebServerInit.class);    	 
+    	SpringApplicationBuilder builder = application.sources(WebServerInit.class);
     	ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();
     	taskExecutor.initialize();
-    	taskExecutor.execute(new SyncService("projects"));
+    	taskExecutor.execute(new SyncService());
+    	taskExecutor.execute(new WatcherService("projects"));
         return builder;
     }
     
@@ -76,6 +79,12 @@ public class WebServerInit extends SpringBootServletInitializer {
     	taskExecutor.setMaxPoolSize(10);
     	taskExecutor.setQueueCapacity(25);
     	return taskExecutor;
+    }
+    
+    @Bean(name="appContextProvider")
+    private static ApplicationContextProvider appContextProvider() {
+    	ApplicationContextProvider appContextProvider = new ApplicationContextProvider();
+    	return appContextProvider;
     }
    
 }

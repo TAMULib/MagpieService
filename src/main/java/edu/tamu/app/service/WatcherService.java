@@ -25,9 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -40,6 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
+import edu.tamu.app.ApplicationContextProvider;
 import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.RequestId;
 import edu.tamu.app.model.impl.ApiResImpl;
@@ -56,14 +54,12 @@ import edu.tamu.app.model.repo.DocumentRepo;
 @Component
 @Service
 @PropertySource("classpath:/config/application.properties")
-public class SyncService implements Runnable, ApplicationContextAware {
-	
-	private static ApplicationContext ac;
+public class WatcherService implements Runnable {
 	private String folder;
 	
-	public SyncService(){}
+	public WatcherService(){}
 	
-	public SyncService(String folder) {
+	public WatcherService(String folder) {
 		this.folder = folder;
 	}
 		
@@ -74,12 +70,12 @@ public class SyncService implements Runnable, ApplicationContextAware {
 	@Override
 	public void run() {
 		
-		DocumentRepo docRepo = (DocumentRepo) ac.getBean("documentRepo");
-		Environment env = ac.getEnvironment();
+		DocumentRepo docRepo = (DocumentRepo) ApplicationContextProvider.appContext.getBean("documentRepo");
+		Environment env = ApplicationContextProvider.appContext.getEnvironment();
 		
-		SimpMessagingTemplate simpMessagingTemplate = (SimpMessagingTemplate) ac.getBean("brokerMessagingTemplate");
+		SimpMessagingTemplate simpMessagingTemplate = (SimpMessagingTemplate) ApplicationContextProvider.appContext.getBean("brokerMessagingTemplate");
 		
-		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) ac.getBean("taskExecutor");
+		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) ApplicationContextProvider.appContext.getBean("taskExecutor");
 		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -93,7 +89,7 @@ public class SyncService implements Runnable, ApplicationContextAware {
 			e2.printStackTrace();
 		}
 		
-		ObjectMapper om = (ObjectMapper) ac.getBean("objectMapper");
+		ObjectMapper om = (ObjectMapper) ApplicationContextProvider.appContext.getBean("objectMapper");
 		
 		Map<String, Object> projectMap = null;
 		
@@ -153,7 +149,7 @@ public class SyncService implements Runnable, ApplicationContextAware {
                     if (kind == ENTRY_CREATE) {
                     	
                     	if(folder.equals("projects")) {
-                    		taskExecutor.execute(new SyncService(docString));
+                    		taskExecutor.execute(new WatcherService(docString));
                     	}
                     	else {
                     	
@@ -196,16 +192,6 @@ public class SyncService implements Runnable, ApplicationContextAware {
             System.err.println(ex);
         }
 		
-	}
-
-	/**
-	 * Sets application context.
-	 * 
-	 * @param		ac			ApplicationContext
-	 */
-	@Override
-	public void setApplicationContext(ApplicationContext ac) throws BeansException {
-		SyncService.ac = ac;
 	}
 	
 }

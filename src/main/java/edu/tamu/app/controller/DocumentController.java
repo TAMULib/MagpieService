@@ -25,6 +25,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,6 +36,7 @@ import edu.tamu.app.model.impl.ApiResImpl;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.RequestId;
+import edu.tamu.app.service.SyncService;
 
 /** 
  * Document Controller
@@ -58,6 +60,28 @@ public class DocumentController {
 	
 	@Autowired 
 	private SimpMessagingTemplate simpMessagingTemplate; 
+	
+	@Autowired 
+	private ThreadPoolTaskExecutor taskExecutor; 
+	
+	
+	
+	//put in admin controller
+	
+	@MessageMapping("/sync")
+	@SendToUser
+	public ApiResImpl syncDocuments(Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);		
+		taskExecutor.execute(new SyncService());
+		
+		System.out.println("Running Sync On the service");
+		
+		return new ApiResImpl("success", "ok", new RequestId(requestId));
+	}
+	
+	
+	
 	
 	/**
 	 * Endpoint to return all documents.
