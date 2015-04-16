@@ -71,6 +71,18 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	public Page<DocumentImpl> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCase(Pageable page, String name1, String status1, String name2, String status2);
 	
 	/**
+	 * Retrieve document by name and status.
+	 * 
+	 * @param 		page				Pageable
+	 * @param 		name				String
+	 * @param 		status				String
+	 * 
+	 * @return		Page<DocumentImpl>
+	 * 
+	 */
+	public Page<DocumentImpl> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCase(Pageable page, String name, String status);
+	
+	/**
 	 * Retrieve document by name and annotator.
 	 * 
 	 * @param 		page				Pageable
@@ -95,6 +107,17 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	public Page<DocumentImpl> findByStatusContainingIgnoreCaseOrStatusContainingIgnoreCase(Pageable page, String status1, String status2);
 	
 	/**
+	 * Retrieve document by status.
+	 * 
+	 * @param 		page				Pageable
+	 * @param 		status				String
+	 * 
+	 * @return		Page<DocumentImpl>
+	 * 
+	 */
+	public Page<DocumentImpl> findByStatusContainingIgnoreCase(Pageable page, String status);
+	
+	/**
 	 * Retrieve document by status and annotator.
 	 * 
 	 * @param 		page				Pageable
@@ -105,6 +128,18 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * 
 	 */
 	public Page<DocumentImpl> findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String status1, String annotator1, String status2, String annotator2);
+	
+	/**
+	 * Retrieve document by status and annotator.
+	 * 
+	 * @param 		page				Pageable
+	 * @param 		status				String
+	 * @param 		annotator			String
+	 * 
+	 * @return		Page<DocumentImpl>
+	 * 
+	 */
+	public Page<DocumentImpl> findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String status, String annotator);
 	
 	/**
 	 * Retrieve document by annotator.
@@ -129,5 +164,18 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * 
 	 */
 	public Page<DocumentImpl> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String name1, String status1, String annotator1, String name2, String status2, String annotator2);
+	
+	/**
+	 * Retrieve document by name and status.
+	 * 
+	 * @param 		page				Pageable
+	 * @param 		name				String
+	 * @param 		status				String
+	 * @param 		annotator			String
+	 * 
+	 * @return		Page<DocumentImpl>
+	 * 
+	 */
+	public Page<DocumentImpl> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String name, String status, String annotator);
 	
 }
