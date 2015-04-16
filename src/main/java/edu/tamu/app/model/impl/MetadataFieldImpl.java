@@ -9,8 +9,11 @@
  */
 package edu.tamu.app.model.impl;
 
-import javax.persistence.Column;
+import java.util.List;
+
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,16 +37,10 @@ public class MetadataFieldImpl implements MetadataField {
 	private String name;
 	
 	private String label;
-		
-	private String value;
 	
-	@Column(name="is_repeatable")
-	private boolean isRepeatable;
-	
-	private int index;
-	
-	private String status;
-	
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<String> values;
+			
 	/**
 	 * Empty constructor.
 	 */
@@ -52,51 +49,18 @@ public class MetadataFieldImpl implements MetadataField {
 	}
 	
 	/**
+	 * @param values 
 	 * 
 	 */
-	public MetadataFieldImpl(String name) {
-		super();
-		this.name = name;
-	}
-	
-	/**
-	 * 
-	 */
-	public MetadataFieldImpl(String name, String label, String value, boolean isRepeatable) {
+	public MetadataFieldImpl(String name, String label, List<String> values) {
 		super();
 		this.name = name;
 		this.label = label;
-		this.value = value;
-		this.isRepeatable = isRepeatable;
-	}
-	
-	/**
-	 * 
-	 */
-	public MetadataFieldImpl(String name, String label, String value, boolean isRepeatable, int index) {
-		super();
-		this.name = name;
-		this.label = label;
-		this.value = value;
-		this.isRepeatable = isRepeatable;
-		this.index = index;
-	}
-	
-	/**
-	 * 
-	 */
-	public MetadataFieldImpl(String name, String label, String value, boolean isRepeatable, int index, String status) {
-		super();
-		this.name = name;
-		this.label = label;
-		this.value = value;
-		this.isRepeatable = isRepeatable;
-		this.index = index;
-		this.status = status;
+		this.values = values;
 	}
 
 	/**
-	 * 	Gets id.
+	 * Gets id.
 	 * 
 	 * @return		Long
 	 */
@@ -131,20 +95,11 @@ public class MetadataFieldImpl implements MetadataField {
 		this.name = name;
 	}
 
-	/**
-	 * Gets label.
-	 * 
-	 * @return		String
-	 */
+
 	public String getLabel() {
 		return label;
 	}
 
-	/**
-	 * Sets label.
-	 * 
-	 * @param 		label			String
-	 */
 	public void setLabel(String label) {
 		this.label = label;
 	}
@@ -154,8 +109,8 @@ public class MetadataFieldImpl implements MetadataField {
 	 * 
 	 * @return		String
 	 */
-	public String getValue() {
-		return value;
+	public List<String> getValues() {
+		return values;
 	}
 
 	/**
@@ -163,62 +118,8 @@ public class MetadataFieldImpl implements MetadataField {
 	 * 
 	 * @param 		value			String
 	 */
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	/**
-	 * Gets isRepeatable.
-	 * 
-	 * @return		boolean
-	 */
-	public boolean getIsRepeatable() {
-		return isRepeatable;
-	}
-
-	/**
-	 * Sets isRepeatable.
-	 * 
-	 * @param 		isRepeatable	boolean
-	 */
-	public void setRepeatable(boolean isRepeatable) {
-		this.isRepeatable = isRepeatable;
-	}
-
-	/**
-	 * Gets index.
-	 * 
-	 * @return		int
-	 */
-	public int getIndex() {
-		return index;
-	}
-
-	/**
-	 * Sets index.
-	 * 
-	 * @param 		index			int
-	 */
-	public void setIndex(int index) {
-		this.index = index;
-	}
-	
-	/**
-	 * Gets status.
-	 * 
-	 * @return		String
-	 */
-	public String getStatus() {
-		return status;
-	}
-
-	/**
-	 * Sets status.
-	 * 
-	 * @param 		status			String
-	 */
-	public void setStatus(String status) {
-		this.status = status;
+	public void setValues(List<String> values) {
+		this.values = values;
 	}
 
 }

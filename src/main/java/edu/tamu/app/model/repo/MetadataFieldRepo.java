@@ -35,16 +35,6 @@ public interface MetadataFieldRepo extends JpaRepository <MetadataFieldImpl, Lon
 	 * 
 	 */
 	public List<MetadataFieldImpl> getMetadataFieldsByName(String name);
-	
-	/**
-	 * Retrieve metadata by status.
-	 * 
-	 * @param 		status				String
-	 * 
-	 * @return		MetadataFieldImpl
-	 * 
-	 */
-	public List<MetadataFieldImpl> getMetadataFieldsByStatus(String status);
 
 	/**
 	 * Deletes metadata by name.

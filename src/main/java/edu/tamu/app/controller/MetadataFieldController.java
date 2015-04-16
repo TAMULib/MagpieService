@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.RequestId;
 import edu.tamu.app.model.impl.ApiResImpl;
+import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.impl.MetadataFieldImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
@@ -85,9 +87,32 @@ public class MetadataFieldController {
 	public ApiResImpl published(Message<?> message) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);
-		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
-		metadataMap.put("list", metadataRepo.getMetadataFieldsByStatus("Published"));
-		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
+		
+		List<List<String>> metadata = new ArrayList<List<String>>();
+		
+		List<DocumentImpl> documents = docRepo.getAllByStatus("Published");
+		
+		for(DocumentImpl document : documents) {
+			
+			List<MetadataFieldImpl> metadataFields = metadataRepo.getMetadataFieldsByName(document.getName());
+			
+			for(MetadataFieldImpl metadataField : metadataFields) {
+				
+				for(String value : metadataField.getValues()) {
+					
+					List<String> documentMetadata = new ArrayList<String>();
+					documentMetadata.add(metadataField.getName());
+					documentMetadata.add(metadataField.getLabel());
+					documentMetadata.add(value);
+					
+					metadata.add(documentMetadata);
+				}
+				
+			}
+			
+		}
+		
+		return new ApiResImpl("success", metadata, new RequestId(requestId));
 	}
 	
 	/**
@@ -125,7 +150,6 @@ public class MetadataFieldController {
 	 * 
 	 * @throws 		Exception
 	 */
-	@SuppressWarnings("unchecked")
 	@MessageMapping("/get")
 	@SendToUser
 	public ApiResImpl get(Message<?> message) throws Exception {		
@@ -133,6 +157,7 @@ public class MetadataFieldController {
 		String requestId = accessor.getNativeHeader("id").get(0);		
 		String data = accessor.getNativeHeader("data").get(0).toString();
 		Map<String, String> headerMap = new HashMap<String, String>();
+		
 		try {
 			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
@@ -142,24 +167,9 @@ public class MetadataFieldController {
 		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(headerMap.get("name"));
 		
 		Map<String, Object> metadataMap = new HashMap<String, Object>();
-		for (MetadataFieldImpl field : fields) {
-			if(field.getIsRepeatable()) {
-				
-				Map<String, String> map = new HashMap<String, String>();
-				
-				if(metadataMap.containsKey(field.getLabel())) {
-					map = (Map<String, String>) metadataMap.get(field.getLabel());
-				}
-				
-				map.put(String.valueOf(field.getIndex()), field.getValue());
-				
-				metadataMap.put(field.getLabel(), map);
-			}
-			else {
-				metadataMap.put(field.getLabel(), field.getValue());
-			}
+		for (MetadataFieldImpl field : fields) {			
+			metadataMap.put(field.getLabel(), field.getValues());
 		}
-		
 		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
 	}
 	
@@ -173,65 +183,36 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	@MessageMapping("/add")
 	@SendToUser
 	public ApiResImpl add(Message<?> message) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
-		Map<String,String> map = new HashMap<String,String>();
+		Map<String,Object> map = new HashMap<String,Object>();
 		try {
-			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+			map = objectMapper.readValue(data, new TypeReference<HashMap<String,Object>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		MetadataFieldImpl metadata = null;
+		Map<String, Object> metadataFields = (Map<String, Object>) map.get("metadata") ;
 		
-		if(Boolean.parseBoolean(map.get("isRepeatable"))) {
+		for (String label : metadataFields.keySet()) {
+						
+			List<String> metadataEntry = new ArrayList<String>();
 			
-			List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(map.get("name"));
-
-			for (MetadataFieldImpl field : fields) {
-				
-				if(field.getLabel().equals(map.get("label"))) {
-					
-					if(map.get("value").equals(field.getValue())) {
-						metadata = field;
-					}
-					else {
-						if(field.getIndex() == Integer.parseInt(map.get("index"))) {
-							metadata = field;
-							metadata.setValue(map.get("value"));
-						}
-					}
-				}
+			List<String> metadataValues = (List<String>) metadataFields.get(label);
+			
+			for (String metadata :metadataValues) {
+				metadataEntry.add(metadata);
 			}
 			
-		}
-		else {
-			List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(map.get("name"));
+			MetadataFieldImpl documentMetadata = new MetadataFieldImpl((String) map.get("name"), label, metadataEntry);
+			metadataRepo.save(documentMetadata);
 
-			for (MetadataFieldImpl field : fields) {
-				
-				if(field.getLabel().equals(map.get("label"))) {
-					metadata = field;
-					metadata.setValue(map.get("value"));					
-				}
-				
-			}
 		}
-		
-		if(metadata == null) {
-			metadata = new MetadataFieldImpl(map.get("name"), 
-					   map.get("label"), 
-					   map.get("value"),
-					   Boolean.parseBoolean(map.get("isRepeatable")),
-					   Integer.parseInt(map.get("index")),
-					   map.get("status"));
-		}
-		
-		metadataRepo.save(metadata);
 		
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
