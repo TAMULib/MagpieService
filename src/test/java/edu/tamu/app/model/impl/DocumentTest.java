@@ -39,18 +39,12 @@ public class DocumentTest {
 		
 		DocumentImpl testDocument1 = new DocumentImpl("testFile1", "Unassigned", null, null, null);
 		
-		DocumentImpl testDocument2 = new DocumentImpl("testFile1", "Unassigned", null, null, null);
-		
 		documentRepo.save(testDocument1);
 		DocumentImpl assertDocument = documentRepo.findByName("testFile1");
 		Assert.assertEquals("Test Document 1 was not added.", testDocument1.getName(), assertDocument.getName());
 		
-		documentRepo.save(testDocument2);		
-		List<DocumentImpl> allDocuments = (List<DocumentImpl>) documentRepo.findAll();
-		Assert.assertEquals("Duplicate filename found.", 1, allDocuments.size());
-		
 		documentRepo.delete(testDocument1);
-		allDocuments = (List<DocumentImpl>) documentRepo.findAll();
+		List<DocumentImpl> allDocuments = (List<DocumentImpl>) documentRepo.findAll();
 		Assert.assertEquals("Test Document 1 was not removed.", 0, allDocuments.size());
 		
 	}
