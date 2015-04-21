@@ -87,12 +87,9 @@ public class SyncService implements Runnable {
         	List<Path> documents = fileList(project.toString());
         	
         	System.out.println(project.getFileName().toString());
+        	List<Object> profile = (List<Object>) projectMap.get(project.getFileName().toString());
         	
         	for(Path document : documents) {
-        		
-        		System.out.println("\n\n"+document.getFileName().toString()+"\n\n");
-        		
-        		List<Object> profile = (List<Object>) projectMap.get(document.getFileName().toString());
     			
     			if(profile == null) profile = (List<Object>) projectMap.get("default");
     			
