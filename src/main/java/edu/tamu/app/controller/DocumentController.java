@@ -129,9 +129,7 @@ public class DocumentController {
 		map.put("annotator", doc.getAnnotator());
 		map.put("metadataLabels", doc.getMetadataLabels());
 		map.put("notes", doc.getNotes());
-		
-		System.out.println("\n\n"+map+"\n\n");
-		
+				
 		return new ApiResImpl("success", map, new RequestId(requestId));
 	}
 	
@@ -247,13 +245,14 @@ public class DocumentController {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
-		}	
+		}
+				
 		DocumentImpl doc = docRepo.findByName(map.get("name"));
 		if(map.get("status").equals("Open")) {
 			doc.setAnnotator("");
 		}
 		else {
-			doc.setAnnotator(map.get("uin"));
+			doc.setAnnotator(map.get("user"));
 		}
 		doc.setNotes(map.get("notes"));
 		doc.setStatus(map.get("status"));
