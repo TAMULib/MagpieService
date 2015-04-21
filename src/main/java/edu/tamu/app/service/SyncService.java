@@ -77,7 +77,7 @@ public class SyncService implements Runnable {
 			e.printStackTrace();
 		}
 	
-		List<MetadataLabelImpl> metadataLabels = new ArrayList<MetadataLabelImpl>();
+		List<MetadataLabelImpl> metadataLabels;
 		
 		String directory = env.getProperty("app.directory") + "/projects";
 		
@@ -94,6 +94,8 @@ public class SyncService implements Runnable {
     			
     			if(profile == null) profile = (List<Object>) projectMap.get("default");
     			
+    			metadataLabels = new ArrayList<MetadataLabelImpl>();
+    			
     			for(Object metadata : profile) {
     				
     				Map<String, Object> mMap = (Map<String, Object>) metadata;
@@ -109,7 +111,9 @@ public class SyncService implements Runnable {
             		
             		String pdfUri = "http://localhost:9000/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".pdf";
             		String txtUri = "http://localhost:9000/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".txt";
-                 		
+
+            		System.out.println("\n\n"+metadataLabels+"\n\n");
+	
 					DocumentImpl doc = new DocumentImpl(document.getFileName().toString(), txtUri, pdfUri, "Open", metadataLabels);
 					docRepo.save(doc);
 					

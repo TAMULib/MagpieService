@@ -129,6 +129,9 @@ public class DocumentController {
 		map.put("annotator", doc.getAnnotator());
 		map.put("metadataLabels", doc.getMetadataLabels());
 		map.put("notes", doc.getNotes());
+		
+		System.out.println("\n\n"+map+"\n\n");
+		
 		return new ApiResImpl("success", map, new RequestId(requestId));
 	}
 	
