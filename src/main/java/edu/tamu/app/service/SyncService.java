@@ -79,6 +79,7 @@ public class SyncService implements Runnable {
 	
 		List<MetadataLabelImpl> metadataLabels;
 		
+		String host = env.getProperty("app.host");
 		String directory = env.getProperty("app.directory") + "/projects";
 		
 		List<Path> projects = fileList(directory);
@@ -108,8 +109,8 @@ public class SyncService implements Runnable {
     			    			
     			if((docRepo.findByName(document.getFileName().toString()) == null)) {
             		
-            		String pdfUri = "http://localhost:9000/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".pdf";
-            		String txtUri = "http://localhost:9000/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".txt";
+            		String pdfUri = host+"/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".pdf";
+            		String txtUri = host+"/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".txt";
 	
 					DocumentImpl doc = new DocumentImpl(document.getFileName().toString(), txtUri, pdfUri, "Open", metadataLabels);
 					docRepo.save(doc);
