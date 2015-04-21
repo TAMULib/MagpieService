@@ -45,7 +45,7 @@ public class WebServerInit extends SpringBootServletInitializer {
         ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();  
         taskExecutor.initialize();
         taskExecutor.execute(new SyncService());
-    	//taskExecutor.execute(new WatcherService("projects"));
+    	taskExecutor.execute(new WatcherService("projects"));
     }
     
     /**
