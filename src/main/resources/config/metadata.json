@@ -37,6 +37,12 @@
 
 	"default":  [
 		{
+			"label": "dc.title",
+			"gloss": "Title",
+			"repeatable": false,
+			"inputType": "TEXTAREA"
+		},
+		{
 			"label": "dc.description",
 			"gloss": "Description",
 			"repeatable": false,
