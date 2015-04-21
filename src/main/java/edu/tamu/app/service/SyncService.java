@@ -90,6 +90,8 @@ public class SyncService implements Runnable {
         	
         	for(Path document : documents) {
         		
+        		System.out.println("\n\n"+document.getFileName().toString()+"\n\n");
+        		
         		List<Object> profile = (List<Object>) projectMap.get(document.getFileName().toString());
     			
     			if(profile == null) profile = (List<Object>) projectMap.get("default");
@@ -111,8 +113,6 @@ public class SyncService implements Runnable {
             		
             		String pdfUri = "http://localhost:9000/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".pdf";
             		String txtUri = "http://localhost:9000/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".txt";
-
-            		System.out.println("\n\n"+metadataLabels+"\n\n");
 	
 					DocumentImpl doc = new DocumentImpl(document.getFileName().toString(), txtUri, pdfUri, "Open", metadataLabels);
 					docRepo.save(doc);
