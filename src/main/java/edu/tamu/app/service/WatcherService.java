@@ -101,6 +101,7 @@ public class WatcherService implements Runnable {
 	
 		List<MetadataLabelImpl> metadataLabels = new ArrayList<MetadataLabelImpl>();
 		
+		String host = env.getProperty("app.host");
 		String directory = env.getProperty("app.directory") + "/" + folder;
 		
 		if(!folder.equals("projects")) {
@@ -155,8 +156,8 @@ public class WatcherService implements Runnable {
                     	
 	                    	if((docRepo.findByName(docString) == null)) {
 	                    		
-	                    		String pdfUri = "http://localhost:9000/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";
-	                    		String txtUri = "http://localhost:9000/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
+	                    		String pdfUri = host+"/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";
+	                    		String txtUri = host+"/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
 	                         		
 	        					DocumentImpl doc = new DocumentImpl(docString, txtUri, pdfUri, "Open", metadataLabels);
 	        					docRepo.save(doc);
