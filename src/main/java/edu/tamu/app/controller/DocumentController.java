@@ -75,7 +75,7 @@ public class DocumentController {
 		String requestId = accessor.getNativeHeader("id").get(0);		
 		taskExecutor.execute(new SyncService());
 		
-		System.out.println("Running Sync On the service");
+		System.out.println("Syncronizing projects with database.");
 		
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}

@@ -95,8 +95,18 @@ public interface Document {
 	 */
 	public void setNotes(String notes);
 	
+	/**
+	 * Gets metadata labels.
+	 * 
+	 * @return		List<MetadataLabelImpl>
+	 */
 	public List<MetadataLabelImpl> getMetadataLabels();
 
+	/**
+	 * Sets metadata labels.
+	 * 
+	 * @param 		metadataLabels		List<MetadataLabelImpl>
+	 */
 	public void setMetadataLabels(List<MetadataLabelImpl> metadataLabels);
 	
 }

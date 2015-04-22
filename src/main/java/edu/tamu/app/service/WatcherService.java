@@ -85,7 +85,6 @@ public class WatcherService implements Runnable {
 		try {
 			json = new String(readAllBytes(get(fullPath + "/metadata.json")));
 		} catch (IOException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 		

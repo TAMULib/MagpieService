@@ -1,3 +1,12 @@
+/* 
+ * ApplicationContextProvider.java 
+ * 
+ * Version: 
+ *     $Id$ 
+ * 
+ * Revisions: 
+ *     $Log$ 
+ */
 package edu.tamu.app;
 
 import org.springframework.beans.BeansException;
@@ -8,6 +17,13 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Sets an application context for use during initialization of the app.
+ * Used to start watcher service during app startup.
+ * 
+ * @author 
+ *
+ */
 @ComponentScan
 @Configuration
 @EnableAutoConfiguration
