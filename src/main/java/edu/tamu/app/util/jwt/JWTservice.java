@@ -48,7 +48,7 @@ public class  JWTservice {
 	/**
 	 * Hashes signature with secret and returns it encoded.
 	 *
-	 * @param       sig				String
+	 * @param       signature		String
 	 * @param       secret			String
 	 *
 	 * @return      String
@@ -57,15 +57,15 @@ public class  JWTservice {
 	 * @exception   InvalidKeyException
 	 * 
 	 */
-	public String hashSignature(String sig, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
+	public String hashSignature(String signature, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
 		
 		Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
 		SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
 		sha256_HMAC.init(secret_key);
 		
-		byte[] signature = sha256_HMAC.doFinal(sig.getBytes());
+		byte[] byteSignature = sha256_HMAC.doFinal(signature.getBytes());
 		
-		return encodeBase64URLSafeString(signature); 
+		return encodeBase64URLSafeString(byteSignature); 
 	}
 
 }

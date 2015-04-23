@@ -1,5 +1,5 @@
 /* 
- * Document.java 
+ * MetadataField.java 
  * 
  * Version: 
  *     $Id$ 
@@ -12,7 +12,7 @@ package edu.tamu.app.model;
 import java.util.List;
 
 /**
- * Document interface.
+ * MetadataField interface.
  * 
  * @author
  *

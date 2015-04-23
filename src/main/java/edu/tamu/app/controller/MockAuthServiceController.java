@@ -28,7 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.tamu.app.model.jwt.JWTtoken;
 
 /** 
- * 
+ * Controller for a Mock Authorization Service.
  * 
  * @author
  *

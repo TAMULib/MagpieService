@@ -17,6 +17,7 @@ import javax.persistence.Table;
 import edu.tamu.app.model.User;
 
 /**
+ * Implementation of user object.
  * 
  * @author 
  *
@@ -37,6 +38,14 @@ public class UserImpl implements User {
 	
 	@Column(name="role")
 	private String role;
+	
+	/**
+	 * Default constructor.
+	 * 
+	 */
+	public UserImpl() {
+		super();
+	}
 	
 	/**
 	 * Sets UIN.
@@ -64,6 +73,7 @@ public class UserImpl implements User {
 	 * Gets firstName.
 	 * 
 	 * @return		String
+	 * 
 	 */
 	public String getFirstName() {
 		return firstName;
@@ -73,6 +83,7 @@ public class UserImpl implements User {
 	 * Sets firstName.
 	 * 
 	 * @param 		firstName		String
+	 * 
 	 */
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
@@ -82,6 +93,7 @@ public class UserImpl implements User {
 	 * Gets lastName.
 	 * 
 	 * @return		String
+	 * 
 	 */
 	public String getLastName() {
 		return lastName;
@@ -91,6 +103,7 @@ public class UserImpl implements User {
 	 * Sets lastName.
 	 * 
 	 * @param 		lastName		String
+	 * 
 	 */
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
@@ -117,4 +130,5 @@ public class UserImpl implements User {
 	public String getRole() {
 		return role;
 	}
+	
 }

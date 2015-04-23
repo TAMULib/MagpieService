@@ -23,6 +23,7 @@ import javax.persistence.Table;
 import edu.tamu.app.model.Document;
 
 /**
+ * Implementation of document object.
  * 
  * @author 
  *
@@ -53,6 +54,7 @@ public class DocumentImpl implements Document {
 	private List<MetadataLabelImpl> metadataLabels;
 	
 	/**
+	 * Default constructor.
 	 * 
 	 */
 	public DocumentImpl() {
@@ -60,10 +62,12 @@ public class DocumentImpl implements Document {
 	}
 	
 	/**
+	 * Constructor.
 	 * 
-	 * @param name
-	 * @param uri
-	 * @param status
+	 * @param 		name			String
+	 * @param 		uri				String
+	 * @param 		status			String
+	 * 
 	 */
 	public DocumentImpl(String name, String txtUri, String pdfUri, String status, List<MetadataLabelImpl> metadataLabels) {
 		super();
@@ -86,7 +90,7 @@ public class DocumentImpl implements Document {
 	/**
 	 * Sets name.
 	 * 
-	 * @param 		name				String
+	 * @param 		name			String
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -132,7 +136,7 @@ public class DocumentImpl implements Document {
 	/**
 	 * Sets status.
 	 * 
-	 * @param 		status				String
+	 * @param 		status			String
 	 */
 	public void setStatus(String status) {
 		this.status = status;
@@ -150,7 +154,7 @@ public class DocumentImpl implements Document {
 	/**
 	 * Sets annotator.
 	 * 
-	 * @param 		annotator			String
+	 * @param 		annotator		String
 	 */
 	public void setAnnotator(String annotator) {
 		this.annotator = annotator;
@@ -168,24 +172,46 @@ public class DocumentImpl implements Document {
 	/**
 	 * Sets notes.
 	 * 
-	 * @param 		annotator			String
+	 * @param 		annotator		String
 	 */
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
 	
+	/**
+	 * Gets id.
+	 * 
+	 * @return		Long
+	 * 
+	 */
 	public Long getId() {
 		return id;
 	}
 
+	/**
+	 * Sets id.
+	 * 
+	 * @param		id				Long
+	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	/**
+	 * Gets metadata labels.
+	 * 
+	 * @return 		List<MetadataLabelImpl>
+	 * 
+	 */
 	public List<MetadataLabelImpl> getMetadataLabels() {
 		return metadataLabels;
 	}
 
+	/**
+	 * Sets metadata labels.
+	 * 
+	 * @param		metadataLabels	List<MetadataLabelImpl>
+	 */
 	public void setMetadataLabels(List<MetadataLabelImpl> metadataLabels) {
 		this.metadataLabels = metadataLabels;
 	}

@@ -64,10 +64,18 @@ public class DocumentController {
 	@Autowired 
 	private ThreadPoolTaskExecutor taskExecutor; 
 	
-	
-	
 	//put in admin controller
 	
+	/**
+	 * Synchronizes the project directory with the database.
+	 * 
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
 	@MessageMapping("/sync")
 	@SendToUser
 	public ApiResImpl syncDocuments(Message<?> message) throws Exception {
@@ -75,13 +83,10 @@ public class DocumentController {
 		String requestId = accessor.getNativeHeader("id").get(0);		
 		taskExecutor.execute(new SyncService());
 		
-		System.out.println("Running Sync On the service");
+		System.out.println("Syncronizing projects with database.");
 		
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
-	
-	
-	
 	
 	/**
 	 * Endpoint to return all documents.
@@ -111,6 +116,7 @@ public class DocumentController {
 	 * @return		ApiResImpl
 	 * 
 	 * @throws 		Exception
+	 * 
 	 */
 	@MessageMapping("/get")
 	@SendToUser
@@ -134,7 +140,7 @@ public class DocumentController {
 	}
 	
 	/**
-	 * Endpoint to return page documents.
+	 * Endpoint to return a page of documents.
 	 * 
 	 * @param 		message			Message<?>
 	 * 
@@ -267,10 +273,14 @@ public class DocumentController {
 	
 	
 	/**
+	 * Returns the url of the requested txt document.
 	 * 
-	 * @param message
-	 * @return
-	 * @throws Exception
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
 	 */
 	@MessageMapping("/txt")
 	@SendToUser
@@ -294,10 +304,14 @@ public class DocumentController {
 	}
 	
 	/**
+	 * Returns the url of the requested pdf document.
 	 * 
-	 * @param message
-	 * @return
-	 * @throws Exception
+	 * @param 		message			Message<?> message
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
 	 */
 	@MessageMapping("/pdf")
 	@SendToUser

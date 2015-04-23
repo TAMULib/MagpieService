@@ -1,3 +1,12 @@
+/* 
+ * SyncService.java 
+ * 
+ * Version: 
+ *     $Id$ 
+ * 
+ * Revisions: 
+ *     $Log$ 
+ */
 package edu.tamu.app.service;
 
 import static java.nio.file.Files.readAllBytes;
@@ -32,7 +41,7 @@ import edu.tamu.app.model.impl.MetadataLabelImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
 
 /** 
- * Watcher Service.
+ * Sync Service. Synchronizes project database with projects folders.
  * 
  * @author
  *
@@ -42,8 +51,18 @@ import edu.tamu.app.model.repo.DocumentRepo;
 @PropertySource("classpath:/config/application.properties")
 public class SyncService implements Runnable {
 		
-	public SyncService(){}
+	/**
+	 * Default constructor.
+	 * 
+	 */
+	public SyncService() {
+		super();
+	}
 
+	/**
+	 * SyncService runnable.
+	 * 
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
@@ -63,7 +82,6 @@ public class SyncService implements Runnable {
 		try {
 			json = new String(readAllBytes(get(fullPath + "/metadata.json")));
 		} catch (IOException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 		
@@ -125,18 +143,21 @@ public class SyncService implements Runnable {
         	}
         }
 		
-		
-		
 	}
 	
+	/**
+	 * Retrieves a list of files in a directory.
+	 * 
+	 * @param 		directory		String
+	 * 
+	 * @return		List<Path>
+	 * 
+	 */
 	public static List<Path> fileList(String directory) {
         List<Path> fileNames = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory))) {
             for (Path path : directoryStream) {
-                fileNames.add(path);
-                
-                System.out.println(path);
-                
+                fileNames.add(path);            
             }
         } catch (IOException ex) {}
         return fileNames;
