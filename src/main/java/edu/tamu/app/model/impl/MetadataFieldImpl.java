@@ -1,5 +1,5 @@
 /* 
- * DocumentImpl.java 
+ * MetadataFieldImpl.java 
  * 
  * Version: 
  *     $Id$ 
@@ -9,8 +9,11 @@
  */
 package edu.tamu.app.model.impl;
 
-import javax.persistence.Column;
+import java.util.List;
+
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,6 +22,7 @@ import javax.persistence.Table;
 import edu.tamu.app.model.MetadataField;
 
 /**
+ * Implementation of metadatafield object.
  * 
  * @author 
  *
@@ -29,66 +33,43 @@ public class MetadataFieldImpl implements MetadataField {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="id")
 	private Long id;
 	
-	@Column(name="filename")
-	private String filename;
+	private String name;
 	
-	@Column(name="label")
 	private String label;
-		
-	@Column(name="value")
-	private String value;
 	
-	@Column(name="is_repeatable")
-	private boolean isRepeatable;
-	
-	@Column(name="index")
-	private int index;
-	
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<String> values;
+			
 	/**
-	 * Empty constructor.
+	 * Default constructor.
+	 * 
 	 */
 	public MetadataFieldImpl() {
 		super();
 	}
 	
 	/**
+	 * Constructor.
+	 * 
+	 * @param 		name 			String
+	 * @param		label			String
+	 * @param		values			List<String>
 	 * 
 	 */
-	public MetadataFieldImpl(String filename) {
+	public MetadataFieldImpl(String name, String label, List<String> values) {
 		super();
-		this.filename = filename;
-	}
-	
-	/**
-	 * 
-	 */
-	public MetadataFieldImpl(String filename, String label, String value, boolean isRepeatable) {
-		super();
-		this.filename = filename;
+		this.name = name;
 		this.label = label;
-		this.value = value;
-		this.isRepeatable = isRepeatable;
-	}
-	
-	/**
-	 * 
-	 */
-	public MetadataFieldImpl(String filename, String label, String value, boolean isRepeatable, int index) {
-		super();
-		this.filename = filename;
-		this.label = label;
-		this.value = value;
-		this.isRepeatable = isRepeatable;
-		this.index = index;
+		this.values = values;
 	}
 
 	/**
-	 * 	Gets id.
+	 * Gets id.
 	 * 
 	 * @return		Long
+	 * 
 	 */
 	public Long getId() {
 		return id;
@@ -98,33 +79,37 @@ public class MetadataFieldImpl implements MetadataField {
 	 * Sets id.
 	 * 
 	 * @param 		id				Long
+	 * 
 	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
 	/**
-	 * Gets filename.
+	 * Gets name.
 	 * 
 	 * @return		String
+	 * 
 	 */
-	public String getFilename() {
-		return filename;
+	public String getName() {
+		return name;
 	}
 
 	/**
-	 * Sets filename.
+	 * Sets name.
 	 * 
-	 * @param 		filename		String
+	 * @param 		name			String
+	 * 
 	 */
-	public void setFilename(String filename) {
-		this.filename = filename;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**
 	 * Gets label.
 	 * 
-	 * @return		String
+	 * @return 		String
+	 * 
 	 */
 	public String getLabel() {
 		return label;
@@ -134,6 +119,7 @@ public class MetadataFieldImpl implements MetadataField {
 	 * Sets label.
 	 * 
 	 * @param 		label			String
+	 * 
 	 */
 	public void setLabel(String label) {
 		this.label = label;
@@ -143,54 +129,20 @@ public class MetadataFieldImpl implements MetadataField {
 	 * Gets value.
 	 * 
 	 * @return		String
+	 * 
 	 */
-	public String getValue() {
-		return value;
+	public List<String> getValues() {
+		return values;
 	}
 
 	/**
 	 * Sets value.
 	 * 
 	 * @param 		value			String
-	 */
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	/**
-	 * Gets isRepeatable.
 	 * 
-	 * @return		boolean
 	 */
-	public boolean getIsRepeatable() {
-		return isRepeatable;
-	}
-
-	/**
-	 * Sets isRepeatable.
-	 * 
-	 * @param 		isRepeatable	boolean
-	 */
-	public void setRepeatable(boolean isRepeatable) {
-		this.isRepeatable = isRepeatable;
-	}
-
-	/**
-	 * Gets index.
-	 * 
-	 * @return		int
-	 */
-	public int getIndex() {
-		return index;
-	}
-
-	/**
-	 * Sets index.
-	 * 
-	 * @param 		index			int
-	 */
-	public void setIndex(int index) {
-		this.index = index;
+	public void setValues(List<String> values) {
+		this.values = values;
 	}
 
 }

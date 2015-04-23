@@ -1,5 +1,5 @@
 /* 
- * Document.java 
+ * MetadataField.java 
  * 
  * Version: 
  *     $Id$ 
@@ -9,8 +9,10 @@
  */
 package edu.tamu.app.model;
 
+import java.util.List;
+
 /**
- * Document interface.
+ * MetadataField interface.
  * 
  * @author
  *
@@ -32,73 +34,37 @@ public interface MetadataField {
 	public void setId(Long id);
 	
 	/**
-	 * Gets filename.
+	 * Gets name.
 	 * 
 	 * @return		String
 	 */
-	public String getFilename();
+	public String getName();
 
 	/**
-	 * Sets filename.
+	 * Sets name.
 	 * 
-	 * @param 		filename		String
+	 * @param 		name			String
 	 */
-	public void setFilename(String filename);
-
-	/**
-	 * Gets label.
-	 * 
-	 * @return		String
-	 */
+	public void setName(String name);
+	
 	public String getLabel();
 
-	/**
-	 * Sets label.
-	 * 
-	 * @param 		label			String
-	 */
 	public void setLabel(String label);
+
 
 	/**
 	 * Gets value.
 	 * 
 	 * @return		String
 	 */
-	public String getValue();
+	public List<String> getValues();
 
 	/**
 	 * Sets value.
 	 * 
 	 * @param 		value			String
 	 */
-	public void setValue(String value);
+	public void setValues(List<String> values);
 
-	/**
-	 * Gets isRepeatable.
-	 * 
-	 * @return		boolean
-	 */
-	public boolean getIsRepeatable();
-
-	/**
-	 * Sets isRepeatable.
-	 * 
-	 * @param 		isRepeatable	boolean
-	 */
-	public void setRepeatable(boolean isRepeatable);
-	
-	/**
-	 * Gets index.
-	 * 
-	 * @return		int
-	 */
-	public int getIndex();
-
-	/**
-	 * Sets index.
-	 * 
-	 * @param 		index			int
-	 */
-	public void setIndex(int index);
 	
 }

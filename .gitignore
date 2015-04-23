@@ -2,5 +2,4 @@
 .project
 .classpath
 .settings
-src/mnt/documents/*
-!src/mtn/document/gendocs.sh
+src/main/resources/static/mnt/projects/*

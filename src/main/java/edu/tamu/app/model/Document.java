@@ -9,6 +9,10 @@
  */
 package edu.tamu.app.model;
 
+import java.util.List;
+
+import edu.tamu.app.model.impl.MetadataLabelImpl;
+
 /**
  * Document interface.
  * 
@@ -17,19 +21,37 @@ package edu.tamu.app.model;
  */
 public interface Document {
 
+	public Long getId();
+	
+	public void setId(Long id);
+	
 	/**
-	 * Gets filename.
+	 * Gets name.
 	 * 
 	 * @return		String
 	 */
-	public String getFilename();
+	public String getName();
 
 	/**
-	 * Sets filename.
+	 * Sets name.
 	 * 
-	 * @param 		filename			String
+	 * @param 		name			String
 	 */
-	public void setFilename(String filename);
+	public void setName(String name);
+	
+	/**
+	 * Gets pdf uri.
+	 * 
+	 * @return		String
+	 */
+	public String getPdfUri();
+
+	/**
+	 * Sets pdf uri.
+	 * 
+	 * @param 		uri					String
+	 */
+	public void setPdfUri(String uri);
 	
 	/**
 	 * Gets status.
@@ -59,5 +81,32 @@ public interface Document {
 	 */
 	public void setAnnotator(String annotator);
 	
+	/**
+	 * Gets notes.
+	 * 
+	 * @return		String
+	 */
+	public String getNotes();
+
+	/**
+	 * Sets notes.
+	 * 
+	 * @param 		annotator			String
+	 */
+	public void setNotes(String notes);
+	
+	/**
+	 * Gets metadata labels.
+	 * 
+	 * @return		List<MetadataLabelImpl>
+	 */
+	public List<MetadataLabelImpl> getMetadataLabels();
+
+	/**
+	 * Sets metadata labels.
+	 * 
+	 * @param 		metadataLabels		List<MetadataLabelImpl>
+	 */
+	public void setMetadataLabels(List<MetadataLabelImpl> metadataLabels);
 	
 }

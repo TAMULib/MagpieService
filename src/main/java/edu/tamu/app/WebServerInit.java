@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import edu.tamu.app.service.SyncService;
+import edu.tamu.app.service.WatcherService;
 
 /** 
  * Web server initialization.
@@ -32,18 +33,19 @@ import edu.tamu.app.service.SyncService;
 @EnableAutoConfiguration
 @EnableConfigurationProperties
 public class WebServerInit extends SpringBootServletInitializer {
-		
+	
 	/**
 	 * Entry point to the application from within servlet.
 	 *
 	 * @param       args    		String[]
 	 *
 	 */
-    public static void main(String[] args) {
+    public static void main(String[] args) {    	
         SpringApplication.run(WebServerInit.class, args);        
         ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();  
         taskExecutor.initialize();
         taskExecutor.execute(new SyncService());
+    	taskExecutor.execute(new WatcherService("projects"));
     }
     
     /**
@@ -55,11 +57,12 @@ public class WebServerInit extends SpringBootServletInitializer {
    	 *
    	 */
     @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-    	SpringApplicationBuilder builder = application.sources(WebServerInit.class);    	 
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {    	
+    	SpringApplicationBuilder builder = application.sources(WebServerInit.class);
     	ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();
     	taskExecutor.initialize();
-        taskExecutor.execute(new SyncService());
+    	taskExecutor.execute(new SyncService());
+    	taskExecutor.execute(new WatcherService("projects"));
         return builder;
     }
     
@@ -69,13 +72,25 @@ public class WebServerInit extends SpringBootServletInitializer {
      * @return		ThreadPoolTaskExecutor
      * 
      */
-    @Bean
+    @Bean(name="taskExecutor")
     private static ThreadPoolTaskExecutor configureTaskExecutor() {
     	ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
     	taskExecutor.setCorePoolSize(5);
     	taskExecutor.setMaxPoolSize(10);
     	taskExecutor.setQueueCapacity(25);
     	return taskExecutor;
+    }
+    
+    /**
+     * Application context provider bean.
+     * 
+     * @return		ApplicationContextProvider
+     * 
+     */
+    @Bean(name="appContextProvider")
+    private static ApplicationContextProvider appContextProvider() {
+    	ApplicationContextProvider appContextProvider = new ApplicationContextProvider();
+    	return appContextProvider;
     }
    
 }

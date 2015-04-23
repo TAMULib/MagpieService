@@ -9,14 +9,21 @@
  */
 package edu.tamu.app.model.impl;
 
+import java.util.List;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 import edu.tamu.app.model.Document;
 
 /**
+ * Implementation of document object.
  * 
  * @author 
  *
@@ -26,74 +33,187 @@ import edu.tamu.app.model.Document;
 public class DocumentImpl implements Document {
 	
 	@Id
-	@Column(name="filename")
-	private String filename;
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Long id;
+	
+	private String name;
+	
+	@Column(name="txt_uri")
+	private String txtUri;
+	
+	@Column(name="pdf_uri")
+	private String pdfUri;
 		
-	@Column(name="status")
 	private String status;
 	
-
-	@Column(name="annotator")
 	private String annotator;
 	
+	private String notes;
+	
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<MetadataLabelImpl> metadataLabels;
+	
 	/**
+	 * Default constructor.
 	 * 
 	 */
 	public DocumentImpl() {
-		super();
+		super();	
 	}
 	
 	/**
+	 * Constructor.
 	 * 
-	 * @param filename
-	 * @param status
+	 * @param 		name			String
+	 * @param 		uri				String
+	 * @param 		status			String
+	 * 
 	 */
-	public DocumentImpl(String filename, String status) {
+	public DocumentImpl(String name, String txtUri, String pdfUri, String status, List<MetadataLabelImpl> metadataLabels) {
 		super();
-		this.filename = filename;
+		this.name = name;
+		this.txtUri = txtUri;
+		this.pdfUri = pdfUri;
 		this.status = status;
+		this.metadataLabels = metadataLabels;
+	}
+
+	/**
+	 * Gets name.
+	 * 
+	 * @return		String
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * Sets name.
+	 * 
+	 * @param 		name			String
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**
 	 * 
 	 */
-	public String getFilename() {
-		return filename;
+	public String getTxtUri() {
+		return txtUri;
 	}
 
 	/**
 	 * 
 	 */
-	public void setFilename(String filename) {
-		this.filename = filename;
+	public void setTxtUri(String uri) {
+		this.txtUri = uri;
 	}
 	
 	/**
 	 * 
+	 */
+	public String getPdfUri() {
+		return pdfUri;
+	}
+
+	/**
+	 * 
+	 */
+	public void setPdfUri(String uri) {
+		this.pdfUri = uri;
+	}
+	
+	/**
+	 * Gets status.
+	 * 
+	 * @return		String
 	 */
 	public String getStatus() {
 		return status;
 	}
 
 	/**
+	 * Sets status.
 	 * 
+	 * @param 		status			String
 	 */
 	public void setStatus(String status) {
 		this.status = status;
 	}
 	
 	/**
+	 * Gets annotator.
 	 * 
+	 * @return		String
 	 */
 	public String getAnnotator() {
 		return annotator;
 	}
 
 	/**
+	 * Sets annotator.
 	 * 
+	 * @param 		annotator		String
 	 */
 	public void setAnnotator(String annotator) {
 		this.annotator = annotator;
+	}
+	
+	/**
+	 * Gets notes.
+	 * 
+	 * @return		String
+	 */
+	public String getNotes() {
+		return notes;
+	}
+
+	/**
+	 * Sets notes.
+	 * 
+	 * @param 		annotator		String
+	 */
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+	
+	/**
+	 * Gets id.
+	 * 
+	 * @return		Long
+	 * 
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * Sets id.
+	 * 
+	 * @param		id				Long
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * Gets metadata labels.
+	 * 
+	 * @return 		List<MetadataLabelImpl>
+	 * 
+	 */
+	public List<MetadataLabelImpl> getMetadataLabels() {
+		return metadataLabels;
+	}
+
+	/**
+	 * Sets metadata labels.
+	 * 
+	 * @param		metadataLabels	List<MetadataLabelImpl>
+	 */
+	public void setMetadataLabels(List<MetadataLabelImpl> metadataLabels) {
+		this.metadataLabels = metadataLabels;
 	}
 	
 }
