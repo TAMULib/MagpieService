@@ -85,6 +85,7 @@ public class WebServerInit extends SpringBootServletInitializer {
      * Application context provider bean.
      * 
      * @return		ApplicationContextProvider
+     * 
      */
     @Bean(name="appContextProvider")
     private static ApplicationContextProvider appContextProvider() {

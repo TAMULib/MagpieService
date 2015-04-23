@@ -1,5 +1,5 @@
 /* 
- * SyncService.java 
+ * WatcherService.java 
  * 
  * Version: 
  *     $Id$ 
@@ -46,7 +46,7 @@ import edu.tamu.app.model.impl.MetadataLabelImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
 
 /** 
- * Sync Service.
+ * Watcher Service. Watches projects folder and inserts created documents into database.
  * 
  * @author
  *
@@ -57,14 +57,26 @@ import edu.tamu.app.model.repo.DocumentRepo;
 public class WatcherService implements Runnable {
 	private String folder;
 	
-	public WatcherService(){}
+	/**
+	 * Default constructor.
+	 * 
+	 */
+	public WatcherService(){
+		super();
+	}
 	
+	/**
+	 * Constructor.
+	 * 
+	 * @param 		folder			String
+	 */
 	public WatcherService(String folder) {
 		this.folder = folder;
 	}
 		
 	/**
-	 * SyncService runnable.
+	 * WatcherService runnable.
+	 * 
 	 */
 	@SuppressWarnings("unchecked")
 	@Override

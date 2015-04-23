@@ -62,8 +62,10 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * Retrieve document by name and status.
 	 * 
 	 * @param 		page				Pageable
-	 * @param 		name				String
-	 * @param 		status				String
+	 * @param 		name1				String
+	 * @param 		status1				String
+	 * @param 		name2				String
+	 * @param 		status2				String
 	 * 
 	 * @return		Page<DocumentImpl>
 	 * 
@@ -99,7 +101,8 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * Retrieve document by status.
 	 * 
 	 * @param 		page				Pageable
-	 * @param 		status				String
+	 * @param 		status1				String
+	 * @param 		status2				String
 	 * 
 	 * @return		Page<DocumentImpl>
 	 * 
@@ -121,8 +124,10 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * Retrieve document by status and annotator.
 	 * 
 	 * @param 		page				Pageable
-	 * @param 		status				String
-	 * @param 		annotator			String
+	 * @param 		status1				String
+	 * @param 		annotator1			String
+	 * @param 		status2				String
+	 * @param 		annotator2			String
 	 * 
 	 * @return		Page<DocumentImpl>
 	 * 
@@ -156,9 +161,12 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	 * Retrieve document by name and status.
 	 * 
 	 * @param 		page				Pageable
-	 * @param 		name				String
-	 * @param 		status				String
-	 * @param 		annotator			String
+	 * @param 		name1				String
+	 * @param 		status1				String
+	 * @param 		annotator1			String
+	 * @param 		name2				String
+	 * @param 		status2				String
+	 * @param 		annotator2			String
 	 * 
 	 * @return		Page<DocumentImpl>
 	 * 
