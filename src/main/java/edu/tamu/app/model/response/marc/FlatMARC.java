@@ -80,11 +80,29 @@ public class FlatMARC {
 			if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650")) {
 				Subfield[] subField = df.getSubfield();
 				if(subField.length > 0) {
-					subjectIcsh += subField[0].getValue();
+					
+					if(df.getInd2().equals("4")) {
+						subject += subField[0].getValue();
+					}
+					else {
+						if(subField[0].getCode().equals("a")) {
+							if(subjectIcsh.equals("")) {
+								subjectIcsh += subField[0].getValue();
+							}
+							else {
+								subjectIcsh += ", " + subField[0].getValue();
+							}
+						}
+					}
+					
 				}
-				if(df.getInd2().equals("4")) {
-					subject += subField[0].getValue();
+				
+				if(subField.length > 1) {
+					if(subField[1].getCode().equals("x")) {
+						subjectIcsh += " -- " + subField[0].getValue();
+					}
 				}
+				
 			}
 			
 			if(df.getTag().equals("653")) {
