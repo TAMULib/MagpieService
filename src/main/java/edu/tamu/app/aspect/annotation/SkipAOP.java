@@ -1,3 +1,12 @@
+/* 
+ * SkipAOP.java 
+ * 
+ * Version: 
+ *     $Id$ 
+ * 
+ * Revisions: 
+ *     $Log$ 
+ */
 package edu.tamu.app.aspect.annotation;
 
 import java.lang.annotation.ElementType;

@@ -1,3 +1,12 @@
+/* 
+ * HttpService.java 
+ * 
+ * Version: 
+ *     $Id$ 
+ * 
+ * Revisions: 
+ *     $Log$ 
+ */
 package edu.tamu.app.service;
 
 import java.io.BufferedReader;
@@ -8,10 +17,28 @@ import java.net.URL;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+/**
+ * Http service. Service to make http requests.
+ * 
+ * @author
+ *
+ */
 @Component
 @Service
 public class HttpService {
 	
+	/**
+	 * Makes a http request using the given url and method.
+	 * 
+	 * 
+	 * @param 		urlString		String
+	 * @param 		method			String
+	 * 
+	 * @return		String
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
 	public String makeHttpRequest(String urlString, String method) throws Exception {
 		
 		//System.out.println(urlString);
