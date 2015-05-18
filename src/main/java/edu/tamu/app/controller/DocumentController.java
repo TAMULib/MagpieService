@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -35,8 +36,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.app.model.impl.ApiResImpl;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.model.RequestId;
 import edu.tamu.app.service.SyncService;
+import edu.tamu.app.service.VoyagerService;
 
 /** 
  * Document Controller
@@ -64,7 +67,19 @@ public class DocumentController {
 	@Autowired 
 	private ThreadPoolTaskExecutor taskExecutor; 
 	
-	//put in admin controller
+	@Autowired 
+	private VoyagerService voyagerService; 
+	
+	@MessageMapping("/marc/{bibId}")
+	@SendToUser
+	public ApiResImpl getMARC(@DestinationVariable String bibId, Message<?> message) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+		String requestId = accessor.getNativeHeader("id").get(0);		
+		
+		return new ApiResImpl("success", new FlatMARC(voyagerService.getMARC(bibId).get(0)), new RequestId(requestId));
+	}
+	
+	// put in admin controller
 	
 	/**
 	 * Synchronizes the project directory with the database.
