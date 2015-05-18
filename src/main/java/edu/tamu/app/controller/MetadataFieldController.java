@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.app.aspect.annotation.ReqId;
 import edu.tamu.app.model.RequestId;
 import edu.tamu.app.model.impl.ApiResImpl;
 import edu.tamu.app.model.impl.DocumentImpl;
@@ -56,6 +57,7 @@ public class MetadataFieldController {
 	 * Endpoint to return all metadata fields.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -64,9 +66,7 @@ public class MetadataFieldController {
 	 */
 	@MessageMapping("/all")
 	@SendToUser
-	public ApiResImpl all(Message<?> message) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
+	public ApiResImpl all(Message<?> message, @ReqId String requestId) throws Exception {
 		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
 		metadataMap.put("list", metadataRepo.findAll());
 		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
@@ -76,6 +76,7 @@ public class MetadataFieldController {
 	 * Endpoint to return all published metadata fields.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -84,10 +85,7 @@ public class MetadataFieldController {
 	 */
 	@MessageMapping("/published")
 	@SendToUser
-	public ApiResImpl published(Message<?> message) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
-		
+	public ApiResImpl published(Message<?> message, @ReqId String requestId) throws Exception {
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
 		List<DocumentImpl> documents = docRepo.getAllByStatus("Published");
@@ -119,6 +117,7 @@ public class MetadataFieldController {
 	 * Endpoint to clearn all metadata fields for name.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -127,9 +126,8 @@ public class MetadataFieldController {
 	 */
 	@MessageMapping("/clear")
 	@SendToUser
-	public ApiResImpl clear(Message<?> message) throws Exception {
+	public ApiResImpl clear(Message<?> message, @ReqId String requestId) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
 		String data = accessor.getNativeHeader("data").get(0).toString();
 		Map<String,String> map = new HashMap<String,String>();
 		try {
@@ -145,6 +143,7 @@ public class MetadataFieldController {
 	 * Endpoint to return metadata fileds by name.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -152,9 +151,8 @@ public class MetadataFieldController {
 	 */
 	@MessageMapping("/get")
 	@SendToUser
-	public ApiResImpl get(Message<?> message) throws Exception {		
+	public ApiResImpl get(Message<?> message, @ReqId String requestId) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);		
 		String data = accessor.getNativeHeader("data").get(0).toString();
 		Map<String, String> headerMap = new HashMap<String, String>();
 		
@@ -177,6 +175,7 @@ public class MetadataFieldController {
 	 * Endpoint to add new metadata field to a document.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -186,9 +185,8 @@ public class MetadataFieldController {
 	@SuppressWarnings("unchecked")
 	@MessageMapping("/add")
 	@SendToUser
-	public ApiResImpl add(Message<?> message) throws Exception {		
+	public ApiResImpl add(Message<?> message, @ReqId String requestId) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,Object> map = new HashMap<String,Object>();
 		try {
