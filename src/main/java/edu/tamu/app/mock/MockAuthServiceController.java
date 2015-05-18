@@ -7,7 +7,7 @@
  * Revisions: 
  *     $Log$ 
  */
-package edu.tamu.app.controller;
+package edu.tamu.app.mock;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
