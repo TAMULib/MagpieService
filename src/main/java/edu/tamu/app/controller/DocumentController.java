@@ -25,18 +25,17 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.app.aspect.annotation.ReqId;
 import edu.tamu.app.model.impl.ApiResImpl;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.RequestId;
-import edu.tamu.app.service.SyncService;
 
 /** 
  * Document Controller
@@ -61,37 +60,11 @@ public class DocumentController {
 	@Autowired 
 	private SimpMessagingTemplate simpMessagingTemplate; 
 	
-	@Autowired 
-	private ThreadPoolTaskExecutor taskExecutor; 
-	
-	//put in admin controller
-	
-	/**
-	 * Synchronizes the project directory with the database.
-	 * 
-	 * @param 		message			Message<?>
-	 * 
-	 * @return		ApiResImpl
-	 * 
-	 * @throws 		Exception
-	 * 
-	 */
-	@MessageMapping("/sync")
-	@SendToUser
-	public ApiResImpl syncDocuments(Message<?> message) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);		
-		taskExecutor.execute(new SyncService());
-		
-		System.out.println("Syncronizing projects with database.");
-		
-		return new ApiResImpl("success", "ok", new RequestId(requestId));
-	}
-	
 	/**
 	 * Endpoint to return all documents.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -100,9 +73,7 @@ public class DocumentController {
 	 */
 	@MessageMapping("/all")
 	@SendToUser
-	public ApiResImpl allDocuments(Message<?> message) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
+	public ApiResImpl allDocuments(Message<?> message, @ReqId String requestId) throws Exception {
 		Map<String,List<DocumentImpl>> map = new HashMap<String,List<DocumentImpl>>();
 		map.put("list", docRepo.findAll());
 		return new ApiResImpl("success", map, new RequestId(requestId));
@@ -112,6 +83,7 @@ public class DocumentController {
 	 * Endpoint to return document by filename.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -120,9 +92,8 @@ public class DocumentController {
 	 */
 	@MessageMapping("/get")
 	@SendToUser
-	public ApiResImpl documentByName(Message<?> message) throws Exception {		
+	public ApiResImpl documentByName(Message<?> message, @ReqId String requestId) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,String> headerMap = new HashMap<String,String>();
 		try {
@@ -143,6 +114,7 @@ public class DocumentController {
 	 * Endpoint to return a page of documents.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -151,9 +123,8 @@ public class DocumentController {
 	 */
 	@MessageMapping("/page")
 	@SendToUser
-	public ApiResImpl pageDocuments(Message<?> message) throws Exception {
+	public ApiResImpl pageDocuments(Message<?> message, @ReqId String requestId) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,String> headerMap = new HashMap<String,String>();
 		try {
@@ -234,6 +205,7 @@ public class DocumentController {
 	 * Endpoint to update document status or annotator.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -242,9 +214,8 @@ public class DocumentController {
 	 */
 	@MessageMapping("/update")
 	@SendToUser
-	public ApiResImpl update(Message<?> message) throws Exception {		
+	public ApiResImpl update(Message<?> message, @ReqId String requestId) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,String> map = new HashMap<String,String>();		
 		try {
@@ -276,6 +247,7 @@ public class DocumentController {
 	 * Returns the url of the requested txt document.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -284,10 +256,8 @@ public class DocumentController {
 	 */
 	@MessageMapping("/txt")
 	@SendToUser
-	public ApiResImpl txt(Message<?> message) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
-		
+	public ApiResImpl txt(Message<?> message, @ReqId String requestId) throws Exception {
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,String> map = new HashMap<String,String>();		
 		try {
@@ -307,6 +277,7 @@ public class DocumentController {
 	 * Returns the url of the requested pdf document.
 	 * 
 	 * @param 		message			Message<?> message
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -315,10 +286,8 @@ public class DocumentController {
 	 */
 	@MessageMapping("/pdf")
 	@SendToUser
-	public ApiResImpl pdf(Message<?> message) throws Exception {
+	public ApiResImpl pdf(Message<?> message, @ReqId String requestId) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
-		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,String> map = new HashMap<String,String>();		
 		try {
