@@ -18,103 +18,112 @@ public class FlatMARC {
 		
 		for(Datafield df : dataField) {
 			
+			// dc.creator
 			if(df.getTag().equals("100")) {
-				Subfield[] subField = df.getSubfield();
-				if(subField.length > 0) {
-					creator = subField[0].getValue();
+				Subfield[] subFields = df.getSubfield();
+				if(subFields.length > 0) {
+					creator = subFields[0].getValue();
 				}
 			}
 			
+			// dc.title
 			if(df.getTag().equals("245")) {
-				Subfield[] subField = df.getSubfield();
-				if(subField.length > 0) {
-					title += subField[0].getValue();
-				}
-				if(subField.length > 1) {
-					title += subField[1].getValue();
+				Subfield[] subFields = df.getSubfield();
+				for(Subfield subField : subFields) {
+					if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
+						title += subField.getValue();
+					}
 				}
 			}
 			
+			// dc.date.created and dc.date.issued
 			if(df.getTag().equals("260")) {
-				Subfield[] subField = df.getSubfield();
-				if(subField.length > 2) {
-					dateIssued = dateCreated = subField[2].getValue();
+				Subfield[] subFields = df.getSubfield();
+				for(Subfield subField : subFields) {
+					if(subField.getCode().equals("c")) {
+						dateIssued = dateCreated = subField.getValue();
+					}
 				}
 			}
 			
+			// dc.date.created and dc.date.issued
 			if(df.getTag().equals("264")) {
 				if(dateIssued.equals("")) {
-					Subfield[] subField = df.getSubfield();
-					if(subField.length > 1) {
+					Subfield[] subFields = df.getSubfield();
+					for(Subfield subField : subFields) {
 						if(df.getInd2().equals("0") || df.getInd2().equals("1")) {
-							dateIssued = subField[1].getValue();
+							dateIssued = dateCreated = subField.getValue();
 						}
+					}					
+				}
+			}
+			
+			// dc.description
+			if(df.getTag().equals("300")) {
+				Subfield[] subFields = df.getSubfield();
+				for(Subfield subField : subFields) {
+					if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
+						description += subField.getValue();
 					}
 				}
 			}
 			
-			if(df.getTag().equals("300")) {
-				Subfield[] subField = df.getSubfield();
-				if(subField.length > 0) {
-					description += subField[0].getValue();
-				}
-				if(subField.length > 1) {
-					description += subField[1].getValue();
-				}
-			}
-			
+			// thesis.degree.grantor
 			if(df.getTag().equals("502")) {
-				Subfield[] subField = df.getSubfield();
-				if(subField.length > 2) {
-					degreeGrantor += subField[2].getValue();
+				Subfield[] subFields = df.getSubfield();
+				for(Subfield subField : subFields) {
+					if(subField.getCode().equals("c")) {
+						degreeGrantor += subField.getValue();
+					}
 				}
 			}
 			
+			// thesis.degree.department
 			if(df.getTag().equals("520")) {
-				Subfield[] subField = df.getSubfield();
-				if(subField.length > 0) {
-					descriptionAbstract += subField[0].getValue();
+				Subfield[] subFields = df.getSubfield();
+				for(Subfield subField : subFields) {
+					descriptionAbstract += subField.getValue();
 				}
 			}
 			
-			if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650")) {
-				Subfield[] subField = df.getSubfield();
-				if(subField.length > 0) {
-					
+			// dc.subject.lcsh and dc.subject
+			if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650")) {				
+				Subfield[] subFields = df.getSubfield();
+				for(Subfield subField : subFields) {					
 					if(df.getInd2().equals("4")) {
-						subject += subField[0].getValue();
+						subject += subField.getValue();
 					}
 					else {
-						if(subField[0].getCode().equals("a")) {
+						if(subField.getCode().equals("a")) {
 							if(subjectIcsh.equals("")) {
-								subjectIcsh += subField[0].getValue();
+								subjectIcsh += subField.getValue();
 							}
 							else {
-								subjectIcsh += ", " + subField[0].getValue();
+								subjectIcsh += ", " + subField.getValue();
 							}
 						}
-					}
-					
+					}					
+					if(subField.getCode().equals("x")) {
+						subjectIcsh += " -- " + subField.getValue();
+					}					
+					if(subField.getCode().equals("z")) {
+						subjectIcsh += " -- " + subField.getValue();
+					}					
+					if(subField.getCode().equals("z")) {
+						subjectIcsh += " -- " + subField.getValue();
+					}					
 				}
-				
-				if(subField.length > 1) {
-					if(subField[1].getCode().equals("x")) {
-						subjectIcsh += " -- " + subField[0].getValue();
-					}
-				}
-				
 			}
 			
+			// dc.subject
 			if(df.getTag().equals("653")) {
-				Subfield[] subField = df.getSubfield();
-				if(subField.length > 0) {
-					subject += subField[0].getValue();
+				Subfield[] subFields = df.getSubfield();
+				for(Subfield subField : subFields) {
+					subject += subField.getValue();
 				}
 			}
 			
 		}
-		
-		
 		
 	}
 
