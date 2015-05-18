@@ -11,8 +11,6 @@ package edu.tamu.app.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -38,8 +36,8 @@ public class VoyagerService {
 	@Value("${app.service.voyager.host}")
 	private String host;
 	
-	@Value("${app.service.voyager.ports}")
-	private String[] ports;
+	@Value("${app.service.voyager.port}")
+	private String port;
 	
 	@Value("${app.service.voyager.app}")
 	private String app;
@@ -47,16 +45,7 @@ public class VoyagerService {
 	@Autowired
 	private HttpService httpService;
 	
-	
-	public List<edu.tamu.app.model.response.marc.VoyagerServiceData> getMARC(String bibId) throws Exception {
-		List<edu.tamu.app.model.response.marc.VoyagerServiceData> list = new ArrayList<edu.tamu.app.model.response.marc.VoyagerServiceData>();
-		for(int i = 0; i < ports.length; i++) {			
-			list.add(queryBinaryMARCRecordService(bibId, ports[i]));		        
-		}		        
-		return list;		
-	}
-
-	private edu.tamu.app.model.response.marc.VoyagerServiceData queryBinaryMARCRecordService(String bibId, String port) throws Exception {				
+	public edu.tamu.app.model.response.marc.VoyagerServiceData getMARC(String bibId) throws Exception {				
 		String urlString = "http://"+host+":"+port+"/"+app+"/GetHoldingsService?bibId=" + bibId;		
 		String xmlResponse = httpService.makeHttpRequest(urlString, "GET");
        

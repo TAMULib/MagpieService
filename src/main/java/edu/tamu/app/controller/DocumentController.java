@@ -76,7 +76,7 @@ public class DocumentController {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);		
 		
-		return new ApiResImpl("success", new FlatMARC(voyagerService.getMARC(bibId).get(0)), new RequestId(requestId));
+		return new ApiResImpl("success", new FlatMARC(voyagerService.getMARC(bibId)), new RequestId(requestId));
 	}
 	
 	// put in admin controller
