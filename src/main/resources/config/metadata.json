@@ -4,12 +4,14 @@
 			"label": "dc.abstract",
 			"gloss": "Abstract",
 			"repeatable": false,
+			"readOnly": false,
 			"inputType": "TEXTAREA"
 		},
 		{
 			"label": "dc.committee.chair",
 			"gloss": "Committee Chair",
 			"repeatable": true,
+			"readOnly": false,
 			"inputType": "TEXT",
 			"default": "test default repeatable value"
 		},
@@ -17,12 +19,14 @@
 			"label": "dc.committee.member",
 			"gloss": "Committee Member",
 			"repeatable": true,
+			"readOnly": false,
 			"inputType": "TEXT"
 		},
 		{
 			"label": "dc.format.medium",
 			"gloss": "Medium",
 			"repeatable": false,
+			"readOnly": true,
 			"inputType": "TEXT",
 			"default": "electronic"
 		}
@@ -33,12 +37,14 @@
 			"label": "dc.author",
 			"gloss": "Author",
 			"repeatable": true,
+			"readOnly": false,
 			"inputType": "TEXT"
 		},
 		{
 			"label": "dc.advisor",
 			"gloss": "Advisor",
 			"repeatable": true,
+			"readOnly": false,
 			"inputType": "TEXT"
 		}
 	],
@@ -48,12 +54,14 @@
 			"label": "dc.title",
 			"gloss": "Title",
 			"repeatable": false,
+			"readOnly": false,
 			"inputType": "TEXTAREA"
 		},
 		{
 			"label": "dc.description",
 			"gloss": "Description",
 			"repeatable": false,
+			"readOnly": false,
 			"inputType": "TEXTAREA"
 		}
 	]
