@@ -14,115 +14,120 @@ public class FlatMARC {
 	
 	
 	public FlatMARC(VoyagerServiceData voyagerServiceData) {
-		Datafield[] dataField = voyagerServiceData.getServiceData().getHoldingsRecord().getBibRecord().getMarcRecord().getDatafield();
 		
-		for(Datafield df : dataField) {
+		if(voyagerServiceData.getServiceData() != null) {
 			
-			// dc.creator
-			if(df.getTag().equals("100")) {
-				Subfield[] subFields = df.getSubfield();
-				if(subFields.length > 0) {
-					creator = subFields[0].getValue();
-				}
-			}
+			Datafield[] dataField = voyagerServiceData.getServiceData().getHoldingsRecord().getBibRecord().getMarcRecord().getDatafield();
 			
-			// dc.title
-			if(df.getTag().equals("245")) {
-				Subfield[] subFields = df.getSubfield();
-				for(Subfield subField : subFields) {
-					if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-						title += subField.getValue();
+			for(Datafield df : dataField) {
+				
+				// dc.creator
+				if(df.getTag().equals("100")) {
+					Subfield[] subFields = df.getSubfield();
+					if(subFields.length > 0) {
+						creator = subFields[0].getValue();
 					}
 				}
-			}
-			
-			// dc.date.created and dc.date.issued
-			if(df.getTag().equals("260")) {
-				Subfield[] subFields = df.getSubfield();
-				for(Subfield subField : subFields) {
-					if(subField.getCode().equals("c")) {
-						dateIssued = dateCreated = subField.getValue();
-					}
-				}
-			}
-			
-			// dc.date.created and dc.date.issued
-			if(df.getTag().equals("264")) {
-				if(dateIssued.equals("")) {
+				
+				// dc.title
+				if(df.getTag().equals("245")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
-						if(df.getInd2().equals("0") || df.getInd2().equals("1")) {
+						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
+							title += subField.getValue();
+						}
+					}
+				}
+				
+				// dc.date.created and dc.date.issued
+				if(df.getTag().equals("260")) {
+					Subfield[] subFields = df.getSubfield();
+					for(Subfield subField : subFields) {
+						if(subField.getCode().equals("c")) {
 							dateIssued = dateCreated = subField.getValue();
 						}
-					}					
-				}
-			}
-			
-			// dc.description
-			if(df.getTag().equals("300")) {
-				Subfield[] subFields = df.getSubfield();
-				for(Subfield subField : subFields) {
-					if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-						description += subField.getValue();
 					}
 				}
-			}
-			
-			// thesis.degree.grantor
-			if(df.getTag().equals("502")) {
-				Subfield[] subFields = df.getSubfield();
-				for(Subfield subField : subFields) {
-					if(subField.getCode().equals("c")) {
-						degreeGrantor += subField.getValue();
+				
+				// dc.date.created and dc.date.issued
+				if(df.getTag().equals("264")) {
+					if(dateIssued.equals("")) {
+						Subfield[] subFields = df.getSubfield();
+						for(Subfield subField : subFields) {
+							if(df.getInd2().equals("0") || df.getInd2().equals("1")) {
+								dateIssued = dateCreated = subField.getValue();
+							}
+						}					
 					}
 				}
-			}
-			
-			// thesis.degree.department
-			if(df.getTag().equals("520")) {
-				Subfield[] subFields = df.getSubfield();
-				for(Subfield subField : subFields) {
-					descriptionAbstract += subField.getValue();
+				
+				// dc.description
+				if(df.getTag().equals("300")) {
+					Subfield[] subFields = df.getSubfield();
+					for(Subfield subField : subFields) {
+						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
+							description += subField.getValue();
+						}
+					}
 				}
-			}
-			
-			// dc.subject.lcsh and dc.subject
-			if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650")) {				
-				Subfield[] subFields = df.getSubfield();
-				for(Subfield subField : subFields) {					
-					if(df.getInd2().equals("4")) {
+				
+				// thesis.degree.grantor
+				if(df.getTag().equals("502")) {
+					Subfield[] subFields = df.getSubfield();
+					for(Subfield subField : subFields) {
+						if(subField.getCode().equals("c")) {
+							degreeGrantor += subField.getValue();
+						}
+					}
+				}
+				
+				// thesis.degree.department
+				if(df.getTag().equals("520")) {
+					Subfield[] subFields = df.getSubfield();
+					for(Subfield subField : subFields) {
+						descriptionAbstract += subField.getValue();
+					}
+				}
+				
+				// dc.subject.lcsh and dc.subject
+				if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650")) {				
+					Subfield[] subFields = df.getSubfield();
+					for(Subfield subField : subFields) {					
+						if(df.getInd2().equals("4")) {
+							subject += subField.getValue();
+						}
+						else {
+							if(subField.getCode().equals("a")) {
+								if(subjectIcsh.equals("")) {
+									subjectIcsh += subField.getValue();
+								}
+								else {
+									subjectIcsh += ", " + subField.getValue();
+								}
+							}
+						}					
+						if(subField.getCode().equals("x")) {
+							subjectIcsh += " -- " + subField.getValue();
+						}					
+						if(subField.getCode().equals("z")) {
+							subjectIcsh += " -- " + subField.getValue();
+						}					
+						if(subField.getCode().equals("z")) {
+							subjectIcsh += " -- " + subField.getValue();
+						}					
+					}
+				}
+				
+				// dc.subject
+				if(df.getTag().equals("653")) {
+					Subfield[] subFields = df.getSubfield();
+					for(Subfield subField : subFields) {
 						subject += subField.getValue();
 					}
-					else {
-						if(subField.getCode().equals("a")) {
-							if(subjectIcsh.equals("")) {
-								subjectIcsh += subField.getValue();
-							}
-							else {
-								subjectIcsh += ", " + subField.getValue();
-							}
-						}
-					}					
-					if(subField.getCode().equals("x")) {
-						subjectIcsh += " -- " + subField.getValue();
-					}					
-					if(subField.getCode().equals("z")) {
-						subjectIcsh += " -- " + subField.getValue();
-					}					
-					if(subField.getCode().equals("z")) {
-						subjectIcsh += " -- " + subField.getValue();
-					}					
 				}
+				
 			}
-			
-			// dc.subject
-			if(df.getTag().equals("653")) {
-				Subfield[] subFields = df.getSubfield();
-				for(Subfield subField : subFields) {
-					subject += subField.getValue();
-				}
-			}
-			
+		
 		}
 		
 	}
