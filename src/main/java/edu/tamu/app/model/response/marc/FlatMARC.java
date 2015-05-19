@@ -2,15 +2,15 @@ package edu.tamu.app.model.response.marc;
 
 public class FlatMARC {
 	
-	private String creator = "";
-	private String title = "";
-	private String dateCreated = "";
-	private String dateIssued = "";
-	private String subjectIcsh = "";
-	private String subject = "";
-	private String description = "";
-	private String descriptionAbstract = "";
-	private String degreeGrantor = "";
+	private String dc_creator = "";
+	private String dc_title = "";
+	private String dc_date_created = "";
+	private String dc_date_issued = "";
+	private String dc_subject_lcsh = "";
+	private String dc_subject = "";
+	private String dc_description = "";
+	private String dc_description_abstract = "";
+	private String dc_degree_grantor = "";
 	
 	
 	public FlatMARC(VoyagerServiceData voyagerServiceData) {
@@ -21,20 +21,20 @@ public class FlatMARC {
 			
 			for(Datafield df : dataField) {
 				
-				// dc.creator
+				// dc.dc_creator
 				if(df.getTag().equals("100")) {
 					Subfield[] subFields = df.getSubfield();
 					if(subFields.length > 0) {
-						creator = subFields[0].getValue();
+						dc_creator = subFields[0].getValue();
 					}
 				}
 				
-				// dc.title
+				// dc.dc_title
 				if(df.getTag().equals("245")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-							title += subField.getValue();
+							dc_title += subField.getValue();
 						}
 					}
 				}
@@ -44,29 +44,29 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
-							dateIssued = dateCreated = subField.getValue();
+							dc_date_issued = dc_date_created = subField.getValue();
 						}
 					}
 				}
 				
 				// dc.date.created and dc.date.issued
 				if(df.getTag().equals("264")) {
-					if(dateIssued.equals("")) {
+					if(dc_date_issued.equals("")) {
 						Subfield[] subFields = df.getSubfield();
 						for(Subfield subField : subFields) {
 							if(df.getInd2().equals("0") || df.getInd2().equals("1")) {
-								dateIssued = dateCreated = subField.getValue();
+								dc_date_issued = dc_date_created = subField.getValue();
 							}
 						}					
 					}
 				}
 				
-				// dc.description
+				// dc.dc_description
 				if(df.getTag().equals("300")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-							description += subField.getValue();
+							dc_description += subField.getValue();
 						}
 					}
 				}
@@ -76,7 +76,7 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
-							degreeGrantor += subField.getValue();
+							dc_degree_grantor += subField.getValue();
 						}
 					}
 				}
@@ -85,44 +85,44 @@ public class FlatMARC {
 				if(df.getTag().equals("520")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
-						descriptionAbstract += subField.getValue();
+						dc_description_abstract += subField.getValue();
 					}
 				}
 				
-				// dc.subject.lcsh and dc.subject
+				// dc.dc_subject.lcsh and dc.dc_subject
 				if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650")) {				
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {					
 						if(df.getInd2().equals("4")) {
-							subject += subField.getValue();
+							dc_subject += subField.getValue();
 						}
 						else {
 							if(subField.getCode().equals("a")) {
-								if(subjectIcsh.equals("")) {
-									subjectIcsh += subField.getValue();
+								if(dc_subject_lcsh.equals("")) {
+									dc_subject_lcsh += subField.getValue();
 								}
 								else {
-									subjectIcsh += ", " + subField.getValue();
+									dc_subject_lcsh += ", " + subField.getValue();
 								}
 							}
 						}					
 						if(subField.getCode().equals("x")) {
-							subjectIcsh += " -- " + subField.getValue();
+							dc_subject_lcsh += " -- " + subField.getValue();
 						}					
 						if(subField.getCode().equals("z")) {
-							subjectIcsh += " -- " + subField.getValue();
+							dc_subject_lcsh += " -- " + subField.getValue();
 						}					
 						if(subField.getCode().equals("z")) {
-							subjectIcsh += " -- " + subField.getValue();
+							dc_subject_lcsh += " -- " + subField.getValue();
 						}					
 					}
 				}
 				
-				// dc.subject
+				// dc.dc_subject
 				if(df.getTag().equals("653")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
-						subject += subField.getValue();
+						dc_subject += subField.getValue();
 					}
 				}
 				
@@ -134,92 +134,92 @@ public class FlatMARC {
 
 
 	public String getCreator() {
-		return creator;
+		return dc_creator;
 	}
 
 
-	public void setCreator(String creator) {
-		this.creator = creator;
+	public void setCreator(String dc_creator) {
+		this.dc_creator = dc_creator;
 	}
 
 
 	public String getTitle() {
-		return title;
+		return dc_title;
 	}
 
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setTitle(String dc_title) {
+		this.dc_title = dc_title;
 	}
 
 
 	public String getDateCreated() {
-		return dateCreated;
+		return dc_date_created;
 	}
 
 
-	public void setDateCreated(String dateCreated) {
-		this.dateCreated = dateCreated;
+	public void setDateCreated(String dc_date_created) {
+		this.dc_date_created = dc_date_created;
 	}
 
 
 	public String getDateIssued() {
-		return dateIssued;
+		return dc_date_issued;
 	}
 
 
-	public void setDateIssued(String dateIssued) {
-		this.dateIssued = dateIssued;
+	public void setDateIssued(String dc_date_issued) {
+		this.dc_date_issued = dc_date_issued;
 	}
 
 
 	public String getSubjectIcsh() {
-		return subjectIcsh;
+		return dc_subject_lcsh;
 	}
 
 
-	public void setSubjectIcsh(String subjectIcsh) {
-		this.subjectIcsh = subjectIcsh;
+	public void setSubjectIcsh(String dc_subject_lcsh) {
+		this.dc_subject_lcsh = dc_subject_lcsh;
 	}
 
 
 	public String getSubject() {
-		return subject;
+		return dc_subject;
 	}
 
 
-	public void setSubject(String subject) {
-		this.subject = subject;
+	public void setSubject(String dc_subject) {
+		this.dc_subject = dc_subject;
 	}
 
 
 	public String getDescription() {
-		return description;
+		return dc_description;
 	}
 
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setDescription(String dc_description) {
+		this.dc_description = dc_description;
 	}
 
 
 	public String getDescriptionAbstract() {
-		return descriptionAbstract;
+		return dc_description_abstract;
 	}
 
 
-	public void setDescriptionAbstract(String descriptionAbstract) {
-		this.descriptionAbstract = descriptionAbstract;
+	public void setDescriptionAbstract(String dc_description_abstract) {
+		this.dc_description_abstract = dc_description_abstract;
 	}
 
 
 	public String getDegreeGrantor() {
-		return degreeGrantor;
+		return dc_degree_grantor;
 	}
 
 
-	public void setDegreeGrantor(String degreeGrantor) {
-		this.degreeGrantor = degreeGrantor;
+	public void setDegreeGrantor(String dc_degree_grantor) {
+		this.dc_degree_grantor = dc_degree_grantor;
 	}
 	
 	

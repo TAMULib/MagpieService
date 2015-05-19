@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.controller;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -175,15 +176,13 @@ public class MetadataFieldController {
 		
 		FlatMARC flatMarc = new FlatMARC(voyagerService.getMARC(headerMap.get("name")));
 		
-		metadataMap.put("dc.creator", flatMarc.getCreator());
-		metadataMap.put("dc.title", flatMarc.getTitle());
-		metadataMap.put("dc.date.created", flatMarc.getDateCreated());
-		metadataMap.put("dc.date.issued", flatMarc.getDateIssued());
-		metadataMap.put("dc.subject.lcsh", flatMarc.getSubjectIcsh());
-		metadataMap.put("dc.subject", flatMarc.getSubject());
-		metadataMap.put("dc.description", flatMarc.getDescription());
-		metadataMap.put("dc.description.abstract", flatMarc.getDescriptionAbstract());
-		metadataMap.put("dc.degree.grantor", flatMarc.getDegreeGrantor());
+		Field[] marcFields = FlatMARC.class.getDeclaredFields();
+		for (Field field : marcFields) {
+			field.setAccessible(true);
+            List<String> marcList = new ArrayList<String>();
+            marcList.add(field.get(flatMarc).toString());
+            metadataMap.put(field.getName().replace('_','.'), marcList);
+        }
 		
 		for (MetadataFieldImpl field : fields) {			
 			metadataMap.put(field.getLabel(), field.getValues());
