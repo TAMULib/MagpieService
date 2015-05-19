@@ -26,6 +26,7 @@ import java.util.Map;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -74,6 +75,8 @@ public class SyncService implements Runnable {
 		
 		SimpMessagingTemplate simpMessagingTemplate = (SimpMessagingTemplate) ApplicationContextProvider.appContext.getBean("brokerMessagingTemplate");
 		
+		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) ApplicationContextProvider.appContext.getBean("taskExecutor");
+		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
 		
@@ -108,6 +111,8 @@ public class SyncService implements Runnable {
         	System.out.println(project.getFileName().toString());
         	List<Object> profile = (List<Object>) projectMap.get(project.getFileName().toString());
         	
+        	taskExecutor.execute(new WatcherService(project.getFileName().toString()));
+        	
         	for(Path document : documents) {
     			
     			if(profile == null) profile = (List<Object>) projectMap.get("default");
@@ -139,7 +144,7 @@ public class SyncService implements Runnable {
 					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
 					
 				}
-        		
+    			
         	}
         }
 		
