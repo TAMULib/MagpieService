@@ -27,6 +27,7 @@ public class MetadataLabelImpl implements MetadataLabel {
 	private String gloss;
 	
 	private boolean isRepeatable;
+	private boolean isReadOnly;
 	
 	private InputType inputType;
 	private String defaultValue;
@@ -47,10 +48,10 @@ public class MetadataLabelImpl implements MetadataLabel {
 	 * @param inputType
 	 * @param defaultValue
 	 */
-	public MetadataLabelImpl(String label, String gloss, boolean isRepeatable, InputType inputType, String defaultValue) {
-		
+	public MetadataLabelImpl(String label, String gloss, boolean isRepeatable, boolean isReadOnly, InputType inputType, String defaultValue) {		
 		this.label = label;
 		this.gloss = gloss;
+		this.isReadOnly = isReadOnly;
 		this.isRepeatable = isRepeatable;
 		this.inputType = inputType;
 		this.defaultValue = defaultValue;
@@ -114,6 +115,26 @@ public class MetadataLabelImpl implements MetadataLabel {
 	 */
 	public void setRepeatable(boolean isRepeatable) {
 		this.isRepeatable = isRepeatable;
+	}
+	
+	/**
+	 * Checks if readOnly.
+	 * 
+	 * @return 		boolean
+	 * 
+	 */
+	public boolean isReadOnly() {
+		return isReadOnly;
+	}
+
+	/**
+	 * Sets readOnly.
+	 * 
+	 * @param 		isReadOnly			boolean
+	 * 
+	 */
+	public void setReadOnly(boolean isReadOnly) {
+		this.isReadOnly = isReadOnly;
 	}
 
 	/**

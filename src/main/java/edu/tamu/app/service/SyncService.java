@@ -120,6 +120,7 @@ public class SyncService implements Runnable {
     				MetadataLabelImpl metadataProfile = new MetadataLabelImpl((String) mMap.get("label"), 
     																  (String) mMap.get("gloss"), 
     																  (boolean) mMap.get("repeatable"), 
+    																  (boolean) mMap.get("readOnly"), 
     																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
     				metadataLabels.add(metadataProfile);
     			}
