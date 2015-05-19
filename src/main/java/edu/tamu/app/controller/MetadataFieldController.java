@@ -31,6 +31,8 @@ import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.impl.MetadataFieldImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
+import edu.tamu.app.model.response.marc.FlatMARC;
+import edu.tamu.app.service.VoyagerService;
 
 /** 
  * Document Controller
@@ -51,6 +53,9 @@ public class MetadataFieldController {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	@Autowired 
+	private VoyagerService voyagerService; 
 	
 	/**
 	 * Endpoint to return all metadata fields.
@@ -142,7 +147,7 @@ public class MetadataFieldController {
 	}
 	
 	/**
-	 * Endpoint to return metadata fileds by name.
+	 * Endpoint to return metadata fields by name.
 	 * 
 	 * @param 		message			Message<?>
 	 * 
@@ -167,9 +172,23 @@ public class MetadataFieldController {
 		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(headerMap.get("name"));
 		
 		Map<String, Object> metadataMap = new HashMap<String, Object>();
+		
+		FlatMARC flatMarc = new FlatMARC(voyagerService.getMARC(headerMap.get("name")));
+		
+		metadataMap.put("dc.creator", flatMarc.getCreator());
+		metadataMap.put("dc.title", flatMarc.getTitle());
+		metadataMap.put("dc.date.created", flatMarc.getDateCreated());
+		metadataMap.put("dc.date.issued", flatMarc.getDateIssued());
+		metadataMap.put("dc.subject.lcsh", flatMarc.getSubjectIcsh());
+		metadataMap.put("dc.subject", flatMarc.getSubject());
+		metadataMap.put("dc.description", flatMarc.getDescription());
+		metadataMap.put("dc.description.abstract", flatMarc.getDescriptionAbstract());
+		metadataMap.put("dc.degree.grantor", flatMarc.getDegreeGrantor());
+		
 		for (MetadataFieldImpl field : fields) {			
 			metadataMap.put(field.getLabel(), field.getValues());
 		}
+		
 		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
 	}
 	
