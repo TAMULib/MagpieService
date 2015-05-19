@@ -29,6 +29,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import edu.tamu.app.service.HttpService;
+import edu.tamu.app.service.VoyagerService;
+
 /** 
  * Web MVC Configuration for application controller.
  * 
@@ -83,6 +86,28 @@ public class ControllerConfig extends WebMvcConfigurerAdapter{
 	    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 	    
 	    return objectMapper;
+	}
+	
+	/**
+	 * Http Service bean.
+	 *
+	 * @return      HttpService
+	 *
+	 */
+	@Bean
+	public HttpService httpService() {
+	    return new HttpService();
+	}
+	
+	/**
+	 * Voyager Service bean.
+	 *
+	 * @return      VoyagerService
+	 *
+	 */
+	@Bean
+	public VoyagerService voyagerService() {
+	    return new VoyagerService();
 	}
 		
 }

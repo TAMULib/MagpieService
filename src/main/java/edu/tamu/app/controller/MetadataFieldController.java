@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.controller;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -31,6 +32,8 @@ import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.impl.MetadataFieldImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
+import edu.tamu.app.model.response.marc.FlatMARC;
+import edu.tamu.app.service.VoyagerService;
 
 /** 
  * Document Controller
@@ -51,6 +54,9 @@ public class MetadataFieldController {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	@Autowired 
+	private VoyagerService voyagerService; 
 	
 	/**
 	 * Endpoint to return all metadata fields.
@@ -142,7 +148,7 @@ public class MetadataFieldController {
 	}
 	
 	/**
-	 * Endpoint to return metadata fileds by name.
+	 * Endpoint to return metadata fields by name.
 	 * 
 	 * @param 		message			Message<?>
 	 * 
@@ -167,9 +173,21 @@ public class MetadataFieldController {
 		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(headerMap.get("name"));
 		
 		Map<String, Object> metadataMap = new HashMap<String, Object>();
+		
+		FlatMARC flatMarc = new FlatMARC(voyagerService.getMARC(headerMap.get("name")));
+		
+		Field[] marcFields = FlatMARC.class.getDeclaredFields();
+		for (Field field : marcFields) {
+			field.setAccessible(true);
+            List<String> marcList = new ArrayList<String>();
+            marcList.add(field.get(flatMarc).toString());
+            metadataMap.put(field.getName().replace('_','.'), marcList);
+        }
+		
 		for (MetadataFieldImpl field : fields) {			
 			metadataMap.put(field.getLabel(), field.getValues());
 		}
+		
 		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
 	}
 	
