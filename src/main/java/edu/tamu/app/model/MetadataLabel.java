@@ -66,6 +66,22 @@ public interface MetadataLabel {
 	public void setRepeatable(boolean isRepeatable);
 
 	/**
+	 * Checks if readOnly.
+	 * 
+	 * @return		boolean
+	 * 
+	 */
+	public boolean isReadOnly();
+
+	/**
+	 * Set repeatable.
+	 * 
+	 * @param 		isRepeatable	boolean
+	 * 
+	 */
+	public void setReadOnly(boolean isReadOnly);
+	
+	/**
 	 * Gets input type.
 	 * 
 	 * @return		InputType
