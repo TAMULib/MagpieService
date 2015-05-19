@@ -80,5 +80,21 @@ public interface MetadataLabel {
 	 * 
 	 */
 	public void setInputType(InputType inputType);
+	
+	/**
+	 * Gets default value.
+	 * 
+	 * @return 		defaultValue
+	 * 
+	 */
+	public String getDefaultValue();
+
+	/**
+	 * Sets default value.
+	 * 
+	 * @param 		defaultValue 	String
+	 * 
+	 */
+	public void setDefaultValue(String defaultValue);
 
 }
