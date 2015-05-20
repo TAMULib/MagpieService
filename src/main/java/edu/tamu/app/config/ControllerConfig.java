@@ -31,6 +31,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import edu.tamu.app.controller.interceptor.RestInterceptor;
+import edu.tamu.app.service.HttpService;
+import edu.tamu.app.service.VoyagerService;
 
 /** 
  * Web MVC Configuration for application controller.
@@ -108,6 +110,28 @@ public class ControllerConfig extends WebMvcConfigurerAdapter{
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 	    registry.addInterceptor(jwtInterceptor()).addPathPatterns("/rest/**");
+	}
+	
+	/** 
+	 * Http Service bean.
+	 *
+	 * @return      HttpService
+	 *
+	 */
+	@Bean
+	public HttpService httpService() {
+	    return new HttpService();
+	}
+	
+	/**
+	 * Voyager Service bean.
+	 *
+	 * @return      VoyagerService
+	 *
+	 */
+	@Bean
+	public VoyagerService voyagerService() {
+	    return new VoyagerService();
 	}
 		
 }

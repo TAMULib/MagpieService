@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -35,7 +36,9 @@ import edu.tamu.app.aspect.annotation.ReqId;
 import edu.tamu.app.model.impl.ApiResImpl;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.model.RequestId;
+import edu.tamu.app.service.VoyagerService;
 
 /** 
  * Document Controller
@@ -59,6 +62,15 @@ public class DocumentController {
 	
 	@Autowired 
 	private SimpMessagingTemplate simpMessagingTemplate; 
+	
+	@Autowired 
+	private VoyagerService voyagerService; 
+	
+	@MessageMapping("/marc/{bibId}")
+	@SendToUser
+	public ApiResImpl getMARC(@DestinationVariable String bibId, Message<?> message, @ReqId String requestId) throws Exception {
+		return new ApiResImpl("success", new FlatMARC(voyagerService.getMARC(bibId)), new RequestId(requestId));
+	}
 	
 	/**
 	 * Endpoint to return all documents.
