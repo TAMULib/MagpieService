@@ -125,11 +125,10 @@ public class WatcherService implements Runnable {
 			for(Object metadata : profile) {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
-				
 				MetadataLabelImpl metadataProfile = new MetadataLabelImpl((String) mMap.get("label"), 
 																  (String) mMap.get("gloss"), 
 																  (boolean) mMap.get("repeatable"), 
-																  InputType.valueOf((String) mMap.get("inputType")));
+																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
 				metadataLabels.add(metadataProfile);
 			}
 		}

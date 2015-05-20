@@ -29,6 +29,7 @@ public class MetadataLabelImpl implements MetadataLabel {
 	private boolean isRepeatable;
 	
 	private InputType inputType;
+	private String defaultValue;
 	
 	/**
 	 * Default constructor.
@@ -44,14 +45,15 @@ public class MetadataLabelImpl implements MetadataLabel {
 	 * @param gloss
 	 * @param isRepeatable
 	 * @param inputType
+	 * @param defaultValue
 	 */
-	public MetadataLabelImpl(String label, String gloss, boolean isRepeatable, InputType inputType) {
+	public MetadataLabelImpl(String label, String gloss, boolean isRepeatable, InputType inputType, String defaultValue) {
 		
 		this.label = label;
 		this.gloss = gloss;
 		this.isRepeatable = isRepeatable;
 		this.inputType = inputType;
-		
+		this.defaultValue = defaultValue;
 	}
 	
 	/**
@@ -134,4 +136,23 @@ public class MetadataLabelImpl implements MetadataLabel {
 		this.inputType = inputType;
 	}
 
+	/**
+	 * Gets default value.
+	 * 
+	 * @return 		defaultValue
+	 * 
+	 */
+	public String getDefaultValue() {
+		return defaultValue;
+	}
+
+	/**
+	 * Sets default value.
+	 * 
+	 * @param 		defaultValue 	String
+	 * 
+	 */
+	public void setDefaultValue(String defaultValue) {
+		this.defaultValue = defaultValue;
+	}
 }

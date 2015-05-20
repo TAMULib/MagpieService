@@ -16,7 +16,8 @@
 			"label": "dc.committee.chair",
 			"gloss": "Committee Chair",
 			"repeatable": true,
-			"inputType": "TEXT"
+			"inputType": "TEXT",
+			"default": "test default repeatable value"
 		},
 		{
 			"label": "dc.committee.member",
