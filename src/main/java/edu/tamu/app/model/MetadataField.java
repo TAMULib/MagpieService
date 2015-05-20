@@ -47,8 +47,18 @@ public interface MetadataField {
 	 */
 	public void setName(String name);
 	
+	/**
+	 * Gets label.
+	 * 
+	 * @return		String
+	 */
 	public String getLabel();
 
+	/**
+	 * Sets label.
+	 * 
+	 * @param 		label			String
+	 */
 	public void setLabel(String label);
 
 
