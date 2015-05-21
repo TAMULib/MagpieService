@@ -1,5 +1,5 @@
 /* 
- * DocumentController.java 
+ * MetadataFieldController.java 
  * 
  * Version: 
  *     $Id$ 
@@ -9,14 +9,27 @@
  */
 package edu.tamu.app.controller;
 
+import static java.nio.file.Files.readAllBytes;
+import static java.nio.file.Paths.get;
+
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -37,7 +50,7 @@ import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
 
 /** 
- * Document Controller
+ * Metadata Field Controller
  * 
  * @author
  *
@@ -46,6 +59,9 @@ import edu.tamu.app.service.VoyagerService;
 @RestController
 @MessageMapping("/metadata")
 public class MetadataFieldController {
+	
+	@Value("${app.directory}") 
+	private String directory;
 	
 	@Autowired
 	private DocumentRepo docRepo;
@@ -60,7 +76,7 @@ public class MetadataFieldController {
 	private VoyagerService voyagerService; 
 	
 	/**
-	 * Endpoint to return all metadata fields.
+	 * Endpoint to return list of projects.
 	 * 
 	 * @param 		message			Message<?>
 	 * @param 		requestId		@ReqId String
@@ -70,12 +86,136 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/all")
+	@MessageMapping("/projects")
 	@SendToUser
-	public ApiResImpl all(Message<?> message, @ReqId String requestId) throws Exception {
-		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
-		metadataMap.put("list", metadataRepo.findAll());
-		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
+	public ApiResImpl getProjects(Message<?> message, @ReqId String requestId) throws Exception {
+		
+		List<String> projects = new ArrayList<>();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory+ "/projects"))) {
+            for (Path path : directoryStream) {
+            	projects.add(path.getFileName().toString());            
+            }
+        } catch (IOException ex) {}
+
+		return new ApiResImpl("success", projects, new RequestId(requestId));
+	}
+	
+	/**
+	 * Endpoint to return metadata headers for given project.
+	 * 
+	 * @param 		message			Message<?>
+	 * @param 		project			@DestinationVariable String
+	 * @param 		requestId		@ReqId String
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/headers/{project}")
+	@SendToUser
+	public ApiResImpl getMetadataHeaders(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
+		
+		URL location = this.getClass().getResource("/config"); 
+		String fullPath = location.getPath();
+		
+		String json = null;
+		
+		try {
+			json = new String(readAllBytes(get(fullPath + "/metadata.json")));
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+		
+		Map<String, Object> metadataMap = null;
+		
+		try {
+			metadataMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		List<String> metadataHeaders = new ArrayList<String>();
+		
+		metadataHeaders.add("BUNDLE:ORIGINAL");
+		
+		for (String key : metadataMap.keySet()) {
+			
+			if(key.equals(project)) {				
+				@SuppressWarnings("unchecked")
+				List<Map<String, String>> fields = (List<Map<String, String>>) metadataMap.get(key);
+				
+				for (Map<String, String> field : fields) {
+					metadataHeaders.add(field.get("label"));
+				}				
+			}
+			
+		}
+		
+		if(metadataHeaders.isEmpty()) {
+			@SuppressWarnings("unchecked")
+			List<Map<String, String>> fields = (List<Map<String, String>>) metadataMap.get("default");
+			
+			for (Map<String, String> field : fields) {
+				metadataHeaders.add(field.get("label"));
+			}
+		}
+		
+		Collections.sort(metadataHeaders);
+						
+		return new ApiResImpl("success", metadataHeaders, new RequestId(requestId));
+	}
+	
+	/**
+	 * Endpoint to return all published metadata fields as dspace csv by project.
+	 * 
+	 * @param 		message			Message<?>
+	 * @param 		project			@DestinationVariable String
+	 * @param 		requestId		@ReqId String
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/csv/{project}")
+	@SendToUser
+	public ApiResImpl getCSVByroject(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
+		
+		List<DocumentImpl> documents = docRepo.findByStatusAndProject("Published", project);
+		
+		List<List<String>> metadata = new ArrayList<List<String>>();
+		
+		for(DocumentImpl document : documents) {
+			
+			List<MetadataFieldImpl> metadataList = metadataRepo.getMetadataFieldsByName(document.getName());
+			
+			List<String> documentMetadata = new ArrayList<String>();
+			
+			documentMetadata.add(document.getName() + ".pdf");
+			
+			Collections.sort(metadataList, new LabelComparator());
+			
+			for(MetadataFieldImpl metadataField : metadataList) {
+				
+				String values = null;
+				for(String value : metadataField.getValues()) {					
+					if(values == null) {
+						values = value;
+					}
+					else {
+						values += "||" + value;
+					}					
+				}
+				documentMetadata.add(values);
+
+			}
+			
+			metadata.add(documentMetadata);
+			
+		}
+		
+		return new ApiResImpl("success", metadata, new RequestId(requestId));
 	}
 	
 	/**
@@ -94,7 +234,7 @@ public class MetadataFieldController {
 	public ApiResImpl published(Message<?> message, @ReqId String requestId) throws Exception {
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
-		List<DocumentImpl> documents = docRepo.getAllByStatus("Published");
+		List<DocumentImpl> documents = docRepo.findByStatus("Published");
 		
 		for(DocumentImpl document : documents) {
 			
@@ -117,6 +257,25 @@ public class MetadataFieldController {
 		}
 		
 		return new ApiResImpl("success", metadata, new RequestId(requestId));
+	}
+	
+	/**
+	 * Endpoint to return all metadata fields.
+	 * 
+	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/all")
+	@SendToUser
+	public ApiResImpl all(Message<?> message, @ReqId String requestId) throws Exception {
+		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
+		metadataMap.put("list", metadataRepo.findAll());
+		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
 	}
 	
 	/**
@@ -157,7 +316,7 @@ public class MetadataFieldController {
 	 */
 	@MessageMapping("/get")
 	@SendToUser
-	public ApiResImpl get(Message<?> message, @ReqId String requestId) throws Exception {		
+	public ApiResImpl getMetadata(Message<?> message, @ReqId String requestId) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();
 		Map<String, String> headerMap = new HashMap<String, String>();
@@ -199,8 +358,7 @@ public class MetadataFieldController {
 	 * 
 	 * @throws 		Exception
 	 * 
-	 */
-	@SuppressWarnings("unchecked")
+	 */	
 	@MessageMapping("/add")
 	@SendToUser
 	public ApiResImpl add(Message<?> message, @ReqId String requestId) throws Exception {		
@@ -212,13 +370,13 @@ public class MetadataFieldController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		@SuppressWarnings("unchecked")
 		Map<String, Object> metadataFields = (Map<String, Object>) map.get("metadata") ;
 		
 		for (String label : metadataFields.keySet()) {
 						
 			List<String> metadataEntry = new ArrayList<String>();
-			
+			@SuppressWarnings("unchecked")
 			List<String> metadataValues = (List<String>) metadataFields.get(label);
 			
 			for (String metadata :metadataValues) {
@@ -231,6 +389,28 @@ public class MetadataFieldController {
 		}
 		
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
+	}
+	
+	/**
+	 * Class for comparing MetadataFieldImpl by label.
+	 * 
+	 * @author
+	 *
+	 */
+	class LabelComparator implements Comparator<MetadataFieldImpl>
+	{
+		/**
+		 * Compare labels of MetadataFieldImpl
+		 * 
+		 * @param		mfi1		MetadataFieldImpl
+		 * @param		mfi2		MetadataFieldImpl
+		 * 
+		 * @return		int
+		 */
+		@Override
+		public int compare(MetadataFieldImpl mfi1, MetadataFieldImpl mfi2) {
+			return mfi1.getLabel().compareTo(mfi2.getLabel());
+		}
 	}
 		
 }

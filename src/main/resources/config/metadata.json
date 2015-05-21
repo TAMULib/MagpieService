@@ -15,15 +15,14 @@
 			"inputType": "TEXT"
 		},
 		{
-			"label": "dc.committee.chair",
+			"label": "dc.contributor.committeechair",
 			"gloss": "Committee Chair",
 			"repeatable": true,
 			"readOnly": false,
-			"inputType": "TEXT",
-			"default": "test default repeatable value"
+			"inputType": "TEXT"
 		},
 		{
-			"label": "dc.committee.member",
+			"label": "dc.contributor.committeeMember",
 			"gloss": "Committee Member",
 			"repeatable": true,
 			"readOnly": false,

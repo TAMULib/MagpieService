@@ -40,6 +40,20 @@ public interface Document {
 	public void setName(String name);
 	
 	/**
+	 * Gets project.
+	 * 
+	 * @return		String
+	 */
+	public String getProject();
+
+	/**
+	 * Sets project.
+	 * 
+	 * @param 		project			String
+	 */
+	public void setProject(String project);
+	
+	/**
 	 * Gets pdf uri.
 	 * 
 	 * @return		String

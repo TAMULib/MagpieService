@@ -38,6 +38,8 @@ public class DocumentImpl implements Document {
 	
 	private String name;
 	
+	private String project;
+	
 	@Column(name="txt_uri")
 	private String txtUri;
 	
@@ -69,9 +71,10 @@ public class DocumentImpl implements Document {
 	 * @param 		status			String
 	 * 
 	 */
-	public DocumentImpl(String name, String txtUri, String pdfUri, String status, List<MetadataLabelImpl> metadataLabels) {
+	public DocumentImpl(String name, String project, String txtUri, String pdfUri, String status, List<MetadataLabelImpl> metadataLabels) {
 		super();
 		this.name = name;
+		this.project = project;
 		this.txtUri = txtUri;
 		this.pdfUri = pdfUri;
 		this.status = status;
@@ -96,6 +99,24 @@ public class DocumentImpl implements Document {
 		this.name = name;
 	}
 
+	/**
+	 * Gets project.
+	 * 
+	 * @return		String
+	 */
+	public String getProject() {
+		return project;
+	}
+
+	/**
+	 * Sets project.
+	 * 
+	 * @param 		name			String
+	 */
+	public void setProject(String project) {
+		this.project = project;
+	}
+	
 	/**
 	 * 
 	 */
