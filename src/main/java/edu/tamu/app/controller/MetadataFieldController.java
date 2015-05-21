@@ -137,6 +137,8 @@ public class MetadataFieldController {
 		
 		List<String> metadataHeaders = new ArrayList<String>();
 		
+		metadataHeaders.add("BUNDLE:ORIGINAL");
+		
 		for (String key : metadataMap.keySet()) {
 			
 			if(key.equals(project)) {				
