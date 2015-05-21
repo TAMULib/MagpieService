@@ -10,8 +10,7 @@ public class FlatMARC {
 	private String dc_subject = "";
 	private String dc_description = "";
 	private String dc_description_abstract = "";
-	private String dc_degree_grantor = "";
-	
+	private String thesis_degree_grantor = "";
 	
 	public FlatMARC(VoyagerServiceData voyagerServiceData) {
 		
@@ -76,7 +75,7 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
-							dc_degree_grantor += subField.getValue();
+							thesis_degree_grantor += subField.getValue();
 						}
 					}
 				}
@@ -214,12 +213,12 @@ public class FlatMARC {
 
 
 	public String getDegreeGrantor() {
-		return dc_degree_grantor;
+		return thesis_degree_grantor;
 	}
 
 
-	public void setDegreeGrantor(String dc_degree_grantor) {
-		this.dc_degree_grantor = dc_degree_grantor;
+	public void setDegreeGrantor(String thesis_degree_grantor) {
+		this.thesis_degree_grantor = thesis_degree_grantor;
 	}
 	
 	

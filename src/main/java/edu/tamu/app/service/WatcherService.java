@@ -170,7 +170,7 @@ public class WatcherService implements Runnable {
 	                    		String pdfUri = host+"/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";
 	                    		String txtUri = host+"/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
 	                         		
-	        					DocumentImpl doc = new DocumentImpl(docString, txtUri, pdfUri, "Open", metadataLabels);
+	        					DocumentImpl doc = new DocumentImpl(docString, folder, txtUri, pdfUri, "Open", metadataLabels);
 	        					docRepo.save(doc);
 	        					
 	        					Map<String, Object> docMap = new HashMap<String, Object>();

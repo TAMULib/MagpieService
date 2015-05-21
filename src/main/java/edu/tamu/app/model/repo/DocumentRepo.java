@@ -38,14 +38,24 @@ public interface DocumentRepo extends JpaRepository <DocumentImpl, Long> {
 	public DocumentImpl findByName(String name);
 	
 	/**
-	 * Retrieve document by name.
+	 * Retrieve documents by status.
 	 * 
 	 * @param 		name				String
 	 * 
 	 * @return		DocumentImpl
 	 * 
 	 */
-	public List<DocumentImpl> getAllByStatus(String status);
+	public List<DocumentImpl> findByStatus(String status);
+	
+	/**
+	 * Retrieve document by status and project.
+	 * 
+	 * @param 		name				String
+	 * 
+	 * @return		DocumentImpl
+	 * 
+	 */
+	public List<DocumentImpl> findByStatusAndProject(String status, String project);
 	
 	/**
 	 * Retrieve document by name.
