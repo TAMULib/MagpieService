@@ -19,9 +19,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import edu.tamu.app.service.SyncService;
-import edu.tamu.app.service.WatcherService;
-
 /** 
  * Web server initialization.
  * 
@@ -41,11 +38,7 @@ public class WebServerInit extends SpringBootServletInitializer {
 	 *
 	 */
     public static void main(String[] args) {    	
-        SpringApplication.run(WebServerInit.class, args);        
-        ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();  
-        taskExecutor.initialize();
-        taskExecutor.execute(new SyncService());
-    	taskExecutor.execute(new WatcherService("projects"));
+        SpringApplication.run(WebServerInit.class, args);
     }
     
     /**
@@ -57,13 +50,8 @@ public class WebServerInit extends SpringBootServletInitializer {
    	 *
    	 */
     @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {    	
-    	SpringApplicationBuilder builder = application.sources(WebServerInit.class);
-    	ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();
-    	taskExecutor.initialize();
-    	taskExecutor.execute(new SyncService());
-    	taskExecutor.execute(new WatcherService("projects"));
-        return builder;
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(WebServerInit.class);
     }
     
     /**
@@ -89,8 +77,18 @@ public class WebServerInit extends SpringBootServletInitializer {
      */
     @Bean(name="appContextProvider")
     private static ApplicationContextProvider appContextProvider() {
-    	ApplicationContextProvider appContextProvider = new ApplicationContextProvider();
-    	return appContextProvider;
+    	return new ApplicationContextProvider();
+    }
+    
+    /**
+     * Post Init bean.
+     * 
+     * @return		ApplicationContextProvider
+     * 
+     */
+    @Bean(name="postInit")
+    private static PostInit postInit() {
+    	return new PostInit();
     }
    
 }
