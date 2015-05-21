@@ -178,7 +178,7 @@ public class MetadataFieldController {
 	 */
 	@MessageMapping("/csv/{project}")
 	@SendToUser
-	public ApiResImpl dspace(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
+	public ApiResImpl getCSVByroject(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
 		
 		List<DocumentImpl> documents = docRepo.findByStatusAndProject("Published", project);
 		
