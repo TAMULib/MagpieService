@@ -139,15 +139,13 @@ public class MetadataFieldController {
 		
 		for (String key : metadataMap.keySet()) {
 			
-			if(key.equals(project)) {
-				
+			if(key.equals(project)) {				
 				@SuppressWarnings("unchecked")
 				List<Map<String, String>> fields = (List<Map<String, String>>) metadataMap.get(key);
 				
 				for (Map<String, String> field : fields) {
 					metadataHeaders.add(field.get("label"));
-				}
-				
+				}				
 			}
 			
 		}
@@ -391,9 +389,22 @@ public class MetadataFieldController {
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
 	
-	
+	/**
+	 * Class for comparing MetadataFieldImpl by label.
+	 * 
+	 * @author
+	 *
+	 */
 	class LabelComparator implements Comparator<MetadataFieldImpl>
 	{
+		/**
+		 * Compare labels of MetadataFieldImpl
+		 * 
+		 * @param		mfi1		MetadataFieldImpl
+		 * @param		mfi2		MetadataFieldImpl
+		 * 
+		 * @return		int
+		 */
 		@Override
 		public int compare(MetadataFieldImpl mfi1, MetadataFieldImpl mfi2) {
 			return mfi1.getLabel().compareTo(mfi2.getLabel());
