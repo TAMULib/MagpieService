@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -100,12 +101,12 @@ public class WatcherService implements Runnable {
 			e2.printStackTrace();
 		}
 		
-		ObjectMapper om = (ObjectMapper) ApplicationContextProvider.appContext.getBean("objectMapper");
+		ObjectMapper objectMapper = (ObjectMapper) ApplicationContextProvider.appContext.getBean("objectMapper");
 		
 		Map<String, Object> projectMap = null;
 		
 		try {
-			projectMap = om.readValue(json, new TypeReference<Map<String, Object>>(){});
+			projectMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -113,11 +114,23 @@ public class WatcherService implements Runnable {
 		List<MetadataLabelImpl> metadataLabels = new ArrayList<MetadataLabelImpl>();
 		
 		String host = env.getProperty("app.host");
-		String directory = env.getProperty("app.directory") + "/" + folder;
+		String mount = env.getProperty("app.mount");
+		
+		String directory = "";
+		try {
+			directory = ApplicationContextProvider.appContext.getResource("classpath:static/mnt").getFile().getAbsolutePath() + "/" + folder;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		if(!folder.equals("projects")) {
 			
-			directory = env.getProperty("app.directory") + "/projects/" + folder;
+			try {
+				directory = ApplicationContextProvider.appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/" + folder;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 			List<Object> profile = (List<Object>) projectMap.get(folder);
 			
 			if(profile == null) profile = (List<Object>) projectMap.get("default");

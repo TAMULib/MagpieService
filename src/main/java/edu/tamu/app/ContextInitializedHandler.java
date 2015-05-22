@@ -45,9 +45,6 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
     @Value("${app.mount}") 
    	private String mount;
     
-    @Value("${app.directory}") 
-   	private String directory;
-
     /**
      * Method for event context refreshes.
      * 
@@ -58,7 +55,7 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
     	
     	if(createSymlink.equals("true")) {
     		try {
-				Files.createSymbolicLink(Paths.get(event.getApplicationContext().getResource("classpath:static").getFile().getAbsolutePath() + "/mnt/projects"), Paths.get(mount));
+				Files.createSymbolicLink(Paths.get(event.getApplicationContext().getResource("classpath:static" + mount).getFile().getAbsolutePath()), Paths.get(mount));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

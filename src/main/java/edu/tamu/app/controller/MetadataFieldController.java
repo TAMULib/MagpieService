@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.app.ApplicationContextProvider;
 import edu.tamu.app.aspect.annotation.ReqId;
 import edu.tamu.app.model.RequestId;
 import edu.tamu.app.model.impl.ApiResImpl;
@@ -60,8 +61,8 @@ import edu.tamu.app.service.VoyagerService;
 @MessageMapping("/metadata")
 public class MetadataFieldController {
 	
-	@Value("${app.directory}") 
-	private String directory;
+	@Value("${app.mount}") 
+   	private String mount;
 	
 	@Autowired
 	private DocumentRepo docRepo;
@@ -89,9 +90,16 @@ public class MetadataFieldController {
 	@MessageMapping("/projects")
 	@SendToUser
 	public ApiResImpl getProjects(Message<?> message, @ReqId String requestId) throws Exception {
+				
+		String directory = "";
+		try {
+			directory = ApplicationContextProvider.appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		List<String> projects = new ArrayList<>();
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory+ "/projects"))) {
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory))) {
             for (Path path : directoryStream) {
             	projects.add(path.getFileName().toString());            
             }

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,9 +49,6 @@ import edu.tamu.app.service.VoyagerService;
 @RestController
 @MessageMapping("/document")
 public class DocumentController {
-
-	@Value("${app.directory}") 
-	private String directory;
 	
 	@Autowired
 	private DocumentRepo docRepo;

@@ -88,12 +88,12 @@ public class SyncService implements Runnable {
 			e2.printStackTrace();
 		}
 		
-		ObjectMapper om = (ObjectMapper) ApplicationContextProvider.appContext.getBean("objectMapper");
+		ObjectMapper objectMapper = (ObjectMapper) ApplicationContextProvider.appContext.getBean("objectMapper");
 		
 		Map<String, Object> projectMap = null;
 		
 		try {
-			projectMap = om.readValue(json, new TypeReference<Map<String, Object>>(){});
+			projectMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -101,7 +101,14 @@ public class SyncService implements Runnable {
 		List<MetadataLabelImpl> metadataLabels;
 		
 		String host = env.getProperty("app.host");
-		String directory = env.getProperty("app.directory") + "/projects";
+		String mount = env.getProperty("app.mount");
+		
+		String directory = null;
+		try {
+			directory = ApplicationContextProvider.appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		List<Path> projects = fileList(directory);
         
