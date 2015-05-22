@@ -1,3 +1,12 @@
+/* 
+ * ContextInitializedHandler.java 
+ * 
+ * Version: 
+ *     $Id$ 
+ * 
+ * Revisions: 
+ *     $Log$ 
+ */
 package edu.tamu.app;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +19,12 @@ import org.springframework.stereotype.Component;
 import edu.tamu.app.service.SyncService;
 import edu.tamu.app.service.WatcherService;
 
+/** 
+ * Handler for when the servlet context refreshes.
+ * 
+ * @author
+ *
+ */
 @Component
 class ContextInitializedHandler implements ApplicationListener<ContextRefreshedEvent> {
     
@@ -19,6 +34,12 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
     @Autowired 
     private ThreadPoolTaskScheduler taskScheduler;
 
+    /**
+     * Method for event context refreshes.
+     * 
+     * @param		event		ContextRefreshedEvent
+     * 
+     */
     public void onApplicationEvent(ContextRefreshedEvent event) {
     	taskExecutor.initialize();
     	taskExecutor.execute(new SyncService());
