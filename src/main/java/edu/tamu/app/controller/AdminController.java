@@ -41,17 +41,17 @@ import edu.tamu.app.service.SyncService;
 @MessageMapping("/admin")
 public class AdminController {
 	
+	@Autowired
+	private UserRepo userRepo;
+	
+	@Autowired
+	public ObjectMapper objectMapper;
+	
 	@Autowired 
 	private ThreadPoolTaskExecutor taskExecutor; 
 	
 	@Autowired 
 	private SimpMessagingTemplate simpMessagingTemplate; 
-	
-	@Autowired
-	public ObjectMapper objectMapper;
-	
-	@Autowired
-	private UserRepo userRepo;
 	
 	/**
 	 * 
@@ -111,9 +111,9 @@ public class AdminController {
 	@SendToUser
 	public ApiResImpl syncDocuments(Message<?> message, @ReqId String requestId) throws Exception {
 		
-		taskExecutor.execute(new SyncService());
-		
 		System.out.println("Syncronizing projects with database.");
+		
+		taskExecutor.execute(new SyncService());
 		
 		return new ApiResImpl("success", "ok", new RequestId(requestId));
 	}
