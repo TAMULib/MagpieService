@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 class ContextClosedHandler implements ApplicationListener<ContextClosedEvent> {
     
 	@Autowired 
-    private ThreadPoolTaskExecutor executor;
+    private ThreadPoolTaskExecutor taskExecutor;
 	
     @Autowired 
-    private ThreadPoolTaskScheduler scheduler;
+    private ThreadPoolTaskScheduler taskScheduler;
 
     public void onApplicationEvent(ContextClosedEvent event) {
-        scheduler.shutdown();
-        executor.shutdown();
+    	taskExecutor.shutdown();
+    	taskExecutor.shutdown();
     }  
     
 }
