@@ -18,7 +18,7 @@ public class PostInit {
 	public PostInit() {}
    
     @PostConstruct
-    public void init(){
+    public void setup(){
         taskExecutor.initialize();
         taskExecutor.execute(new SyncService());
     	taskExecutor.execute(new WatcherService("projects"));

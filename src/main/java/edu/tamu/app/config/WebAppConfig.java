@@ -24,12 +24,14 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import edu.tamu.app.ApplicationContextProvider;
 import edu.tamu.app.controller.interceptor.RestInterceptor;
 import edu.tamu.app.service.HttpService;
 import edu.tamu.app.service.VoyagerService;
@@ -43,7 +45,7 @@ import edu.tamu.app.service.VoyagerService;
 @Configuration
 @ComponentScan(basePackages = "edu.tamu.app.controller")
 @ConfigurationProperties(prefix="app.controller")
-public class ControllerConfig extends WebMvcConfigurerAdapter{	
+public class WebAppConfig extends WebMvcConfigurerAdapter{	
 
 	/**
 	 * Configures message converters.
@@ -85,11 +87,36 @@ public class ControllerConfig extends WebMvcConfigurerAdapter{
 	@Bean
 	public ObjectMapper objectMapper() {
 	    ObjectMapper objectMapper = new ObjectMapper();
-	    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-	    
+	    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);	    
 	    return objectMapper;
 	}
 	
+	/**
+     * Thread pool task executor configuration.
+     * 
+     * @return		ThreadPoolTaskExecutor
+     * 
+     */
+    @Bean(name="taskExecutor")
+    private static ThreadPoolTaskExecutor configureTaskExecutor() {
+    	ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+    	taskExecutor.setCorePoolSize(5);
+    	taskExecutor.setMaxPoolSize(10);
+    	taskExecutor.setQueueCapacity(25);
+    	return taskExecutor;
+    }
+    
+    /**
+     * Application context provider bean.
+     * 
+     * @return		ApplicationContextProvider
+     * 
+     */
+    @Bean(name="appContextProvider")
+    private static ApplicationContextProvider appContextProvider() {
+    	return new ApplicationContextProvider();
+    }
+    
 	/**
 	 * Rest interceptor bean.
 	 *
