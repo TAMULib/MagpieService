@@ -71,7 +71,9 @@ public class WebServerInit extends SpringBootServletInitializer {
      */
     @Bean(name="executor")
     private static ExecutorService executorService() {
-    	return Executors.newCachedThreadPool();
+    	ExecutorService executor = Executors.newFixedThreadPool(10);
+    	
+    	return executor;
     }
     
 }
