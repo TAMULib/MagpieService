@@ -11,13 +11,13 @@ package edu.tamu.app.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +42,7 @@ import edu.tamu.app.service.SyncService;
 public class AdminController {
 	
 	@Autowired 
-	private ThreadPoolTaskExecutor taskExecutor; 
+	private ExecutorService executor; 
 	
 	@Autowired 
 	private SimpMessagingTemplate simpMessagingTemplate; 
@@ -111,7 +111,7 @@ public class AdminController {
 	@SendToUser
 	public ApiResImpl syncDocuments(Message<?> message, @ReqId String requestId) throws Exception {
 		
-		taskExecutor.execute(new SyncService());
+		executor.execute(new SyncService());
 		
 		System.out.println("Syncronizing projects with database.");
 		

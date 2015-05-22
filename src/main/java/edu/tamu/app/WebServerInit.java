@@ -9,13 +9,20 @@
  */
 package edu.tamu.app;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import edu.tamu.app.service.SyncService;
+import edu.tamu.app.service.WatcherService;
 
 /** 
  * Web server initialization.
@@ -37,6 +44,10 @@ public class WebServerInit extends SpringBootServletInitializer {
 	 */
     public static void main(String[] args) {    	
     	SpringApplication.run(WebServerInit.class, args);
+    	
+    	ExecutorService executor = executorService();
+    	executor.execute(new SyncService());
+    	executor.execute(new WatcherService("projects"));
     }
     
     /**
@@ -50,6 +61,17 @@ public class WebServerInit extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
     	return application.sources(WebServerInit.class);
+    }
+    
+    /**
+     * Thread pool task executor configuration.
+     * 
+     * @return		ThreadPoolTaskExecutor
+     * 
+     */
+    @Bean(name="executor")
+    private static ExecutorService executorService() {
+    	return Executors.newCachedThreadPool();
     }
     
 }

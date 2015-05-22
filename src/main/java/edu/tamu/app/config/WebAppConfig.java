@@ -24,7 +24,6 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -91,21 +90,6 @@ public class WebAppConfig extends WebMvcConfigurerAdapter{
 	    return objectMapper;
 	}
 	
-	/**
-     * Thread pool task executor configuration.
-     * 
-     * @return		ThreadPoolTaskExecutor
-     * 
-     */
-    @Bean(name="taskExecutor")
-    private static ThreadPoolTaskExecutor configureTaskExecutor() {
-    	ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-    	taskExecutor.setCorePoolSize(5);
-    	taskExecutor.setMaxPoolSize(10);
-    	taskExecutor.setQueueCapacity(25);
-    	return taskExecutor;
-    }
-    
     /**
      * Application context provider bean.
      * 
