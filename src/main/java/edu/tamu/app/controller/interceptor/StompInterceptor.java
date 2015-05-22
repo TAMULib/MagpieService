@@ -87,7 +87,7 @@ public class StompInterceptor extends ChannelInterceptorAdapter {
 			String requestId = accessor.getNativeHeader("id").get(0);
 			
 			MessageHeaders headers = message.getHeaders();	
-			Map<String, Object> headerMap = (Map<String, Object>) headers.get("nativeHeaders");		
+			Map<String, Object> headerMap = (Map<String, Object>) headers.get("nativeHeaders");
 			
 			String jwt = headerMap.get("jwt").toString();			
 			jwt = jwt.substring(1, jwt.length()-1);
