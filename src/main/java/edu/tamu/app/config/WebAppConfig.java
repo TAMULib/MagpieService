@@ -98,9 +98,9 @@ public class WebAppConfig extends WebMvcConfigurerAdapter{
     @Bean(name="taskExecutor")
     private static ThreadPoolTaskExecutor configureTaskExecutor() {
     	ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();		
-    	taskExecutor.setCorePoolSize(5);		
-      	taskExecutor.setMaxPoolSize(10);		
-      	taskExecutor.setQueueCapacity(25);		
+    	taskExecutor.setCorePoolSize(10);
+      	taskExecutor.setMaxPoolSize(25);
+      	taskExecutor.setQueueCapacity(50);
        	return taskExecutor;
 	}
 	

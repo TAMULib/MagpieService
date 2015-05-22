@@ -49,10 +49,6 @@ public class WebServerInit extends SpringBootServletInitializer {
    	 */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-//    	ThreadPoolTaskExecutor taskExecutor = configureTaskExecutor();
-//    	taskExecutor.initialize();
-//    	taskExecutor.execute(new SyncService());
-//    	taskExecutor.execute(new WatcherService("projects"));
     	return application.sources(WebServerInit.class);
     }
     
