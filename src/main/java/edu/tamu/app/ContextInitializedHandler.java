@@ -9,7 +9,12 @@
  */
 package edu.tamu.app;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -33,6 +38,15 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
 	
     @Autowired 
     private ThreadPoolTaskScheduler taskScheduler;
+    
+    @Value("${app.create.symlink}") 
+	private String createSymlink;
+    
+    @Value("${app.mount}") 
+   	private String mount;
+    
+    @Value("${app.directory}") 
+   	private String directory;
 
     /**
      * Method for event context refreshes.
@@ -41,6 +55,15 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
      * 
      */
     public void onApplicationEvent(ContextRefreshedEvent event) {
+    	
+    	if(createSymlink.equals("true")) {
+    		try {
+				Files.createSymbolicLink(Paths.get(event.getApplicationContext().getResource("classpath:static").getFile().getAbsolutePath() + "/mnt/projects"), Paths.get(mount));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+    	}
+    	
     	taskExecutor.initialize();
     	taskExecutor.execute(new SyncService());
     	taskExecutor.execute(new WatcherService("projects"));
