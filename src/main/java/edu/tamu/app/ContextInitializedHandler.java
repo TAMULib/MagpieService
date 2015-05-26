@@ -54,6 +54,7 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
     public void onApplicationEvent(ContextRefreshedEvent event) {
     	
     	if(createSymlink.equals("true")) {
+    		System.out.println("\n CREATING SYMLINK TO MOUNT \n");
     		try {
 				Files.createSymbolicLink(Paths.get(event.getApplicationContext().getResource("classpath:static" + mount).getFile().getAbsolutePath()), Paths.get(mount));
 			} catch (IOException e) {
