@@ -51,7 +51,6 @@ public class CorsFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) req;
 		
 		System.out.println("\nFILTERING REQUEST\n");
-		System.out.println(req.getParameterMap());
 		
 		for(String host : hosts) {
 			 if(host.equals(request.getHeader("Origin")))
