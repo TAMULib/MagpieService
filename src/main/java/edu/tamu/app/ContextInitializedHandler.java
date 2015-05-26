@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
@@ -54,14 +53,18 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
      */
     public void onApplicationEvent(ContextRefreshedEvent event) {
     	
-    	System.out.println("\n\n" + mount + "\n\n");
+    	try {
+			System.out.println("\n\n" + event.getApplicationContext().getResource("classpath:static" + mount).getFile().getAbsolutePath() + "\n\n");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
     	
     	if(createSymlink.equals("true")) {
     		System.out.println("\n CREATING SYMLINK TO MOUNT \n");
     		try {
-    			System.out.println("\n" + Paths.get(ApplicationContextProvider.appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath()) + "\n");
-    			System.out.println("\n" + Paths.get(mount) + "\n");
-				Files.createSymbolicLink(Paths.get(ApplicationContextProvider.appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath()), Paths.get(mount));
+    			System.out.println("\n" + Paths.get(event.getApplicationContext().getResource("classpath:static" + mount).getFile().getAbsolutePath()) + "\n");
+    			System.out.println("\n" + Paths.get(mount)+ "\n");
+				Files.createSymbolicLink(Paths.get(event.getApplicationContext().getResource("classpath:static" + mount).getFile().getAbsolutePath()), Paths.get(mount));
 			} catch (IOException e) {
 				System.out.println("\n FAILED TO CREATE SYMLINK \n");				
 				e.printStackTrace();
