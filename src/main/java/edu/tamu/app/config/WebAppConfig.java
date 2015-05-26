@@ -85,7 +85,7 @@ public class WebAppConfig extends WebMvcConfigurerAdapter{
 	@Bean
 	public ObjectMapper objectMapper() {
 	    ObjectMapper objectMapper = new ObjectMapper();
-	    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);	    
+	    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 	    return objectMapper;
 	}
 	
@@ -98,9 +98,9 @@ public class WebAppConfig extends WebMvcConfigurerAdapter{
     @Bean(name="taskExecutor")
     private static ThreadPoolTaskExecutor configureTaskExecutor() {
     	ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();		
-    	taskExecutor.setCorePoolSize(10);
-      	taskExecutor.setMaxPoolSize(25);
-      	taskExecutor.setQueueCapacity(50);
+    	taskExecutor.setCorePoolSize(25);
+      	taskExecutor.setMaxPoolSize(50);
+      	taskExecutor.setQueueCapacity(100);
        	return taskExecutor;
 	}
 	
