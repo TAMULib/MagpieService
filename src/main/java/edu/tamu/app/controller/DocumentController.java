@@ -158,10 +158,10 @@ public class DocumentController {
 			status[1] = "";
 		}
 		
-		System.out.println("\n" + name + "\n");
-		System.out.println("\n" + annotator + "\n");
-		System.out.println("\n" + status[0] + "\n");
-		System.out.println("\n" + status[1] + "\n");
+		System.out.println("\n" + name);
+		System.out.println(annotator);
+		System.out.println(status[0]);
+		System.out.println(status[1] + "\n");
 				
 		Pageable request = new PageRequest(Integer.parseInt(headerMap.get("page")) - 1, Integer.parseInt(headerMap.get("size")), sortDirection, headerMap.get("field"));
 		Page<DocumentImpl> documents = null;				
