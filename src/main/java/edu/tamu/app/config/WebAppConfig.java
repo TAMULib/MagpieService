@@ -101,8 +101,7 @@ public class WebAppConfig extends WebMvcConfigurerAdapter{
     	taskExecutor.setCorePoolSize(25);
       	taskExecutor.setMaxPoolSize(100);
       	taskExecutor.setQueueCapacity(Integer.MAX_VALUE);
-      	taskExecutor.setWaitForTasksToCompleteOnShutdown(true);
-    	taskExecutor.initialize();
+      	taskExecutor.setWaitForTasksToCompleteOnShutdown(true);    	
        	return taskExecutor;
 	}
 	

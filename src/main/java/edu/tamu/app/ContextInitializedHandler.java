@@ -62,6 +62,8 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
 			}
     	}
     	
+    	taskExecutor.initialize();
+    	
     	taskExecutor.execute(new SyncService());
     	taskExecutor.execute(new WatcherService("projects"));
     	
