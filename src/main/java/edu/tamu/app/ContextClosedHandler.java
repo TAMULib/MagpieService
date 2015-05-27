@@ -9,11 +9,11 @@
  */
 package edu.tamu.app;
 
+import java.util.concurrent.ExecutorService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 /** 
@@ -26,10 +26,7 @@ import org.springframework.stereotype.Component;
 class ContextClosedHandler implements ApplicationListener<ContextClosedEvent> {
     
 	@Autowired 
-    private ThreadPoolTaskExecutor taskExecutor;
-	
-    @Autowired 
-    private ThreadPoolTaskScheduler taskScheduler;
+    private ExecutorService executorService;
 
     /**
      * Method for event context close.
@@ -38,8 +35,7 @@ class ContextClosedHandler implements ApplicationListener<ContextClosedEvent> {
      * 
      */
     public void onApplicationEvent(ContextClosedEvent event) {
-    	taskExecutor.shutdown();
-    	taskScheduler.shutdown();
+    	executorService.shutdownNow();
     }  
     
 }

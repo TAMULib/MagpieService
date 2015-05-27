@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -88,7 +88,7 @@ public class WatcherService implements Runnable {
 		
 		SimpMessagingTemplate simpMessagingTemplate = (SimpMessagingTemplate) ApplicationContextProvider.appContext.getBean("brokerMessagingTemplate");
 		
-		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) ApplicationContextProvider.appContext.getBean("taskExecutor");
+		ExecutorService executorService = (ExecutorService) ApplicationContextProvider.appContext.getBean("executorService");
 		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -174,7 +174,7 @@ public class WatcherService implements Runnable {
                     if (kind == ENTRY_CREATE) {
                     	
                     	if(folder.equals("projects")) {
-                    		taskExecutor.execute(new WatcherService(docString));
+                    		executorService.submit(new WatcherService(docString));
                     	}
                     	else {
                     	

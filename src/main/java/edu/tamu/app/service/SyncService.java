@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -75,7 +75,7 @@ public class SyncService implements Runnable {
 		
 		SimpMessagingTemplate simpMessagingTemplate = (SimpMessagingTemplate) ApplicationContextProvider.appContext.getBean("brokerMessagingTemplate");
 		
-		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) ApplicationContextProvider.appContext.getBean("taskExecutor");
+		ExecutorService executorService = (ExecutorService) ApplicationContextProvider.appContext.getBean("executorService");
 		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -118,7 +118,7 @@ public class SyncService implements Runnable {
         	System.out.println(project.getFileName().toString());
         	List<Object> profile = (List<Object>) projectMap.get(project.getFileName().toString());
         	
-        	taskExecutor.execute(new WatcherService(project.getFileName().toString()));
+        	executorService.submit(new WatcherService(project.getFileName().toString()));
         	
         	for(Path document : documents) {
     			

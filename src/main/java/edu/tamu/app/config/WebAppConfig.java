@@ -10,6 +10,8 @@
 package edu.tamu.app.config;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.xml.transform.Source;
 
@@ -24,7 +26,6 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -90,19 +91,15 @@ public class WebAppConfig extends WebMvcConfigurerAdapter{
 	}
 	
 	 /**
-     * Thread pool task executor configuration.
+     * Executor Service configuration.
      * 
-     * @return		ThreadPoolTaskExecutor
+     * @return		ExecutorSevice
      * 
      */
-    @Bean(name="taskExecutor")
-    private static ThreadPoolTaskExecutor configureTaskExecutor() {
-    	ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();		
-    	taskExecutor.setCorePoolSize(25);
-      	taskExecutor.setMaxPoolSize(100);
-      	taskExecutor.setQueueCapacity(200);
-      	taskExecutor.setWaitForTasksToCompleteOnShutdown(true);    	
-       	return taskExecutor;
+    @Bean(name="executorService")
+    private static ExecutorService configureExecutorService() {
+    	ExecutorService executorService = Executors.newFixedThreadPool(25);
+       	return executorService;
 	}
 	
     /**

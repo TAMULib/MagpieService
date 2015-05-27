@@ -12,13 +12,12 @@ package edu.tamu.app;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 import edu.tamu.app.service.SyncService;
@@ -34,11 +33,8 @@ import edu.tamu.app.service.WatcherService;
 class ContextInitializedHandler implements ApplicationListener<ContextRefreshedEvent> {
     
 	@Autowired 
-    private ThreadPoolTaskExecutor taskExecutor;
+    private ExecutorService executorService;
 	
-    @Autowired 
-    private ThreadPoolTaskScheduler taskScheduler;
-    
     @Value("${app.create.symlink}") 
 	private String createSymlink;
     
@@ -62,12 +58,9 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
 			}
     	}
     	
-    	taskExecutor.initialize();
+    	executorService.submit(new SyncService());
+    	executorService.submit(new WatcherService("projects"));
     	
-    	taskExecutor.execute(new SyncService());
-    	taskExecutor.execute(new WatcherService("projects"));
-    	
-    	taskScheduler.initialize();
     }  
     
 }
