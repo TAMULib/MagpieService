@@ -99,8 +99,10 @@ public class WebAppConfig extends WebMvcConfigurerAdapter{
     private static ThreadPoolTaskExecutor configureTaskExecutor() {
     	ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();		
     	taskExecutor.setCorePoolSize(25);
-      	taskExecutor.setMaxPoolSize(50);
-      	taskExecutor.setQueueCapacity(100);
+      	taskExecutor.setMaxPoolSize(100);
+      	taskExecutor.setQueueCapacity(Integer.MAX_VALUE);
+      	taskExecutor.setWaitForTasksToCompleteOnShutdown(true);
+    	taskExecutor.initialize();
        	return taskExecutor;
 	}
 	

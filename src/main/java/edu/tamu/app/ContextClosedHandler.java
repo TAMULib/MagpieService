@@ -39,7 +39,7 @@ class ContextClosedHandler implements ApplicationListener<ContextClosedEvent> {
      */
     public void onApplicationEvent(ContextClosedEvent event) {
     	taskExecutor.shutdown();
-    	taskExecutor.shutdown();
+    	taskScheduler.shutdown();
     }  
     
 }
