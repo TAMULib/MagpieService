@@ -101,7 +101,7 @@ public class WebAppConfig extends WebMvcConfigurerAdapter{
      */
     @Bean(name="executorService")
     private static ExecutorService configureExecutorService() {
-    	ExecutorService executorService = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(25));
+    	ExecutorService executorService = new ThreadPoolExecutor(10, 25, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(25));
        	return executorService;
 	}
 	
