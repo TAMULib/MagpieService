@@ -20,10 +20,7 @@ public class TestDataSourceConfiguration {
  
     @Bean
     public EmbeddedDatabase dataSource() {
-        
-    	 return new EmbeddedDatabaseBuilder().
-    	            setType(EmbeddedDatabaseType.H2).
-    	            build();
+    	return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
     }
 	
 }

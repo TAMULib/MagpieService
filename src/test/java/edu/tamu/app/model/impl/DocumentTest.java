@@ -1,7 +1,6 @@
 package edu.tamu.app.model.impl;
 
-import java.util.List;
-
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,30 +21,43 @@ import edu.tamu.app.model.repo.DocumentRepo;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestDataSourceConfiguration.class})
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
-    DirtiesContextTestExecutionListener.class,
-    TransactionalTestExecutionListener.class,
-    DbUnitTestExecutionListener.class })
+    					  DirtiesContextTestExecutionListener.class,
+    					  TransactionalTestExecutionListener.class,
+    					  DbUnitTestExecutionListener.class })
 public class DocumentTest {
 	
 	@Autowired
 	private DocumentRepo documentRepo;
 	
+	private DocumentImpl testDocument = new DocumentImpl("testFile", "project", "Unassigned", null, null, null);
+	
 	@Before
 	public void setUp() {
+		
 	}
 	
 	@Test
-	public void testMethod() {
-		
-		DocumentImpl testDocument1 = new DocumentImpl("testFile1", "project", "Unassigned", null, null, null);
-		
-		documentRepo.save(testDocument1);
-		DocumentImpl assertDocument = documentRepo.findByName("testFile1");
-		Assert.assertEquals("Test Document 1 was not added.", testDocument1.getName(), assertDocument.getName());
-		
-		documentRepo.delete(testDocument1);
-		List<DocumentImpl> allDocuments = (List<DocumentImpl>) documentRepo.findAll();
-		Assert.assertEquals("Test Document 1 was not removed.", 0, allDocuments.size());
+	public void saveDocument() {
+		Assert.assertEquals("Document repository is not empty.", documentRepo.findAll().size(), 0);
+		documentRepo.save(testDocument);
+		Assert.assertEquals("Document repository does not have saved document.", documentRepo.findAll().size(), 1);
+	}
+	
+	@Test
+	public void findDocument() {
+		DocumentImpl assertDocument = documentRepo.findByName("testFile");
+		Assert.assertEquals("Test Document was not added.", testDocument.getName(), assertDocument.getName());
+	}
+	
+	@Test
+	public void deleteDocument() {
+		documentRepo.delete(testDocument);
+		Assert.assertEquals("Test Document was not removed.", documentRepo.findAll().size(), 0);
+	}
+	
+	@After
+	public void cleanUp() {
 		
 	}
+	
 }

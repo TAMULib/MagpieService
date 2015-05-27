@@ -48,6 +48,17 @@ public class UserImpl implements User {
 	}
 	
 	/**
+	 * Constructor.
+	 * 
+	 * @param 		uin				Long
+	 * 
+	 */
+	public UserImpl(Long uin) {
+		super();
+		this.uin = uin;
+	}
+	
+	/**
 	 * Sets UIN.
 	 * 
 	 * @param 		uin				Long
