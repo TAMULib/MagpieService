@@ -10,8 +10,11 @@
 package edu.tamu.app.config;
 
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.transform.Source;
 
@@ -98,7 +101,7 @@ public class WebAppConfig extends WebMvcConfigurerAdapter{
      */
     @Bean(name="executorService")
     private static ExecutorService configureExecutorService() {
-    	ExecutorService executorService = Executors.newFixedThreadPool(25);
+    	ExecutorService executorService = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(25));
        	return executorService;
 	}
 	
