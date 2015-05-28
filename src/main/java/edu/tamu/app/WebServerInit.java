@@ -51,7 +51,5 @@ public class WebServerInit extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
     	return application.sources(WebServerInit.class);
     }
-    
-   
-    
+
 }

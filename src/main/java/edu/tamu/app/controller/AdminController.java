@@ -54,6 +54,7 @@ public class AdminController {
 	private SimpMessagingTemplate simpMessagingTemplate; 
 	
 	/**
+	 * Checks if user is in the repo. If not saves user to repo.
 	 * 
 	 * @param 		message			Message<?>
 	 * @param 		shibObj			@Shib Object

@@ -45,6 +45,16 @@ public class ControlledVocabularyController {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
+	/**
+	 * Get all controller vocabulary.
+	 * 
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
 	@MessageMapping("/all")
 	@SendToUser
 	public ApiResImpl getAllControlledVocabulary(Message<?> message) throws Exception {
@@ -73,6 +83,17 @@ public class ControlledVocabularyController {
 		return new ApiResImpl("success", cvMap, new RequestId(requestId));
 	}
 
+	/**
+	 * Get controlled vocabulary by label.
+	 * 
+	 * @param 		message			Message<?>
+	 * @param 		label			@DestinationVariable String
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
 	@MessageMapping("/{label}")
 	@SendToUser
 	public ApiResImpl getControlledVocabularyByField(Message<?> message, @DestinationVariable String label) throws Exception {

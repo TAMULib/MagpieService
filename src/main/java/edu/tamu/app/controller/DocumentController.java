@@ -62,6 +62,18 @@ public class DocumentController {
 	@Autowired 
 	private VoyagerService voyagerService; 
 	
+	/**
+	 * Endpoint to return marc record.
+	 * 
+	 * @param 		bibId			@DestinationVariable String bibId
+	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
 	@MessageMapping("/marc/{bibId}")
 	@SendToUser
 	public ApiResImpl getMARC(@DestinationVariable String bibId, Message<?> message, @ReqId String requestId) throws Exception {
