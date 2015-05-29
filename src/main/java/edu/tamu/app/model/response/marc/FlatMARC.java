@@ -1,12 +1,15 @@
 package edu.tamu.app.model.response.marc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FlatMARC {
 	
 	private String dc_creator = "";
 	private String dc_title = "";
 	private String dc_date_created = "";
 	private String dc_date_issued = "";
-	private String dc_subject_lcsh = "";
+	private List<String> dc_subject_lcsh = new ArrayList<String>();
 	private String dc_subject = "";
 	private String dc_description = "";
 	private String dc_description_abstract = "";
@@ -91,30 +94,33 @@ public class FlatMARC {
 				// dc.dc_subject.lcsh and dc.dc_subject
 				if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650")) {				
 					Subfield[] subFields = df.getSubfield();
-					for(Subfield subField : subFields) {					
+					
+					String lcsh = "";
+					
+					for(Subfield subField : subFields) {
+						
 						if(df.getInd2().equals("4")) {
 							dc_subject += subField.getValue();
 						}
 						else {
 							if(subField.getCode().equals("a")) {
-								if(dc_subject_lcsh.equals("")) {
-									dc_subject_lcsh += subField.getValue();
-								}
-								else {
-									dc_subject_lcsh += ", " + subField.getValue();
-								}
+								lcsh += subField.getValue();
 							}
 						}					
 						if(subField.getCode().equals("x")) {
-							dc_subject_lcsh += " -- " + subField.getValue();
+							lcsh += " -- " + subField.getValue();
 						}					
 						if(subField.getCode().equals("z")) {
-							dc_subject_lcsh += " -- " + subField.getValue();
+							lcsh += " -- " + subField.getValue();
 						}					
 						if(subField.getCode().equals("z")) {
-							dc_subject_lcsh += " -- " + subField.getValue();
-						}					
+							lcsh += " -- " + subField.getValue();
+						}
+											
 					}
+					if(!"".equals(lcsh)) {
+						dc_subject_lcsh.add(lcsh);
+					}	
 				}
 				
 				// dc.dc_subject
@@ -172,12 +178,12 @@ public class FlatMARC {
 	}
 
 
-	public String getSubjectIcsh() {
+	public List<String> getSubjectIcsh() {
 		return dc_subject_lcsh;
 	}
 
 
-	public void setSubjectIcsh(String dc_subject_lcsh) {
+	public void setSubjectIcsh(List<String> dc_subject_lcsh) {
 		this.dc_subject_lcsh = dc_subject_lcsh;
 	}
 

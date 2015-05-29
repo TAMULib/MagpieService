@@ -21,6 +21,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.model.response.marc.VoyagerServiceData;
+
 /**
  * Voyager service. Performs requests with ExLibris Voyager API. 
  * All Voyager API responses are xml. The xml is mapped to objects using JAXB.
@@ -45,7 +47,7 @@ public class VoyagerService {
 	@Autowired
 	private HttpService httpService;
 	
-	public edu.tamu.app.model.response.marc.VoyagerServiceData getMARC(String bibId) throws Exception {				
+	public VoyagerServiceData getMARC(String bibId) throws Exception {				
 		String urlString = "http://"+host+":"+port+"/"+app+"/GetHoldingsService?bibId=" + bibId;		
 		String xmlResponse = httpService.makeHttpRequest(urlString, "GET");
        
@@ -61,11 +63,11 @@ public class VoyagerService {
 		
 		InputStream xmlInputStream = new ByteArrayInputStream(xmlResponse.getBytes());
 		
-		JAXBContext jaxbContext = JAXBContext.newInstance(edu.tamu.app.model.response.marc.VoyagerServiceData.class);
+		JAXBContext jaxbContext = JAXBContext.newInstance(VoyagerServiceData.class);
 		
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 		
-		edu.tamu.app.model.response.marc.VoyagerServiceData response = (edu.tamu.app.model.response.marc.VoyagerServiceData) unmarshaller.unmarshal(xmlInputStream);
+		VoyagerServiceData response = (VoyagerServiceData) unmarshaller.unmarshal(xmlInputStream);
 		
 		return response;
 	}

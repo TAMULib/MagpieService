@@ -322,6 +322,7 @@ public class MetadataFieldController {
 	 * 
 	 * @throws 		Exception
 	 */
+	@SuppressWarnings("unchecked")
 	@MessageMapping("/get")
 	@SendToUser
 	public ApiResImpl getMetadata(Message<?> message, @ReqId String requestId) throws Exception {		
@@ -345,7 +346,14 @@ public class MetadataFieldController {
 		for (Field field : marcFields) {
 			field.setAccessible(true);
             List<String> marcList = new ArrayList<String>();
-            marcList.add(field.get(flatMarc).toString());
+            if(field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
+            	for(String string : (List<String>) field.get(flatMarc)) {
+            		marcList.add(string);
+            	}
+            }
+            else {
+            	marcList.add(field.get(flatMarc).toString());
+            }            
             metadataMap.put(field.getName().replace('_','.'), marcList);
         }
 		
