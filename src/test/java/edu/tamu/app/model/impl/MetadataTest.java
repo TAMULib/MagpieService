@@ -1,12 +1,11 @@
 package edu.tamu.app.model.impl;
 
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -39,27 +38,32 @@ public class MetadataTest {
 	}
 	
 	@Test
-	public void saveMetadataField() {
-		Assert.assertEquals("MetadataField repository is not empty.", metadataRepo.findAll().size(), 0);
+	public void testSaveMetadataField() {
+		Assert.assertEquals("MetadataField repository is not empty.", 0, metadataRepo.count());
 		metadataRepo.save(testMetadataField);
-		Assert.assertEquals("MetadataField repository does not have saved metadata field.", metadataRepo.findAll().size(), 1);
+		Assert.assertEquals("Metadata field was not saved.", 1, metadataRepo.count());
 	}
 	
 	@Test
-	public void findMetadataField() {
-		List<MetadataFieldImpl> assertMetadataFields =  metadataRepo.getMetadataFieldsByName("testDocument.txt");
-		Assert.assertEquals("Test metadata field was not added.", testMetadataField.getName(), assertMetadataFields.get(0).getName());
+	public void testFindMetadataField() {
+		Assert.assertEquals("MetadataField repository is not empty.", 0, metadataRepo.count());
+		metadataRepo.save(testMetadataField);
+		Assert.assertEquals("MetadataField repository is empty.", 1, metadataRepo.count());
+		Assert.assertEquals("Test metadata field was not found.", metadataRepo.getMetadataFieldsByName("testDocument.txt").get(0).getName(), testMetadataField.getName());
 	}
 	
 	@Test
-	public void deleteMetadataField() {
+	public void testDeleteMetadataField() {
+		Assert.assertEquals("MetadataField repository is not empty.", 0, metadataRepo.count());
+		metadataRepo.save(testMetadataField);
+		Assert.assertEquals("MetadataField repository is empty.", 1, metadataRepo.count());
 		metadataRepo.deleteByName(testMetadataField.getName());
-		Assert.assertEquals("Test metadata field was not removed.", metadataRepo.findAll().size(), 0);
+		Assert.assertEquals("Test metadata field was not removed.", 0, metadataRepo.count());
 	}
 	
 	@After
 	public void cleanUp() {
-		
+		metadataRepo.deleteAll();
 	}
 	
 }

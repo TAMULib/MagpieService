@@ -3,8 +3,9 @@ package edu.tamu.app.model.impl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -37,27 +38,32 @@ public class DocumentTest {
 	}
 	
 	@Test
-	public void saveDocument() {
-		Assert.assertEquals("Document repository is not empty.", documentRepo.findAll().size(), 0);
+	public void testSaveDocument() {
+		Assert.assertEquals("Document repository is not empty.", 0, documentRepo.count());
 		documentRepo.save(testDocument);
-		Assert.assertEquals("Document repository does not have saved document.", documentRepo.findAll().size(), 1);
+		Assert.assertEquals("Test document was not saved.", 1, documentRepo.count());
 	}
 	
 	@Test
-	public void findDocument() {
-		DocumentImpl assertDocument = documentRepo.findByName("testFile");
-		Assert.assertEquals("Test Document was not added.", testDocument.getName(), assertDocument.getName());
+	public void testFindDocument() {
+		Assert.assertEquals("Document repository is not empty.", 0, documentRepo.count());
+		documentRepo.save(testDocument);
+		Assert.assertEquals("Document repository is empty.", 1, documentRepo.count());
+		Assert.assertEquals("Test Document was not found.", documentRepo.findByName("testFile").getName(), testDocument.getName());
 	}
 	
 	@Test
-	public void deleteDocument() {
+	public void testDeleteDocument() {
+		Assert.assertEquals("Document repository is not empty.", 0, documentRepo.count());
+		documentRepo.save(testDocument);
+		Assert.assertEquals("Document repository is empty.", 1, documentRepo.count());
 		documentRepo.delete(testDocument);
-		Assert.assertEquals("Test Document was not removed.", documentRepo.findAll().size(), 0);
+		Assert.assertEquals("Test Document was not removed.", 0, documentRepo.count());
 	}
 	
 	@After
 	public void cleanUp() {
-		
+		documentRepo.deleteAll();
 	}
 	
 }
