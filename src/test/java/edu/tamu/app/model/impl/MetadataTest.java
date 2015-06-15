@@ -1,11 +1,11 @@
 package edu.tamu.app.model.impl;
 
-import java.util.List;
-
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -22,31 +22,48 @@ import edu.tamu.app.model.repo.MetadataFieldRepo;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestDataSourceConfiguration.class})
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
-    DirtiesContextTestExecutionListener.class,
-    TransactionalTestExecutionListener.class,
-    DbUnitTestExecutionListener.class })
+    					  DirtiesContextTestExecutionListener.class,
+    					  TransactionalTestExecutionListener.class,
+    					  DbUnitTestExecutionListener.class })
 public class MetadataTest {
 	
 	@Autowired
 	private MetadataFieldRepo metadataRepo;
 	
+	private MetadataFieldImpl testMetadataField = new MetadataFieldImpl("testDocument.txt", "testMetadataField");
+	
 	@Before
 	public void setUp() {
+		
 	}
 	
 	@Test
-	public void testMethod() {
-		
-		MetadataFieldImpl testMetadataField1 = new MetadataFieldImpl();
-		testMetadataField1.setName("dissertation1.txt");
-		
-		metadataRepo.save(testMetadataField1);		
-		List<MetadataFieldImpl> assertMetadataFields = metadataRepo.getMetadataFieldsByName("dissertation1.txt");
-		Assert.assertEquals("Test User 1 was not added.", testMetadataField1.getName(), assertMetadataFields.get(0).getName());
-	
-		metadataRepo.delete(testMetadataField1);		
-		List<MetadataFieldImpl> allMetadataFields = (List<MetadataFieldImpl>) metadataRepo.findAll();		
-		Assert.assertEquals("Test MetadataField 1 was not removed.", 0, allMetadataFields.size());
-		
+	public void testSaveMetadataField() {
+		Assert.assertEquals("MetadataField repository is not empty.", 0, metadataRepo.count());
+		metadataRepo.save(testMetadataField);
+		Assert.assertEquals("Metadata field was not saved.", 1, metadataRepo.count());
 	}
+	
+	@Test
+	public void testFindMetadataField() {
+		Assert.assertEquals("MetadataField repository is not empty.", 0, metadataRepo.count());
+		metadataRepo.save(testMetadataField);
+		Assert.assertEquals("MetadataField repository is empty.", 1, metadataRepo.count());
+		Assert.assertEquals("Test metadata field was not found.", metadataRepo.getMetadataFieldsByName("testDocument.txt").get(0).getName(), testMetadataField.getName());
+	}
+	
+	@Test
+	public void testDeleteMetadataField() {
+		Assert.assertEquals("MetadataField repository is not empty.", 0, metadataRepo.count());
+		metadataRepo.save(testMetadataField);
+		Assert.assertEquals("MetadataField repository is empty.", 1, metadataRepo.count());
+		metadataRepo.deleteByName(testMetadataField.getName());
+		Assert.assertEquals("Test metadata field was not removed.", 0, metadataRepo.count());
+	}
+	
+	@After
+	public void cleanUp() {
+		metadataRepo.deleteAll();
+	}
+	
 }

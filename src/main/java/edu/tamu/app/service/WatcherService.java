@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +71,7 @@ public class WatcherService implements Runnable {
 	 * @param 		folder			String
 	 */
 	public WatcherService(String folder) {
+		super();
 		this.folder = folder;
 	}
 		
@@ -87,7 +88,7 @@ public class WatcherService implements Runnable {
 		
 		SimpMessagingTemplate simpMessagingTemplate = (SimpMessagingTemplate) ApplicationContextProvider.appContext.getBean("brokerMessagingTemplate");
 		
-		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) ApplicationContextProvider.appContext.getBean("taskExecutor");
+		ExecutorService executorService = (ExecutorService) ApplicationContextProvider.appContext.getBean("executorService");
 		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -100,12 +101,12 @@ public class WatcherService implements Runnable {
 			e2.printStackTrace();
 		}
 		
-		ObjectMapper om = (ObjectMapper) ApplicationContextProvider.appContext.getBean("objectMapper");
+		ObjectMapper objectMapper = (ObjectMapper) ApplicationContextProvider.appContext.getBean("objectMapper");
 		
 		Map<String, Object> projectMap = null;
 		
 		try {
-			projectMap = om.readValue(json, new TypeReference<Map<String, Object>>(){});
+			projectMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -113,11 +114,23 @@ public class WatcherService implements Runnable {
 		List<MetadataLabelImpl> metadataLabels = new ArrayList<MetadataLabelImpl>();
 		
 		String host = env.getProperty("app.host");
-		String directory = env.getProperty("app.directory") + "/" + folder;
+		String mount = env.getProperty("app.mount");
+		
+		String directory = "";
+		try {
+			directory = ApplicationContextProvider.appContext.getResource("classpath:static/mnt").getFile().getAbsolutePath() + "/" + folder;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		if(!folder.equals("projects")) {
 			
-			directory = env.getProperty("app.directory") + "/projects/" + folder;
+			try {
+				directory = ApplicationContextProvider.appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/" + folder;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 			List<Object> profile = (List<Object>) projectMap.get(folder);
 			
 			if(profile == null) profile = (List<Object>) projectMap.get("default");
@@ -125,11 +138,11 @@ public class WatcherService implements Runnable {
 			for(Object metadata : profile) {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
-				
 				MetadataLabelImpl metadataProfile = new MetadataLabelImpl((String) mMap.get("label"), 
 																  (String) mMap.get("gloss"), 
 																  (boolean) mMap.get("repeatable"), 
-																  InputType.valueOf((String) mMap.get("inputType")));
+																  (boolean) mMap.get("readOnly"),
+																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
 				metadataLabels.add(metadataProfile);
 			}
 		}
@@ -161,7 +174,7 @@ public class WatcherService implements Runnable {
                     if (kind == ENTRY_CREATE) {
                     	
                     	if(folder.equals("projects")) {
-                    		taskExecutor.execute(new WatcherService(docString));
+                    		executorService.submit(new WatcherService(docString));
                     	}
                     	else {
                     	
@@ -170,7 +183,7 @@ public class WatcherService implements Runnable {
 	                    		String pdfUri = host+"/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";
 	                    		String txtUri = host+"/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
 	                         		
-	        					DocumentImpl doc = new DocumentImpl(docString, txtUri, pdfUri, "Open", metadataLabels);
+	        					DocumentImpl doc = new DocumentImpl(docString, folder, txtUri, pdfUri, "Open", metadataLabels);
 	        					docRepo.save(doc);
 	        					
 	        					Map<String, Object> docMap = new HashMap<String, Object>();

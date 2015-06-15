@@ -10,6 +10,10 @@
 package edu.tamu.app.config;
 
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.transform.Source;
 
@@ -24,10 +28,14 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
+import edu.tamu.app.ApplicationContextProvider;
+import edu.tamu.app.controller.interceptor.RestInterceptor;
 
 /** 
  * Web MVC Configuration for application controller.
@@ -38,7 +46,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 @Configuration
 @ComponentScan(basePackages = "edu.tamu.app.controller")
 @ConfigurationProperties(prefix="app.controller")
-public class ControllerConfig extends WebMvcConfigurerAdapter{	
+public class WebAppConfig extends WebMvcConfigurerAdapter{	
 
 	/**
 	 * Configures message converters.
@@ -81,8 +89,52 @@ public class ControllerConfig extends WebMvcConfigurerAdapter{
 	public ObjectMapper objectMapper() {
 	    ObjectMapper objectMapper = new ObjectMapper();
 	    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-	    
 	    return objectMapper;
 	}
-		
+	
+	 /**
+     * Executor Service configuration.
+     * 
+     * @return		ExecutorSevice
+     * 
+     */
+    @Bean(name="executorService")
+    private static ExecutorService configureExecutorService() {
+    	ExecutorService executorService = new ThreadPoolExecutor(10, 25, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(25));
+       	return executorService;
+	}
+	
+    /**
+     * Application context provider bean.
+     * 
+     * @return		ApplicationContextProvider
+     * 
+     */
+    @Bean(name="appContextProvider")
+    private static ApplicationContextProvider appContextProvider() {
+    	return new ApplicationContextProvider();
+    }
+    
+	/**
+	 * Rest interceptor bean.
+	 *
+	 * @return      RestInterceptor
+	 *
+	 */
+	@Bean
+	public RestInterceptor jwtInterceptor() {
+	    return new RestInterceptor();
+	}
+	
+	/**
+	 * Add interceptor to interceptor registry.
+	 *
+	 * @param       registry	   InterceptorRegistry
+	 *
+	 */
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+	    registry.addInterceptor(jwtInterceptor()).addPathPatterns("/rest/**");
+	}
+			
 }

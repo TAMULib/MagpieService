@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.app.aspect.annotation.ReqId;
+import edu.tamu.app.aspect.annotation.Shib;
 import edu.tamu.app.model.Credentials;
 import edu.tamu.app.model.RequestId;
 import edu.tamu.app.model.impl.ApiResImpl;
@@ -48,11 +50,13 @@ public class UserController {
 	
 	@Autowired 
 	private SimpMessagingTemplate simpMessagingTemplate; 
-
+	
 	/**
 	 * Websocket endpoint to request credentials.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		shibObj			@Shib Object
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -61,28 +65,10 @@ public class UserController {
 	 */
 	@MessageMapping("/credentials")
 	@SendToUser
-	public ApiResImpl credentials(Message<?> message) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);		
-		Credentials shib = (Credentials) accessor.getSessionAttributes().get("shib");
-		if(shib != null && userRepo.getUserByUin(Long.parseLong(shib.getUin())) == null) 
-			return new ApiResImpl("failure", "user not registered");
-		return shib != null ? credentials(shib, accessor.getNativeHeader("id").get(0)) : new ApiResImpl("refresh", "EXPIRED_JWT", new RequestId(accessor.getNativeHeader("id").get(0)));
-	}
-
-	/**
-	 * Method to pack credentials into ApiResImp.
-	 * 
-	 * @param 		shib			Credentials
-	 * 
-	 * @return		ApiResImpl
-	 * 
-	 */
-	private ApiResImpl credentials(Credentials shib, String id) {
-		System.out.println("Creating credentials with id " + id);
-		//TODO: all business logic for credentials should take place here 
-		//      calling methods will just obtain credentials
+	public ApiResImpl credentials(Message<?> message, @Shib Object shibObj, @ReqId String requestId) throws Exception {
+		Credentials shib = (Credentials) shibObj;
 		shib.setRole(userRepo.getUserByUin(Long.parseLong(shib.getUin())).getRole());
-		return new ApiResImpl("success", shib, new RequestId(id));
+		return new ApiResImpl("success", shib, new RequestId(requestId));
 	}
 	
 	
@@ -90,7 +76,8 @@ public class UserController {
 	 * Endpoint to return all users.
 	 * 
 	 * @param 		message			Message<?>
-	 * 
+	 * @param 		requestId		@ReqId String
+	 *  
 	 * @return		ApiResImpl
 	 * 
 	 * @throws 		Exception
@@ -98,9 +85,7 @@ public class UserController {
 	 */
 	@MessageMapping("/all")
 	@SendToUser
-	public ApiResImpl allUsers(Message<?> message) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);		
+	public ApiResImpl allUsers(Message<?> message, @ReqId String requestId) throws Exception {
 		Map<String,List<UserImpl>> map = new HashMap<String,List<UserImpl>>();
 		map.put("list", userRepo.findAll());		
 		return new ApiResImpl("success", map, new RequestId(requestId));
@@ -110,6 +95,7 @@ public class UserController {
 	 * Endpoint to update users role.
 	 * 
 	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
 	 * 
 	 * @return		ApiResImpl
 	 * 
@@ -118,10 +104,11 @@ public class UserController {
 	 */
 	@MessageMapping("/update_role")
 	@SendToUser
-	public ApiResImpl updateRole(Message<?> message) throws Exception {		
+	public ApiResImpl updateRole(Message<?> message, @ReqId String requestId) throws Exception {		
+		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
+
 		Map<String,String> map = new HashMap<String,String>();		
 		try {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});

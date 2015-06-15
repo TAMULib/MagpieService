@@ -54,6 +54,30 @@ public class MetadataFieldImpl implements MetadataField {
 	 * Constructor.
 	 * 
 	 * @param 		name 			String
+	 * 
+	 */
+	public MetadataFieldImpl(String name) {
+		super();
+		this.name = name;
+	}
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param 		name 			String
+	 * @param		label			String
+	 * 
+	 */
+	public MetadataFieldImpl(String name, String label) {
+		super();
+		this.name = name;
+		this.label = label;
+	}
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param 		name 			String
 	 * @param		label			String
 	 * @param		values			List<String>
 	 * 

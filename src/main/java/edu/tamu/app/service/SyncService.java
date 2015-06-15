@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -74,6 +75,8 @@ public class SyncService implements Runnable {
 		
 		SimpMessagingTemplate simpMessagingTemplate = (SimpMessagingTemplate) ApplicationContextProvider.appContext.getBean("brokerMessagingTemplate");
 		
+		ExecutorService executorService = (ExecutorService) ApplicationContextProvider.appContext.getBean("executorService");
+		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
 		
@@ -85,12 +88,12 @@ public class SyncService implements Runnable {
 			e2.printStackTrace();
 		}
 		
-		ObjectMapper om = (ObjectMapper) ApplicationContextProvider.appContext.getBean("objectMapper");
+		ObjectMapper objectMapper = (ObjectMapper) ApplicationContextProvider.appContext.getBean("objectMapper");
 		
 		Map<String, Object> projectMap = null;
 		
 		try {
-			projectMap = om.readValue(json, new TypeReference<Map<String, Object>>(){});
+			projectMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -98,7 +101,14 @@ public class SyncService implements Runnable {
 		List<MetadataLabelImpl> metadataLabels;
 		
 		String host = env.getProperty("app.host");
-		String directory = env.getProperty("app.directory") + "/projects";
+		String mount = env.getProperty("app.mount");
+		
+		String directory = null;
+		try {
+			directory = ApplicationContextProvider.appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		List<Path> projects = fileList(directory);
         
@@ -107,6 +117,8 @@ public class SyncService implements Runnable {
         	
         	System.out.println(project.getFileName().toString());
         	List<Object> profile = (List<Object>) projectMap.get(project.getFileName().toString());
+        	
+        	executorService.submit(new WatcherService(project.getFileName().toString()));
         	
         	for(Path document : documents) {
     			
@@ -117,11 +129,11 @@ public class SyncService implements Runnable {
     			for(Object metadata : profile) {
     				
     				Map<String, Object> mMap = (Map<String, Object>) metadata;
-    				
     				MetadataLabelImpl metadataProfile = new MetadataLabelImpl((String) mMap.get("label"), 
     																  (String) mMap.get("gloss"), 
     																  (boolean) mMap.get("repeatable"), 
-    																  InputType.valueOf((String) mMap.get("inputType")));
+    																  (boolean) mMap.get("readOnly"), 
+    																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
     				metadataLabels.add(metadataProfile);
     			}
     			    			
@@ -130,7 +142,7 @@ public class SyncService implements Runnable {
             		String pdfUri = host+"/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".pdf";
             		String txtUri = host+"/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".txt";
 	
-					DocumentImpl doc = new DocumentImpl(document.getFileName().toString(), txtUri, pdfUri, "Open", metadataLabels);
+					DocumentImpl doc = new DocumentImpl(document.getFileName().toString(), project.getFileName().toString(), txtUri, pdfUri, "Open", metadataLabels);
 					docRepo.save(doc);
 					
 					Map<String, Object> docMap = new HashMap<String, Object>();
@@ -139,7 +151,7 @@ public class SyncService implements Runnable {
 					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
 					
 				}
-        		
+    			
         	}
         }
 		

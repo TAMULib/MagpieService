@@ -1,11 +1,11 @@
 package edu.tamu.app.model.impl;
 
-import java.util.List;
-
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -22,30 +22,48 @@ import edu.tamu.app.model.repo.DocumentRepo;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestDataSourceConfiguration.class})
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
-    DirtiesContextTestExecutionListener.class,
-    TransactionalTestExecutionListener.class,
-    DbUnitTestExecutionListener.class })
+    					  DirtiesContextTestExecutionListener.class,
+    					  TransactionalTestExecutionListener.class,
+    					  DbUnitTestExecutionListener.class })
 public class DocumentTest {
 	
 	@Autowired
 	private DocumentRepo documentRepo;
 	
+	private DocumentImpl testDocument = new DocumentImpl("testFile", "project", "Unassigned", null, null, null);
+	
 	@Before
 	public void setUp() {
+		
 	}
 	
 	@Test
-	public void testMethod() {
-		
-		DocumentImpl testDocument1 = new DocumentImpl("testFile1", "Unassigned", null, null, null);
-		
-		documentRepo.save(testDocument1);
-		DocumentImpl assertDocument = documentRepo.findByName("testFile1");
-		Assert.assertEquals("Test Document 1 was not added.", testDocument1.getName(), assertDocument.getName());
-		
-		documentRepo.delete(testDocument1);
-		List<DocumentImpl> allDocuments = (List<DocumentImpl>) documentRepo.findAll();
-		Assert.assertEquals("Test Document 1 was not removed.", 0, allDocuments.size());
-		
+	public void testSaveDocument() {
+		Assert.assertEquals("Document repository is not empty.", 0, documentRepo.count());
+		documentRepo.save(testDocument);
+		Assert.assertEquals("Test document was not saved.", 1, documentRepo.count());
 	}
+	
+	@Test
+	public void testFindDocument() {
+		Assert.assertEquals("Document repository is not empty.", 0, documentRepo.count());
+		documentRepo.save(testDocument);
+		Assert.assertEquals("Document repository is empty.", 1, documentRepo.count());
+		Assert.assertEquals("Test Document was not found.", documentRepo.findByName("testFile").getName(), testDocument.getName());
+	}
+	
+	@Test
+	public void testDeleteDocument() {
+		Assert.assertEquals("Document repository is not empty.", 0, documentRepo.count());
+		documentRepo.save(testDocument);
+		Assert.assertEquals("Document repository is empty.", 1, documentRepo.count());
+		documentRepo.delete(testDocument);
+		Assert.assertEquals("Test Document was not removed.", 0, documentRepo.count());
+	}
+	
+	@After
+	public void cleanUp() {
+		documentRepo.deleteAll();
+	}
+	
 }

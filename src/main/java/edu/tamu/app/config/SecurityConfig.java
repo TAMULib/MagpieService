@@ -27,7 +27,7 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	/**
-	 * Configures web security. Disables cross-site request forgery.
+	 * Configures http security. Disables cross-site request forgery.
 	 *
 	 * @param       http    		HttpSecurity
 	 *
