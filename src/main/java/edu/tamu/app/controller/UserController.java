@@ -19,18 +19,20 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.aspect.annotation.ReqId;
-import edu.tamu.app.aspect.annotation.Shib;
-import edu.tamu.app.model.Credentials;
-import edu.tamu.app.model.RequestId;
-import edu.tamu.app.model.impl.ApiResImpl;
-import edu.tamu.app.model.impl.UserImpl;
-import edu.tamu.app.model.repo.UserRepo;
+import edu.tamu.framework.aspect.annotation.Auth;
+import edu.tamu.framework.aspect.annotation.ReqId;
+import edu.tamu.framework.aspect.annotation.Shib;
+import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.framework.model.Credentials;
+import edu.tamu.framework.model.RequestId;
+import edu.tamu.app.model.AppUser;
+import edu.tamu.app.model.repo.AppUserRepo;
 
 /** 
  * User Controller
@@ -43,7 +45,7 @@ import edu.tamu.app.model.repo.UserRepo;
 public class UserController {
 
 	@Autowired
-	private UserRepo userRepo;
+	private AppUserRepo userRepo;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -54,7 +56,6 @@ public class UserController {
 	/**
 	 * Websocket endpoint to request credentials.
 	 * 
-	 * @param 		message			Message<?>
 	 * @param 		shibObj			@Shib Object
 	 * @param 		requestId		@ReqId String
 	 * 
@@ -64,11 +65,11 @@ public class UserController {
 	 * 
 	 */
 	@MessageMapping("/credentials")
+	@RequestMapping("/credentials")
 	@SendToUser
-	public ApiResImpl credentials(Message<?> message, @Shib Object shibObj, @ReqId String requestId) throws Exception {
-		Credentials shib = (Credentials) shibObj;
-		shib.setRole(userRepo.getUserByUin(Long.parseLong(shib.getUin())).getRole());
-		return new ApiResImpl("success", shib, new RequestId(requestId));
+	@Auth
+	public ApiResponse credentials(@Shib Object shibObj, @ReqId String requestId) throws Exception {
+		return new ApiResponse("success", (Credentials) shibObj, new RequestId(requestId));
 	}
 	
 	
@@ -84,11 +85,12 @@ public class UserController {
 	 * 
 	 */
 	@MessageMapping("/all")
+	@Auth
 	@SendToUser
-	public ApiResImpl allUsers(Message<?> message, @ReqId String requestId) throws Exception {
-		Map<String,List<UserImpl>> map = new HashMap<String,List<UserImpl>>();
+	public ApiResponse allUsers(Message<?> message, @ReqId String requestId) throws Exception {
+		Map<String,List<AppUser>> map = new HashMap<String,List<AppUser>>();
 		map.put("list", userRepo.findAll());		
-		return new ApiResImpl("success", map, new RequestId(requestId));
+		return new ApiResponse("success", map, new RequestId(requestId));
 	}
 	
 	/**
@@ -103,8 +105,9 @@ public class UserController {
 	 * 
 	 */
 	@MessageMapping("/update_role")
+	@Auth
 	@SendToUser
-	public ApiResImpl updateRole(Message<?> message, @ReqId String requestId) throws Exception {		
+	public ApiResponse updateRole(Message<?> message, @ReqId String requestId) throws Exception {		
 		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();		
@@ -115,7 +118,7 @@ public class UserController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		UserImpl user = userRepo.getUserByUin(Long.decode(map.get("uin")));		
+		AppUser user = userRepo.getUserByUin(Long.decode(map.get("uin")));		
 		user.setRole(map.get("role"));		
 		userRepo.save(user);
 		
@@ -123,9 +126,9 @@ public class UserController {
 		userMap.put("list", userRepo.findAll());
 		userMap.put("changedUserUin", map.get("uin"));
 		
-		this.simpMessagingTemplate.convertAndSend("/channel/users", new ApiResImpl("success", userMap, new RequestId(requestId)));
+		this.simpMessagingTemplate.convertAndSend("/channel/users", new ApiResponse("success", userMap, new RequestId(requestId)));
 		
-		return new ApiResImpl("success", "ok", new RequestId(requestId));
+		return new ApiResponse("success", "ok", new RequestId(requestId));
 	}
 
 }

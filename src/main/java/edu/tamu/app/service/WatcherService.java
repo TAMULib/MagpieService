@@ -37,10 +37,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
+
+import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.framework.model.RequestId;
+
 import edu.tamu.app.ApplicationContextProvider;
 import edu.tamu.app.model.InputType;
-import edu.tamu.app.model.RequestId;
-import edu.tamu.app.model.impl.ApiResImpl;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.impl.MetadataLabelImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -189,7 +191,7 @@ public class WatcherService implements Runnable {
 	        					Map<String, Object> docMap = new HashMap<String, Object>();
 	        					docMap.put("document", doc);
 	        					docMap.put("isNew", "true");
-	        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
+	        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
 	        					
 	        				}
                     	}

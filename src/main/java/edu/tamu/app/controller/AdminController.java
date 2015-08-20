@@ -22,13 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.aspect.annotation.ReqId;
-import edu.tamu.app.aspect.annotation.Shib;
-import edu.tamu.app.model.Credentials;
-import edu.tamu.app.model.RequestId;
-import edu.tamu.app.model.impl.ApiResImpl;
-import edu.tamu.app.model.impl.UserImpl;
-import edu.tamu.app.model.repo.UserRepo;
+import edu.tamu.framework.aspect.annotation.Auth;
+import edu.tamu.framework.aspect.annotation.ReqId;
+import edu.tamu.framework.aspect.annotation.Shib;
+import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.framework.model.Credentials;
+import edu.tamu.framework.model.RequestId;
+import edu.tamu.app.model.AppUser;
+import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.app.service.SyncService;
 
 /** 
@@ -42,7 +43,7 @@ import edu.tamu.app.service.SyncService;
 public class AdminController {
 	
 	@Autowired
-	private UserRepo userRepo;
+	private AppUserRepo userRepo;
 	
 	@Autowired
 	public ObjectMapper objectMapper;
@@ -66,8 +67,9 @@ public class AdminController {
 	 * 
 	 */
 	@MessageMapping("/confirmuser")
+	@Auth
 	@SendToUser
-	public ApiResImpl confirmUser(Message<?> message, @Shib Object shibObj, @ReqId String requestId) throws Exception {
+	public ApiResponse confirmUser(Message<?> message, @Shib Object shibObj, @ReqId String requestId) throws Exception {
 
 		Credentials shib = (Credentials) shibObj;
 		
@@ -76,7 +78,7 @@ public class AdminController {
 		
 		if(userRepo.getUserByUin(Long.parseLong(shib.getUin())) == null) {
     		
-    		UserImpl newUser = new UserImpl();
+    		AppUser newUser = new AppUser();
     		
     		newUser.setUin(Long.parseLong(shib.getUin()));
 			newUser.setFirstName(shib.getFirstName());
@@ -87,14 +89,14 @@ public class AdminController {
 			
 			userMap.put("list", userRepo.findAll());
 			
-			this.simpMessagingTemplate.convertAndSend("/channel/users", new ApiResImpl("success", userMap, new RequestId(requestId)));
+			this.simpMessagingTemplate.convertAndSend("/channel/users", new ApiResponse("success", userMap, new RequestId(requestId)));
 			
-			return new ApiResImpl("success", userMap, new RequestId(requestId));
+			return new ApiResponse("success", userMap, new RequestId(requestId));
 		}
 		
 		userMap.put("list", userRepo.findAll());
 				
-		return new ApiResImpl("success", userMap, new RequestId(requestId));
+		return new ApiResponse("success", userMap, new RequestId(requestId));
 	}
 	
 	/**
@@ -109,14 +111,15 @@ public class AdminController {
 	 * 
 	 */
 	@MessageMapping("/sync")
+	@Auth
 	@SendToUser
-	public ApiResImpl syncDocuments(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse syncDocuments(Message<?> message, @ReqId String requestId) throws Exception {
 		
 		System.out.println("Syncronizing projects with database.");
 		
 		executorService.submit(new SyncService());
 		
-		return new ApiResImpl("success", "ok", new RequestId(requestId));
+		return new ApiResponse("success", "ok", new RequestId(requestId));
 	}
 	
 }
