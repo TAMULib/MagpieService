@@ -1,9 +1,13 @@
 package edu.tamu.app.config;
 
+import java.sql.SQLException;
+
+import org.h2.tools.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
@@ -15,12 +19,27 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 @PropertySource("classpath:/config/application.properties")
 public class TestDataSourceConfiguration {
 
-	@Autowired
-    private Environment environment;
+	/*@Autowired
+    private Environment environment;*/
+	
+	EmbeddedDatabase db;
  
     @Bean
     public EmbeddedDatabase dataSource() {
-    	return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
+    	db = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
+    	return db;
     }
-	
+
+    @Bean(name = "h2WebServer", initMethod="start", destroyMethod="stop")
+    public Server h2WebServer() throws SQLException {
+        return Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082");
+    }
+
+
+    @Bean(initMethod="start", destroyMethod="stop")
+    @DependsOn(value = "h2WebServer")
+    public Server h2Server() throws SQLException {
+        return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092");
+    }
+
 }
