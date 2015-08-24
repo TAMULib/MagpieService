@@ -30,6 +30,10 @@ public class TestDataSourceConfiguration {
     	return db;
     }
 
+    
+    /*
+     *  Connect to this database in the browser at localhost 8082, JDBC URL: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false
+     */
     @Bean(name = "h2WebServer", initMethod="start", destroyMethod="stop")
     public Server h2WebServer() throws SQLException {
         return Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082");
