@@ -31,12 +31,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.aspect.annotation.ReqId;
-import edu.tamu.app.model.impl.ApiResImpl;
+import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.framework.model.RequestId;
+import edu.tamu.framework.aspect.annotation.Auth;
+import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
-import edu.tamu.app.model.RequestId;
 import edu.tamu.app.service.VoyagerService;
 
 /** 
@@ -75,9 +76,10 @@ public class DocumentController {
 	 * 
 	 */
 	@MessageMapping("/marc/{bibId}")
+	@Auth
 	@SendToUser
-	public ApiResImpl getMARC(@DestinationVariable String bibId, Message<?> message, @ReqId String requestId) throws Exception {
-		return new ApiResImpl("success", new FlatMARC(voyagerService.getMARC(bibId)), new RequestId(requestId));
+	public ApiResponse getMARC(@DestinationVariable String bibId, Message<?> message, @ReqId String requestId) throws Exception {
+		return new ApiResponse("success", new FlatMARC(voyagerService.getMARC(bibId)), new RequestId(requestId));
 	}
 	
 	/**
@@ -92,11 +94,12 @@ public class DocumentController {
 	 * 
 	 */
 	@MessageMapping("/all")
+	@Auth
 	@SendToUser
-	public ApiResImpl allDocuments(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse allDocuments(Message<?> message, @ReqId String requestId) throws Exception {
 		Map<String,List<DocumentImpl>> map = new HashMap<String,List<DocumentImpl>>();
 		map.put("list", docRepo.findAll());
-		return new ApiResImpl("success", map, new RequestId(requestId));
+		return new ApiResponse("success", map, new RequestId(requestId));
 	}
 	
 	/**
@@ -111,8 +114,9 @@ public class DocumentController {
 	 * 
 	 */
 	@MessageMapping("/get")
+	@Auth
 	@SendToUser
-	public ApiResImpl documentByName(Message<?> message, @ReqId String requestId) throws Exception {		
+	public ApiResponse documentByName(Message<?> message, @ReqId String requestId) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,String> headerMap = new HashMap<String,String>();
@@ -127,7 +131,7 @@ public class DocumentController {
 		map.put("metadataLabels", doc.getMetadataLabels());
 		map.put("notes", doc.getNotes());
 				
-		return new ApiResImpl("success", map, new RequestId(requestId));
+		return new ApiResponse("success", map, new RequestId(requestId));
 	}
 	
 	/**
@@ -142,8 +146,9 @@ public class DocumentController {
 	 * 
 	 */
 	@MessageMapping("/page")
+	@Auth
 	@SendToUser
-	public ApiResImpl pageDocuments(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse pageDocuments(Message<?> message, @ReqId String requestId) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,String> headerMap = new HashMap<String,String>();
@@ -219,7 +224,7 @@ public class DocumentController {
 		else {
 			documents = docRepo.findAll(request);
 		}	    
-	    return new ApiResImpl("success", documents, new RequestId(requestId));
+	    return new ApiResponse("success", documents, new RequestId(requestId));
 	}
 
 	/**
@@ -234,8 +239,9 @@ public class DocumentController {
 	 * 
 	 */
 	@MessageMapping("/update")
+	@Auth
 	@SendToUser
-	public ApiResImpl update(Message<?> message, @ReqId String requestId) throws Exception {		
+	public ApiResponse update(Message<?> message, @ReqId String requestId) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,String> map = new HashMap<String,String>();		
@@ -258,9 +264,9 @@ public class DocumentController {
 		Map<String, Object> docMap = new HashMap<String, Object>();
 		docMap.put("document", doc);
 		docMap.put("isNew", "false");
-		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId(requestId)));
+		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId(requestId)));
 		
-		return new ApiResImpl("success", "ok", new RequestId(requestId));
+		return new ApiResponse("success", "ok", new RequestId(requestId));
 	}
 	
 	
@@ -276,8 +282,9 @@ public class DocumentController {
 	 * 
 	 */
 	@MessageMapping("/txt")
+	@Auth
 	@SendToUser
-	public ApiResImpl txt(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse txt(Message<?> message, @ReqId String requestId) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);		
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,String> map = new HashMap<String,String>();		
@@ -291,7 +298,7 @@ public class DocumentController {
 		Map<String, Object> txtMap = new HashMap<String, Object>();
 		txtMap.put("uri", doc.getTxtUri());
 		
-		return new ApiResImpl("success", txtMap, new RequestId(requestId));
+		return new ApiResponse("success", txtMap, new RequestId(requestId));
 	}
 	
 	/**
@@ -306,8 +313,9 @@ public class DocumentController {
 	 * 
 	 */
 	@MessageMapping("/pdf")
+	@Auth
 	@SendToUser
-	public ApiResImpl pdf(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse pdf(Message<?> message, @ReqId String requestId) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,String> map = new HashMap<String,String>();		
@@ -321,7 +329,7 @@ public class DocumentController {
 		Map<String, Object> pdfMap = new HashMap<String, Object>();
 		pdfMap.put("uri", doc.getPdfUri());
 		
-		return new ApiResImpl("success", pdfMap, new RequestId(requestId));
+		return new ApiResponse("success", pdfMap, new RequestId(requestId));
 	}
 	
 }

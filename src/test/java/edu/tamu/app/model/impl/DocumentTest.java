@@ -30,11 +30,12 @@ public class DocumentTest {
 	@Autowired
 	private DocumentRepo documentRepo;
 	
-	private DocumentImpl testDocument = new DocumentImpl("testFile", "project", "Unassigned", null, null, null);
+	private DocumentImpl testDocument;
 	
 	@Before
 	public void setUp() {
-		
+		documentRepo.deleteAll();
+		testDocument = new DocumentImpl("testFile", "project", "Unassigned", null, null, null);
 	}
 	
 	@Test
@@ -45,16 +46,14 @@ public class DocumentTest {
 	}
 	
 	@Test
-	public void testFindDocument() {
-		Assert.assertEquals("Document repository is not empty.", 0, documentRepo.count());
+	public void testFindDocument() {	
+		Assert.assertEquals("Test Document was not found.", null, documentRepo.findByName("testFile"));
 		documentRepo.save(testDocument);
-		Assert.assertEquals("Document repository is empty.", 1, documentRepo.count());
 		Assert.assertEquals("Test Document was not found.", documentRepo.findByName("testFile").getName(), testDocument.getName());
 	}
 	
 	@Test
 	public void testDeleteDocument() {
-		Assert.assertEquals("Document repository is not empty.", 0, documentRepo.count());
 		documentRepo.save(testDocument);
 		Assert.assertEquals("Document repository is empty.", 1, documentRepo.count());
 		documentRepo.delete(testDocument);

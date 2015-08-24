@@ -28,8 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.model.impl.ApiResImpl;
-import edu.tamu.app.model.RequestId;
+import edu.tamu.framework.aspect.annotation.Auth;
+import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.framework.model.RequestId;
 
 /** 
  * Document Controller
@@ -56,8 +57,9 @@ public class ControlledVocabularyController {
 	 * 
 	 */
 	@MessageMapping("/all")
+	@Auth
 	@SendToUser
-	public ApiResImpl getAllControlledVocabulary(Message<?> message) throws Exception {
+	public ApiResponse getAllControlledVocabulary(Message<?> message) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);
 		
@@ -80,7 +82,7 @@ public class ControlledVocabularyController {
 			e.printStackTrace();
 		}
 		
-		return new ApiResImpl("success", cvMap, new RequestId(requestId));
+		return new ApiResponse("success", cvMap, new RequestId(requestId));
 	}
 
 	/**
@@ -95,8 +97,9 @@ public class ControlledVocabularyController {
 	 * 
 	 */
 	@MessageMapping("/{label}")
+	@Auth
 	@SendToUser
-	public ApiResImpl getControlledVocabularyByField(Message<?> message, @DestinationVariable String label) throws Exception {
+	public ApiResponse getControlledVocabularyByField(Message<?> message, @DestinationVariable String label) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String requestId = accessor.getNativeHeader("id").get(0);
 		
@@ -119,7 +122,7 @@ public class ControlledVocabularyController {
 			e.printStackTrace();
 		}
 		
-		return new ApiResImpl("success", cvMap.get(label), new RequestId(requestId));
+		return new ApiResponse("success", cvMap.get(label), new RequestId(requestId));
 	}
 		
 }
