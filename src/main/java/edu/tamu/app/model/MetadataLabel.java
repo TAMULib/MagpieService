@@ -74,12 +74,28 @@ public interface MetadataLabel {
 	public boolean isReadOnly();
 
 	/**
-	 * Set repeatable.
+	 * Set readOnly.
 	 * 
-	 * @param 		isRepeatable	boolean
+	 * @param 		isReadOnly	boolean
 	 * 
 	 */
 	public void setReadOnly(boolean isReadOnly);
+	
+	/**
+	 * Checks if hidden.
+	 * 
+	 * @return		boolean
+	 * 
+	 */
+	public boolean isHidden();
+
+	/**
+	 * Set repeatable.
+	 * 
+	 * @param 		isHidden	boolean
+	 * 
+	 */
+	public void setHidden(boolean isHidden);
 	
 	/**
 	 * Gets input type.

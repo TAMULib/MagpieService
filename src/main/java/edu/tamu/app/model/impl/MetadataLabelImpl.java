@@ -28,6 +28,7 @@ public class MetadataLabelImpl implements MetadataLabel {
 	
 	private boolean isRepeatable;
 	private boolean isReadOnly;
+	private boolean isHidden;
 	
 	private InputType inputType;
 	private String defaultValue;
@@ -40,18 +41,22 @@ public class MetadataLabelImpl implements MetadataLabel {
 		super();
 	}
 	
+	//TODO - To be decided  - Null check could be applied for other properties 
 	/**
-	 * 
 	 * @param label
 	 * @param gloss
 	 * @param isRepeatable
+	 * @param isReadOnly
+	 * @param isHidden
 	 * @param inputType
 	 * @param defaultValue
 	 */
-	public MetadataLabelImpl(String label, String gloss, boolean isRepeatable, boolean isReadOnly, InputType inputType, String defaultValue) {		
+
+	public MetadataLabelImpl(String label, String gloss, boolean isRepeatable, boolean isReadOnly, Boolean isHidden, InputType inputType, String defaultValue) {		
 		this.label = label;
 		this.gloss = gloss;
 		this.isReadOnly = isReadOnly;
+		this.isHidden = isHidden == null ?  false : isHidden;
 		this.isRepeatable = isRepeatable;
 		this.inputType = inputType;
 		this.defaultValue = defaultValue;
@@ -135,6 +140,26 @@ public class MetadataLabelImpl implements MetadataLabel {
 	 */
 	public void setReadOnly(boolean isReadOnly) {
 		this.isReadOnly = isReadOnly;
+	}
+	
+	/**
+	 * Checks if hidden.
+	 * 
+	 * @return 		boolean
+	 * 
+	 */
+	public boolean isHidden() {
+		return isHidden;
+	}
+
+	/**
+	 * Sets hidden.
+	 * 
+	 * @param 		isHidden			boolean
+	 * 
+	 */
+	public void setHidden(boolean isHidden) {
+		this.isHidden = isHidden;
 	}
 
 	/**

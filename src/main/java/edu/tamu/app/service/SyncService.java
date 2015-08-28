@@ -67,8 +67,7 @@ public class SyncService implements Runnable {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void run() {
-		
+	public void run() {		
 		System.out.println("Running Sync Service");
 		
 		DocumentRepo docRepo = (DocumentRepo) ApplicationContextProvider.appContext.getBean("documentRepo");
@@ -115,16 +114,15 @@ public class SyncService implements Runnable {
         
         for(Path project : projects) {
         	List<Path> documents = fileList(project.toString());
-        	
+      
         	System.out.println(project.getFileName().toString());
         	List<Object> profile = (List<Object>) projectMap.get(project.getFileName().toString());
         	
         	executorService.submit(new WatcherService(project.getFileName().toString()));
         	
         	for(Path document : documents) {
-    			
-    			if(profile == null) profile = (List<Object>) projectMap.get("default");
-    			
+        		
+    			if(profile == null) profile = (List<Object>) projectMap.get("default");    			
     			metadataLabels = new ArrayList<MetadataLabelImpl>();
     			
     			for(Object metadata : profile) {
@@ -134,7 +132,8 @@ public class SyncService implements Runnable {
     																  (String) mMap.get("gloss"), 
     																  (boolean) mMap.get("repeatable"), 
     																  (boolean) mMap.get("readOnly"), 
-    																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
+    																  (Boolean) mMap.get("hidden"),
+    																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));    				
     				metadataLabels.add(metadataProfile);
     			}
     			    			
