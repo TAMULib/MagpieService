@@ -34,10 +34,7 @@ public class AppWebSocketConfig extends CoreWebSocketConfig {
 	 * 
 	 */
 	@Override
-	public void configureClientInboundChannel(ChannelRegistration registration) {
-		
-		System.out.println("*************************");
-		
+	public void configureClientInboundChannel(ChannelRegistration registration) {		
 		registration.setInterceptors(appStompInterceptor());
 	}
 	

@@ -11,6 +11,7 @@ package edu.tamu.app.model.impl;
 
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -40,6 +41,7 @@ public class MetadataFieldImpl implements MetadataField {
 	private String label;
 	
 	@ElementCollection(fetch = FetchType.EAGER)
+	@Column(columnDefinition = "TEXT")
 	private List<String> values;
 			
 	/**
