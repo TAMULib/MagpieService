@@ -5,6 +5,7 @@
 			"gloss": "Title",
 			"repeatable": false,
 			"readOnly": false,
+			"required": true,
 			"inputType": "TEXT"
 		},
 		{
@@ -12,13 +13,13 @@
 			"gloss": "Creator",
 			"repeatable": false,
 			"readOnly": false,
+			"required": true,
 			"inputType": "TEXT"
 		},
 		{
 			"label": "dc.contributor.committeechair",
 			"gloss": "Committee Chair",
 			"repeatable": true,
-			"readOnly": false,
 			"inputType": "TEXT"
 		},
 		{
@@ -61,6 +62,7 @@
 			"gloss": "Description",
 			"repeatable": false,
 			"readOnly": false,
+			"required": true,
 			"inputType": "TEXTAREA"
 		},
 		{
