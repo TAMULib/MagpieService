@@ -144,6 +144,7 @@ public class WatcherService implements Runnable {
 																  (String) mMap.get("gloss"), 
 																  (boolean) mMap.get("repeatable"), 
 																  (boolean) mMap.get("readOnly"),
+																  (Boolean) mMap.get("required"),
 																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
 				metadataLabels.add(metadataProfile);
 			}
