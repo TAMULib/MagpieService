@@ -1,5 +1,6 @@
 /target/
 .project
 .classpath
-.settings
+.settings/
+bin/
 src/main/resources/static/mnt/projects/*
