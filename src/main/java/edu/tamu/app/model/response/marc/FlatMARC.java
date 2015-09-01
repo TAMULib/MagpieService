@@ -36,7 +36,7 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-							dc_title += subField.getValue();
+							dc_title += scrubField(".",subField.getValue());
 						}
 					}
 				}
@@ -46,7 +46,7 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
-							dc_date_issued = dc_date_created = subField.getValue();
+							dc_date_issued = dc_date_created = scrubField(".",subField.getValue());
 						}
 					}
 				}
@@ -68,7 +68,7 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-							dc_description += subField.getValue();
+							dc_description += scrubField(".",subField.getValue());
 						}
 					}
 				}
@@ -227,6 +227,15 @@ public class FlatMARC {
 		this.thesis_degree_grantor = thesis_degree_grantor;
 	}
 	
+	private String scrubField(String scrubber, String scrubbable) {
+		if (scrubbable.endsWith(scrubber)) {
+			return rightTrim(scrubbable);
+		}
+		return scrubbable;
+	}
 	
+	private String rightTrim(String trimmable) {
+		return trimmable.substring(0,trimmable.length()-1);
+	}
 
 }
