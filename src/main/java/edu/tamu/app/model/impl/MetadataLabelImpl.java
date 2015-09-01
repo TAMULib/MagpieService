@@ -58,7 +58,7 @@ public class MetadataLabelImpl implements MetadataLabel {
 		this.gloss = gloss;
 		this.isReadOnly = isReadOnly == null ? false : isReadOnly;
 		this.isHidden = isHidden == null ?  false : isHidden;
-		this.isRepeatable = isRepeatable;
+		this.isRepeatable = isRepeatable == null ? false : isRepeatable;
 		this.isRequired = isRequired == null ? false : isRequired;
 		this.inputType = inputType;
 		this.defaultValue = defaultValue;
