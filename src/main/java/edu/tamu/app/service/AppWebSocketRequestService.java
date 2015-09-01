@@ -36,10 +36,9 @@ public class AppWebSocketRequestService extends WebSocketRequestService {
 	@Override
 	public Message<?> getMessageAndSetRequest(String destination, String user, int index) {
 		
-		
-		System.out.println("\n\n\ndestination: "+destination);
+		System.out.println("destination: "+destination);
 		System.out.println("user: "+user);
-		System.out.println("index: "+index+"\n\n\n");
+		System.out.println("index: "+index);
 		
 		Message<?> message = null;
 		WebSocketRequest request = requests.get(index);
