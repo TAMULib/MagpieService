@@ -139,10 +139,13 @@ public class SyncService implements Runnable {
     			    			
     			if((docRepo.findByName(document.getFileName().toString()) == null)) {
             		
-            		String pdfUri = host+"/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".pdf";
-            		String txtUri = host+"/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".txt";
+    				
+    				String pdfPath = "/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".pdf";
+    				String txtPath = "/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".txt";
+            		String pdfUri = host+pdfPath;
+            		String txtUri = host+txtPath;
 	
-					DocumentImpl doc = new DocumentImpl(document.getFileName().toString(), project.getFileName().toString(), txtUri, pdfUri, "Open", metadataLabels);
+					DocumentImpl doc = new DocumentImpl(document.getFileName().toString(), project.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open", metadataLabels);
 					docRepo.save(doc);
 					
 					Map<String, Object> docMap = new HashMap<String, Object>();
