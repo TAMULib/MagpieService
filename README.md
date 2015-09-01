@@ -49,3 +49,4 @@ Below is a sample for metadata json file
 			"inputType": "TEXTAREA"
 		}
 	]
+}
