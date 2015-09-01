@@ -182,10 +182,12 @@ public class WatcherService implements Runnable {
                     	
 	                    	if((docRepo.findByName(docString) == null)) {
 	                    		
-	                    		String pdfUri = host+"/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";
-	                    		String txtUri = host+"/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
+	        					String pdfPath = "/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";;
+	            				String txtPath = "/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
+	                    		String pdfUri = host+pdfPath;
+	                    		String txtUri = host+txtPath;
 	                         		
-	        					DocumentImpl doc = new DocumentImpl(docString, folder, txtUri, pdfUri, "Open", metadataLabels);
+	        					DocumentImpl doc = new DocumentImpl(docString, folder, txtUri, pdfUri, txtPath, pdfPath, "Open", metadataLabels);
 	        					docRepo.save(doc);
 	        					
 	        					Map<String, Object> docMap = new HashMap<String, Object>();

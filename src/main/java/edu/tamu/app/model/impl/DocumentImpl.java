@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.model.impl;
 
+import java.io.File;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -19,6 +20,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 
 import edu.tamu.app.model.Document;
 
@@ -45,6 +50,10 @@ public class DocumentImpl implements Document {
 	
 	@Column(name="pdf_uri")
 	private String pdfUri;
+	
+	private String pdfPath;
+	
+	private String txtPath;
 		
 	private String status;
 	
@@ -71,12 +80,14 @@ public class DocumentImpl implements Document {
 	 * @param 		status			String
 	 * 
 	 */
-	public DocumentImpl(String name, String project, String txtUri, String pdfUri, String status, List<MetadataLabelImpl> metadataLabels) {
+	public DocumentImpl(String name, String project, String txtUri, String pdfUri, String txtPath, String pdfPath, String status, List<MetadataLabelImpl> metadataLabels) {
 		super();
 		this.name = name;
 		this.project = project;
 		this.txtUri = txtUri;
 		this.pdfUri = pdfUri;
+		this.pdfPath = pdfPath;
+		this.txtPath = txtPath;
 		this.status = status;
 		this.metadataLabels = metadataLabels;
 	}
@@ -145,6 +156,22 @@ public class DocumentImpl implements Document {
 		this.pdfUri = uri;
 	}
 	
+	public String getPdfPath() {
+		return pdfPath;
+	}
+
+	public void setPdfPath(String pdfPath) {
+		this.pdfPath = pdfPath;
+	}
+
+	public String getTxtPath() {
+		return txtPath;
+	}
+
+	public void setTxtPath(String txtPath) {
+		this.txtPath = txtPath;
+	}
+
 	/**
 	 * Gets status.
 	 * 
@@ -235,6 +262,24 @@ public class DocumentImpl implements Document {
 	 */
 	public void setMetadataLabels(List<MetadataLabelImpl> metadataLabels) {
 		this.metadataLabels = metadataLabels;
+	}
+	
+	/**
+	 *  Gets the file off the disk
+	 *  
+	 */
+	public File pdf() {		
+		return new File("src/main/resources/static/"+getPdfPath());
+		
+	}
+	
+	/**
+	 *  Gets the file off the disk
+	 *  
+	 */
+	public File txt() {		
+		return new File("src/main/resources/static/"+getTxtPath());
+		
 	}
 	
 }

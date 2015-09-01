@@ -35,7 +35,7 @@ public class DocumentTest {
 	@Before
 	public void setUp() {
 		documentRepo.deleteAll();
-		testDocument = new DocumentImpl("testFile", "project", "Unassigned", null, null, null);
+		testDocument = new DocumentImpl("testFile", "project", "Unassigned", null, null, null, null, null);
 	}
 	
 	@Test
