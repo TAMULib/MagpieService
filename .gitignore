@@ -1,6 +1,10 @@
 /target/
-.project
+.project/*
 .classpath
+<<<<<<< HEAD
 .settings/
 bin/
+=======
+.settings/*
+>>>>>>> origin/sprint4_02366
 src/main/resources/static/mnt/projects/*

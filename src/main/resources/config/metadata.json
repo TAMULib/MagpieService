@@ -3,11 +3,17 @@
 		{
 			"label": "dc.title",
 			"gloss": "Title",
+			"repeatable": false,
+			"readOnly": false,
+			"required": true,
 			"inputType": "TEXT"
 		},
 		{
 			"label": "dc.creator",
 			"gloss": "Creator",
+			"repeatable": false,
+			"readOnly": false,
+			"required": true,
 			"inputType": "TEXT"
 		},
 		{
@@ -47,6 +53,9 @@
 		{
 			"label": "dc.description",
 			"gloss": "Description",
+			"repeatable": false,
+			"readOnly": false,
+			"required": true,
 			"inputType": "TEXTAREA"
 		},
 		{

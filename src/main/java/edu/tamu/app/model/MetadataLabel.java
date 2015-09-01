@@ -88,14 +88,29 @@ public interface MetadataLabel {
 	 * 
 	 */
 	public boolean isHidden();
-
+	
 	/**
-	 * Set repeatable.
+	 * Set hidden.
 	 * 
 	 * @param 		isHidden	boolean
 	 * 
 	 */
 	public void setHidden(boolean isHidden);
+
+	/**
+	 * Checks if required.
+	 * 
+	 * @return		boolean
+	 * 
+	 */
+	public boolean isRequired();
+
+	/**
+	 * Set required.
+	 * @param 		isRepeatable	boolean
+	 * 
+	 */
+	public void setRequired(boolean isRequired);
 	
 	/**
 	 * Gets input type.

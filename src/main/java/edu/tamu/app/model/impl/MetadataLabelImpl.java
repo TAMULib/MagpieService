@@ -15,7 +15,7 @@ import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataLabel;
 
 /**
- * Implementation of metadatalabel object.
+ * Implementation of metadata label object.
  * 
  * @author 
  *
@@ -29,6 +29,7 @@ public class MetadataLabelImpl implements MetadataLabel {
 	private boolean isRepeatable;
 	private boolean isReadOnly;
 	private boolean isHidden;
+	private boolean isRequired;
 	
 	private InputType inputType;
 	private String defaultValue;
@@ -46,17 +47,19 @@ public class MetadataLabelImpl implements MetadataLabel {
 	 * @param gloss
 	 * @param isRepeatable
 	 * @param isReadOnly
+	 * @param isRequired
 	 * @param isHidden
 	 * @param inputType
 	 * @param defaultValue
 	 */
 
-	public MetadataLabelImpl(String label, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, InputType inputType, String defaultValue) {		
+	public MetadataLabelImpl(String label, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {		
 		this.label = label;
 		this.gloss = gloss;
 		this.isReadOnly = isReadOnly == null ? false : isReadOnly;
 		this.isHidden = isHidden == null ?  false : isHidden;
-		this.isRepeatable = isRepeatable == null? false : isRepeatable;
+		this.isRepeatable = isRepeatable;
+		this.isRequired = isRequired == null ? false : isRequired;
 		this.inputType = inputType;
 		this.defaultValue = defaultValue;
 	}
@@ -161,6 +164,20 @@ public class MetadataLabelImpl implements MetadataLabel {
 		this.isHidden = isHidden;
 	}
 
+	public boolean isRequired() {
+		return isRequired;
+	}
+	
+	/**
+	 * Sets required.
+	 * 
+	 * @param 		isRequired		boolean
+	 * 
+	 */
+	public void setRequired(boolean isRequired) {
+		this.isRequired = isRequired;
+	}
+
 	/**
 	 * Gets input type.
 	 * 
@@ -200,4 +217,6 @@ public class MetadataLabelImpl implements MetadataLabel {
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
+
+	
 }
