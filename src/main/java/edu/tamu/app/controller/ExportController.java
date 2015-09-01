@@ -12,7 +12,6 @@ package edu.tamu.app.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,11 +23,8 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataLabel;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.impl.MetadataFieldImpl;
-import edu.tamu.app.model.impl.MetadataLabelImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.framework.aspect.annotation.Auth;
@@ -99,6 +95,9 @@ public class ExportController {
 			
 			//copy the content files to the directory
 			File pdf = document.pdf();
+			
+			// TODO: do something with File txt or remove it
+			
 			File txt = document.txt();
  			
  			try {

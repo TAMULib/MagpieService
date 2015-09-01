@@ -71,6 +71,7 @@
 		{
 			"label": "dc.language.iso",
 			"gloss": "Language",
+			"hidden": true,
 			"inputType": "TEXT",
 			"default": "en_US"
 		},
