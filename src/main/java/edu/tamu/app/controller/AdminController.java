@@ -67,7 +67,7 @@ public class AdminController {
 	 * 
 	 */
 	@MessageMapping("/confirmuser")
-	@Auth
+	@Auth(role="ROLE_ADMIN")
 	@SendToUser
 	public ApiResponse confirmUser(Message<?> message, @Shib Object shibObj, @ReqId String requestId) throws Exception {
 
@@ -111,7 +111,7 @@ public class AdminController {
 	 * 
 	 */
 	@MessageMapping("/sync")
-	@Auth
+	@Auth(role="ROLE_ADMIN")
 	@SendToUser
 	public ApiResponse syncDocuments(Message<?> message, @ReqId String requestId) throws Exception {
 		
