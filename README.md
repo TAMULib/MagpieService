@@ -5,6 +5,7 @@ Spring MVC applications which provides an interface to annotate documents.
 
 
 Below is a sample for metadata json file
+```json
 {
 	"dissertation":  [
 		{
@@ -50,3 +51,4 @@ Below is a sample for metadata json file
 		}
 	]
 }
+```
