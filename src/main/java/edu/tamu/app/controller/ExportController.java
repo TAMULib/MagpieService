@@ -13,7 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,36 +108,69 @@ public class ExportController {
 			}
  			
  			PrintStream license = new PrintStream(itemDirectory+"/license.txt");
- 			license.print("The materials in this collection are copyrighted and have been digitally republished in the Texas A&M Digital Repository with the express permission of the copyright owner. The letter of permission is on file with the University Libraries.");
+ 			license.print("The materials in this collection are hereby licensed.");
  			license.flush();
  			license.close();
  			
- 			PrintStream manifest = new PrintStream(itemDirectory+"/content");
- 			manifest.print(pdf.getName()+" "+txt.getName()+"     bundle:ORIGINAL primary:true     permissions:-r 'member'\nlicense.txt bundleLICENSE");
+ 			PrintStream manifest = new PrintStream(itemDirectory+"/contents");
+ 			manifest.print(pdf.getName()+"\tbundle:ORIGINAL\tprimary:true\tpermissions:-r 'member'\nlicense.txt\tbundle:LICENSE");
  			manifest.flush();
  			manifest.close();
  			
  			//for each schema in the metadata
-				//write a dublin-core style xml file
- 			
+ 			Map <String, PrintStream> schemaToFile = new HashMap<String, PrintStream>();
  			List<MetadataFieldImpl> metadataValueList = metadataRepo.getMetadataFieldsByName(document.getName());
-
- 			PrintStream dublinCoreXml = new PrintStream(itemDirectory+"/dublin_core.xml");	
  			
- 			dublinCoreXml.print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dublin_core>");
- 	
- 			for(MetadataFieldImpl values : metadataValueList) {
+ 			for(MetadataFieldImpl values : metadataValueList) 
+ 			{
+ 	 			//write a dublin-core style xml file
  				String label = values.getLabel();
+ 				String schema = label.split("\\.")[0];
+ 				//System.out.println("Got schema " + schema);
+ 				String element = label.split("\\.")[1];
+ 				//System.out.println("Got element "+ element);
+ 				String qualifier = null;
+ 				if(label.split("\\.").length > 2)
+ 					qualifier = label.split("\\.")[2];
+ 					
+ 				
+ 				if(!schemaToFile.containsKey(schema))
+ 				{
+ 					String filename = schema.equals("dc") ? "dublin_core.xml" : "metadata_"+schema+".xml";
+ 					schemaToFile.put(schema, new PrintStream(itemDirectory+"/"+filename));
+ 					schemaToFile.get(schema).print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dublin_core schema=\""+ schema + "\">"); 	 				
+ 				}
+ 				
+ 				
  				for(String value : values.getValues()) {
- 					if(value.equals("")) continue;			
- 					dublinCoreXml.print("<dcvalue element=\""+label+"\">"+value+"</dcvalue>");
+ 					if(value.equals("")) continue;
+ 					
+ 					value = escapeForXML(value);
+ 					
+ 					schemaToFile.get(schema).print("<dcvalue element=\""+element+"\" "
+ 							+ ( qualifier!=null? "qualifier=\"" + qualifier + "\"" : "" ) +
+ 							">"+value+"</dcvalue>");
  				}
  			}
- 			dublinCoreXml.print("</dublin_core>");
- 			dublinCoreXml.close();
+ 			
+ 			for(PrintStream printStream : schemaToFile.values())
+			{
+				printStream.print("</dublin_core>");
+				printStream.close();
+			}
+		
 
 		}
 		return new ApiResponse("success", "Your SAF has been written to the server filesystem.", new RequestId(requestId));
+	}
+
+	private String escapeForXML(String value) {
+		value = value.replace("&", "&amp;");
+		value = value.replace("\"", "&quot;");
+		value = value.replace("'", "&apos;");
+		value = value.replace("<", "&lt;");
+		value = value.replace(">", "&gt;");
+		return value;
 	}
 	
 
