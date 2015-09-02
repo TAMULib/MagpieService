@@ -42,13 +42,11 @@ public class AppHttpRequestService extends HttpRequestService {
 		
 		HttpRequest request = requests.get(index);
 		
-		if(destination.contains("/download/{file:.+}")) {
-			if(request.getUser().equals(user) && request.getDestination().contains("/rest/bookbag/download")) {
-				httpServletRequest = request.getRequest();
-				requests.remove(index);
-			}
-		}		
-		
+		if( request.getUser().equals(user) ) {
+			httpServletRequest = request.getRequest();
+			requests.remove(index);
+		}
+	
 		return httpServletRequest;
 	}
 
