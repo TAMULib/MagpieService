@@ -39,10 +39,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.framework.aspect.annotation.Auth;
+import edu.tamu.framework.aspect.annotation.ReqId;
+import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.framework.model.RequestId;
 import edu.tamu.app.ApplicationContextProvider;
-import edu.tamu.app.aspect.annotation.ReqId;
-import edu.tamu.app.model.RequestId;
-import edu.tamu.app.model.impl.ApiResImpl;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.impl.MetadataFieldImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -88,8 +89,9 @@ public class MetadataFieldController {
 	 * 
 	 */
 	@MessageMapping("/projects")
+	@Auth
 	@SendToUser
-	public ApiResImpl getProjects(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse getProjects(Message<?> message, @ReqId String requestId) throws Exception {
 				
 		String directory = "";
 		try {
@@ -105,7 +107,7 @@ public class MetadataFieldController {
             }
         } catch (IOException ex) {}
 
-		return new ApiResImpl("success", projects, new RequestId(requestId));
+		return new ApiResponse("success", projects, new RequestId(requestId));
 	}
 	
 	/**
@@ -121,8 +123,9 @@ public class MetadataFieldController {
 	 * 
 	 */
 	@MessageMapping("/headers/{project}")
+	@Auth
 	@SendToUser
-	public ApiResImpl getMetadataHeaders(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
+	public ApiResponse getMetadataHeaders(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
 		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -171,7 +174,7 @@ public class MetadataFieldController {
 		
 		Collections.sort(metadataHeaders);
 						
-		return new ApiResImpl("success", metadataHeaders, new RequestId(requestId));
+		return new ApiResponse("success", metadataHeaders, new RequestId(requestId));
 	}
 	
 	/**
@@ -187,8 +190,9 @@ public class MetadataFieldController {
 	 * 
 	 */
 	@MessageMapping("/csv/{project}")
+	@Auth
 	@SendToUser
-	public ApiResImpl getCSVByroject(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
+	public ApiResponse getCSVByroject(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
 		
 		List<DocumentImpl> documents = docRepo.findByStatusAndProject("Published", project);
 		
@@ -223,7 +227,7 @@ public class MetadataFieldController {
 			
 		}
 		
-		return new ApiResImpl("success", metadata, new RequestId(requestId));
+		return new ApiResponse("success", metadata, new RequestId(requestId));
 	}
 	
 	/**
@@ -238,8 +242,9 @@ public class MetadataFieldController {
 	 * 
 	 */
 	@MessageMapping("/published")
+	@Auth
 	@SendToUser
-	public ApiResImpl published(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse published(Message<?> message, @ReqId String requestId) throws Exception {
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
 		List<DocumentImpl> documents = docRepo.findByStatus("Published");
@@ -264,7 +269,7 @@ public class MetadataFieldController {
 			
 		}
 		
-		return new ApiResImpl("success", metadata, new RequestId(requestId));
+		return new ApiResponse("success", metadata, new RequestId(requestId));
 	}
 	
 	/**
@@ -279,11 +284,12 @@ public class MetadataFieldController {
 	 * 
 	 */
 	@MessageMapping("/all")
+	@Auth
 	@SendToUser
-	public ApiResImpl all(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse all(Message<?> message, @ReqId String requestId) throws Exception {
 		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
 		metadataMap.put("list", metadataRepo.findAll());
-		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
+		return new ApiResponse("success", metadataMap, new RequestId(requestId));
 	}
 	
 	/**
@@ -298,8 +304,9 @@ public class MetadataFieldController {
 	 * 
 	 */
 	@MessageMapping("/clear")
+	@Auth
 	@SendToUser
-	public ApiResImpl clear(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse clear(Message<?> message, @ReqId String requestId) throws Exception {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();
 		Map<String,String> map = new HashMap<String,String>();
@@ -309,7 +316,7 @@ public class MetadataFieldController {
 			e.printStackTrace();
 		}		
 		Long removed = metadataRepo.deleteByName(map.get("name"));		
-		return new ApiResImpl("success", "removed " + removed, new RequestId(requestId));
+		return new ApiResponse("success", "removed " + removed, new RequestId(requestId));
 	}
 	
 	/**
@@ -324,8 +331,9 @@ public class MetadataFieldController {
 	 */
 	@SuppressWarnings("unchecked")
 	@MessageMapping("/get")
+	@Auth
 	@SendToUser
-	public ApiResImpl getMetadata(Message<?> message, @ReqId String requestId) throws Exception {		
+	public ApiResponse getMetadata(Message<?> message, @ReqId String requestId) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();
 		Map<String, String> headerMap = new HashMap<String, String>();
@@ -361,7 +369,7 @@ public class MetadataFieldController {
 			metadataMap.put(field.getLabel(), field.getValues());
 		}
 		
-		return new ApiResImpl("success", metadataMap, new RequestId(requestId));
+		return new ApiResponse("success", metadataMap, new RequestId(requestId));
 	}
 	
 	/**
@@ -376,8 +384,9 @@ public class MetadataFieldController {
 	 * 
 	 */	
 	@MessageMapping("/add")
+	@Auth
 	@SendToUser
-	public ApiResImpl add(Message<?> message, @ReqId String requestId) throws Exception {		
+	public ApiResponse add(Message<?> message, @ReqId String requestId) throws Exception {		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();		
 		Map<String,Object> map = new HashMap<String,Object>();
@@ -404,7 +413,7 @@ public class MetadataFieldController {
 
 		}
 		
-		return new ApiResImpl("success", "ok", new RequestId(requestId));
+		return new ApiResponse("success", "ok", new RequestId(requestId));
 	}
 	
 	/**

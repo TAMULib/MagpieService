@@ -37,10 +37,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
+
+import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.framework.model.RequestId;
+
 import edu.tamu.app.ApplicationContextProvider;
 import edu.tamu.app.model.InputType;
-import edu.tamu.app.model.RequestId;
-import edu.tamu.app.model.impl.ApiResImpl;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.impl.MetadataLabelImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -140,8 +142,10 @@ public class WatcherService implements Runnable {
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
 				MetadataLabelImpl metadataProfile = new MetadataLabelImpl((String) mMap.get("label"), 
 																  (String) mMap.get("gloss"), 
-																  (boolean) mMap.get("repeatable"), 
-																  (boolean) mMap.get("readOnly"),
+																  (Boolean) mMap.get("repeatable"), 
+																  (Boolean) mMap.get("readOnly"),
+																  (Boolean) mMap.get("hidden"),
+																  (Boolean) mMap.get("required"),
 																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
 				metadataLabels.add(metadataProfile);
 			}
@@ -172,7 +176,6 @@ public class WatcherService implements Runnable {
                     System.out.println(kind.name() + ": " + fileName);
 
                     if (kind == ENTRY_CREATE) {
-                    	
                     	if(folder.equals("projects")) {
                     		executorService.submit(new WatcherService(docString));
                     	}
@@ -180,16 +183,18 @@ public class WatcherService implements Runnable {
                     	
 	                    	if((docRepo.findByName(docString) == null)) {
 	                    		
-	                    		String pdfUri = host+"/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";
-	                    		String txtUri = host+"/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
+	        					String pdfPath = "/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";;
+	            				String txtPath = "/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
+	                    		String pdfUri = host+pdfPath;
+	                    		String txtUri = host+txtPath;
 	                         		
-	        					DocumentImpl doc = new DocumentImpl(docString, folder, txtUri, pdfUri, "Open", metadataLabels);
+	        					DocumentImpl doc = new DocumentImpl(docString, folder, txtUri, pdfUri, txtPath, pdfPath, "Open", metadataLabels);
 	        					docRepo.save(doc);
 	        					
 	        					Map<String, Object> docMap = new HashMap<String, Object>();
 	        					docMap.put("document", doc);
 	        					docMap.put("isNew", "true");
-	        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
+	        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
 	        					
 	        				}
                     	}

@@ -25,7 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import edu.tamu.app.model.jwt.JWTtoken;
+import edu.tamu.framework.model.jwt.JWTtoken;
 
 /** 
  * Controller for a Mock Authorization Service.

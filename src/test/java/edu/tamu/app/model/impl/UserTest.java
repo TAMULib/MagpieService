@@ -5,7 +5,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -17,7 +16,8 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 
 import edu.tamu.app.config.TestDataSourceConfiguration;
-import edu.tamu.app.model.repo.UserRepo;
+import edu.tamu.app.model.AppUser;
+import edu.tamu.app.model.repo.AppUserRepo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestDataSourceConfiguration.class})
@@ -28,13 +28,13 @@ import edu.tamu.app.model.repo.UserRepo;
 public class UserTest {
 	
 	@Autowired
-	private UserRepo userRepo;
+	private AppUserRepo userRepo;
 	
 	private Long uin = (long) 123456789;
 	
-	private UserImpl testUser1 = new UserImpl(uin);
+	private AppUser testUser1 = new AppUser(uin);
 	
-	private UserImpl testUser2 = new UserImpl(uin);
+	private AppUser testUser2 = new AppUser(uin);
 	
 	@Before
 	public void setUp() {
@@ -62,7 +62,7 @@ public class UserTest {
 		Assert.assertEquals("User repository is not empty.", 0, userRepo.findAll().size());
 		userRepo.save(testUser1);
 		Assert.assertEquals("User repository is empty.", 1, userRepo.findAll().size());
-		UserImpl assertUser = userRepo.getUserByUin(uin);
+		AppUser assertUser = userRepo.getUserByUin(uin);
 		Assert.assertEquals("Test User was not added.", assertUser.getUin(), testUser1.getUin());
 	}
 	

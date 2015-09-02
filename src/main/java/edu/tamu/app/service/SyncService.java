@@ -33,10 +33,11 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.framework.model.RequestId;
+
 import edu.tamu.app.ApplicationContextProvider;
 import edu.tamu.app.model.InputType;
-import edu.tamu.app.model.RequestId;
-import edu.tamu.app.model.impl.ApiResImpl;
 import edu.tamu.app.model.impl.DocumentImpl;
 import edu.tamu.app.model.impl.MetadataLabelImpl;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -66,8 +67,7 @@ public class SyncService implements Runnable {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void run() {
-		
+	public void run() {		
 		System.out.println("Running Sync Service");
 		
 		DocumentRepo docRepo = (DocumentRepo) ApplicationContextProvider.appContext.getBean("documentRepo");
@@ -114,41 +114,45 @@ public class SyncService implements Runnable {
         
         for(Path project : projects) {
         	List<Path> documents = fileList(project.toString());
-        	
+      
         	System.out.println(project.getFileName().toString());
         	List<Object> profile = (List<Object>) projectMap.get(project.getFileName().toString());
         	
         	executorService.submit(new WatcherService(project.getFileName().toString()));
         	
         	for(Path document : documents) {
-    			
-    			if(profile == null) profile = (List<Object>) projectMap.get("default");
-    			
+        		
+    			if(profile == null) profile = (List<Object>) projectMap.get("default");    			
     			metadataLabels = new ArrayList<MetadataLabelImpl>();
     			
     			for(Object metadata : profile) {
     				
     				Map<String, Object> mMap = (Map<String, Object>) metadata;
     				MetadataLabelImpl metadataProfile = new MetadataLabelImpl((String) mMap.get("label"), 
-    																  (String) mMap.get("gloss"), 
-    																  (boolean) mMap.get("repeatable"), 
-    																  (boolean) mMap.get("readOnly"), 
-    																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
+		    																  (String) mMap.get("gloss"), 
+		    																  (Boolean) mMap.get("repeatable"), 
+		    																  (Boolean) mMap.get("readOnly"), 
+		    																  (Boolean) mMap.get("hidden"),
+		    																  (Boolean) mMap.get("required"), 
+		    																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
     				metadataLabels.add(metadataProfile);
     			}
     			    			
     			if((docRepo.findByName(document.getFileName().toString()) == null)) {
             		
-            		String pdfUri = host+"/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".pdf";
-            		String txtUri = host+"/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".txt";
+    				
+    				String pdfPath = "/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".pdf";
+    				String txtPath = "/mnt/projects/"+project.getFileName().toString()+"/"+document.getFileName().toString()+"/"+document.getFileName().toString()+".txt";
+            		String pdfUri = host+pdfPath;
+            		String txtUri = host+txtPath;
 	
-					DocumentImpl doc = new DocumentImpl(document.getFileName().toString(), project.getFileName().toString(), txtUri, pdfUri, "Open", metadataLabels);
+					DocumentImpl doc = new DocumentImpl(document.getFileName().toString(), project.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open", metadataLabels);
 					docRepo.save(doc);
 					
 					Map<String, Object> docMap = new HashMap<String, Object>();
 					docMap.put("document", doc);
 					docMap.put("isNew", "true");
-					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResImpl("success", docMap, new RequestId("0")));
+					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
 					
 				}
     			

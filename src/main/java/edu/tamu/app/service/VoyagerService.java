@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.response.marc.VoyagerServiceData;
+import edu.tamu.framework.util.HttpUtility;
 
 /**
  * Voyager service. Performs requests with ExLibris Voyager API. 
@@ -45,7 +46,7 @@ public class VoyagerService {
 	private String app;
 	
 	@Autowired
-	private HttpService httpService;
+	private HttpUtility httpService;
 	
 	public VoyagerServiceData getMARC(String bibId) throws Exception {				
 		String urlString = "http://"+host+":"+port+"/"+app+"/GetHoldingsService?bibId=" + bibId;		
