@@ -38,16 +38,9 @@ public class AppHttpRequestService extends HttpRequestService {
 	@Override
 	public HttpServletRequest getRequestAndSetRequest(String destination, String user, int index) {
 
-		HttpServletRequest httpServletRequest = null;
-		
 		HttpRequest request = requests.get(index);
 		
-		if( request.getUser().equals(user) ) {
-			httpServletRequest = request.getRequest();
-			requests.remove(index);
-		}
-	
-		return httpServletRequest;
+		return request.getRequest();
 	}
 
 }
