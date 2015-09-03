@@ -98,6 +98,7 @@ public class ExportController {
 			
 			// TODO: do something with File txt or remove it
 			
+			@SuppressWarnings("unused")
 			File txt = document.txt();
  			
  			try {
