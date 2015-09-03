@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -41,6 +42,12 @@ import edu.tamu.app.service.SyncService;
 @RestController
 @MessageMapping("/admin")
 public class AdminController {
+	
+	@Value("${app.authority.admins}")
+	private String[] admins;
+	
+	@Value("${app.authority.managers}")
+	private String[] managers;
 	
 	@Autowired
 	private AppUserRepo userRepo;
@@ -79,6 +86,24 @@ public class AdminController {
 		if(userRepo.getUserByUin(Long.parseLong(shib.getUin())) == null) {
     		
     		AppUser newUser = new AppUser();
+    		
+    		if(shib.getRole() == null) {
+    			shib.setRole("ROLE_USER");
+    		}
+    		
+        	String shibUin = shib.getUin();
+        	
+        	for(String uin : managers) {
+    			if(uin.equals(shibUin)) {
+    				shib.setRole("ROLE_MANAGER");
+    			}
+    		}
+        	
+    		for(String uin : admins) {
+    			if(uin.equals(shibUin)) {
+    				shib.setRole("ROLE_ADMIN");
+    			}
+    		}
     		
     		newUser.setUin(Long.parseLong(shib.getUin()));
 			newUser.setFirstName(shib.getFirstName());
