@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,15 +131,11 @@ public class DocumentController {
 		map.put("annotator", doc.getAnnotator());
 		
 		
-		
-		
-		// GET METADATUM AND THEN FIELD LABEL FROM THAT
-		
-		
-		
-		//map.put("metadataLabels", doc.getMetadataLabels());
-		
-		
+		List<String> labels = new ArrayList<String>();
+		doc.getMetadataFields().forEach(field -> {
+			labels.add(field.getLabel().getName());
+		});
+		map.put("metadataLabels", labels);
 		
 		
 		map.put("notes", doc.getNotes());

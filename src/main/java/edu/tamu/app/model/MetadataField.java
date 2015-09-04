@@ -52,7 +52,7 @@ public class MetadataField {
 	@OneToMany(mappedBy="field", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)
 	@Fetch(FetchMode.SELECT)
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataFieldValue.class, property="id")
-	@JsonIdentityReference(alwaysAsId=false)
+	@JsonIdentityReference(alwaysAsId=true)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
 	
 	public MetadataField() { }

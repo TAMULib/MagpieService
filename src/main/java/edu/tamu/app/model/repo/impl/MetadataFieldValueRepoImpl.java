@@ -49,10 +49,10 @@ public class MetadataFieldValueRepoImpl implements CustomMetadataFieldValueRepo 
 		if(value == null) {
 			value = metadataFieldValueRepo.save(new MetadataFieldValue(cv, field));
 		}
-//		cv.addValue(value);
-//		controlledVocabularyRepo.save(cv);
-//		field.addValue(value);
-//		metadataFieldRepo.save(field);
+		cv.addValue(value);
+		controlledVocabularyRepo.save(cv);
+		field.addValue(value);
+		metadataFieldRepo.save(field);
 		return value;
 	}
 	

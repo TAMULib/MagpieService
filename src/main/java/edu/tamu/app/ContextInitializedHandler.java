@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.SyncService;
@@ -48,7 +49,10 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
 	private DocumentRepo documentRepo;
 	
 	@Autowired
-	private ProjectFieldProfileRepo metadataFieldRepo;
+	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	
+	@Autowired
+	private MetadataFieldRepo metadataFieldRepo;
 	
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
@@ -93,6 +97,7 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
     	
     	executorService.submit(new SyncService(projectRepo,
     										   documentRepo,
+    										   projectFieldProfileRepo,
     										   metadataFieldRepo,
     										   metadataFieldLabelRepo,
 			      							   env,
@@ -103,6 +108,7 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
     	
     	executorService.submit(new WatcherService(projectRepo,
 				   								  documentRepo,
+    											  projectFieldProfileRepo,
     											  metadataFieldRepo,
     											  metadataFieldLabelRepo,
 					  						      env,

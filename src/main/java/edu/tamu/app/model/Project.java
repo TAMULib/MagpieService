@@ -49,13 +49,13 @@ public class Project {
 	@OneToMany(mappedBy = "project", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataField.class, property="id")
-	@JsonIdentityReference(alwaysAsId=false)
+	@JsonIdentityReference(alwaysAsId=true)
 	private List<ProjectFieldProfile> profiles = new ArrayList<ProjectFieldProfile>();
 	
 	@OneToMany(mappedBy = "project", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=Document.class, property="id")
-	@JsonIdentityReference(alwaysAsId=false)
+	@JsonIdentityReference(alwaysAsId=true)
 	private List<Document> documents = new ArrayList<Document>();
 	
 	public Project() { }

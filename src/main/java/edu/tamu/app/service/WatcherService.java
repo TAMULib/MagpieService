@@ -46,6 +46,7 @@ import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataField;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
@@ -65,6 +66,8 @@ public class WatcherService implements Runnable {
 	private DocumentRepo documentRepo;
 	
 	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	
+	private MetadataFieldRepo metadataFieldRepo;
 	
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
 	
@@ -91,6 +94,7 @@ public class WatcherService implements Runnable {
 	public WatcherService(ProjectRepo projectRepo,
 						  DocumentRepo documentRepo,
 						  ProjectFieldProfileRepo projectFieldProfileRepo,
+						  MetadataFieldRepo metadataFieldRepo,
 						  MetadataFieldLabelRepo metadataFieldLabelRepo,
 						  Environment env,
 						  ApplicationContext appContext,
@@ -101,6 +105,7 @@ public class WatcherService implements Runnable {
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
 		this.projectFieldProfileRepo = projectFieldProfileRepo;
+		this.metadataFieldRepo = metadataFieldRepo;
 		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
 		this.env = env;
 		this.appContext = appContext;
@@ -112,6 +117,7 @@ public class WatcherService implements Runnable {
 	public WatcherService(ProjectRepo projectRepo,
 						  DocumentRepo documentRepo,
 						  ProjectFieldProfileRepo projectFieldProfileRepo,
+						  MetadataFieldRepo metadataFieldRepo,
 						  MetadataFieldLabelRepo metadataFieldLabelRepo,
 						  Environment env,
 						  ApplicationContext appContext,
@@ -123,6 +129,7 @@ public class WatcherService implements Runnable {
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
 		this.projectFieldProfileRepo = projectFieldProfileRepo;
+		this.metadataFieldRepo = metadataFieldRepo;
 		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
 		this.env = env;
 		this.appContext = appContext;
@@ -233,6 +240,7 @@ public class WatcherService implements Runnable {
                     		executorService.submit(new WatcherService(projectRepo,
                     												  documentRepo,
                     												  projectFieldProfileRepo,
+                    												  metadataFieldRepo,
                     												  metadataFieldLabelRepo,
 	   								  								  env,
 	   								  								  appContext,

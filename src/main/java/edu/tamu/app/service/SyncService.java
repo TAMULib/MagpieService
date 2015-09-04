@@ -42,6 +42,7 @@ import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataField;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
@@ -61,7 +62,9 @@ public class SyncService implements Runnable {
 	
 	private ProjectFieldProfileRepo projectFieldProfileRepo;
 	
-	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	private MetadataFieldRepo metadataFieldRepo;
+	
+	private MetadataFieldLabelRepo metadataFieldLabelRepo;	
 	
 	private Environment env;
 	
@@ -84,6 +87,7 @@ public class SyncService implements Runnable {
 	public SyncService(ProjectRepo projectRepo,
 					   DocumentRepo documentRepo,
 					   ProjectFieldProfileRepo projectFieldProfileRepo,
+					   MetadataFieldRepo metadataFieldRepo,
 					   MetadataFieldLabelRepo metadataFieldLabelRepo,
 					   Environment env,
 					   ApplicationContext appContext,
@@ -93,6 +97,7 @@ public class SyncService implements Runnable {
 		super();
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
+		this.metadataFieldRepo = metadataFieldRepo;
 		this.projectFieldProfileRepo = projectFieldProfileRepo;
 		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
 		this.env = env;
@@ -158,6 +163,7 @@ public class SyncService implements Runnable {
         	executorService.submit(new WatcherService(projectRepo,
         											  documentRepo,
         											  projectFieldProfileRepo,
+        											  metadataFieldRepo,
         											  metadataFieldLabelRepo,
 					   								  env,
 					   								  appContext,
