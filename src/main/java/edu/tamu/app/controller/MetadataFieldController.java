@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -43,11 +44,12 @@ import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.RequestId;
-import edu.tamu.app.ApplicationContextProvider;
-import edu.tamu.app.model.impl.DocumentImpl;
-import edu.tamu.app.model.impl.MetadataFieldImpl;
+import edu.tamu.app.model.Document;
+import edu.tamu.app.model.MetadataFieldValue;
+import edu.tamu.app.model.MetadataField;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
+import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
 
@@ -66,10 +68,16 @@ public class MetadataFieldController {
    	private String mount;
 	
 	@Autowired
-	private DocumentRepo docRepo;
+	private DocumentRepo documentRepo;
 	
 	@Autowired
-	private MetadataFieldRepo metadataRepo;
+	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	
+	@Autowired
+	private MetadataFieldRepo metadataFieldRepo;
+	
+	@Autowired
+	ApplicationContext appContext;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -95,7 +103,7 @@ public class MetadataFieldController {
 				
 		String directory = "";
 		try {
-			directory = ApplicationContextProvider.appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath();
+			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -189,34 +197,35 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
+	@SuppressWarnings("null")
 	@MessageMapping("/csv/{project}")
 	@Auth
 	@SendToUser
 	public ApiResponse getCSVByroject(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
 		
-		List<DocumentImpl> documents = docRepo.findByStatusAndProject("Published", project);
+		List<Document> documents = documentRepo.findByStatusAndProject("Published", project);
 		
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
-		for(DocumentImpl document : documents) {
+		for(Document document : documents) {
 			
-			List<MetadataFieldImpl> metadataList = metadataRepo.getMetadataFieldsByName(document.getName());
+			List<MetadataField> metadataFields = document.getMetadataFields();
 			
 			List<String> documentMetadata = new ArrayList<String>();
 			
 			documentMetadata.add(document.getName() + ".pdf");
 			
-			Collections.sort(metadataList, new LabelComparator());
+			Collections.sort(metadataFields, new LabelComparator());
 			
-			for(MetadataFieldImpl metadataField : metadataList) {
+			for(MetadataField metadatum : metadataFields) {
 				
 				String values = null;
-				for(String value : metadataField.getValues()) {					
-					if(values == null) {
-						values = value;
+				for(MetadataFieldValue medataFieldValue : metadatum.getValues()) {					
+					if(medataFieldValue == null) {
+						values = medataFieldValue.getValue();
 					}
 					else {
-						values += "||" + value;
+						values += "||" +  medataFieldValue.getValue();
 					}					
 				}
 				documentMetadata.add(values);
@@ -247,20 +256,25 @@ public class MetadataFieldController {
 	public ApiResponse published(Message<?> message, @ReqId String requestId) throws Exception {
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
-		List<DocumentImpl> documents = docRepo.findByStatus("Published");
+		List<Document> documents = documentRepo.findByStatus("Published");
 		
-		for(DocumentImpl document : documents) {
+		for(Document document : documents) {
 			
-			List<MetadataFieldImpl> metadataFields = metadataRepo.getMetadataFieldsByName(document.getName());
+			List<MetadataField> metadataFields = document.getMetadataFields();
 			
-			for(MetadataFieldImpl metadataField : metadataFields) {
+			for(MetadataField metadataField : metadataFields) {
 				
-				for(String value : metadataField.getValues()) {
+				for(MetadataFieldValue metadataFieldValue : metadataField.getValues()) {
 					
 					List<String> documentMetadata = new ArrayList<String>();
-					documentMetadata.add(metadataField.getName());
-					documentMetadata.add(metadataField.getLabel());
-					documentMetadata.add(value);
+					
+					// TODO: why does metadatafield value have a name and a label
+					
+					//documentMetadata.add(metadataField.getLabel().getName());
+					
+					
+					documentMetadata.add(metadataField.getLabel().getName());
+					documentMetadata.add(metadataFieldValue.getValue());
 					
 					metadata.add(documentMetadata);
 				}
@@ -286,9 +300,9 @@ public class MetadataFieldController {
 	@MessageMapping("/all")
 	@Auth
 	@SendToUser
-	public ApiResponse all(Message<?> message, @ReqId String requestId) throws Exception {
-		Map<String, List<MetadataFieldImpl>> metadataMap = new HashMap<String, List<MetadataFieldImpl>>();
-		metadataMap.put("list", metadataRepo.findAll());
+	public ApiResponse all(Message<?> message, @ReqId String requestId) throws Exception {		
+		Map<String, List<MetadataField>> metadataMap = new HashMap<String, List<MetadataField>>();
+		metadataMap.put("list", metadataFieldRepo.findAll());		
 		return new ApiResponse("success", metadataMap, new RequestId(requestId));
 	}
 	
@@ -307,15 +321,24 @@ public class MetadataFieldController {
 	@Auth
 	@SendToUser
 	public ApiResponse clear(Message<?> message, @ReqId String requestId) throws Exception {
+		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();
+		
 		Map<String,String> map = new HashMap<String,String>();
+		
 		try {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		Long removed = metadataRepo.deleteByName(map.get("name"));		
+		
+		int removed = 0;
+		for(MetadataField field : documentRepo.findByName(map.get("name")).getMetadataFields()) {
+			metadataFieldRepo.delete(field);
+			removed++;
+		}
+		
 		return new ApiResponse("success", "removed " + removed, new RequestId(requestId));
 	}
 	
@@ -334,6 +357,7 @@ public class MetadataFieldController {
 	@Auth
 	@SendToUser
 	public ApiResponse getMetadata(Message<?> message, @ReqId String requestId) throws Exception {		
+		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();
 		Map<String, String> headerMap = new HashMap<String, String>();
@@ -344,7 +368,8 @@ public class MetadataFieldController {
 			e.printStackTrace();
 		}
 		
-		List<MetadataFieldImpl> fields = metadataRepo.getMetadataFieldsByName(headerMap.get("name"));
+		List<MetadataField> metadataFields = documentRepo.findByName(headerMap.get("name")).getMetadataFields();
+		
 		
 		Map<String, Object> metadataMap = new HashMap<String, Object>();
 		
@@ -365,8 +390,8 @@ public class MetadataFieldController {
             metadataMap.put(field.getName().replace('_','.'), marcList);
         }
 		
-		for (MetadataFieldImpl field : fields) {			
-			metadataMap.put(field.getLabel(), field.getValues());
+		for (MetadataField field : metadataFields) {			
+			metadataMap.put(field.getLabel().getName(), field.getValues());
 		}
 		
 		return new ApiResponse("success", metadataMap, new RequestId(requestId));
@@ -395,22 +420,32 @@ public class MetadataFieldController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		@SuppressWarnings("unchecked")
 		Map<String, Object> metadataFields = (Map<String, Object>) map.get("metadata") ;
 		
 		for (String label : metadataFields.keySet()) {
-						
-			List<String> metadataEntry = new ArrayList<String>();
+			
 			@SuppressWarnings("unchecked")
 			List<String> metadataValues = (List<String>) metadataFields.get(label);
 			
-			for (String metadata :metadataValues) {
-				metadataEntry.add(metadata);
+			Document document = documentRepo.findByName((String) map.get("name"));
+						
+			MetadataField metadataField = null;
+					
+			for(MetadataField field :  document.getMetadataFields()) {
+				if(field.getLabel().getName().equals(label)) {
+					metadataField = field;
+				}
+			}
+						
+			for (String value : metadataValues) {
+				metadataField.addValue(new MetadataFieldValue(value, metadataField));
 			}
 			
-			MetadataFieldImpl documentMetadata = new MetadataFieldImpl((String) map.get("name"), label, metadataEntry);
-			metadataRepo.save(documentMetadata);
-
+			document.addMetadataField(metadataField);
+			
+			documentRepo.save(document);
 		}
 		
 		return new ApiResponse("success", "ok", new RequestId(requestId));
@@ -422,7 +457,7 @@ public class MetadataFieldController {
 	 * @author
 	 *
 	 */
-	class LabelComparator implements Comparator<MetadataFieldImpl>
+	class LabelComparator implements Comparator<MetadataField>
 	{
 		/**
 		 * Compare labels of MetadataFieldImpl
@@ -433,8 +468,8 @@ public class MetadataFieldController {
 		 * @return		int
 		 */
 		@Override
-		public int compare(MetadataFieldImpl mfi1, MetadataFieldImpl mfi2) {
-			return mfi1.getLabel().compareTo(mfi2.getLabel());
+		public int compare(MetadataField m1, MetadataField m2) {
+			return m1.getLabel().getName().compareTo(m2.getLabel().getName());
 		}
 	}
 		

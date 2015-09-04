@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -37,15 +38,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
-
 import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.RequestId;
-
-import edu.tamu.app.ApplicationContextProvider;
 import edu.tamu.app.model.InputType;
-import edu.tamu.app.model.impl.DocumentImpl;
-import edu.tamu.app.model.impl.MetadataLabelImpl;
+import edu.tamu.app.model.Document;
+import edu.tamu.app.model.MetadataFieldLabel;
+import edu.tamu.app.model.MetadataField;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.ProjectRepo;
 
 /** 
  * Watcher Service. Watches projects folder and inserts created documents into database.
@@ -57,6 +59,25 @@ import edu.tamu.app.model.repo.DocumentRepo;
 @Service
 @PropertySource("classpath:/config/application.properties")
 public class WatcherService implements Runnable {
+	
+	private ProjectRepo projectRepo;
+	
+	private DocumentRepo documentRepo;
+	
+	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	
+	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	
+	private Environment env;
+	
+	private ApplicationContext appContext;
+	
+	private SimpMessagingTemplate simpMessagingTemplate;
+	
+	private ExecutorService executorService;
+	
+	private ObjectMapper objectMapper;
+	
 	private String folder;
 	
 	/**
@@ -67,16 +88,50 @@ public class WatcherService implements Runnable {
 		super();
 	}
 	
-	/**
-	 * Constructor.
-	 * 
-	 * @param 		folder			String
-	 */
-	public WatcherService(String folder) {
+	public WatcherService(ProjectRepo projectRepo,
+						  DocumentRepo documentRepo,
+						  ProjectFieldProfileRepo projectFieldProfileRepo,
+						  MetadataFieldLabelRepo metadataFieldLabelRepo,
+						  Environment env,
+						  ApplicationContext appContext,
+						  SimpMessagingTemplate simpMessagingTemplate,
+						  ExecutorService executorService,
+						  ObjectMapper objectMapper) {
 		super();
+		this.projectRepo = projectRepo;
+		this.documentRepo = documentRepo;
+		this.projectFieldProfileRepo = projectFieldProfileRepo;
+		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
+		this.env = env;
+		this.appContext = appContext;
+		this.simpMessagingTemplate = simpMessagingTemplate;
+		this.executorService = executorService;
+		this.objectMapper = objectMapper;
+	}
+	
+	public WatcherService(ProjectRepo projectRepo,
+						  DocumentRepo documentRepo,
+						  ProjectFieldProfileRepo projectFieldProfileRepo,
+						  MetadataFieldLabelRepo metadataFieldLabelRepo,
+						  Environment env,
+						  ApplicationContext appContext,
+						  SimpMessagingTemplate simpMessagingTemplate,
+						  ExecutorService executorService,
+						  ObjectMapper objectMapper,
+						  String folder) {
+		super();
+		this.projectRepo = projectRepo;
+		this.documentRepo = documentRepo;
+		this.projectFieldProfileRepo = projectFieldProfileRepo;
+		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
+		this.env = env;
+		this.appContext = appContext;
+		this.simpMessagingTemplate = simpMessagingTemplate;
+		this.executorService = executorService;
+		this.objectMapper = objectMapper;
 		this.folder = folder;
 	}
-		
+	
 	/**
 	 * WatcherService runnable.
 	 * 
@@ -85,13 +140,6 @@ public class WatcherService implements Runnable {
 	@Override
 	public void run() {
 		
-		DocumentRepo docRepo = (DocumentRepo) ApplicationContextProvider.appContext.getBean("documentRepo");
-		Environment env = ApplicationContextProvider.appContext.getEnvironment();
-		
-		SimpMessagingTemplate simpMessagingTemplate = (SimpMessagingTemplate) ApplicationContextProvider.appContext.getBean("brokerMessagingTemplate");
-		
-		ExecutorService executorService = (ExecutorService) ApplicationContextProvider.appContext.getBean("executorService");
-		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
 		
@@ -99,28 +147,26 @@ public class WatcherService implements Runnable {
 		
 		try {
 			json = new String(readAllBytes(get(fullPath + "/metadata.json")));
-		} catch (IOException e2) {
-			e2.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		
-		ObjectMapper objectMapper = (ObjectMapper) ApplicationContextProvider.appContext.getBean("objectMapper");
 		
 		Map<String, Object> projectMap = null;
 		
 		try {
 			projectMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	
-		List<MetadataLabelImpl> metadataLabels = new ArrayList<MetadataLabelImpl>();
+		List<MetadataField> metadataFields = new ArrayList<MetadataField>();
 		
 		String host = env.getProperty("app.host");
 		String mount = env.getProperty("app.mount");
 		
 		String directory = "";
 		try {
-			directory = ApplicationContextProvider.appContext.getResource("classpath:static/mnt").getFile().getAbsolutePath() + "/" + folder;
+			directory = appContext.getResource("classpath:static/mnt").getFile().getAbsolutePath() + "/" + folder;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -128,7 +174,7 @@ public class WatcherService implements Runnable {
 		if(!folder.equals("projects")) {
 			
 			try {
-				directory = ApplicationContextProvider.appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/" + folder;
+				directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/" + folder;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -140,14 +186,21 @@ public class WatcherService implements Runnable {
 			for(Object metadata : profile) {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
-				MetadataLabelImpl metadataProfile = new MetadataLabelImpl((String) mMap.get("label"), 
-																  (String) mMap.get("gloss"), 
-																  (Boolean) mMap.get("repeatable"), 
-																  (Boolean) mMap.get("readOnly"),
-																  (Boolean) mMap.get("hidden"),
-																  (Boolean) mMap.get("required"),
-																  InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
-				metadataLabels.add(metadataProfile);
+				
+				MetadataFieldLabel metadataLabel = metadataFieldLabelRepo.create((String) mMap.get("label"));
+				
+				projectFieldProfileRepo.create(metadataLabel,
+											   projectRepo.findByName(folder),
+										   	   (String) mMap.get("gloss"), 
+										   	   (Boolean) mMap.get("repeatable"), 
+										   	   (Boolean) mMap.get("readOnly"),
+										   	   (Boolean) mMap.get("hidden"),
+										   	   (Boolean) mMap.get("required"),
+										   	   InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
+
+				MetadataField metadataField = new MetadataField(metadataLabel);
+				
+				metadataFields.add(metadataField);
 			}
 		}
 		
@@ -156,7 +209,7 @@ public class WatcherService implements Runnable {
             Path dir = FileSystems.getDefault().getPath(directory, "");
             dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
              
-            System.out.println("Watch Service registered for dir: " + dir.getFileName());
+            //System.out.println("Watch Service registered for dir: " + dir.getFileName());
              
             while (true) {
                 WatchKey key;
@@ -177,20 +230,28 @@ public class WatcherService implements Runnable {
 
                     if (kind == ENTRY_CREATE) {
                     	if(folder.equals("projects")) {
-                    		executorService.submit(new WatcherService(docString));
+                    		executorService.submit(new WatcherService(projectRepo,
+                    												  documentRepo,
+                    												  projectFieldProfileRepo,
+                    												  metadataFieldLabelRepo,
+	   								  								  env,
+	   								  								  appContext,
+	   								  								  simpMessagingTemplate,
+	   								  								  executorService,
+	   								  								  objectMapper,
+	   								  								  docString));
                     	}
                     	else {
                     	
-	                    	if((docRepo.findByName(docString) == null)) {
+	                    	if((documentRepo.findByName(docString) == null)) {
 	                    		
 	        					String pdfPath = "/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";;
 	            				String txtPath = "/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
 	                    		String pdfUri = host+pdfPath;
 	                    		String txtUri = host+txtPath;
 	                         		
-	        					DocumentImpl doc = new DocumentImpl(docString, folder, txtUri, pdfUri, txtPath, pdfPath, "Open", metadataLabels);
-	        					docRepo.save(doc);
-	        					
+	        					Document doc = documentRepo.create(docString, txtUri, pdfUri, txtPath, pdfPath, "Open", metadataFields);
+	        						        					
 	        					Map<String, Object> docMap = new HashMap<String, Object>();
 	        					docMap.put("document", doc);
 	        					docMap.put("isNew", "true");

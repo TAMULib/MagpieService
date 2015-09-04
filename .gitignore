@@ -6,3 +6,4 @@
 .settings/*
 bin/
 src/main/resources/static/mnt/projects/*
+/target/

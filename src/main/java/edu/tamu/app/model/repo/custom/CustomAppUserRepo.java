@@ -7,7 +7,7 @@
  * Revisions: 
  *     $Log$ 
  */
-package edu.tamu.app.model.repo;
+package edu.tamu.app.model.repo.custom;
 
 import edu.tamu.app.model.AppUser;
 
@@ -17,7 +17,7 @@ import edu.tamu.app.model.AppUser;
  * @author
  *
  */
-public interface AppUserRepoCustom {
+public interface CustomAppUserRepo {
 
 	/**
 	 * Creates application user based on uin in the repository

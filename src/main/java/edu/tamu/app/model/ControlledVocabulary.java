@@ -1,5 +1,5 @@
 /* 
- * MetadataFields.java 
+ * ControlledVocabulary.java 
  * 
  * Version: 
  *     $Id$ 
@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -37,33 +37,25 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 @Entity
 @Table
-public class MetadataField {
+public class ControlledVocabulary {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-	private Document document;
+	@Column(unique = true)
+	private String value;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-	private MetadataFieldLabel label;
-	
-	@OneToMany(mappedBy="field", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)
+	@OneToMany(mappedBy="cv", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataFieldValue.class, property="id")
-	@JsonIdentityReference(alwaysAsId=false)
+	@JsonIdentityReference(alwaysAsId=true)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
 	
-	public MetadataField() { }
+	public ControlledVocabulary() { }
 	
-	public MetadataField(MetadataFieldLabel label) {
-		this.label = label;
-	}
-	
-	public MetadataField(Document document, MetadataFieldLabel label) {
-		this.document = document;
-		this.label = label;
+	public ControlledVocabulary(String value) {
+		this.value = value;
 	}
 
 	public Long getId() {
@@ -74,20 +66,12 @@ public class MetadataField {
 		this.id = id;
 	}
 
-	public Document getDocument() {
-		return document;
+	public String getValue() {
+		return value;
 	}
 
-	public void setDocument(Document document) {
-		this.document = document;
-	}
-
-	public MetadataFieldLabel getLabel() {
-		return label;
-	}
-
-	public void setLabel(MetadataFieldLabel label) {
-		this.label = label;
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 	public List<MetadataFieldValue> getValues() {
@@ -97,7 +81,7 @@ public class MetadataField {
 	public void setValues(List<MetadataFieldValue> values) {
 		this.values = values;
 	}
-	
+
 	public void addValue(MetadataFieldValue value) {
 		values.add(value);
 	}

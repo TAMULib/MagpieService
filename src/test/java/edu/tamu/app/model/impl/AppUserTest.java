@@ -25,7 +25,7 @@ import edu.tamu.app.model.repo.AppUserRepo;
     					  DirtiesContextTestExecutionListener.class,
     					  TransactionalTestExecutionListener.class,
     					  DbUnitTestExecutionListener.class })
-public class UserTest {
+public class AppUserTest {
 	
 	@Autowired
 	private AppUserRepo userRepo;

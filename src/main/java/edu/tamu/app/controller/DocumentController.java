@@ -35,7 +35,7 @@ import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.RequestId;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.ReqId;
-import edu.tamu.app.model.impl.DocumentImpl;
+import edu.tamu.app.model.Document;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
@@ -52,7 +52,7 @@ import edu.tamu.app.service.VoyagerService;
 public class DocumentController {
 	
 	@Autowired
-	private DocumentRepo docRepo;
+	private DocumentRepo documentRepo;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -97,8 +97,8 @@ public class DocumentController {
 	@Auth
 	@SendToUser
 	public ApiResponse allDocuments(Message<?> message, @ReqId String requestId) throws Exception {
-		Map<String,List<DocumentImpl>> map = new HashMap<String,List<DocumentImpl>>();
-		map.put("list", docRepo.findAll());
+		Map<String,List<Document>> map = new HashMap<String,List<Document>>();
+		map.put("list", documentRepo.findAll());
 		return new ApiResponse("success", map, new RequestId(requestId));
 	}
 	
@@ -125,10 +125,22 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		DocumentImpl doc = docRepo.findByName(headerMap.get("name"));
+		Document doc = documentRepo.findByName(headerMap.get("name"));
 		Map<String,Object> map = new HashMap<String,Object>();
 		map.put("annotator", doc.getAnnotator());
-		map.put("metadataLabels", doc.getMetadataLabels());
+		
+		
+		
+		
+		// GET METADATUM AND THEN FIELD LABEL FROM THAT
+		
+		
+		
+		//map.put("metadataLabels", doc.getMetadataLabels());
+		
+		
+		
+		
 		map.put("notes", doc.getNotes());
 				
 		return new ApiResponse("success", map, new RequestId(requestId));
@@ -176,53 +188,53 @@ public class DocumentController {
 		}
 				
 		Pageable request = new PageRequest(Integer.parseInt(headerMap.get("page")) - 1, Integer.parseInt(headerMap.get("size")), sortDirection, headerMap.get("field"));
-		Page<DocumentImpl> documents = null;				
+		Page<Document> documents = null;				
 		
 		
 		if(name.length() > 0) {			
 			if(status[0].length() > 0) {
 				if(annotator.length() > 0) {
 					if(status[1].length() > 0) {
-						documents = docRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator, name, status[1], annotator);	
+						documents = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator, name, status[1], annotator);	
 					}
 					else {
-						documents = docRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator);
+						documents = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator);
 					}
 				}
 				else {
-					documents = docRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCase(request, name, status[0], name, status[1]);	
+					documents = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCase(request, name, status[0], name, status[1]);	
 				}				
 			}
 			else if(annotator.length() > 0) {
-				documents = docRepo.findByNameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, annotator);				
+				documents = documentRepo.findByNameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, annotator);				
 			}
 			else {
-				documents = docRepo.findByNameContainingIgnoreCase(request, name);
+				documents = documentRepo.findByNameContainingIgnoreCase(request, name);
 			}			
 		}
 		else if(status[0].length() > 0) {
 			if(annotator.length() > 0) {
 				if(status[1].length() > 0) {
-					documents = docRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status[0], annotator, status[1], annotator);
+					documents = documentRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status[0], annotator, status[1], annotator);
 				}
 				else {
-					documents = docRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status[0], annotator);
+					documents = documentRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status[0], annotator);
 				}
 			}
 			else {
 				if(status[1].length() > 0) {
-					documents = docRepo.findByStatusContainingIgnoreCaseOrStatusContainingIgnoreCase(request, status[0], status[1]);
+					documents = documentRepo.findByStatusContainingIgnoreCaseOrStatusContainingIgnoreCase(request, status[0], status[1]);
 				}
 				else {
-					documents = docRepo.findByStatusContainingIgnoreCase(request, status[0]);
+					documents = documentRepo.findByStatusContainingIgnoreCase(request, status[0]);
 				}
 			}			
 		}
 		else if(annotator.length() > 0) {
-			documents = docRepo.findByAnnotatorContainingIgnoreCase(request, annotator);
+			documents = documentRepo.findByAnnotatorContainingIgnoreCase(request, annotator);
 		}
 		else {
-			documents = docRepo.findAll(request);
+			documents = documentRepo.findAll(request);
 		}	    
 	    return new ApiResponse("success", documents, new RequestId(requestId));
 	}
@@ -251,7 +263,7 @@ public class DocumentController {
 			e.printStackTrace();
 		}
 				
-		DocumentImpl doc = docRepo.findByName(map.get("name"));
+		Document doc = documentRepo.findByName(map.get("name"));
 		if(map.get("status").equals("Open")) {
 			doc.setAnnotator("");
 		}
@@ -260,7 +272,7 @@ public class DocumentController {
 		}
 		doc.setNotes(map.get("notes"));
 		doc.setStatus(map.get("status"));
-		docRepo.save(doc);
+		documentRepo.save(doc);
 		Map<String, Object> docMap = new HashMap<String, Object>();
 		docMap.put("document", doc);
 		docMap.put("isNew", "false");
@@ -293,7 +305,7 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		DocumentImpl doc = docRepo.findByName(map.get("name"));
+		Document doc = documentRepo.findByName(map.get("name"));
 		
 		Map<String, Object> txtMap = new HashMap<String, Object>();
 		txtMap.put("uri", doc.getTxtUri());
@@ -324,7 +336,7 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-		DocumentImpl doc = docRepo.findByName(map.get("name"));
+		Document doc = documentRepo.findByName(map.get("name"));
 		
 		Map<String, Object> pdfMap = new HashMap<String, Object>();
 		pdfMap.put("uri", doc.getPdfUri());

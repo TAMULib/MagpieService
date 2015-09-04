@@ -23,10 +23,10 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.tamu.app.model.impl.DocumentImpl;
-import edu.tamu.app.model.impl.MetadataFieldImpl;
+import edu.tamu.app.model.Document;
+import edu.tamu.app.model.MetadataFieldValue;
+import edu.tamu.app.model.MetadataField;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.Data;
 import edu.tamu.framework.aspect.annotation.ReqId;
@@ -45,11 +45,8 @@ import edu.tamu.framework.model.RequestId;
 public class ExportController {
 	
 	@Autowired
-	DocumentRepo docRepo;
-	
-	@Autowired
-	private MetadataFieldRepo metadataRepo;
-	
+	DocumentRepo documentRepo;
+
 	/**
 	 * Websocket endpoint to request credentials.
 	 * 
@@ -70,7 +67,7 @@ public class ExportController {
 		System.out.println("Generating SAF for project " + data);
 		
 		//for each published document
-		List<DocumentImpl> documents = docRepo.findByStatusAndProject("Published", data);
+		List<Document> documents = documentRepo.findByStatusAndProject("Published", data);
 		
 		
 		//TODO:  get straight on where we want to write this bad boy
@@ -84,7 +81,7 @@ public class ExportController {
 			safDirectory.mkdir();
 		}
 		
-		for(DocumentImpl document: documents)
+		for(Document document: documents)
 		{
 			
 			System.out.println("Writing archive for document " + document.getName());
@@ -117,14 +114,18 @@ public class ExportController {
  			manifest.flush();
  			manifest.close();
  			
+ 			
+ 			//TODO: test after changes
+ 			
+ 			
  			//for each schema in the metadata
  			Map <String, PrintStream> schemaToFile = new HashMap<String, PrintStream>();
- 			List<MetadataFieldImpl> metadataValueList = metadataRepo.getMetadataFieldsByName(document.getName());
+ 			List<MetadataField> metadatafields = document.getMetadataFields();
  			
- 			for(MetadataFieldImpl values : metadataValueList) 
+ 			for(MetadataField metadataField : metadatafields) 
  			{
  	 			//write a dublin-core style xml file
- 				String label = values.getLabel();
+ 				String label = metadataField.getLabel().getName();
  				String schema = label.split("\\.")[0];
  				//System.out.println("Got schema " + schema);
  				String element = label.split("\\.")[1];
@@ -142,16 +143,15 @@ public class ExportController {
  				}
  				
  				
- 				for(String value : values.getValues()) {
- 					if(value.equals("")) continue;
- 					
- 					value = escapeForXML(value);
+ 				for(MetadataFieldValue metadataFieldValue : metadataField.getValues()) {
+ 					if(metadataFieldValue.getValue().equals("")) continue;
  					
  					schemaToFile.get(schema).print("<dcvalue element=\""+element+"\" "
  							+ ( qualifier!=null? "qualifier=\"" + qualifier + "\"" : "" ) +
- 							">"+value+"</dcvalue>");
+ 							">"+escapeForXML(metadataFieldValue.getValue())+"</dcvalue>");
  				}
  			}
+ 			
  			
  			for(PrintStream printStream : schemaToFile.values())
 			{
