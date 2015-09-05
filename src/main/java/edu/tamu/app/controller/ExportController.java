@@ -18,6 +18,8 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,8 +46,14 @@ import edu.tamu.framework.model.RequestId;
 @MessageMapping("/export")
 public class ExportController {
 	
+	@Value("${app.mount}") 
+   	private String mount;
+	
 	@Autowired
 	DocumentRepo documentRepo;
+	
+	@Autowired
+	private ApplicationContext appContext;
 
 	/**
 	 * Websocket endpoint to request credentials.
@@ -69,20 +77,26 @@ public class ExportController {
 		//for each published document
 		List<Document> documents = documentRepo.findByStatusAndProject("Published", data);
 		
-		
 		//TODO:  get straight on where we want to write this bad boy
 		
-		String archiveDirectoryName = "exports/" + data+System.currentTimeMillis();
-		if(documents.size() > 0)
-		{
-			//make a containing directory for the SAF
-			
+		String directory = "";
+		try {
+			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		String archiveDirectoryName = directory + "exports/" + data+System.currentTimeMillis();
+		
+		System.out.println(archiveDirectoryName);
+		
+		if(documents.size() > 0) {
+			//make a containing directory for the SAF			
 			File safDirectory = new File(archiveDirectoryName);
 			safDirectory.mkdir();
 		}
 		
-		for(Document document: documents)
-		{
+		for(Document document: documents) {
 			
 			System.out.println("Writing archive for document " + document.getName());
 			
@@ -122,8 +136,7 @@ public class ExportController {
  			Map <String, PrintStream> schemaToFile = new HashMap<String, PrintStream>();
  			List<MetadataField> metadatafields = document.getMetadataFields();
  			
- 			for(MetadataField metadataField : metadatafields) 
- 			{
+ 			for(MetadataField metadataField : metadatafields) {
  	 			//write a dublin-core style xml file
  				String label = metadataField.getLabel().getName();
  				String schema = label.split("\\.")[0];
@@ -131,36 +144,32 @@ public class ExportController {
  				String element = label.split("\\.")[1];
  				//System.out.println("Got element "+ element);
  				String qualifier = null;
- 				if(label.split("\\.").length > 2)
+ 				if(label.split("\\.").length > 2) {
  					qualifier = label.split("\\.")[2];
- 					
+ 				}	
  				
- 				if(!schemaToFile.containsKey(schema))
- 				{
- 					String filename = schema.equals("dc") ? "dublin_core.xml" : "metadata_"+schema+".xml";
- 					schemaToFile.put(schema, new PrintStream(itemDirectory+"/"+filename));
- 					schemaToFile.get(schema).print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dublin_core schema=\""+ schema + "\">"); 	 				
+ 				if(!schemaToFile.containsKey(schema)) {
+ 					String filename = schema.equals("dc") ? "dublin_core.xml" : "metadata_" + schema + ".xml";
+ 					schemaToFile.put(schema, new PrintStream(itemDirectory + "/" + filename));
+ 					schemaToFile.get(schema).print("<?xml version=\"1.0\" encoding=\"UTF-8\"?><dublin_core schema=\"" + schema + "\">"); 	 				
  				}
- 				
  				
  				for(MetadataFieldValue metadataFieldValue : metadataField.getValues()) {
  					if(metadataFieldValue.getValue().equals("")) continue;
  					
- 					schemaToFile.get(schema).print("<dcvalue element=\""+element+"\" "
- 							+ ( qualifier!=null? "qualifier=\"" + qualifier + "\"" : "" ) +
- 							">"+escapeForXML(metadataFieldValue.getValue())+"</dcvalue>");
+ 					schemaToFile.get(schema).print("<dcvalue element=\"" + element+"\" " + 
+ 												   ( qualifier!=null? "qualifier=\"" + qualifier + "\"" : "" ) +
+ 												   ">" + escapeForXML(metadataFieldValue.getValue()) + "</dcvalue>");
  				}
  			}
  			
- 			
- 			for(PrintStream printStream : schemaToFile.values())
-			{
+ 			for(PrintStream printStream : schemaToFile.values()) {
 				printStream.print("</dublin_core>");
 				printStream.close();
 			}
-		
-
+ 			
 		}
+		
 		return new ApiResponse("success", "Your SAF has been written to the server filesystem.", new RequestId(requestId));
 	}
 
@@ -172,6 +181,5 @@ public class ExportController {
 		value = value.replace(">", "&gt;");
 		return value;
 	}
-	
 
 }

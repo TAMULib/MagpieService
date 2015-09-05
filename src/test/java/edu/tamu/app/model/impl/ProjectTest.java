@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +39,14 @@ public class ProjectTest {
 	@Autowired
 	private DocumentRepo documentRepo;
 	
+	@BeforeClass
+    public static void init() {
+		
+    }
+	
 	@Before
 	public void setUp() {
-		projectRepo.deleteAll();
-		documentRepo.deleteAll();
+		
 	}
 	
 	@Test

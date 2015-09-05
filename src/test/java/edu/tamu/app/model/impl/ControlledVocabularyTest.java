@@ -3,6 +3,7 @@ package edu.tamu.app.model.impl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +31,14 @@ public class ControlledVocabularyTest {
 	@Autowired
 	private ControlledVocabularyRepo controlledVocabularyRepo;
 	
+	@BeforeClass
+    public static void init() {
+		
+    }
 	
 	@Before
 	public void setUp() {
-		controlledVocabularyRepo.deleteAll();
+		
 	}
 	
 	@Test

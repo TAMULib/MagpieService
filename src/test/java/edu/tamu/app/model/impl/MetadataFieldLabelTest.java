@@ -32,13 +32,13 @@ public class MetadataFieldLabelTest {
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
 	
 	@BeforeClass
-    public static void init()  throws InterruptedException {
-		Thread.sleep(5000);
+    public static void init() {
+		
     }
 	
 	@Before
 	public void setUp() {
-		metadataFieldLabelRepo.deleteAll();
+		
 	}
 	
 	@Test

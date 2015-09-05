@@ -66,7 +66,7 @@ public class Document {
 	@OneToMany(mappedBy="document", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)
 	@Fetch(FetchMode.SELECT)
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataField.class, property="id")
-	@JsonIdentityReference(alwaysAsId=true)
+	@JsonIdentityReference(alwaysAsId=false)
 	private List<MetadataField> fields = new ArrayList<MetadataField>();
 	
 	public Document() { }

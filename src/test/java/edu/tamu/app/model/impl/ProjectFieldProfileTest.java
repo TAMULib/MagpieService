@@ -3,6 +3,7 @@ package edu.tamu.app.model.impl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,13 @@ public class ProjectFieldProfileTest {
 	
 	private MetadataFieldLabel testLabel;
 	
+	@BeforeClass
+    public static void init() {
+		
+    }
+	
 	@Before
-	public void setUp() {
-		projectFieldProfileRepo.deleteAll();
+	public void setUp() {		
 		testProject = projectRepo.create("testProject");
 		testLabel = metadataFieldLabelRepo.create("testLabel");
 	}
@@ -90,6 +95,8 @@ public class ProjectFieldProfileTest {
 	
 	@After
 	public void cleanUp() {
+		projectRepo.deleteAll();
+		metadataFieldLabelRepo.deleteAll();
 		projectFieldProfileRepo.deleteAll();
 	}
 	

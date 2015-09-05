@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -46,18 +47,17 @@ public class DocumentTest {
 	
 	@Autowired
 	private MetadataFieldValueRepo metadataFieldValueRepo;
-	
+		
 	private Document mockDocument = new Document("testDocument", null, null, null, null, "Unassigned", new ArrayList<MetadataField>());
 		
 	@BeforeClass
-    public static void init()  throws InterruptedException {
-		Thread.sleep(5000);
+    public static void init() {
+		
     }
 	 
 	@Before
-	public void setUp() {		
-		documentRepo.deleteAll();
-		metadataFieldLabelRepo.deleteAll();
+	public void setUp() {
+		
 	}
 	
 	@Test

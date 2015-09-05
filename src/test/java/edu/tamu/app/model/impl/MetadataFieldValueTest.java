@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,6 @@ import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 public class MetadataFieldValueTest {
 	
 	@Autowired
-	private MetadataFieldValueRepo metadataFieldValueRepo;
-	
-	@Autowired
 	private DocumentRepo documentRepo;
 	
 	@Autowired
@@ -48,6 +46,9 @@ public class MetadataFieldValueTest {
 	
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	
+	@Autowired
+	private MetadataFieldValueRepo metadataFieldValueRepo;
 	
 	@Autowired
 	private ControlledVocabularyRepo controlledVocabularyRepo;
@@ -58,11 +59,13 @@ public class MetadataFieldValueTest {
 	
 	private MetadataField testField;
 	
+	@BeforeClass
+    public static void init() {
+		
+    }
 	
 	@Before
 	public void setUp() {
-		metadataFieldValueRepo.deleteAll();
-		metadataFieldRepo.deleteAll();
 		testDocument = documentRepo.create("testDocument", null, null, null, null, "Unassigned", new ArrayList<MetadataField>());
 		testLabel = metadataFieldLabelRepo.create("testLabel");
 		testField = metadataFieldRepo.create(testDocument, testLabel);
@@ -116,10 +119,11 @@ public class MetadataFieldValueTest {
 	
 	@After
 	public void cleanUp() {
-		metadataFieldValueRepo.deleteAll();
 		documentRepo.deleteAll();
 		metadataFieldRepo.deleteAll();		
 		metadataFieldLabelRepo.deleteAll();
+		metadataFieldValueRepo.deleteAll();
+		controlledVocabularyRepo.deleteAll();
 	}
 	
 }

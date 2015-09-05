@@ -46,16 +46,16 @@ public class Project {
 	@Column(unique = true)
 	private String name;
 	
-	@OneToMany(mappedBy = "project", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "project", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)
 	@Fetch(FetchMode.SELECT)
-	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataField.class, property="id")
-	@JsonIdentityReference(alwaysAsId=true)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=ProjectFieldProfile.class, property="id")
+	@JsonIdentityReference(alwaysAsId=false)
 	private List<ProjectFieldProfile> profiles = new ArrayList<ProjectFieldProfile>();
 	
-	@OneToMany(mappedBy = "project", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch=FetchType.EAGER)
+	@OneToMany(mappedBy = "project", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch=FetchType.EAGER, orphanRemoval = false)
 	@Fetch(FetchMode.SELECT)
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=Document.class, property="id")
-	@JsonIdentityReference(alwaysAsId=true)
+	@JsonIdentityReference(alwaysAsId=false)
 	private List<Document> documents = new ArrayList<Document>();
 	
 	public Project() { }

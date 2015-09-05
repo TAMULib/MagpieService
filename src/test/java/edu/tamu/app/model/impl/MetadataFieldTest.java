@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,10 +53,13 @@ public class MetadataFieldTest {
 	
 	private MetadataFieldLabel testLabel;
 		
+	@BeforeClass
+    public static void init() {
+		
+    }
 		
 	@Before
 	public void setUp() {
-		metadataFieldRepo.deleteAll();
 		testDocument = documentRepo.create("testDocument", null, null, null, null, "Unassigned", new ArrayList<MetadataField>());
 		testLabel = metadataFieldLabelRepo.create("testLabel");
 	}
@@ -114,6 +118,7 @@ public class MetadataFieldTest {
 		documentRepo.deleteAll();
 		metadataFieldRepo.deleteAll();		
 		metadataFieldLabelRepo.deleteAll();
+		metadataFieldValueRepo.deleteAll();
 	}
 	
 }

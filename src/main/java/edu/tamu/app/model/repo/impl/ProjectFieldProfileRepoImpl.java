@@ -71,7 +71,7 @@ public class ProjectFieldProfileRepoImpl implements CustomProjectFieldProfileRep
 		if(project != null) {
 			profile.setProject(null);
 			project.removeProfile(profile);
-			projectRepo.save(project);
+			projectRepo.save(project);			
 		}
 				 
 		entityManager.remove(entityManager.contains(profile) ? profile : entityManager.merge(profile));

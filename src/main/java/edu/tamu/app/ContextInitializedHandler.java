@@ -14,6 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -40,7 +42,8 @@ import edu.tamu.app.service.WatcherService;
  *
  */
 @Component
-class ContextInitializedHandler implements ApplicationListener<ContextRefreshedEvent> {
+@ConditionalOnWebApplication
+public class ContextInitializedHandler implements ApplicationListener<ContextRefreshedEvent> {
     
 	@Autowired
 	private ProjectRepo projectRepo;
@@ -94,7 +97,7 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
 				e.printStackTrace();
 			}
     	}
-    	
+
     	executorService.submit(new SyncService(projectRepo,
     										   documentRepo,
     										   projectFieldProfileRepo,
@@ -117,7 +120,7 @@ class ContextInitializedHandler implements ApplicationListener<ContextRefreshedE
 					  						      executorService,
 					  						      objectMapper,
 					  							  "projects"));
-    	
+
     }  
     
 }
