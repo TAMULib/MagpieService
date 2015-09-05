@@ -48,7 +48,7 @@ public class ControlledVocabulary {
 	
 	@OneToMany(mappedBy="cv", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch=FetchType.EAGER)	
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataFieldValue.class, property="id")
-	@JsonIdentityReference(alwaysAsId=false)
+	@JsonIdentityReference(alwaysAsId=true)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
 	
 	public ControlledVocabulary() { }

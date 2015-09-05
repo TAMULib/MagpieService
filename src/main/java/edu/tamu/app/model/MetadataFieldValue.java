@@ -39,7 +39,7 @@ public class MetadataFieldValue {
 	
 	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataField.class, property="id") 
-	@JsonIdentityReference(alwaysAsId=false)
+	@JsonIdentityReference(alwaysAsId=true)
 	private MetadataField field;
 	
 	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, optional = true, fetch = FetchType.EAGER)
