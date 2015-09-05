@@ -18,6 +18,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 /**
  * 
  * 
@@ -46,10 +50,14 @@ public class ProjectFieldProfile {
 	
 	private String defaultValue;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataFieldLabel.class, property="id") 
+	@JsonIdentityReference(alwaysAsId=true)
 	private MetadataFieldLabel label;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=Project.class, property="id") 
+	@JsonIdentityReference(alwaysAsId=true)
 	private Project project;
 	
 	public ProjectFieldProfile() { }

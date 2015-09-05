@@ -150,15 +150,15 @@ public class SyncService implements Runnable {
         
         for(Path projectPath : projects) {
         	
-        	Project project = projectRepo.create(projectPath.getFileName().toString());
-        	
-        	List<MetadataField> metadataFields = new ArrayList<MetadataField>();
-        	
-        	List<Path> documents = fileList(projectPath.toString());
-      
         	System.out.println("Watching: " + projectPath.getFileName().toString());
         	
+        	Project project = projectRepo.create(projectPath.getFileName().toString());
+        	
+        	List<Path> documents = fileList(projectPath.toString());
+        	
         	List<Object> profile = (List<Object>) projectMap.get(projectPath.getFileName().toString());
+        	
+        	List<MetadataField> metadataFields = new ArrayList<MetadataField>();
         	
         	executorService.submit(new WatcherService(projectRepo,
         											  documentRepo,
@@ -178,9 +178,7 @@ public class SyncService implements Runnable {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
 				    		
-				MetadataFieldLabel label = null;
-				
-				label = metadataFieldLabelRepo.create((String) mMap.get("label"));
+				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"));
 				
 				projectFieldProfileRepo.create(label,
 									  		   project,
@@ -190,16 +188,14 @@ public class SyncService implements Runnable {
 									  		   (Boolean) mMap.get("hidden"),
 									  		   (Boolean) mMap.get("required"),
 									  		   InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
-				
-				MetadataField profileMetadata = new MetadataField(label);
-				
-				metadataFields.add(profileMetadata);
+								
+				metadataFields.add(new MetadataField(label));
 			}
         	
         	
         	for(Path documentPath : documents) {
         		
-        		System.out.println("Added: " + documentPath.getFileName().toString());
+        		System.out.println("Adding: " + documentPath.getFileName().toString());
         		
     			String pdfPath = "/mnt/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".pdf";
 				String txtPath = "/mnt/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".txt";
@@ -207,11 +203,17 @@ public class SyncService implements Runnable {
         		String txtUri = host+txtPath;
 
 				Document document = documentRepo.create(documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open", metadataFields);
-								
-				Map<String, Object> docMap = new HashMap<String, Object>();
-				docMap.put("document", document);
-				docMap.put("isNew", "true");
-				simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));    			
+					
+				try {
+					Map<String, Object> docMap = new HashMap<String, Object>();
+					docMap.put("document", document);
+					docMap.put("isNew", "true");
+					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+					System.out.println("ERROR SENDING");
+				}
         	}
         }
 		

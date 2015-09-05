@@ -41,7 +41,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class Document {
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 	
 	private String name;
@@ -60,11 +60,12 @@ public class Document {
 	
 	private String txtPath;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=Project.class, property="id") 
+	@JsonIdentityReference(alwaysAsId=true)
 	private Project project;
 	
-	@OneToMany(mappedBy="document", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)
-	@Fetch(FetchMode.SELECT)
+	@OneToMany(mappedBy="document", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)	
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataField.class, property="id")
 	@JsonIdentityReference(alwaysAsId=false)
 	private List<MetadataField> fields = new ArrayList<MetadataField>();

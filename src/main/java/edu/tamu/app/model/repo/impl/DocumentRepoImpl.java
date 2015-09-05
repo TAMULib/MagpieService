@@ -10,6 +10,7 @@
 package edu.tamu.app.model.repo.impl;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -46,10 +47,14 @@ public class DocumentRepoImpl implements CustomDocumentRepo {
 	private MetadataFieldRepo metadataFieldRepo;
 
 	@Override
-	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status, List<MetadataField> metadata) {
+	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status, List<MetadataField> metadataFields) {
 		Document document = documentRepo.findByName(name);	
 		if(document == null) {
-			return documentRepo.save(new Document(name, txtUri, pdfUri, txtPath, pdfPath, status, metadata));
+			document = documentRepo.save(new Document(name, txtUri, pdfUri, txtPath, pdfPath, status, new ArrayList<MetadataField>()));
+			for(MetadataField field : metadataFields) {
+				document.addMetadataField(metadataFieldRepo.create(document, field.getLabel()));
+			}
+			return documentRepo.save(document);
 		}		
 		return document;
 	}

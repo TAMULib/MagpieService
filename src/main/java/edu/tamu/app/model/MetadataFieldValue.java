@@ -19,6 +19,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 /**
  * 
  * 
@@ -33,10 +37,14 @@ public class MetadataFieldValue {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataField.class, property="id") 
+	@JsonIdentityReference(alwaysAsId=false)
 	private MetadataField field;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH}, optional = true, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, optional = true, fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=ControlledVocabulary.class, property="id") 
+	@JsonIdentityReference(alwaysAsId=false)
 	private ControlledVocabulary cv;
 	
 	@Column(nullable = true)

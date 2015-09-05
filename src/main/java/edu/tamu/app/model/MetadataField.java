@@ -40,17 +40,20 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class MetadataField {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=Document.class, property="id") 
+	@JsonIdentityReference(alwaysAsId=true)
 	private Document document;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataFieldLabel.class, property="id") 
+	@JsonIdentityReference(alwaysAsId=true)
 	private MetadataFieldLabel label;
 	
-	@OneToMany(mappedBy="field", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)
-	@Fetch(FetchMode.SELECT)
+	@OneToMany(mappedBy="field", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)	
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataFieldValue.class, property="id")
 	@JsonIdentityReference(alwaysAsId=false)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();

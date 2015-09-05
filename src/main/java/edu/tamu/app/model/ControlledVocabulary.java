@@ -46,10 +46,9 @@ public class ControlledVocabulary {
 	@Column(unique = true)
 	private String value;
 	
-	@OneToMany(mappedBy="cv", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch=FetchType.EAGER)
-	@Fetch(FetchMode.SELECT)
+	@OneToMany(mappedBy="cv", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch=FetchType.EAGER)	
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataFieldValue.class, property="id")
-	@JsonIdentityReference(alwaysAsId=true)
+	@JsonIdentityReference(alwaysAsId=false)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
 	
 	public ControlledVocabulary() { }

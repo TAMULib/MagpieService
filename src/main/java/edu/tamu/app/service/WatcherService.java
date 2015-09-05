@@ -204,10 +204,8 @@ public class WatcherService implements Runnable {
 										   	   (Boolean) mMap.get("hidden"),
 										   	   (Boolean) mMap.get("required"),
 										   	   InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
-
-				MetadataField metadataField = new MetadataField(metadataLabel);
-				
-				metadataFields.add(metadataField);
+			
+				metadataFields.add(new MetadataField(metadataLabel));
 			}
 		}
 		
@@ -216,7 +214,7 @@ public class WatcherService implements Runnable {
             Path dir = FileSystems.getDefault().getPath(directory, "");
             dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
              
-            //System.out.println("Watch Service registered for dir: " + dir.getFileName());
+            System.out.println("Watch Service registered for dir: " + dir.getFileName());
              
             while (true) {
                 WatchKey key;
@@ -259,12 +257,11 @@ public class WatcherService implements Runnable {
 	                    		String txtUri = host+txtPath;
 	                         		
 	        					Document doc = documentRepo.create(docString, txtUri, pdfUri, txtPath, pdfPath, "Open", metadataFields);
-	        						        					
+
 	        					Map<String, Object> docMap = new HashMap<String, Object>();
 	        					docMap.put("document", doc);
 	        					docMap.put("isNew", "true");
-	        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
-	        					
+	        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));	        					
 	        				}
                     	}
                     	
