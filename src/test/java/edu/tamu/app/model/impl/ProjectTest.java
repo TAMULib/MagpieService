@@ -93,7 +93,7 @@ public class ProjectTest {
 		Assert.assertEquals("Test Project was not created.", 1, projectRepo.count());
 		
 		Assert.assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
-		Document testDocument = documentRepo.create("testDocument", null, null, null, null, "Unassigned", new ArrayList<MetadataField>());
+		Document testDocument = documentRepo.create("testDocument", null, null, null, null, "Unassigned");
 		Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 		
 		testProject.addDocument(testDocument);

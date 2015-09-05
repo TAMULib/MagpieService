@@ -72,14 +72,13 @@ public class Document {
 	
 	public Document() { }
 	
-	public Document(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status, List<MetadataField> fields) {
+	public Document(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
 		this.name = name;
 		this.txtUri = txtUri;
 		this.pdfUri = pdfUri;
 		this.pdfPath = pdfPath;
 		this.txtPath = txtPath;
 		this.status = status;
-		this.fields = fields;
 	}
 	
 	public Long getId() {

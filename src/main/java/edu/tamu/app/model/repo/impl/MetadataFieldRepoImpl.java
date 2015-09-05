@@ -55,12 +55,8 @@ public class MetadataFieldRepoImpl implements CustomMetadataFieldRepo {
 	public MetadataField create(Document document, MetadataFieldLabel label) {
 		MetadataField field = metadataFieldRepo.findByDocumentAndLabel(document, label);		
 		if(field == null) {
-			field = metadataFieldRepo.save(new MetadataField(document, label));
+			return metadataFieldRepo.save(new MetadataField(document, label));
 		}
-		document.addMetadataField(field);
-		documentRepo.save(document);
-		label.addField(field);
-		metadataFieldLabelRepo.save(label);
 		return field;
 	}
 		

@@ -48,7 +48,7 @@ public class DocumentTest {
 	@Autowired
 	private MetadataFieldValueRepo metadataFieldValueRepo;
 		
-	private Document mockDocument = new Document("testDocument", null, null, null, null, "Unassigned", new ArrayList<MetadataField>());
+	private Document mockDocument = new Document("testDocument", null, null, null, null, "Unassigned");
 		
 	@BeforeClass
     public static void init() {
@@ -63,7 +63,7 @@ public class DocumentTest {
 	@Test
 	public void testCreateDocument() {
 		Assert.assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
-		Document testDocument = documentRepo.create(mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus(), mockDocument.getMetadataFields());
+		Document testDocument = documentRepo.create(mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
 		Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 		Assert.assertEquals("Expected Test Document was not created.", mockDocument.getName(), testDocument.getName());
 	}
@@ -71,14 +71,14 @@ public class DocumentTest {
 	@Test
 	public void testFindDocument() {	
 		Assert.assertEquals("Test Document already exists.", null, documentRepo.findByName("testFile"));
-		documentRepo.create(mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus(), mockDocument.getMetadataFields());
+		documentRepo.create(mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
 		Document testDocument = documentRepo.findByName(mockDocument.getName());
 		Assert.assertEquals("Test Document was not found.", mockDocument.getName(), testDocument.getName());
 	}
 	
 	@Test
 	public void testDeleteDocument() {
-		Document testDocument = documentRepo.create(mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus(), mockDocument.getMetadataFields());
+		Document testDocument = documentRepo.create(mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
 		Assert.assertEquals("DocumentRepo is empty.", 1, documentRepo.count());
 		documentRepo.delete(testDocument);
 		Assert.assertEquals("Test Document was not removed.", 0, documentRepo.count());
@@ -87,7 +87,7 @@ public class DocumentTest {
 	@Test
 	public void testCascadeOnDeleteDocument() {
 		Assert.assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
-		Document testDocument = documentRepo.create(mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus(), mockDocument.getMetadataFields());
+		Document testDocument = documentRepo.create(mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
 		Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 		
 		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
@@ -101,6 +101,9 @@ public class DocumentTest {
 		Assert.assertEquals("MetadataFieldValue repository is not empty.", 0, metadataFieldValueRepo.count());
 		metadataFieldValueRepo.create("test", testField);
 		Assert.assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
+		
+		testDocument.addMetadataField(testField);
+		testDocument = documentRepo.save(testDocument);
 		
 		documentRepo.delete(testDocument);
 		

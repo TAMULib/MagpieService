@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
@@ -47,12 +48,21 @@ public class DocumentRepoImpl implements CustomDocumentRepo {
 	private MetadataFieldRepo metadataFieldRepo;
 
 	@Override
-	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status, List<MetadataField> metadataFields) {
+	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
 		Document document = documentRepo.findByName(name);	
 		if(document == null) {
-			document = documentRepo.save(new Document(name, txtUri, pdfUri, txtPath, pdfPath, status, new ArrayList<MetadataField>()));
-			for(MetadataField field : metadataFields) {
-				document.addMetadataField(metadataFieldRepo.create(document, field.getLabel()));
+			return documentRepo.save(new Document(name, txtUri, pdfUri, txtPath, pdfPath, status));
+		}		
+		return document;
+	}
+	
+	@Override
+	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status, List<MetadataFieldLabel> labels) {
+		Document document = documentRepo.findByName(name);	
+		if(document == null) {
+			document = documentRepo.save(new Document(name, txtUri, pdfUri, txtPath, pdfPath, status));
+			for(MetadataFieldLabel label : labels) {
+				document.addMetadataField(metadataFieldRepo.create(document, label));
 			}
 			return documentRepo.save(document);
 		}		

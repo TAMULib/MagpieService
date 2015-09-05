@@ -66,7 +66,7 @@ public class MetadataFieldValueTest {
 	
 	@Before
 	public void setUp() {
-		testDocument = documentRepo.create("testDocument", null, null, null, null, "Unassigned", new ArrayList<MetadataField>());
+		testDocument = documentRepo.create("testDocument", null, null, null, null, "Unassigned");
 		testLabel = metadataFieldLabelRepo.create("testLabel");
 		testField = metadataFieldRepo.create(testDocument, testLabel);
 	}

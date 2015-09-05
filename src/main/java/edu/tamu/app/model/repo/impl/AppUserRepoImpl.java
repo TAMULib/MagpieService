@@ -35,10 +35,9 @@ public class AppUserRepoImpl implements CustomAppUserRepo {
 	 */
 	@Override
 	public AppUser create(Long uin) {
-		AppUser user = null;
-		if(userRepo.getUserByUin(uin)==null) {
-			user = new AppUser(uin);
-			userRepo.save(user);
+		AppUser user = userRepo.getUserByUin(uin);
+		if(user == null) {
+			return userRepo.save(new AppUser(uin));
 		}
 		return user;
 	}

@@ -158,7 +158,7 @@ public class SyncService implements Runnable {
         	
         	List<Object> profile = (List<Object>) projectMap.get(projectPath.getFileName().toString());
         	
-        	List<MetadataField> metadataFields = new ArrayList<MetadataField>();
+        	List<MetadataFieldLabel> labels = new ArrayList<MetadataFieldLabel>();
         	
         	executorService.submit(new WatcherService(projectRepo,
         											  documentRepo,
@@ -189,9 +189,8 @@ public class SyncService implements Runnable {
 									  		   (Boolean) mMap.get("required"),
 									  		   InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
 								
-				metadataFields.add(new MetadataField(label));
+				labels.add(label);
 			}
-        	
         	
         	for(Path documentPath : documents) {
         		
@@ -202,18 +201,12 @@ public class SyncService implements Runnable {
         		String pdfUri = host+pdfPath;
         		String txtUri = host+txtPath;
 
-				Document document = documentRepo.create(documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open", metadataFields);
-					
-				try {
-					Map<String, Object> docMap = new HashMap<String, Object>();
-					docMap.put("document", document);
-					docMap.put("isNew", "true");
-					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
-				}
-				catch(Exception e) {
-					e.printStackTrace();
-					System.out.println("ERROR SENDING");
-				}
+				Document document = documentRepo.create(documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open", labels);
+
+				Map<String, Object> docMap = new HashMap<String, Object>();
+				docMap.put("document", document);
+				docMap.put("isNew", "true");
+				simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
         	}
         }
 		

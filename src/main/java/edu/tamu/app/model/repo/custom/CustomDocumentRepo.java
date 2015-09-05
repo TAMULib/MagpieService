@@ -12,7 +12,7 @@ package edu.tamu.app.model.repo.custom;
 import java.util.List;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldLabel;
 
 /**
  * 
@@ -22,7 +22,9 @@ import edu.tamu.app.model.MetadataField;
  */
 public interface CustomDocumentRepo {
 
-	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status, List<MetadataField> metadata);
+	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
+	
+	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status, List<MetadataFieldLabel> labels);
 	
 	public void delete(Document document);
 	

@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.repo.custom.CustomDocumentRepo;
 
 /**
@@ -29,7 +29,9 @@ import edu.tamu.app.model.repo.custom.CustomDocumentRepo;
 @Repository
 public interface DocumentRepo extends JpaRepository <Document, Long>, CustomDocumentRepo {
 	
-	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status, List<MetadataField> metadata);
+	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
+	
+	public Document create(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status, List<MetadataFieldLabel> labels);
 	
 	@Override
 	public void delete(Document document);

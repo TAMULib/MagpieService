@@ -166,7 +166,7 @@ public class WatcherService implements Runnable {
 			e.printStackTrace();
 		}
 	
-		List<MetadataField> metadataFields = new ArrayList<MetadataField>();
+		List<MetadataFieldLabel> labels = new ArrayList<MetadataFieldLabel>();
 		
 		String host = env.getProperty("app.host");
 		String mount = env.getProperty("app.mount");
@@ -194,9 +194,9 @@ public class WatcherService implements Runnable {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
 				
-				MetadataFieldLabel metadataLabel = metadataFieldLabelRepo.create((String) mMap.get("label"));
+				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"));
 				
-				projectFieldProfileRepo.create(metadataLabel,
+				projectFieldProfileRepo.create(label,
 											   projectRepo.findByName(folder),
 										   	   (String) mMap.get("gloss"), 
 										   	   (Boolean) mMap.get("repeatable"), 
@@ -205,7 +205,7 @@ public class WatcherService implements Runnable {
 										   	   (Boolean) mMap.get("required"),
 										   	   InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
 			
-				metadataFields.add(new MetadataField(metadataLabel));
+				labels.add(label);
 			}
 		}
 		
@@ -256,7 +256,7 @@ public class WatcherService implements Runnable {
 	                    		String pdfUri = host+pdfPath;
 	                    		String txtUri = host+txtPath;
 	                         		
-	        					Document doc = documentRepo.create(docString, txtUri, pdfUri, txtPath, pdfPath, "Open", metadataFields);
+	        					Document doc = documentRepo.create(docString, txtUri, pdfUri, txtPath, pdfPath, "Open", labels);
 
 	        					Map<String, Object> docMap = new HashMap<String, Object>();
 	        					docMap.put("document", doc);

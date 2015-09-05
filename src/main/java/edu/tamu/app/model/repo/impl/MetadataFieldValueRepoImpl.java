@@ -47,12 +47,8 @@ public class MetadataFieldValueRepoImpl implements CustomMetadataFieldValueRepo 
 	public MetadataFieldValue create(ControlledVocabulary cv, MetadataField field) {
 		MetadataFieldValue value = metadataFieldValueRepo.findByCvAndField(cv, field);		
 		if(value == null) {
-			value = metadataFieldValueRepo.save(new MetadataFieldValue(cv, field));
+			return metadataFieldValueRepo.save(new MetadataFieldValue(cv, field));
 		}
-		cv.addValue(value);
-		controlledVocabularyRepo.save(cv);
-		field.addValue(value);
-		metadataFieldRepo.save(field);
 		return value;
 	}
 	
