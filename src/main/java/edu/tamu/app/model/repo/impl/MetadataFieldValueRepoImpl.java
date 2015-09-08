@@ -20,7 +20,7 @@ import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.ControlledVocabularyRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.MetadataFieldRepo;
+import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.custom.MetadataFieldValueRepoCustom;
 
 /**
@@ -38,7 +38,7 @@ public class MetadataFieldValueRepoImpl implements MetadataFieldValueRepoCustom 
 	private MetadataFieldValueRepo metadataFieldValueRepo;
 	
 	@Autowired
-	private MetadataFieldRepo metadataFieldRepo;
+	private MetadataFieldGroupRepo metadataFieldRepo;
 	
 	@Autowired
 	private ControlledVocabularyRepo controlledVocabularyRepo;

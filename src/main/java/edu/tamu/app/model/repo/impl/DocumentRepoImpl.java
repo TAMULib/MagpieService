@@ -21,7 +21,8 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.MetadataFieldRepo;
+import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
+import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
 
@@ -43,7 +44,10 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
 	private ProjectRepo projectRepo;
 	
 	@Autowired
-	private MetadataFieldRepo metadataFieldRepo;
+	private MetadataFieldGroupRepo metadataFieldRepo;
+	
+	@Autowired
+	private MetadataFieldValueRepo metadataFieldValueRepo;
 
 	@Override
 	public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
@@ -52,6 +56,29 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
 			return documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, status));
 		}		
 		return document;
+	}
+	
+	@Override
+	public Document update(Document newDocument) {
+		Document oldDocument = documentRepo.findByName(newDocument.getName());
+		
+		newDocument.getFields().forEach(field -> {
+			
+			System.out.println("FIELD: " + field.getLabel().getName());
+			
+			MetadataFieldGroup oldField = metadataFieldRepo.findByDocumentAndLabel(oldDocument, field.getLabel());			
+			oldField.clearValues();
+			oldField.setValues(field.getValues());
+			field.getValues().forEach(value -> {
+				
+				System.out.println("VALUE: " + value.getValue());
+				
+				value.setField(oldField);
+				metadataFieldValueRepo.save(value);
+			});
+		});
+		
+		return documentRepo.save(oldDocument);
 	}
 	
 	@Override

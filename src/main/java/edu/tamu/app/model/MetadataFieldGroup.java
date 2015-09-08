@@ -24,6 +24,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
@@ -37,11 +38,11 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class MetadataFieldGroup {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id") 
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "name") 
 	@JsonIdentityReference(alwaysAsId = true)
 	private Document document;
 	
@@ -69,7 +70,8 @@ public class MetadataFieldGroup {
 	public void setId(Long id) {
 		this.id = id;
 	}
-
+	
+	@JsonIgnore
 	public Document getDocument() {
 		return document;
 	}

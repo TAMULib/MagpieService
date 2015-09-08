@@ -19,7 +19,7 @@ import edu.tamu.app.model.MetadataFieldLabel;
  * @author
  *
  */
-public interface MetadataFieldRepoCustom {
+public interface MetadataFieldGroupRepoCustom {
 
 	public MetadataFieldGroup create(Document document, MetadataFieldLabel label);
 	

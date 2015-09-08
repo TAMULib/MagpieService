@@ -17,7 +17,7 @@
 			"inputType": "TEXT"
 		},
 		{
-			"label": "dc.contributor.committeechair",
+			"label": "dc.contributor.committeeChair",
 			"gloss": "Committee Chair",
 			"repeatable": true,
 			"inputType": "TEXT"

@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.MetadataFieldRepo;
+import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
@@ -59,7 +59,7 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 	private ProjectLabelProfileRepo projectLabelProfileRepo;
 	
 	@Autowired
-	private MetadataFieldRepo metadataFieldRepo;
+	private MetadataFieldGroupRepo metadataFieldRepo;
 	
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;

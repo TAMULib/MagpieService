@@ -24,7 +24,6 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,9 +33,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.RequestId;
 import edu.tamu.framework.aspect.annotation.Auth;
+import edu.tamu.framework.aspect.annotation.Data;
 import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
 
@@ -53,6 +54,9 @@ public class DocumentController {
 	
 	@Autowired
 	private DocumentRepo documentRepo;
+	
+	@Autowired
+	private MetadataFieldGroupRepo metadataFieldGroupRepo;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -116,9 +120,7 @@ public class DocumentController {
 	@MessageMapping("/get")
 	@Auth
 	@SendToUser
-	public ApiResponse documentByName(Message<?> message, @ReqId String requestId) throws Exception {		
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String data = accessor.getNativeHeader("data").get(0).toString();		
+	public ApiResponse documentByName(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
 		Map<String,String> headerMap = new HashMap<String,String>();
 		try {
 			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
@@ -128,36 +130,13 @@ public class DocumentController {
 		
 		Document document = documentRepo.findByName(headerMap.get("name"));
 		
-//		FlatMARC flatMarc = new FlatMARC(voyagerService.getMARC(headerMap.get("name")));
-//		
-//		Field[] marcFields = FlatMARC.class.getDeclaredFields();
-//		
-//		Map<String, List<String>> metadataMap = new HashMap<String, List<String>>();
-//		
-//		for (Field field : marcFields) {
-//			field.setAccessible(true);
-//            List<String> marcList = new ArrayList<String>();
-//            if(field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
-//            	for(String string : (List<String>) field.get(flatMarc)) {
-//            		marcList.add(string);
-//            	}
-//            }
-//            else {
-//            	marcList.add(field.get(flatMarc).toString());
-//            }
-//            
-//            metadataMap.put(field.getName().replace('_','.'), marcList);
-//        }
-//		
-//		document.getFields().forEach(field -> {
-//			List<String> values = metadataMap.get(field.getLabel().getName());
-//			if(values != null) {
-//				values.forEach(value -> {
-//					field.addValue(new MetadataFieldValue(value, field));
-//				});
-//			}
-//		});
-						
+		document.getFields().forEach(field -> {
+			System.out.println("  " + field.getLabel().getName());
+			field.getValues().forEach(value -> {
+				System.out.println("      " + value.getValue());
+			});
+		});
+		
 		return new ApiResponse("success", document, new RequestId(requestId));
 	}
 	
@@ -175,11 +154,7 @@ public class DocumentController {
 	@MessageMapping("/page")
 	@Auth
 	@SendToUser
-	public ApiResponse pageDocuments(Message<?> message, @ReqId String requestId) throws Exception {
-		
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String data = accessor.getNativeHeader("data").get(0).toString();		
-		
+	public ApiResponse pageDocuments(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
 		Map<String,String> headerMap = new HashMap<String,String>();
 		
 		try {
@@ -276,9 +251,7 @@ public class DocumentController {
 	@MessageMapping("/update")
 	@Auth
 	@SendToUser
-	public ApiResponse update(Message<?> message, @ReqId String requestId) throws Exception {		
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String data = accessor.getNativeHeader("data").get(0).toString();		
+	public ApiResponse update(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
 		Map<String,String> map = new HashMap<String,String>();		
 		try {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
@@ -286,20 +259,65 @@ public class DocumentController {
 			e.printStackTrace();
 		}
 				
-		Document doc = documentRepo.findByName(map.get("name"));
+		Document document = documentRepo.findByName(map.get("name"));
 		if(map.get("status").equals("Open")) {
-			doc.setAnnotator("");
+			document.setAnnotator("");
 		}
 		else {
-			doc.setAnnotator(map.get("user"));
+			document.setAnnotator(map.get("user"));
 		}
-		doc.setNotes(map.get("notes"));
-		doc.setStatus(map.get("status"));
-		documentRepo.save(doc);
-		Map<String, Object> docMap = new HashMap<String, Object>();
-		docMap.put("document", doc);
-		docMap.put("isNew", "false");
-		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId(requestId)));
+		
+		document.setNotes(map.get("notes"));
+		document.setStatus(map.get("status"));
+		
+		documentRepo.save(document);
+		
+		Map<String, Object> documentMap = new HashMap<String, Object>();
+		
+		documentMap.put("document", document);
+		documentMap.put("isNew", "false");
+		
+		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", documentMap, new RequestId(requestId)));
+		
+		return new ApiResponse("success", "ok", new RequestId(requestId));
+	}
+	
+	/**
+	 * Endpoint to save document.
+	 * 
+	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/save")
+	@Auth
+	@SendToUser
+	public ApiResponse save(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
+		
+		Document document = null;		
+		try {
+			document = objectMapper.readValue(data, Document.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		document.getFields().forEach(field -> {
+			System.out.println("  " + field.getLabel().getName());
+			field.getValues().forEach(value -> {
+				System.out.println("      " + value.getValue());
+			});
+		});
+		
+		Map<String, Object> documentMap = new HashMap<String, Object>();
+		
+		documentMap.put("document", documentRepo.update(document));
+		documentMap.put("isNew", "false");
+		
+		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", documentMap, new RequestId(requestId)));
 		
 		return new ApiResponse("success", "ok", new RequestId(requestId));
 	}

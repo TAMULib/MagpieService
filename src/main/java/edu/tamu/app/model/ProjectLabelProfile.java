@@ -37,7 +37,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class ProjectLabelProfile {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
 	private String gloss;
@@ -55,12 +55,12 @@ public class ProjectLabelProfile {
 	private String defaultValue;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "id") 
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name") 
 	@JsonIdentityReference(alwaysAsId = true)
 	private Project project;
 	
 	@OneToMany(mappedBy="profile", fetch=FetchType.EAGER)	
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id")
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "name")
 	@JsonIdentityReference(alwaysAsId = true)
 	private List<MetadataFieldLabel> labels = new ArrayList<MetadataFieldLabel>();
 	
@@ -141,6 +141,7 @@ public class ProjectLabelProfile {
 		this.defaultValue = defaultValue;
 	}
 
+	@JsonIgnore
 	public Project getProject() {
 		return project;
 	}

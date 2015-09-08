@@ -16,8 +16,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -25,6 +23,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
@@ -38,9 +37,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class Document {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	
 	private String name;
 	
 	private String status;
@@ -58,7 +54,7 @@ public class Document {
 	private String txtPath;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "id") 
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name") 
 	@JsonIdentityReference(alwaysAsId = true)
 	private Project project;
 	
@@ -77,14 +73,6 @@ public class Document {
 		this.status = status;
 	}
 	
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -149,6 +137,7 @@ public class Document {
 		this.txtPath = txtPath;
 	}
 
+	@JsonIgnore
 	public Project getProject() {
 		return project;
 	}

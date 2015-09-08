@@ -24,9 +24,9 @@ import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.MetadataFieldRepo;
+import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.custom.MetadataFieldRepoCustom;
+import edu.tamu.app.model.repo.custom.MetadataFieldGroupRepoCustom;
 
 /**
 *
@@ -34,13 +34,13 @@ import edu.tamu.app.model.repo.custom.MetadataFieldRepoCustom;
 * @author
 *
 */
-public class MetadataFieldRepoImpl implements MetadataFieldRepoCustom {
+public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom {
 	
 	@PersistenceContext
 	private EntityManager entityManager;
 	
 	@Autowired
-	private MetadataFieldRepo metadataFieldRepo;
+	private MetadataFieldGroupRepo metadataFieldRepo;
 	
 	@Autowired
 	private DocumentRepo documentRepo;
