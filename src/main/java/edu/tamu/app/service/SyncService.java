@@ -44,7 +44,7 @@ import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
-import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 /** 
@@ -61,7 +61,7 @@ public class SyncService implements Runnable {
 	
 	private DocumentRepo documentRepo;
 	
-	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	private ProjectLabelProfileRepo projectLabelProfileRepo;
 	
 	private MetadataFieldRepo metadataFieldRepo;
 	
@@ -87,7 +87,7 @@ public class SyncService implements Runnable {
 	
 	public SyncService(ProjectRepo projectRepo,
 					   DocumentRepo documentRepo,
-					   ProjectFieldProfileRepo projectFieldProfileRepo,
+					   ProjectLabelProfileRepo projectLabelProfileRepo,
 					   MetadataFieldRepo metadataFieldRepo,
 					   MetadataFieldLabelRepo metadataFieldLabelRepo,
 					   Environment env,
@@ -99,7 +99,7 @@ public class SyncService implements Runnable {
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
 		this.metadataFieldRepo = metadataFieldRepo;
-		this.projectFieldProfileRepo = projectFieldProfileRepo;
+		this.projectLabelProfileRepo = projectLabelProfileRepo;
 		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
 		this.env = env;
 		this.appContext = appContext;
@@ -163,7 +163,7 @@ public class SyncService implements Runnable {
         	
         	executorService.submit(new WatcherService(projectRepo,
         											  documentRepo,
-        											  projectFieldProfileRepo,
+        											  projectLabelProfileRepo,
         											  metadataFieldRepo,
         											  metadataFieldLabelRepo,
 					   								  env,
@@ -179,10 +179,7 @@ public class SyncService implements Runnable {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
 				
-				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"));
-				
-				ProjectLabelProfile profile = projectFieldProfileRepo.create(label,
-																			 project,
+				ProjectLabelProfile profile = projectLabelProfileRepo.create(project,
 																			 (String) mMap.get("gloss"), 
 																			 (Boolean) mMap.get("repeatable"), 
 																			 (Boolean) mMap.get("readOnly"),
@@ -191,8 +188,7 @@ public class SyncService implements Runnable {
 																			 InputType.valueOf((String) mMap.get("inputType")),
 																			 (String) mMap.get("default"));
 				
-				
-				label.addProfile(profile);
+				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"), profile);				
 				metadataFieldLabelRepo.save(label);
 				
 				fields.add(new MetadataFieldGroup(label));
@@ -213,6 +209,7 @@ public class SyncService implements Runnable {
         		Document document = documentRepo.create(project, documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open");
         		
         		fields.forEach(field -> {
+        			System.out.println("    " + field.getLabel().getName());
 					document.addField(metadataFieldRepo.create(document, field.getLabel()));
 				});
         		

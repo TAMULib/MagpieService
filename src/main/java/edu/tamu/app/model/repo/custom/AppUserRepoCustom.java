@@ -17,7 +17,7 @@ import edu.tamu.app.model.AppUser;
  * @author
  *
  */
-public interface CustomAppUserRepo {
+public interface AppUserRepoCustom {
 
 	/**
 	 * Creates application user based on uin in the repository

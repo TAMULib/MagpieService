@@ -21,9 +21,9 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.custom.CustomProjectRepo;
+import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
 
 /**
 *
@@ -31,7 +31,7 @@ import edu.tamu.app.model.repo.custom.CustomProjectRepo;
 * @author
 *
 */
-public class ProjectRepoImpl implements CustomProjectRepo {
+public class ProjectRepoImpl implements ProjectRepoCustom {
 	
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -40,7 +40,7 @@ public class ProjectRepoImpl implements CustomProjectRepo {
 	private ProjectRepo projectRepo;
 	
 	@Autowired
-	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	private ProjectLabelProfileRepo projectFieldProfileRepo;
 	
 	@Autowired
 	private DocumentRepo documentRepo;

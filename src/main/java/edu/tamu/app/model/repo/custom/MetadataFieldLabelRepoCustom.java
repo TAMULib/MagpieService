@@ -10,6 +10,7 @@
 package edu.tamu.app.model.repo.custom;
 
 import edu.tamu.app.model.MetadataFieldLabel;
+import edu.tamu.app.model.ProjectLabelProfile;
 
 /**
  * 
@@ -17,9 +18,9 @@ import edu.tamu.app.model.MetadataFieldLabel;
  * @author
  *
  */
-public interface CustomMetadataFieldLabelRepo {
+public interface MetadataFieldLabelRepoCustom {
 
-	public MetadataFieldLabel create(String name);
+	public MetadataFieldLabel create(String name, ProjectLabelProfile profile);
 	
 	public void delete(MetadataFieldLabel label);
 	

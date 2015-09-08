@@ -27,7 +27,7 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -54,7 +54,7 @@ public class DocumentTest {
 	private MetadataFieldValueRepo metadataFieldValueRepo;
 	
 	@Autowired
-	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	private ProjectLabelProfileRepo projectFieldProfileRepo;
 	
 	private Project testProject;
 	
@@ -101,15 +101,14 @@ public class DocumentTest {
 		Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
 		Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 		
-		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
-		MetadataFieldLabel testLabel = metadataFieldLabelRepo.create("testLabel");
-		Assert.assertEquals("Test MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
-		
 		Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
-		ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testLabel, testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+		ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
 		Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
 		
-		testLabel.addProfile(testProfile);
+		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
+		MetadataFieldLabel testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
+		Assert.assertEquals("Test MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
+		
 		metadataFieldLabelRepo.save(testLabel);
 		
 		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldRepo.count());

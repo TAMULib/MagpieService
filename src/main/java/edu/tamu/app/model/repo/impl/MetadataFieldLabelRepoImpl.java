@@ -22,8 +22,8 @@ import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
-import edu.tamu.app.model.repo.custom.CustomMetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
+import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
 
 /**
 *
@@ -31,7 +31,7 @@ import edu.tamu.app.model.repo.custom.CustomMetadataFieldLabelRepo;
 * @author
 *
 */
-public class MetadataFieldLabelRepoImpl implements CustomMetadataFieldLabelRepo {
+public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom {
 	
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -40,16 +40,16 @@ public class MetadataFieldLabelRepoImpl implements CustomMetadataFieldLabelRepo 
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
 	
 	@Autowired
-	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	private ProjectLabelProfileRepo projectFieldProfileRepo;
 	
 	@Autowired
 	private MetadataFieldRepo metadataFieldRepo;
 	
 	@Override
-	public synchronized MetadataFieldLabel create(String name) {		
-		MetadataFieldLabel label = metadataFieldLabelRepo.findByName(name);
+	public synchronized MetadataFieldLabel create(String name, ProjectLabelProfile profile) {		
+		MetadataFieldLabel label = metadataFieldLabelRepo.findByNameAndProfile(name, profile);
 		if(label == null) {
-			return metadataFieldLabelRepo.save(new MetadataFieldLabel(name));
+			return metadataFieldLabelRepo.save(new MetadataFieldLabel(name, profile));
 		}		
 		return label;
 	}
@@ -57,25 +57,22 @@ public class MetadataFieldLabelRepoImpl implements CustomMetadataFieldLabelRepo 
 	@Override
 	@Transactional
 	public void delete(MetadataFieldLabel label) {
-		 List<ProjectLabelProfile> profiles = label.getProfiles();		 
-		 if(profiles.size() > 0) {
-			 profiles.forEach(profile -> {
-				 profile.setLabel(null);
-				 projectFieldProfileRepo.save(profile);
-			 });
-			 label.clearProfiles();
-		 }
+		ProjectLabelProfile profile = label.getProfile();
+		if(profile != null) {
+			label.setProfile(null);
+			metadataFieldLabelRepo.save(label);
+		}
+		
+		List<MetadataFieldGroup> fields = label.getFields();		 
+		if(fields.size() > 0) {
+			fields.forEach(field -> {
+				field.setLabel(null);
+				metadataFieldRepo.save(field);
+			});
+			label.clearFields();
+		}
 		 
-		 List<MetadataFieldGroup> fields = label.getFields();		 
-		 if(fields.size() > 0) {
-			 fields.forEach(field -> {
-				 field.setLabel(null);
-				 metadataFieldRepo.save(field);
-			 });
-			 label.clearFields();
-		 }
-		 
-		 entityManager.remove(entityManager.contains(label) ? label : entityManager.merge(label));
+		entityManager.remove(entityManager.contains(label) ? label : entityManager.merge(label));
 	}
 	
 	@Override

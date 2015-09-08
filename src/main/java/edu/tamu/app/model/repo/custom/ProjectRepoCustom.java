@@ -17,7 +17,7 @@ import edu.tamu.app.model.Project;
  * @author
  *
  */
-public interface CustomProjectRepo {
+public interface ProjectRepoCustom {
 	
 	public Project create(Project project);
 

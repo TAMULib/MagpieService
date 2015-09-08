@@ -28,7 +28,7 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -55,7 +55,7 @@ public class MetadataFieldTest {
 	private MetadataFieldValueRepo metadataFieldValueRepo;
 	
 	@Autowired
-	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	private ProjectLabelProfileRepo projectFieldProfileRepo;
 	
 	private Project testProject;
 	
@@ -73,10 +73,9 @@ public class MetadataFieldTest {
 	@Before
 	public void setUp() {
 		testProject = projectRepo.create("testProject");
-		testLabel = metadataFieldLabelRepo.create("testLabel");
-		testProfile = projectFieldProfileRepo.create(testLabel, testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+		testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+		testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
 		testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");
-		testLabel.addProfile(testProfile);
 		metadataFieldLabelRepo.save(testLabel);
 	}
 	

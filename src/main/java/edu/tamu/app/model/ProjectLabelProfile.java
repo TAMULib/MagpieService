@@ -9,16 +9,21 @@
  */
 package edu.tamu.app.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
@@ -50,19 +55,18 @@ public class ProjectLabelProfile {
 	private String defaultValue;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id") 
-	@JsonIdentityReference(alwaysAsId = false)
-	private MetadataFieldLabel label;
-	
-	@ManyToOne(fetch = FetchType.EAGER)
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "id") 
 	@JsonIdentityReference(alwaysAsId = true)
 	private Project project;
 	
+	@OneToMany(mappedBy="profile", fetch=FetchType.EAGER)	
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id")
+	@JsonIdentityReference(alwaysAsId = true)
+	private List<MetadataFieldLabel> labels = new ArrayList<MetadataFieldLabel>();
+	
 	public ProjectLabelProfile() { }
 
-	public ProjectLabelProfile(MetadataFieldLabel label, Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {		
-		this.label = label;
+	public ProjectLabelProfile(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {		
 		this.project = project;
 		this.gloss = gloss;
 		this.isReadOnly = isReadOnly == null ? false : isReadOnly;
@@ -137,20 +141,33 @@ public class ProjectLabelProfile {
 		this.defaultValue = defaultValue;
 	}
 
-	public MetadataFieldLabel getLabel() {
-		return label;
-	}
-
-	public void setLabel(MetadataFieldLabel label) {
-		this.label = label;
-	}
-
 	public Project getProject() {
 		return project;
 	}
 
 	public void setProject(Project project) {
 		this.project = project;
+	}
+	
+	@JsonIgnore
+	public List<MetadataFieldLabel> getLabels() {
+		return labels;
+	}
+
+	public void setLabels(List<MetadataFieldLabel> labels) {
+		this.labels = labels;
+	}
+	
+	public void addLabel(MetadataFieldLabel label) {
+		labels.add(label);
+	}
+	
+	public void removeLabel(MetadataFieldLabel label) {
+		labels.remove(label);
+	}
+	
+	public void clearLabels() {
+		labels = new ArrayList<MetadataFieldLabel>();
 	}
 
 }

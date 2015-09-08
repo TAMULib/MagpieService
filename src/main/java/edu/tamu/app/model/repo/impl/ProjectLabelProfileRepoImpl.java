@@ -9,6 +9,8 @@
  */
 package edu.tamu.app.model.repo.impl;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
@@ -20,9 +22,9 @@ import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.custom.CustomProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.custom.ProjectLabelProfileRepoCustom;
 
 /**
 *
@@ -30,13 +32,13 @@ import edu.tamu.app.model.repo.custom.CustomProjectFieldProfileRepo;
 * @author
 *
 */
-public class ProjectFieldProfileRepoImpl implements CustomProjectFieldProfileRepo {
+public class ProjectLabelProfileRepoImpl implements ProjectLabelProfileRepoCustom {
 
 	@PersistenceContext
 	private EntityManager entityManager;
 	
 	@Autowired
-	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	private ProjectLabelProfileRepo projectFieldProfileRepo;
 	
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
@@ -45,22 +47,20 @@ public class ProjectFieldProfileRepoImpl implements CustomProjectFieldProfileRep
 	private ProjectRepo projectRepo;
 		
 	@Override
-	public ProjectLabelProfile create(MetadataFieldLabel label, Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
-		ProjectLabelProfile profile = projectFieldProfileRepo.findByLabelAndProject(label, project);		
-		if(profile == null) {
-			return projectFieldProfileRepo.save(new ProjectLabelProfile(label, project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
-		}
-		return profile;
+	public ProjectLabelProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
+		return projectFieldProfileRepo.save(new ProjectLabelProfile(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
 	}
 	
 	@Override
 	@Transactional
 	public void delete(ProjectLabelProfile profile) {
-		MetadataFieldLabel label = profile.getLabel();
-		if(label != null) {
-			profile.setLabel(null);
-			label.removeProfile(profile);
-			metadataFieldLabelRepo.save(label);
+		List<MetadataFieldLabel> labels = profile.getLabels();
+		if(labels.size() > 0) {
+			labels.forEach(l -> {
+				l.setProfile(null);
+				metadataFieldLabelRepo.save(l);
+			});
+			profile.clearLabels();
 		}
 		
 		Project project = profile.getProject();

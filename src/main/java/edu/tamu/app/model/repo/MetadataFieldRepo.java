@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
-import edu.tamu.app.model.repo.custom.CustomMetadataFieldRepo;
+import edu.tamu.app.model.repo.custom.MetadataFieldRepoCustom;
 
 /**
  * 
@@ -26,7 +26,7 @@ import edu.tamu.app.model.repo.custom.CustomMetadataFieldRepo;
  *
  */
 @Repository
-public interface MetadataFieldRepo extends JpaRepository <MetadataFieldGroup, Long>, CustomMetadataFieldRepo {
+public interface MetadataFieldRepo extends JpaRepository <MetadataFieldGroup, Long>, MetadataFieldRepoCustom {
 			
 	public MetadataFieldGroup create(Document document, MetadataFieldLabel label);
 	

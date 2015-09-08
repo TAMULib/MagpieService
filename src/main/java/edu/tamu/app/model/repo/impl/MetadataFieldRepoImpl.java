@@ -26,7 +26,7 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.custom.CustomMetadataFieldRepo;
+import edu.tamu.app.model.repo.custom.MetadataFieldRepoCustom;
 
 /**
 *
@@ -34,7 +34,7 @@ import edu.tamu.app.model.repo.custom.CustomMetadataFieldRepo;
 * @author
 *
 */
-public class MetadataFieldRepoImpl implements CustomMetadataFieldRepo {
+public class MetadataFieldRepoImpl implements MetadataFieldRepoCustom {
 	
 	@PersistenceContext
 	private EntityManager entityManager;

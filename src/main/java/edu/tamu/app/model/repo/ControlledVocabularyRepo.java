@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.ControlledVocabulary;
-import edu.tamu.app.model.repo.custom.CustomControlledVocabularyRepo;
+import edu.tamu.app.model.repo.custom.ControlledVocabularyRepoCustom;
 
 /**
  *
@@ -22,7 +22,7 @@ import edu.tamu.app.model.repo.custom.CustomControlledVocabularyRepo;
  *
  */
 @Repository
-public interface ControlledVocabularyRepo extends JpaRepository <ControlledVocabulary, Long>, CustomControlledVocabularyRepo {
+public interface ControlledVocabularyRepo extends JpaRepository <ControlledVocabulary, Long>, ControlledVocabularyRepoCustom {
 	
 	public ControlledVocabulary create(String name);
 	

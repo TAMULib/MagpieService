@@ -12,12 +12,14 @@ package edu.tamu.app.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -43,11 +45,9 @@ public class MetadataFieldLabel {
 	@Column(unique = true)
 	private String name;
 	
-	@OneToMany(mappedBy="label", fetch=FetchType.EAGER)	
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = ProjectLabelProfile.class, property = "id")
-	@JsonIdentityReference(alwaysAsId = true)
-	private List<ProjectLabelProfile> profiles = new ArrayList<ProjectLabelProfile>();
-	
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private ProjectLabelProfile profile;
+		
 	@OneToMany(mappedBy="label", fetch=FetchType.EAGER)
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id")
 	@JsonIdentityReference(alwaysAsId = true)
@@ -55,8 +55,9 @@ public class MetadataFieldLabel {
 	
 	public MetadataFieldLabel() { }
 	
-	public MetadataFieldLabel(String name) {
+	public MetadataFieldLabel(String name, ProjectLabelProfile profile) {
 		this.name = name;
+		this.profile = profile;
 	}
 
 	public Long getId() {
@@ -75,25 +76,12 @@ public class MetadataFieldLabel {
 		this.name = name;
 	}
 
-	@JsonIgnore
-	public List<ProjectLabelProfile> getProfiles() {
-		return profiles;
+	public ProjectLabelProfile getProfile() {
+		return profile;
 	}
 
-	public void setProfiles(List<ProjectLabelProfile> profiles) {
-		this.profiles = profiles;
-	}
-	
-	public void addProfile(ProjectLabelProfile profile) {
-		profiles.add(profile);
-	}
-	
-	public void removeProfile(ProjectLabelProfile profile) {
-		profiles.remove(profile);
-	}
-	
-	public void clearProfiles() {
-		profiles = new ArrayList<ProjectLabelProfile>();
+	public void setProfile(ProjectLabelProfile profile) {
+		this.profile = profile;
 	}
 
 	@JsonIgnore

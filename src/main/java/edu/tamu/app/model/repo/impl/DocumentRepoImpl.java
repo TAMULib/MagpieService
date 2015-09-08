@@ -23,7 +23,7 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.custom.CustomDocumentRepo;
+import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
 
 /**
 *
@@ -31,7 +31,7 @@ import edu.tamu.app.model.repo.custom.CustomDocumentRepo;
 * @author
 *
 */
-public class DocumentRepoImpl implements CustomDocumentRepo {
+public class DocumentRepoImpl implements DocumentRepoCustom {
 	
 	@PersistenceContext
 	private EntityManager entityManager;

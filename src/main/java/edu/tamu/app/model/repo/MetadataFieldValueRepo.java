@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
-import edu.tamu.app.model.repo.custom.CustomMetadataFieldValueRepo;
+import edu.tamu.app.model.repo.custom.MetadataFieldValueRepoCustom;
 
 /**
  * 
@@ -26,7 +26,7 @@ import edu.tamu.app.model.repo.custom.CustomMetadataFieldValueRepo;
  *
  */
 @Repository
-public interface MetadataFieldValueRepo extends JpaRepository <MetadataFieldValue, Long>, CustomMetadataFieldValueRepo {
+public interface MetadataFieldValueRepo extends JpaRepository <MetadataFieldValue, Long>, MetadataFieldValueRepoCustom {
 	
 	public MetadataFieldValue create(ControlledVocabulary cv, MetadataFieldGroup field);
 	

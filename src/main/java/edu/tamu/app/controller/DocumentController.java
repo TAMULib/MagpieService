@@ -9,8 +9,6 @@
  */
 package edu.tamu.app.controller;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +36,6 @@ import edu.tamu.framework.model.RequestId;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
@@ -116,7 +113,6 @@ public class DocumentController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@SuppressWarnings("unchecked")
 	@MessageMapping("/get")
 	@Auth
 	@SendToUser
@@ -132,37 +128,35 @@ public class DocumentController {
 		
 		Document document = documentRepo.findByName(headerMap.get("name"));
 		
-		
-		FlatMARC flatMarc = new FlatMARC(voyagerService.getMARC(headerMap.get("name")));
-		
-		Field[] marcFields = FlatMARC.class.getDeclaredFields();
-		
-		
-		Map<String, List<String>> metadataMap = new HashMap<String, List<String>>();
-		
-		for (Field field : marcFields) {
-			field.setAccessible(true);
-            List<String> marcList = new ArrayList<String>();
-            if(field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
-            	for(String string : (List<String>) field.get(flatMarc)) {
-            		marcList.add(string);
-            	}
-            }
-            else {
-            	marcList.add(field.get(flatMarc).toString());
-            }
-            
-            metadataMap.put(field.getName().replace('_','.'), marcList);
-        }
-		
-		document.getFields().forEach(field -> {
-			List<String> values = metadataMap.get(field.getLabel().getName());
-			if(values != null) {
-				values.forEach(value -> {
-					field.addValue(new MetadataFieldValue(value, field));
-				});
-			}
-		});
+//		FlatMARC flatMarc = new FlatMARC(voyagerService.getMARC(headerMap.get("name")));
+//		
+//		Field[] marcFields = FlatMARC.class.getDeclaredFields();
+//		
+//		Map<String, List<String>> metadataMap = new HashMap<String, List<String>>();
+//		
+//		for (Field field : marcFields) {
+//			field.setAccessible(true);
+//            List<String> marcList = new ArrayList<String>();
+//            if(field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
+//            	for(String string : (List<String>) field.get(flatMarc)) {
+//            		marcList.add(string);
+//            	}
+//            }
+//            else {
+//            	marcList.add(field.get(flatMarc).toString());
+//            }
+//            
+//            metadataMap.put(field.getName().replace('_','.'), marcList);
+//        }
+//		
+//		document.getFields().forEach(field -> {
+//			List<String> values = metadataMap.get(field.getLabel().getName());
+//			if(values != null) {
+//				values.forEach(value -> {
+//					field.addValue(new MetadataFieldValue(value, field));
+//				});
+//			}
+//		});
 						
 		return new ApiResponse("success", document, new RequestId(requestId));
 	}

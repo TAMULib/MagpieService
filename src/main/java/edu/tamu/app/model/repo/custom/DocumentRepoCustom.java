@@ -18,7 +18,7 @@ import edu.tamu.app.model.Project;
  * @author
  *
  */
-public interface CustomDocumentRepo {
+public interface DocumentRepoCustom {
 
 	public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
 	

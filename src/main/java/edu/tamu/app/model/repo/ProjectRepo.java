@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.repo.custom.CustomProjectRepo;
+import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
 
 /**
  * 
@@ -22,7 +22,7 @@ import edu.tamu.app.model.repo.custom.CustomProjectRepo;
  *
  */
 @Repository
-public interface ProjectRepo extends JpaRepository <Project, Long>, CustomProjectRepo {
+public interface ProjectRepo extends JpaRepository <Project, Long>, ProjectRepoCustom {
 	
 	public Project create(Project project);
 	

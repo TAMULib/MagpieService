@@ -48,7 +48,7 @@ import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
-import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 
 /** 
  * Metadata Field Controller
@@ -68,7 +68,7 @@ public class MetadataFieldController {
 	private DocumentRepo documentRepo;
 	
 	@Autowired
-	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	private ProjectLabelProfileRepo projectFieldProfileRepo;
 	
 	@Autowired
 	private MetadataFieldRepo metadataFieldRepo;

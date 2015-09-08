@@ -17,8 +17,13 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 
 import edu.tamu.app.config.TestDataSourceConfiguration;
+import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldLabel;
+import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
+import edu.tamu.app.model.repo.ProjectRepo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestDataSourceConfiguration.class})
@@ -31,6 +36,16 @@ public class MetadataFieldLabelTest {
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
 	
+	@Autowired
+	private ProjectRepo projectRepo;
+	
+	@Autowired
+	private ProjectLabelProfileRepo projectFieldProfileRepo;
+	
+	private Project testProject;
+	
+	private ProjectLabelProfile testProfile;
+	
 	@BeforeClass
     public static void init() {
 		
@@ -38,37 +53,38 @@ public class MetadataFieldLabelTest {
 	
 	@Before
 	public void setUp() {
-
+		testProject = projectRepo.create("testProject");
+		testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
 	}
 	
 	@Test
 	public void testCreateMetadataFieldLabel() {
 		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
-		metadataFieldLabelRepo.create("test");
+		metadataFieldLabelRepo.create("test", testProfile);
 		Assert.assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
 	}
 	
 	@Test
 	public void testDuplicateMetadataFieldLabel() {
 		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
-		metadataFieldLabelRepo.create("test");
-		metadataFieldLabelRepo.create("test");
+		metadataFieldLabelRepo.create("test", testProfile);
+		metadataFieldLabelRepo.create("test", testProfile);
 		Assert.assertEquals("MetadataFieldLabel has duplicate.", 1, metadataFieldLabelRepo.count());
 	}
 	
 	@Test
 	public void testFindMetadataFieldLabel() {
 		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
-		MetadataFieldLabel assertLabel = metadataFieldLabelRepo.create("test");
-		Assert.assertEquals("MetadataFieldLabel was not found.", assertLabel.getName(), metadataFieldLabelRepo.findByName("test").getName());
+		MetadataFieldLabel assertLabel = metadataFieldLabelRepo.create("test", testProfile);
+		Assert.assertEquals("MetadataFieldLabel was not found.", assertLabel.getName(), metadataFieldLabelRepo.findByNameAndProfile("test", testProfile).getName());
 	}
 	
 	@Test
 	public void testDeleteMetadataFieldLabel() {
 		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
-		metadataFieldLabelRepo.create("test");
+		metadataFieldLabelRepo.create("test", testProfile);
 		Assert.assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
-		metadataFieldLabelRepo.delete(metadataFieldLabelRepo.findByName("test"));		
+		metadataFieldLabelRepo.delete(metadataFieldLabelRepo.findByNameAndProfile("test", testProfile));		
 		Assert.assertEquals("MetadataFieldLabel was not deleted.", 0, metadataFieldLabelRepo.count());
 	}
 	

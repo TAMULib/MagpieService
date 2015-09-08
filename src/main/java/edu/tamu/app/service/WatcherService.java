@@ -49,7 +49,7 @@ import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
-import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 /** 
@@ -67,7 +67,7 @@ public class WatcherService implements Runnable {
 	
 	private DocumentRepo documentRepo;
 	
-	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	private ProjectLabelProfileRepo projectLabelProfileRepo;
 	
 	private MetadataFieldRepo metadataFieldRepo;
 	
@@ -95,7 +95,7 @@ public class WatcherService implements Runnable {
 	
 	public WatcherService(ProjectRepo projectRepo,
 						  DocumentRepo documentRepo,
-						  ProjectFieldProfileRepo projectFieldProfileRepo,
+						  ProjectLabelProfileRepo projectLabelProfileRepo,
 						  MetadataFieldRepo metadataFieldRepo,
 						  MetadataFieldLabelRepo metadataFieldLabelRepo,
 						  Environment env,
@@ -106,7 +106,7 @@ public class WatcherService implements Runnable {
 		super();
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
-		this.projectFieldProfileRepo = projectFieldProfileRepo;
+		this.projectLabelProfileRepo = projectLabelProfileRepo;
 		this.metadataFieldRepo = metadataFieldRepo;
 		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
 		this.env = env;
@@ -118,7 +118,7 @@ public class WatcherService implements Runnable {
 	
 	public WatcherService(ProjectRepo projectRepo,
 						  DocumentRepo documentRepo,
-						  ProjectFieldProfileRepo projectFieldProfileRepo,
+						  ProjectLabelProfileRepo projectLabelProfileRepo,
 						  MetadataFieldRepo metadataFieldRepo,
 						  MetadataFieldLabelRepo metadataFieldLabelRepo,
 						  Environment env,
@@ -130,7 +130,7 @@ public class WatcherService implements Runnable {
 		super();
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
-		this.projectFieldProfileRepo = projectFieldProfileRepo;
+		this.projectLabelProfileRepo = projectLabelProfileRepo;
 		this.metadataFieldRepo = metadataFieldRepo;
 		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
 		this.env = env;
@@ -206,10 +206,9 @@ public class WatcherService implements Runnable {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
 				
-				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"));
 				
-				ProjectLabelProfile profile = projectFieldProfileRepo.create(label,
-																	  		 projectRepo.findByName(folder),
+				
+				ProjectLabelProfile profile = projectLabelProfileRepo.create(projectRepo.findByName(folder),
 																	  		 (String) mMap.get("gloss"), 
 																	  		 (Boolean) mMap.get("repeatable"), 
 																	  		 (Boolean) mMap.get("readOnly"),
@@ -218,7 +217,7 @@ public class WatcherService implements Runnable {
 																	  		 InputType.valueOf((String) mMap.get("inputType")),
 																	  		 (String) mMap.get("default"));
 				
-				label.addProfile(profile);
+				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"), profile);
 				metadataFieldLabelRepo.save(label);
 				
 				fields.add(new MetadataFieldGroup(label));
@@ -256,7 +255,7 @@ public class WatcherService implements Runnable {
                     	if(folder.equals("projects")) {
                     		executorService.submit(new WatcherService(projectRepo,
                     												  documentRepo,
-                    												  projectFieldProfileRepo,
+                    												  projectLabelProfileRepo,
                     												  metadataFieldRepo,
                     												  metadataFieldLabelRepo,
 	   								  								  env,

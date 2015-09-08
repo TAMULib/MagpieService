@@ -19,7 +19,7 @@ import edu.tamu.app.model.MetadataFieldValue;
  * @author
  *
  */
-public interface CustomMetadataFieldValueRepo {
+public interface MetadataFieldValueRepoCustom {
 
 	public MetadataFieldValue create(ControlledVocabulary cv, MetadataFieldGroup field);
 	

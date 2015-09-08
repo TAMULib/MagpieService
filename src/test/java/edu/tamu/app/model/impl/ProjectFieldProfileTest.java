@@ -18,11 +18,9 @@ import com.github.springtestdbunit.DbUnitTestExecutionListener;
 
 import edu.tamu.app.config.TestDataSourceConfiguration;
 import edu.tamu.app.model.InputType;
-import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectLabelProfile;
-import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -37,14 +35,9 @@ public class ProjectFieldProfileTest {
 	private ProjectRepo projectRepo;
 	
 	@Autowired
-	private ProjectFieldProfileRepo projectFieldProfileRepo;
-	
-	@Autowired
-	private MetadataFieldLabelRepo metadataFieldLabelRepo;
-	
+	private ProjectLabelProfileRepo projectFieldProfileRepo;
+		
 	private Project testProject;
-	
-	private MetadataFieldLabel testLabel;
 	
 	@BeforeClass
     public static void init() {
@@ -54,13 +47,12 @@ public class ProjectFieldProfileTest {
 	@Before
 	public void setUp() {
 		testProject = projectRepo.create("testProject");
-		testLabel = metadataFieldLabelRepo.create("testLabel");
 	}
 	
 	@Test
 	public void testSaveProjectFieldProfile() {
 		Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
-		ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testLabel, testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+		ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
 		Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
 		Assert.assertEquals("Test ProjectFieldProfile with expected project was not created.", "testProject", testProfile.getProject().getName());
 	}
@@ -68,24 +60,24 @@ public class ProjectFieldProfileTest {
 	@Test
 	public void testDuplicateProjectFieldProfile() {
 		Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
-		projectFieldProfileRepo.create(testLabel, testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-		projectFieldProfileRepo.create(testLabel, testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+		projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+		projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
 		Assert.assertEquals("Test ProjectFieldProfile duplicate was created.", 1, projectFieldProfileRepo.count());
 	}
 	
 	@Test
 	public void testFindProjectFieldProfile() {
 		Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
-		ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testLabel, testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+		ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
 		Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
-		ProjectLabelProfile assertProfile = projectFieldProfileRepo.findByLabelAndProject(testLabel, testProject);
+		ProjectLabelProfile assertProfile = projectFieldProfileRepo.findByProject(testProject).get(0);
 		Assert.assertEquals("Test ProjectFieldProfile with expected project was not found.", testProfile.getProject().getName(), assertProfile.getProject().getName());
 	}
 	
 	@Test
 	public void testDeleteProjectFieldProfile() {
 		Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
-		ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testLabel, testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+		ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
 		Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
 		projectFieldProfileRepo.delete(testProfile);
 		Assert.assertEquals("Test ProjectFieldProfile was not deleted.", 0, projectFieldProfileRepo.count());

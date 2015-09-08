@@ -17,7 +17,7 @@ import edu.tamu.app.model.ControlledVocabulary;
 * @author
 *
 */
-public interface CustomControlledVocabularyRepo {
+public interface ControlledVocabularyRepoCustom {
 
 	public ControlledVocabulary create(String name);
 	

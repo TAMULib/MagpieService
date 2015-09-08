@@ -21,7 +21,7 @@ import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.ControlledVocabularyRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.custom.CustomControlledVocabularyRepo;
+import edu.tamu.app.model.repo.custom.ControlledVocabularyRepoCustom;
 
 /**
 *
@@ -29,7 +29,7 @@ import edu.tamu.app.model.repo.custom.CustomControlledVocabularyRepo;
 * @author
 *
 */
-public class ControlledVocabularyRepoImpl implements CustomControlledVocabularyRepo {
+public class ControlledVocabularyRepoImpl implements ControlledVocabularyRepoCustom {
 	
 	@PersistenceContext
 	private EntityManager entityManager;
