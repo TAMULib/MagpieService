@@ -9,9 +9,7 @@
  */
 package edu.tamu.app.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -19,7 +17,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -37,7 +34,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class ProjectFieldProfile {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@Column(nullable = false)
@@ -62,14 +59,14 @@ public class ProjectFieldProfile {
 	private String defaultValue;
 	
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=Project.class, property="id") 
-	@JsonIdentityReference(alwaysAsId=true)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "id") 
+	@JsonIdentityReference(alwaysAsId = true)
 	private Project project;
 	
-	@OneToMany(mappedBy = "profile", fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataFieldLabel.class, property="id") 
-	@JsonIdentityReference(alwaysAsId=true)
-	private List<MetadataFieldLabel> labels = new ArrayList<MetadataFieldLabel>();
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id") 
+	@JsonIdentityReference(alwaysAsId = false)
+	private MetadataFieldLabel label;
 	
 	public ProjectFieldProfile() { }
 
@@ -155,25 +152,13 @@ public class ProjectFieldProfile {
 	public void setProject(Project project) {
 		this.project = project;
 	}
+	
+	public MetadataFieldLabel getLabel() {
+		return label;
+	}
 
-	public List<MetadataFieldLabel> getLabels() {
-		return labels;
-	}
-
-	public void setLabels(List<MetadataFieldLabel> labels) {
-		this.labels = labels;
-	}
-	
-	public void addLabel(MetadataFieldLabel label) {
-		labels.add(label);
-	}
-	
-	public void removeLabel(MetadataFieldLabel label) {
-		labels.remove(label);
-	}
-	
-	public void clearLabels() {
-		labels = new ArrayList<MetadataFieldLabel>();
+	public void setLabel(MetadataFieldLabel label) {
+		this.label = label;
 	}
 
 }

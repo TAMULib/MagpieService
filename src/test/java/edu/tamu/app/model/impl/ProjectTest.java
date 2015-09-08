@@ -49,7 +49,7 @@ public class ProjectTest {
 	@Test
 	public void testSaveProject() {
 		Assert.assertEquals("ProjectRepo is not empty.", 0, projectRepo.count());
-		Project assertProject = projectRepo.save(new Project("testProject"));
+		Project assertProject = projectRepo.create("testProject");
 		Assert.assertEquals("Test Project was not created.", 1, projectRepo.count());
 		Assert.assertEquals("Expected Test Project was not created.", "testProject", assertProject.getName());
 	}
@@ -57,15 +57,15 @@ public class ProjectTest {
 	@Test
 	public void testDuplicateProject() {
 		Assert.assertEquals("ProjectRepo is not empty.", 0, projectRepo.count());
-		projectRepo.save(new Project("testProject"));
-		projectRepo.save(new Project("testProject"));
+		projectRepo.create("testProject");
+		projectRepo.create("testProject");
 		Assert.assertEquals("Duplicate Test Project was created.", 1, projectRepo.count());
 	}
 	
 	@Test
 	public void testFindProject() {
 		Assert.assertEquals("ProjectRepo is not empty.", 0, projectRepo.count());
-		projectRepo.save(new Project("testProject"));
+		projectRepo.create("testProject");
 		Assert.assertEquals("Test Project was not created.", 1, projectRepo.count());
 		Project assertProject = projectRepo.findByName("testProject");
 		Assert.assertEquals("Test Project was not found.", "testProject", assertProject.getName());
@@ -74,7 +74,7 @@ public class ProjectTest {
 	@Test
 	public void testDeleteProject() {
 		Assert.assertEquals("ProjectRepo is not empty.", 0, projectRepo.count());
-		Project assertProject = projectRepo.save(new Project("testProject"));
+		Project assertProject = projectRepo.create("testProject");
 		Assert.assertEquals("Test Project was not created.", 1, projectRepo.count());
 		projectRepo.delete(assertProject);
 		Assert.assertEquals("Test Project was not deleted.", 0, projectRepo.count());
@@ -86,11 +86,11 @@ public class ProjectTest {
 		// assuming documents of a project are preserved
 		
 		Assert.assertEquals("ProjectRepo is not empty.", 0, projectRepo.count());
-		Project testProject = projectRepo.save(new Project("testProject"));
+		Project testProject = projectRepo.create("testProject");
 		Assert.assertEquals("Test Project was not created.", 1, projectRepo.count());
 		
 		Assert.assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
-		Document testDocument = documentRepo.save(new Document(testProject, "testDocument", null, null, null, null, "Unassigned"));
+		Document testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");
 		Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 		
 		testProject.addDocument(testDocument);

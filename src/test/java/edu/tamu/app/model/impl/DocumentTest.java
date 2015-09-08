@@ -21,7 +21,6 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataField;
 import edu.tamu.app.model.MetadataFieldLabel;
-import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectFieldProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -68,14 +67,14 @@ public class DocumentTest {
 	 
 	@Before
 	public void setUp() {
-		testProject = projectRepo.save(new Project("testProject"));
-		mockDocument = new Document(testProject, "testDocument", null, null, null, null, "Unassigned");
+		testProject = projectRepo.create("testProject");
+		mockDocument = new Document(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");
 	}
 	
 	@Test
 	public void testCreateDocument() {
 		Assert.assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
-		Document testDocument = documentRepo.save(new Document(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus()));
+		Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
 		Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 		Assert.assertEquals("Expected Test Document was not created.", mockDocument.getName(), testDocument.getName());
 	}
@@ -83,14 +82,14 @@ public class DocumentTest {
 	@Test
 	public void testFindDocument() {	
 		Assert.assertEquals("Test Document already exists.", null, documentRepo.findByName("testFile"));
-		documentRepo.save(new Document(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus()));
+		documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
 		Document testDocument = documentRepo.findByName(mockDocument.getName());
 		Assert.assertEquals("Test Document was not found.", mockDocument.getName(), testDocument.getName());
 	}
 	
 	@Test
 	public void testDeleteDocument() {
-		Document testDocument = documentRepo.save(new Document(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus()));
+		Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
 		Assert.assertEquals("DocumentRepo is empty.", 1, documentRepo.count());
 		documentRepo.delete(testDocument);
 		Assert.assertEquals("Test Document was not removed.", 0, documentRepo.count());
@@ -99,23 +98,26 @@ public class DocumentTest {
 	@Test
 	public void testCascadeOnDeleteDocument() {
 		Assert.assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
-		Document testDocument = documentRepo.save(new Document(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus()));
+		Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
 		Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 		
 		Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
-		ProjectFieldProfile testProfile = projectFieldProfileRepo.save(new ProjectFieldProfile(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default"));
+		ProjectFieldProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
 		Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
 		
 		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
-		MetadataFieldLabel testLabel = metadataFieldLabelRepo.save(new MetadataFieldLabel("testLabel", testProfile));
+		MetadataFieldLabel testLabel = metadataFieldLabelRepo.create("testLabel");
 		Assert.assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
 		
+		testLabel.addProfile(testProfile);
+		metadataFieldLabelRepo.save(testLabel);
+		
 		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldRepo.count());
-		MetadataField testField = metadataFieldRepo.save(new MetadataField(testDocument, testLabel));
+		MetadataField testField = metadataFieldRepo.create(testDocument, testLabel);
 		Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldRepo.count());
 		
 		Assert.assertEquals("MetadataFieldValue repository is not empty.", 0, metadataFieldValueRepo.count());
-		metadataFieldValueRepo.save(new MetadataFieldValue("test", testField));
+		metadataFieldValueRepo.create("test", testField);
 		Assert.assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
 		
 		testDocument.addField(testField);
@@ -124,8 +126,10 @@ public class DocumentTest {
 		documentRepo.delete(testDocument);
 		
 		Assert.assertEquals("Test Document was not deleted.", 0, documentRepo.count());
-	
-		Assert.assertEquals("MetadataFieldLabel was deleted.", 1, metadataFieldLabelRepo.count());
+		
+		Assert.assertEquals("Test MetadataFieldLabel was deleted.", 1, metadataFieldLabelRepo.count());
+		
+		Assert.assertEquals("Test ProjectFieldProfile was deleted.", 1, projectFieldProfileRepo.count());
 		
 		Assert.assertEquals("Test MetadataField was not deleted.", 0, metadataFieldRepo.count());
 		
@@ -134,12 +138,12 @@ public class DocumentTest {
 	
 	@After
 	public void cleanUp() {
-		projectRepo.deleteAll();
-		documentRepo.deleteAll();
-		metadataFieldRepo.deleteAll();
-		metadataFieldLabelRepo.deleteAll();
-		metadataFieldValueRepo.deleteAll();
 		projectFieldProfileRepo.deleteAll();
+		metadataFieldValueRepo.deleteAll();
+		metadataFieldLabelRepo.deleteAll();
+		metadataFieldRepo.deleteAll();
+		documentRepo.deleteAll();
+		projectRepo.deleteAll();
 	}
 	
 }

@@ -21,4 +21,10 @@ public interface CustomProjectRepo {
 
 	public Project create(Project project);
 	
+	public Project create(String name);
+	
+	public void delete(Project project);
+	
+	public void deleteAll();
+	
 }

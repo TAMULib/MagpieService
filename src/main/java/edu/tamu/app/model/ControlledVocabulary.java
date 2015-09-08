@@ -9,12 +9,21 @@
  */
 package edu.tamu.app.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
  * 
@@ -27,11 +36,16 @@ import javax.persistence.Table;
 public class ControlledVocabulary {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@Column(unique = true)
 	private String value;
+	
+	@OneToMany(mappedBy = "cv", fetch = FetchType.EAGER)	
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldValue.class, property = "id")
+	@JsonIdentityReference(alwaysAsId = true)
+	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
 
 	public ControlledVocabulary() { }
 	
@@ -53,6 +67,26 @@ public class ControlledVocabulary {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+	
+	public List<MetadataFieldValue> getValues() {
+		return values;
+	}
+
+	public void setValues(List<MetadataFieldValue> values) {
+		this.values = values;
+	}
+
+	public void addValue(MetadataFieldValue value) {
+		values.add(value);
+	}
+	
+	public void removeValue(MetadataFieldValue value) {
+		values.remove(value);
+	}
+	
+	public void clearValues() {
+		values = new ArrayList<MetadataFieldValue>();
 	}
 
 }

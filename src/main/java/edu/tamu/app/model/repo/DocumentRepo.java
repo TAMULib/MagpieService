@@ -17,6 +17,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.Project;
+import edu.tamu.app.model.repo.custom.CustomDocumentRepo;
 
 /**
  * 
@@ -25,8 +27,13 @@ import edu.tamu.app.model.Document;
  *
  */
 @Repository
-public interface DocumentRepo extends JpaRepository<Document, Long> {
-
+public interface DocumentRepo extends JpaRepository<Document, Long>, CustomDocumentRepo {
+	
+	public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
+	
+	public void delete(Document document);
+	
+	public void deleteAll();
 	
 	/**
 	 * Retrieve document by name.

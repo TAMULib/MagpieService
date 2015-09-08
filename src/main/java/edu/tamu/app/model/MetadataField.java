@@ -38,18 +38,22 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class MetadataField {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne(optional = false, fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=Document.class, property="id") 
-	@JsonIdentityReference(alwaysAsId=true)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id") 
+	@JsonIdentityReference(alwaysAsId = true)
 	private Document document;
 	
-	@ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id") 
+	@JsonIdentityReference(alwaysAsId = false)
 	private MetadataFieldLabel label;
 	
-	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)	
+	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldValue.class, property = "id")
+	@JsonIdentityReference(alwaysAsId = false)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
 	
 	public MetadataField() { }

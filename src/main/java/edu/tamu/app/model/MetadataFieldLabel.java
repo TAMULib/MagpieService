@@ -9,15 +9,21 @@
  */
 package edu.tamu.app.model;
 
-import javax.persistence.CascadeType;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
  * 
@@ -30,24 +36,26 @@ import javax.persistence.Table;
 public class MetadataFieldLabel {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String name;
 	
-	@ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private ProjectFieldProfile profile;
+	@OneToMany(mappedBy = "label", fetch = FetchType.EAGER)	
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = ProjectFieldProfile.class, property = "id")
+	@JsonIdentityReference(alwaysAsId = true)
+	private List<ProjectFieldProfile> profiles = new ArrayList<ProjectFieldProfile>();
+	
+	@OneToMany(mappedBy = "label", fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataField.class, property = "id")
+	@JsonIdentityReference(alwaysAsId = true)
+	private List<MetadataField> fields = new ArrayList<MetadataField>();
 
 	public MetadataFieldLabel() { }
 	
 	public MetadataFieldLabel(String name) {
 		this.name = name;
-	}
-	
-	public MetadataFieldLabel(String name, ProjectFieldProfile profile) {
-		this.name = name;
-		this.profile = profile;
 	}
 
 	public Long getId() {
@@ -66,12 +74,44 @@ public class MetadataFieldLabel {
 		this.name = name;
 	}
 
-	public ProjectFieldProfile getProfile() {
-		return profile;
+	public List<ProjectFieldProfile> getProfiles() {
+		return profiles;
 	}
 
-	public void setProfile(ProjectFieldProfile profile) {
-		this.profile = profile;
+	public void setProfiles(List<ProjectFieldProfile> profiles) {
+		this.profiles = profiles;
+	}
+	
+	public void addProfile(ProjectFieldProfile profile) {
+		profiles.add(profile);
+	}
+	
+	public void removeProfile(ProjectFieldProfile profile) {
+		profiles.remove(profile);
+	}
+	
+	public void clearProfiles() {
+		profiles = new ArrayList<ProjectFieldProfile>();
+	}
+	
+	public List<MetadataField> getFields() {
+		return fields;
+	}
+
+	public void setFields(List<MetadataField> fields) {
+		this.fields = fields;
+	}
+	
+	public void addField(MetadataField field) {
+		fields.add(field);
+	}
+	
+	public void removeField(MetadataField field) {
+		fields.remove(field);
+	}
+	
+	public void clearFields() {
+		fields = new ArrayList<MetadataField>();
 	}
 	
 }

@@ -188,7 +188,9 @@ public class SyncService implements Runnable {
 																  	  InputType.valueOf((String) mMap.get("inputType")),
 																  	  (String) mMap.get("default"));
 				
-				MetadataFieldLabel label = new MetadataFieldLabel((String) mMap.get("label"), profile);
+				MetadataFieldLabel label = new MetadataFieldLabel((String) mMap.get("label"));
+				
+				label.addProfile(profile);
 				
 				fields.add(new MetadataField(label));
 				

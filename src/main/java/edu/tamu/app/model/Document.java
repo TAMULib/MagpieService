@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class Document {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@Column(nullable = false)
@@ -66,12 +66,14 @@ public class Document {
 	@Column(nullable = false)
 	private String txtPath;
 	
-	@ManyToOne(optional = false, fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "id") 
-	@JsonIdentityReference(alwaysAsId=true)
+	@JsonIdentityReference(alwaysAsId = true)
 	private Project project;
 	
 	@OneToMany(mappedBy="document", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataField.class, property = "id")
+	@JsonIdentityReference(alwaysAsId = false)
 	private List<MetadataField> fields = new ArrayList<MetadataField>();
 	
 	public Document() { }

@@ -21,7 +21,7 @@ import edu.tamu.framework.model.AbstractCoreUserImpl;
  *
  */
 @Entity
-public class AppUser extends AbstractCoreUserImpl{
+public class AppUser extends AbstractCoreUserImpl {
 	
 	@Column(name="first_name")
 	private String firstName;
