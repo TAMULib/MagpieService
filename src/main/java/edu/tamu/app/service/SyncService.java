@@ -221,7 +221,6 @@ public class SyncService implements Runnable {
         		Document document = documentRepo.create(project, documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open");
         		
         		fields.forEach(field -> {
-        			System.out.println("    " + field.getLabel().getName());
 					document.addField(metadataFieldRepo.create(document, field.getLabel()));
 				});
         		
