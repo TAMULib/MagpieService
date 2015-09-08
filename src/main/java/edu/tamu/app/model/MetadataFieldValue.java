@@ -44,8 +44,6 @@ public class MetadataFieldValue {
 	
 	// probably should be CascadeType.ALL
 	@ManyToOne(optional = true, cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-//	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = ControlledVocabulary.class, property = "id") 
-//	@JsonIdentityReference(alwaysAsId = false)
 	private ControlledVocabulary cv;
 	
 	@Column(nullable = true)

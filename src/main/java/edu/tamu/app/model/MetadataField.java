@@ -47,13 +47,9 @@ public class MetadataField {
 	
 	// probably should be CascadeType.ALL
 	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-//	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id") 
-//	@JsonIdentityReference(alwaysAsId=false)
 	private MetadataFieldLabel label;
 	
 	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)	
-//	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldValue.class, property = "id")
-//	@JsonIdentityReference(alwaysAsId = false)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
 	
 	public MetadataField() { }
