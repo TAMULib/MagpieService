@@ -15,7 +15,6 @@ import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -30,9 +29,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
+import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.SyncService;
+import edu.tamu.app.service.VoyagerService;
 import edu.tamu.app.service.WatcherService;
 
 /** 
@@ -45,6 +46,9 @@ import edu.tamu.app.service.WatcherService;
 @ConditionalOnWebApplication
 public class ContextInitializedHandler implements ApplicationListener<ContextRefreshedEvent> {
     
+	@Autowired 
+	private VoyagerService voyagerService; 
+	
 	@Autowired
 	private ProjectRepo projectRepo;
 	
@@ -59,6 +63,9 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 	
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	
+	@Autowired
+	private MetadataFieldValueRepo metadataFieldValueRepo;
 
 	@Autowired
 	private Environment env;
@@ -98,22 +105,26 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 			}
     	}
 
-    	executorService.submit(new SyncService(projectRepo,
+    	executorService.submit(new SyncService(voyagerService,
+    										   projectRepo,
     										   documentRepo,
     										   projectLabelProfileRepo,
     										   metadataFieldRepo,
     										   metadataFieldLabelRepo,
+    										   metadataFieldValueRepo,
 			      							   env,
 			      							   appContext,
 			      							   simpMessagingTemplate,
 			      							   executorService,
 			      							   objectMapper));
     	
-    	executorService.submit(new WatcherService(projectRepo,
+    	executorService.submit(new WatcherService(voyagerService,
+    											  projectRepo,
 				   								  documentRepo,
 				   								  projectLabelProfileRepo,
     											  metadataFieldRepo,
     											  metadataFieldLabelRepo,
+    											  metadataFieldValueRepo,
 					  						      env,
 					  						      appContext,
 					  						      simpMessagingTemplate,

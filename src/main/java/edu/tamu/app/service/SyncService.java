@@ -13,6 +13,7 @@ import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -44,8 +45,10 @@ import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
+import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.response.marc.FlatMARC;
 
 /** 
  * Sync Service. Synchronizes project database with projects folders.
@@ -56,6 +59,8 @@ import edu.tamu.app.model.repo.ProjectRepo;
 @Service
 @PropertySource("classpath:/config/application.properties")
 public class SyncService implements Runnable {
+	
+	private VoyagerService voyagerService; 
 		
 	private ProjectRepo projectRepo;
 	
@@ -65,7 +70,9 @@ public class SyncService implements Runnable {
 	
 	private MetadataFieldRepo metadataFieldRepo;
 	
-	private MetadataFieldLabelRepo metadataFieldLabelRepo;	
+	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	
+	private MetadataFieldValueRepo metadataFieldValueRepo;
 	
 	private Environment env;
 	
@@ -85,22 +92,26 @@ public class SyncService implements Runnable {
 		super();
 	}
 	
-	public SyncService(ProjectRepo projectRepo,
+	public SyncService(VoyagerService voyagerService,
+					   ProjectRepo projectRepo,
 					   DocumentRepo documentRepo,
 					   ProjectLabelProfileRepo projectLabelProfileRepo,
 					   MetadataFieldRepo metadataFieldRepo,
 					   MetadataFieldLabelRepo metadataFieldLabelRepo,
+					   MetadataFieldValueRepo metadataFieldValueRepo,
 					   Environment env,
 					   ApplicationContext appContext,
 					   SimpMessagingTemplate simpMessagingTemplate,
 					   ExecutorService executorService,
 					   ObjectMapper objectMapper) {
 		super();
+		this.voyagerService = voyagerService;
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
 		this.metadataFieldRepo = metadataFieldRepo;
 		this.projectLabelProfileRepo = projectLabelProfileRepo;
 		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
+		this.metadataFieldValueRepo = metadataFieldValueRepo;
 		this.env = env;
 		this.appContext = appContext;
 		this.simpMessagingTemplate = simpMessagingTemplate;
@@ -161,11 +172,13 @@ public class SyncService implements Runnable {
         	
         	List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
         	
-        	executorService.submit(new WatcherService(projectRepo,
+        	executorService.submit(new WatcherService(voyagerService,
+        											  projectRepo,
         											  documentRepo,
         											  projectLabelProfileRepo,
         											  metadataFieldRepo,
         											  metadataFieldLabelRepo,
+        											  metadataFieldValueRepo,
 					   								  env,
 					   								  appContext,
 					   								  simpMessagingTemplate,
@@ -211,6 +224,56 @@ public class SyncService implements Runnable {
         			System.out.println("    " + field.getLabel().getName());
 					document.addField(metadataFieldRepo.create(document, field.getLabel()));
 				});
+        		
+        		
+        		FlatMARC flatMarc = null;
+				try {
+					flatMarc = new FlatMARC(voyagerService.getMARC(document.getName()));
+				} catch (Exception e1) {
+					System.out.println("ERROR WHILE TRYING TO RETRIEVE MARC RECORD!!!");
+					e1.printStackTrace();
+				}
+				
+				Field[] marcFields = FlatMARC.class.getDeclaredFields();
+				
+				Map<String, List<String>> metadataMap = new HashMap<String, List<String>>();
+				
+				for (Field field : marcFields) {
+					field.setAccessible(true);
+		            List<String> marcList = new ArrayList<String>();
+		            if(field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
+		            	try {
+							for(String string : (List<String>) field.get(flatMarc)) {
+								marcList.add(string);
+							}
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						}
+		            }
+		            else {
+		            	try {
+							marcList.add(field.get(flatMarc).toString());
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						}
+		            }
+		            
+		            metadataMap.put(field.getName().replace('_','.'), marcList);
+		        }
+				
+				document.getFields().forEach(field -> {
+					List<String> values = metadataMap.get(field.getLabel().getName());
+					if(values != null) {
+						values.forEach(value -> {
+							field.addValue(metadataFieldValueRepo.create(value, field));
+						});
+					}
+				});
+        		
         		
         		project.addDocument(documentRepo.save(document));
         		        		

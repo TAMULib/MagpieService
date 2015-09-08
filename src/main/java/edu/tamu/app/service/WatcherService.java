@@ -13,6 +13,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
+import java.lang.reflect.Field;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.FileSystems;
@@ -49,8 +50,10 @@ import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
+import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.response.marc.FlatMARC;
 
 /** 
  * Watcher Service. Watches projects folder and inserts created documents into database.
@@ -63,6 +66,8 @@ import edu.tamu.app.model.repo.ProjectRepo;
 @PropertySource("classpath:/config/application.properties")
 public class WatcherService implements Runnable {
 	
+	private VoyagerService voyagerService; 
+	
 	private ProjectRepo projectRepo;
 	
 	private DocumentRepo documentRepo;
@@ -72,6 +77,8 @@ public class WatcherService implements Runnable {
 	private MetadataFieldRepo metadataFieldRepo;
 	
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	
+	private MetadataFieldValueRepo metadataFieldValueRepo;
 	
 	private Environment env;
 	
@@ -93,22 +100,26 @@ public class WatcherService implements Runnable {
 		super();
 	}
 	
-	public WatcherService(ProjectRepo projectRepo,
+	public WatcherService(VoyagerService voyagerService,
+						  ProjectRepo projectRepo,
 						  DocumentRepo documentRepo,
 						  ProjectLabelProfileRepo projectLabelProfileRepo,
 						  MetadataFieldRepo metadataFieldRepo,
 						  MetadataFieldLabelRepo metadataFieldLabelRepo,
+						  MetadataFieldValueRepo metadataFieldValueRepo,
 						  Environment env,
 						  ApplicationContext appContext,
 						  SimpMessagingTemplate simpMessagingTemplate,
 						  ExecutorService executorService,
 						  ObjectMapper objectMapper) {
 		super();
+		this.voyagerService = voyagerService;
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
 		this.projectLabelProfileRepo = projectLabelProfileRepo;
 		this.metadataFieldRepo = metadataFieldRepo;
 		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
+		this.metadataFieldValueRepo = metadataFieldValueRepo;
 		this.env = env;
 		this.appContext = appContext;
 		this.simpMessagingTemplate = simpMessagingTemplate;
@@ -116,11 +127,13 @@ public class WatcherService implements Runnable {
 		this.objectMapper = objectMapper;
 	}
 	
-	public WatcherService(ProjectRepo projectRepo,
+	public WatcherService(VoyagerService voyagerService,
+						  ProjectRepo projectRepo,
 						  DocumentRepo documentRepo,
 						  ProjectLabelProfileRepo projectLabelProfileRepo,
 						  MetadataFieldRepo metadataFieldRepo,
 						  MetadataFieldLabelRepo metadataFieldLabelRepo,
+						  MetadataFieldValueRepo metadataFieldValueRepo,
 						  Environment env,
 						  ApplicationContext appContext,
 						  SimpMessagingTemplate simpMessagingTemplate,
@@ -128,11 +141,13 @@ public class WatcherService implements Runnable {
 						  ObjectMapper objectMapper,
 						  String folder) {
 		super();
+		this.voyagerService = voyagerService;
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
 		this.projectLabelProfileRepo = projectLabelProfileRepo;
 		this.metadataFieldRepo = metadataFieldRepo;
 		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
+		this.metadataFieldValueRepo = metadataFieldValueRepo;
 		this.env = env;
 		this.appContext = appContext;
 		this.simpMessagingTemplate = simpMessagingTemplate;
@@ -206,8 +221,6 @@ public class WatcherService implements Runnable {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
 				
-				
-				
 				ProjectLabelProfile profile = projectLabelProfileRepo.create(projectRepo.findByName(folder),
 																	  		 (String) mMap.get("gloss"), 
 																	  		 (Boolean) mMap.get("repeatable"), 
@@ -252,11 +265,13 @@ public class WatcherService implements Runnable {
 
                     if (kind == ENTRY_CREATE) {
                     	if(folder.equals("projects")) {
-                    		executorService.submit(new WatcherService(projectRepo,
+                    		executorService.submit(new WatcherService(voyagerService,
+                    												  projectRepo,
                     												  documentRepo,
                     												  projectLabelProfileRepo,
                     												  metadataFieldRepo,
                     												  metadataFieldLabelRepo,
+                    												  metadataFieldValueRepo,
 	   								  								  env,
 	   								  								  appContext,
 	   								  								  simpMessagingTemplate,
@@ -279,6 +294,56 @@ public class WatcherService implements Runnable {
 	        					fields.forEach(field -> {
 	        						document.addField(metadataFieldRepo.create(document, field.getLabel()));
 	        					});
+	        					
+	        					
+	        					FlatMARC flatMarc = null;
+								try {
+									flatMarc = new FlatMARC(voyagerService.getMARC(document.getName()));
+								} catch (Exception e1) {
+									System.out.println("ERROR WHILE TRYING TO RETRIEVE MARC RECORD!!!");
+									e1.printStackTrace();
+								}
+	        					
+	        					Field[] marcFields = FlatMARC.class.getDeclaredFields();
+	        					
+	        					Map<String, List<String>> metadataMap = new HashMap<String, List<String>>();
+	        					
+	        					for (Field field : marcFields) {
+	        						field.setAccessible(true);
+	        			            List<String> marcList = new ArrayList<String>();
+	        			            if(field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
+	        			            	try {
+											for(String string : (List<String>) field.get(flatMarc)) {
+												marcList.add(string);
+											}
+										} catch (IllegalArgumentException e) {
+											e.printStackTrace();
+										} catch (IllegalAccessException e) {
+											e.printStackTrace();
+										}
+	        			            }
+	        			            else {
+	        			            	try {
+											marcList.add(field.get(flatMarc).toString());
+										} catch (IllegalArgumentException e) {
+											e.printStackTrace();
+										} catch (IllegalAccessException e) {
+											e.printStackTrace();
+										}
+	        			            }
+	        			            
+	        			            metadataMap.put(field.getName().replace('_','.'), marcList);
+	        			        }
+	        					
+	        					document.getFields().forEach(field -> {
+	        						List<String> values = metadataMap.get(field.getLabel().getName());
+	        						if(values != null) {
+	        							values.forEach(value -> {
+	        								field.addValue(metadataFieldValueRepo.create(value, field));
+	        							});
+	        						}
+	        					});
+	        						        					
 	        	        		
 	        	        		project.addDocument(documentRepo.save(document));
 	        	        		
