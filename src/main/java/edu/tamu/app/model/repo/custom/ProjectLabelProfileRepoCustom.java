@@ -23,7 +23,7 @@ public interface ProjectLabelProfileRepoCustom {
 	
 	public ProjectLabelProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
 	
-	public void delete(ProjectLabelProfile field);
+	public void delete(ProjectLabelProfile profile);
 	
 	public void deleteAll();
 	

@@ -45,7 +45,6 @@ public class MetadataFieldGroup {
 	@JsonIdentityReference(alwaysAsId = true)
 	private Document document;
 	
-	// probably should be CascadeType.ALL
 	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	private MetadataFieldLabel label;
 	

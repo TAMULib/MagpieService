@@ -27,7 +27,7 @@ public interface MetadataFieldLabelRepo extends JpaRepository <MetadataFieldLabe
 	
 	public MetadataFieldLabel create(String name, ProjectLabelProfile profile);
 	
-	public MetadataFieldLabel findByNameAndProfile(String name, ProjectLabelProfile profile);
+	public MetadataFieldLabel findByName(String name);
 	
 	@Override
 	public void delete(MetadataFieldLabel label);

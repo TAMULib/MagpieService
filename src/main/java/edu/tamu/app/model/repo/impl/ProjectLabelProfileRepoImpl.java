@@ -48,7 +48,11 @@ public class ProjectLabelProfileRepoImpl implements ProjectLabelProfileRepoCusto
 		
 	@Override
 	public ProjectLabelProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
-		return projectFieldProfileRepo.save(new ProjectLabelProfile(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
+		ProjectLabelProfile profile = projectFieldProfileRepo.findByProjectAndGlossAndRepeatableAndReadOnlyAndHiddenAndRequiredAndInputTypeAndDefaultValue(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
+		if(profile == null) {
+			return projectFieldProfileRepo.save(new ProjectLabelProfile(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
+		}
+		return profile;
 	}
 	
 	@Override

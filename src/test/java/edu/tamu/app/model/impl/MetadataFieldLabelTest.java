@@ -76,7 +76,7 @@ public class MetadataFieldLabelTest {
 	public void testFindMetadataFieldLabel() {
 		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
 		MetadataFieldLabel assertLabel = metadataFieldLabelRepo.create("test", testProfile);
-		Assert.assertEquals("MetadataFieldLabel was not found.", assertLabel.getName(), metadataFieldLabelRepo.findByNameAndProfile("test", testProfile).getName());
+		Assert.assertEquals("MetadataFieldLabel was not found.", assertLabel.getName(), metadataFieldLabelRepo.findByName("test").getName());
 	}
 	
 	@Test
@@ -84,13 +84,15 @@ public class MetadataFieldLabelTest {
 		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
 		metadataFieldLabelRepo.create("test", testProfile);
 		Assert.assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
-		metadataFieldLabelRepo.delete(metadataFieldLabelRepo.findByNameAndProfile("test", testProfile));		
+		metadataFieldLabelRepo.delete(metadataFieldLabelRepo.findByName("test"));		
 		Assert.assertEquals("MetadataFieldLabel was not deleted.", 0, metadataFieldLabelRepo.count());
 	}
 	
 	@After
 	public void cleanUp() {
 		metadataFieldLabelRepo.deleteAll();
+		projectFieldProfileRepo.deleteAll();
+		projectRepo.deleteAll();
 	}
 	
 }

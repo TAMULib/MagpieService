@@ -42,7 +42,6 @@ public class MetadataFieldValue {
 	@JsonIdentityReference(alwaysAsId = true)
 	private MetadataFieldGroup field;
 	
-	// probably should be CascadeType.ALL
 	@ManyToOne(optional = true, cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	private ControlledVocabulary cv;
 	

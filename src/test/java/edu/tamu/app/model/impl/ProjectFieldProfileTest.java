@@ -70,7 +70,7 @@ public class ProjectFieldProfileTest {
 		Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
 		ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
 		Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
-		ProjectLabelProfile assertProfile = projectFieldProfileRepo.findByProject(testProject).get(0);
+		ProjectLabelProfile assertProfile = projectFieldProfileRepo.findByProjectAndGlossAndRepeatableAndReadOnlyAndHiddenAndRequiredAndInputTypeAndDefaultValue(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
 		Assert.assertEquals("Test ProjectFieldProfile with expected project was not found.", testProfile.getProject().getName(), assertProfile.getProject().getName());
 	}
 	

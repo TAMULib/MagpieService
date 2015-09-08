@@ -42,13 +42,13 @@ public class ProjectLabelProfile {
 	
 	private String gloss;
 	
-	private boolean isRepeatable;
+	private boolean repeatable;
 	
-	private boolean isReadOnly;
+	private boolean readOnly;
 	
-	private boolean isHidden;
+	private boolean hidden;
 	
-	private boolean isRequired;
+	private boolean required;
 	
 	private InputType inputType;
 	
@@ -66,13 +66,13 @@ public class ProjectLabelProfile {
 	
 	public ProjectLabelProfile() { }
 
-	public ProjectLabelProfile(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {		
+	public ProjectLabelProfile(Project project, String gloss, Boolean repeatable, Boolean readOnly, Boolean hidden, Boolean required, InputType inputType, String defaultValue) {		
 		this.project = project;
 		this.gloss = gloss;
-		this.isReadOnly = isReadOnly == null ? false : isReadOnly;
-		this.isHidden = isHidden == null ?  false : isHidden;
-		this.isRepeatable = isRepeatable == null ? false : isRepeatable;
-		this.isRequired = isRequired == null ? false : isRequired;
+		this.repeatable = repeatable == null ? false : repeatable;
+		this.readOnly = readOnly == null ? false : readOnly;
+		this.hidden = hidden == null ?  false : hidden;
+		this.required = required == null ? false : required;
 		this.inputType = inputType;
 		this.defaultValue = defaultValue;
 	}
@@ -94,35 +94,35 @@ public class ProjectLabelProfile {
 	}
 
 	public boolean isRepeatable() {
-		return isRepeatable;
+		return repeatable;
 	}
 
 	public void setRepeatable(boolean isRepeatable) {
-		this.isRepeatable = isRepeatable;
+		this.repeatable = isRepeatable;
 	}
 
 	public boolean isReadOnly() {
-		return isReadOnly;
+		return readOnly;
 	}
 
 	public void setReadOnly(boolean isReadOnly) {
-		this.isReadOnly = isReadOnly;
+		this.readOnly = isReadOnly;
 	}
 
 	public boolean isHidden() {
-		return isHidden;
+		return hidden;
 	}
 
 	public void setHidden(boolean isHidden) {
-		this.isHidden = isHidden;
+		this.hidden = isHidden;
 	}
 
 	public boolean isRequired() {
-		return isRequired;
+		return required;
 	}
 
 	public void setRequired(boolean isRequired) {
-		this.isRequired = isRequired;
+		this.required = isRequired;
 	}
 
 	public InputType getInputType() {

@@ -218,7 +218,6 @@ public class WatcherService implements Runnable {
 																	  		 (String) mMap.get("default"));
 				
 				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"), profile);
-				metadataFieldLabelRepo.save(label);
 				
 				fields.add(new MetadataFieldGroup(label));
 								

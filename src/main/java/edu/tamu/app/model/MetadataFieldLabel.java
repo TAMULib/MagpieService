@@ -45,7 +45,7 @@ public class MetadataFieldLabel {
 	@Column(unique = true)
 	private String name;
 	
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	private ProjectLabelProfile profile;
 		
 	@OneToMany(mappedBy="label", fetch=FetchType.EAGER)
