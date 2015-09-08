@@ -79,9 +79,6 @@ public class MetadataFieldController {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
-//	@Autowired 
-//	private VoyagerService voyagerService; 
-	
 	/**
 	 * Endpoint to return list of projects.
 	 * 

@@ -25,12 +25,12 @@ import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.custom.CustomProjectRepo;
 
-/** 
- * 
- * 
- * @author
- *
- */
+/**
+*
+* 
+* @author
+*
+*/
 public class ProjectRepoImpl implements CustomProjectRepo {
 	
 	@PersistenceContext
@@ -58,7 +58,7 @@ public class ProjectRepoImpl implements CustomProjectRepo {
 		}		
 		return project;
 	}
-	
+
 	@Override
 	@Transactional
 	public void delete(Project project) {

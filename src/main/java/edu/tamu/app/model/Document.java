@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -42,28 +41,20 @@ public class Document {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(nullable = false)
 	private String name;
 	
-	@Column(nullable = false)
 	private String status;
 	
-	@Column(nullable = true)
 	private String annotator;
 	
-	@Column(nullable = true)
 	private String notes;
 
-	@Column(nullable = false)
+	private String txtUri;
+
 	private String pdfUri;
 	
-	@Column(nullable = false)
 	private String pdfPath;
 	
-	@Column(nullable = false)
-	private String txtUri;
-	
-	@Column(nullable = false)
 	private String txtPath;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -71,9 +62,9 @@ public class Document {
 	@JsonIdentityReference(alwaysAsId = true)
 	private Project project;
 	
-	@OneToMany(mappedBy="document", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataField.class, property = "id")
-	@JsonIdentityReference(alwaysAsId = false)
+	@OneToMany(mappedBy="document", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)	
+//	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataField.class, property = "id")
+//	@JsonIdentityReference(alwaysAsId = false)
 	private List<MetadataField> fields = new ArrayList<MetadataField>();
 	
 	public Document() { }
@@ -135,14 +126,6 @@ public class Document {
 	public void setTxtUri(String txtUri) {
 		this.txtUri = txtUri;
 	}
-	
-	public String getTxtPath() {
-		return txtPath;
-	}
-
-	public void setTxtPath(String txtPath) {
-		this.txtPath = txtPath;
-	}
 
 	public String getPdfUri() {
 		return pdfUri;
@@ -159,7 +142,15 @@ public class Document {
 	public void setPdfPath(String pdfPath) {
 		this.pdfPath = pdfPath;
 	}
-	
+
+	public String getTxtPath() {
+		return txtPath;
+	}
+
+	public void setTxtPath(String txtPath) {
+		this.txtPath = txtPath;
+	}
+
 	public Project getProject() {
 		return project;
 	}

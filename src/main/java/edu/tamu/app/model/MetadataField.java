@@ -24,7 +24,6 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
@@ -36,7 +35,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @Table
 public class MetadataField {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -46,14 +45,15 @@ public class MetadataField {
 	@JsonIdentityReference(alwaysAsId = true)
 	private Document document;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id") 
-	@JsonIdentityReference(alwaysAsId = false)
+	// probably should be CascadeType.ALL
+	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+//	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id") 
+//	@JsonIdentityReference(alwaysAsId=false)
 	private MetadataFieldLabel label;
 	
-	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldValue.class, property = "id")
-	@JsonIdentityReference(alwaysAsId = false)
+	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)	
+//	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldValue.class, property = "id")
+//	@JsonIdentityReference(alwaysAsId = false)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
 	
 	public MetadataField() { }
@@ -75,7 +75,6 @@ public class MetadataField {
 		this.id = id;
 	}
 
-	@JsonIgnore
 	public Document getDocument() {
 		return document;
 	}

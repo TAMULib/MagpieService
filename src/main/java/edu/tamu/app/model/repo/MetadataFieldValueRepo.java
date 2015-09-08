@@ -26,16 +26,12 @@ import edu.tamu.app.model.repo.custom.CustomMetadataFieldValueRepo;
  *
  */
 @Repository
-public interface MetadataFieldValueRepo extends JpaRepository<MetadataFieldValue, Long>, CustomMetadataFieldValueRepo {
-
+public interface MetadataFieldValueRepo extends JpaRepository <MetadataFieldValue, Long>, CustomMetadataFieldValueRepo {
+	
 	public MetadataFieldValue create(ControlledVocabulary cv, MetadataField field);
 	
 	public MetadataFieldValue create(String value, MetadataField field);
-	
-	public void delete(MetadataFieldValue value);
-	
-	public void deleteAll();
-	
+
 	public MetadataFieldValue findByValueAndField(String value, MetadataField field);
 	
 	public MetadataFieldValue findByCvAndField(ControlledVocabulary cv, MetadataField field);
@@ -45,5 +41,11 @@ public interface MetadataFieldValueRepo extends JpaRepository<MetadataFieldValue
 	public List<MetadataFieldValue> findByField(MetadataField field);
 	
 	public List<MetadataFieldValue> findByCv(ControlledVocabulary cv);
+	
+	@Override
+	public void delete(MetadataFieldValue value);
+	
+	@Override
+	public void deleteAll();
 	
 }

@@ -52,7 +52,7 @@ public class ControlledVocabularyRepoImpl implements CustomControlledVocabularyR
 	@Override
 	@Transactional
 	public void delete(ControlledVocabulary cv) {
-		 List<MetadataFieldValue> values = metadataFieldValueRepo.findByCv(cv); 
+		 List<MetadataFieldValue> values = cv.getValues();		 
 		 if(values.size() > 0) {	
 			 values.forEach(value -> {
 				 value.setCv(null);

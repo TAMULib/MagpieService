@@ -153,7 +153,7 @@ public class SyncService implements Runnable {
         	
         	System.out.println("Watching: " + projectPath.getFileName().toString());
         	
-        	Project project = projectRepo.save(new Project(projectPath.getFileName().toString()));
+        	Project project = projectRepo.create(projectPath.getFileName().toString());
         	
         	List<Path> documents = fileList(projectPath.toString());
         	
@@ -179,23 +179,26 @@ public class SyncService implements Runnable {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
 				
-				ProjectFieldProfile profile = new ProjectFieldProfile(project,
-																  	  (String) mMap.get("gloss"), 
-																  	  (Boolean) mMap.get("repeatable"), 
-																  	  (Boolean) mMap.get("readOnly"),
-																  	  (Boolean) mMap.get("hidden"),
-																  	  (Boolean) mMap.get("required"),
-																  	  InputType.valueOf((String) mMap.get("inputType")),
-																  	  (String) mMap.get("default"));
+				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"));
 				
-				MetadataFieldLabel label = new MetadataFieldLabel((String) mMap.get("label"));
+				ProjectFieldProfile profile = projectFieldProfileRepo.create(label,
+																			 project,
+																			 (String) mMap.get("gloss"), 
+																			 (Boolean) mMap.get("repeatable"), 
+																			 (Boolean) mMap.get("readOnly"),
+																			 (Boolean) mMap.get("hidden"),
+																			 (Boolean) mMap.get("required"),
+																			 InputType.valueOf((String) mMap.get("inputType")),
+																			 (String) mMap.get("default"));
+				
 				
 				label.addProfile(profile);
+				metadataFieldLabelRepo.save(label);
 				
 				fields.add(new MetadataField(label));
-				
+								
 				project.addProfile(profile);
-				
+				projectRepo.save(project);
 			}
         	
         	for(Path documentPath : documents) {
@@ -207,32 +210,36 @@ public class SyncService implements Runnable {
         		String pdfUri = host+pdfPath;
         		String txtUri = host+txtPath;
         		
-        		Document document = new Document(project, documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open");
+        		Document document = documentRepo.create(project, documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open");
         		
         		fields.forEach(field -> {
-        			System.out.println("     " + field.getLabel().getName());
-					field.setDocument(document);					
-					document.addField(field);
+					document.addField(metadataFieldRepo.create(document, field.getLabel()));
 				});
         		
-        		project.addDocument(document);
+        		project.addDocument(documentRepo.save(document));
         		        		
-				Map<String, Object> docMap = new HashMap<String, Object>();
-				
-				docMap.put("document", document);
-				
+				Map<String, Object> docMap = new HashMap<String, Object>();				
+				docMap.put("document", document);				
 				docMap.put("isNew", "true");
 				
-				simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
+				try {
+					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
+	        	}
+	        	catch(Exception e) {
+	        		System.out.println("CRASHED WHILE TRYING TO SEND DOCUMENT!!!");
+	        		e.printStackTrace();
+	        		System.exit(-1);
+	        	}
 				
         	}
         	
         	try {
-        		projectRepo.create(project);
+        		projectRepo.save(project);
         	}
         	catch(Exception e) {
         		System.out.println("CRASHED WHILE TRYING TO SAVE PROJECT!!!");
         		e.printStackTrace();
+        		System.exit(-1);
         	}
         	
         }

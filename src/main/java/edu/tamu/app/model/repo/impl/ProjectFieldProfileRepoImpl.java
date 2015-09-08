@@ -45,10 +45,10 @@ public class ProjectFieldProfileRepoImpl implements CustomProjectFieldProfileRep
 	private ProjectRepo projectRepo;
 		
 	@Override
-	public ProjectFieldProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
-		ProjectFieldProfile profile = projectFieldProfileRepo.findByProject(project);		
+	public ProjectFieldProfile create(MetadataFieldLabel label, Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
+		ProjectFieldProfile profile = projectFieldProfileRepo.findByLabelAndProject(label, project);		
 		if(profile == null) {
-			return projectFieldProfileRepo.save(new ProjectFieldProfile(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
+			return projectFieldProfileRepo.save(new ProjectFieldProfile(label, project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
 		}
 		return profile;
 	}

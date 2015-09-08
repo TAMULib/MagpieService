@@ -77,7 +77,7 @@ public class MetadataFieldValueRepoImpl implements CustomMetadataFieldValueRepo 
 		if(cv != null) {
 			value.setCv(null);
 			cv.removeValue(value);
-			controlledVocabularyRepo.save(cv);
+			controlledVocabularyRepo.save(cv);			
 		}
 		
 		entityManager.remove(entityManager.contains(value) ? value : entityManager.merge(value));

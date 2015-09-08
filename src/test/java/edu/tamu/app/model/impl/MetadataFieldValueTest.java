@@ -80,9 +80,9 @@ public class MetadataFieldValueTest {
 	@Before
 	public void setUp() {
 		testProject = projectRepo.create("testProject");
-		testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-		testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");
 		testLabel = metadataFieldLabelRepo.create("testLabel");
+		testProfile = projectFieldProfileRepo.create(testLabel, testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+		testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");		
 		testField = metadataFieldRepo.create(testDocument, testLabel);		
 		testLabel.addProfile(testProfile);
 		metadataFieldLabelRepo.save(testLabel);

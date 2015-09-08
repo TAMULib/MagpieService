@@ -74,7 +74,7 @@ public class MetadataFieldRepoImpl implements CustomMetadataFieldRepo {
 		if(label != null) {
 			field.setLabel(null);
 			label.removeField(field);
-			metadataFieldLabelRepo.save(label);
+			metadataFieldLabelRepo.save(label);			
 		}
 		
 		List<MetadataFieldValue> values = field.getValues();

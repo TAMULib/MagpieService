@@ -9,8 +9,6 @@
  */
 package edu.tamu.app.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -32,45 +30,39 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @Table
 public class ProjectFieldProfile {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(nullable = false)
 	private String gloss;
 	
-	@Column(nullable = true)
 	private boolean isRepeatable;
 	
-	@Column(nullable = true)
 	private boolean isReadOnly;
 	
-	@Column(nullable = true)
 	private boolean isHidden;
 	
-	@Column(nullable = true)
 	private boolean isRequired;
 	
-	@Column(nullable = false)
 	private InputType inputType;
 	
-	@Column(nullable = true)
 	private String defaultValue;
 	
-	@ManyToOne(optional = false, fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "id") 
-	@JsonIdentityReference(alwaysAsId = true)
-	private Project project;
-	
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id") 
 	@JsonIdentityReference(alwaysAsId = false)
 	private MetadataFieldLabel label;
 	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "id") 
+	@JsonIdentityReference(alwaysAsId = true)
+	private Project project;
+	
 	public ProjectFieldProfile() { }
 
-	public ProjectFieldProfile(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
+	public ProjectFieldProfile(MetadataFieldLabel label, Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {		
+		this.label = label;
 		this.project = project;
 		this.gloss = gloss;
 		this.isReadOnly = isReadOnly == null ? false : isReadOnly;
@@ -145,20 +137,20 @@ public class ProjectFieldProfile {
 		this.defaultValue = defaultValue;
 	}
 
-	public Project getProject() {
-		return project;
-	}
-
-	public void setProject(Project project) {
-		this.project = project;
-	}
-	
 	public MetadataFieldLabel getLabel() {
 		return label;
 	}
 
 	public void setLabel(MetadataFieldLabel label) {
 		this.label = label;
+	}
+
+	public Project getProject() {
+		return project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
 	}
 
 }

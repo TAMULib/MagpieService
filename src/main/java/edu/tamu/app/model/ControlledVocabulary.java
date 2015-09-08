@@ -23,6 +23,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
@@ -34,7 +35,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @Table
 public class ControlledVocabulary {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -42,11 +43,11 @@ public class ControlledVocabulary {
 	@Column(unique = true)
 	private String value;
 	
-	@OneToMany(mappedBy = "cv", fetch = FetchType.EAGER)	
+	@OneToMany(mappedBy="cv", fetch = FetchType.EAGER)	
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldValue.class, property = "id")
 	@JsonIdentityReference(alwaysAsId = true)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
-
+	
 	public ControlledVocabulary() { }
 	
 	public ControlledVocabulary(String value) {
@@ -68,7 +69,8 @@ public class ControlledVocabulary {
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
+
+	@JsonIgnore
 	public List<MetadataFieldValue> getValues() {
 		return values;
 	}
@@ -88,5 +90,5 @@ public class ControlledVocabulary {
 	public void clearValues() {
 		values = new ArrayList<MetadataFieldValue>();
 	}
-
+	
 }

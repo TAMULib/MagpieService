@@ -26,18 +26,20 @@ import edu.tamu.app.model.repo.custom.CustomMetadataFieldRepo;
  *
  */
 @Repository
-public interface MetadataFieldRepo extends JpaRepository<MetadataField, Long>, CustomMetadataFieldRepo {
-
+public interface MetadataFieldRepo extends JpaRepository <MetadataField, Long>, CustomMetadataFieldRepo {
+			
 	public MetadataField create(Document document, MetadataFieldLabel label);
-	
-	public void delete(MetadataField value);
-	
-	public void deleteAll();
 	
 	public List<MetadataField> findByDocument(Document document);
 	
 	public List<MetadataField> findByLabel(MetadataFieldLabel label);
 	
 	public MetadataField findByDocumentAndLabel(Document document, MetadataFieldLabel label);
-
+	
+	@Override
+	public void delete(MetadataField field);
+	
+	@Override
+	public void deleteAll();
+	
 }

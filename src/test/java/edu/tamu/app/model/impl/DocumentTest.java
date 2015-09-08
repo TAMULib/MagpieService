@@ -101,13 +101,13 @@ public class DocumentTest {
 		Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
 		Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 		
-		Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
-		ProjectFieldProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-		Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
-		
 		Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
 		MetadataFieldLabel testLabel = metadataFieldLabelRepo.create("testLabel");
-		Assert.assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
+		Assert.assertEquals("Test MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
+		
+		Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
+		ProjectFieldProfile testProfile = projectFieldProfileRepo.create(testLabel, testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+		Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
 		
 		testLabel.addProfile(testProfile);
 		metadataFieldLabelRepo.save(testLabel);

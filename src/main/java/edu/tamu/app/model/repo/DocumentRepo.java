@@ -27,12 +27,14 @@ import edu.tamu.app.model.repo.custom.CustomDocumentRepo;
  *
  */
 @Repository
-public interface DocumentRepo extends JpaRepository<Document, Long>, CustomDocumentRepo {
+public interface DocumentRepo extends JpaRepository <Document, Long>, CustomDocumentRepo {
 	
 	public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
 	
+	@Override
 	public void delete(Document document);
 	
+	@Override
 	public void deleteAll();
 	
 	/**

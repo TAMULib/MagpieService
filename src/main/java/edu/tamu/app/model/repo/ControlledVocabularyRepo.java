@@ -22,14 +22,16 @@ import edu.tamu.app.model.repo.custom.CustomControlledVocabularyRepo;
  *
  */
 @Repository
-public interface ControlledVocabularyRepo extends JpaRepository<ControlledVocabulary, Long>, CustomControlledVocabularyRepo {
-
+public interface ControlledVocabularyRepo extends JpaRepository <ControlledVocabulary, Long>, CustomControlledVocabularyRepo {
+	
 	public ControlledVocabulary create(String name);
 	
+	public ControlledVocabulary findByValue(String value);
+	
+	@Override
 	public void delete(ControlledVocabulary cv);
 	
+	@Override
 	public void deleteAll();
-		
-	public ControlledVocabulary findByValue(String value);
-		
+	
 }

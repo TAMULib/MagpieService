@@ -129,9 +129,6 @@ public class ExportController {
  			manifest.close();
  			
  			
- 			//TODO: test after changes
- 			
- 			
  			//for each schema in the metadata
  			Map <String, PrintStream> schemaToFile = new HashMap<String, PrintStream>();
  			List<MetadataField> metadatafields = document.getFields();

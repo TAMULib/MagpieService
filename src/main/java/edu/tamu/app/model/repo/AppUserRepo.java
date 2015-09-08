@@ -22,7 +22,7 @@ import edu.tamu.app.model.repo.custom.CustomAppUserRepo;
  *
  */
 @Repository
-public interface AppUserRepo extends JpaRepository <AppUser, Long>, CustomAppUserRepo {
+public interface AppUserRepo extends JpaRepository <AppUser, Long>, CustomAppUserRepo{
 	
 	/**
 	 * Retrieve user by UIN.

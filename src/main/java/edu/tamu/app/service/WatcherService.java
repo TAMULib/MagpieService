@@ -180,6 +180,10 @@ public class WatcherService implements Runnable {
 			e.printStackTrace();
 		}
 		
+		
+		Project project = projectRepo.findByName(folder);
+		
+		
 		if(!folder.equals("projects")) {
 			
 			try {
@@ -192,24 +196,35 @@ public class WatcherService implements Runnable {
 			
 			if(profileObjList == null) profileObjList = (List<Object>) projectMap.get("default");
 			
+			
+    		if(project == null) {
+    			project = projectRepo.create(folder);
+    		}
+    		
+			
 			for(Object metadata : profileObjList) {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
 				
-				ProjectFieldProfile profile = new ProjectFieldProfile(projectRepo.findByName(folder),
-																	  (String) mMap.get("gloss"), 
-																	  (Boolean) mMap.get("repeatable"), 
-																	  (Boolean) mMap.get("readOnly"),
-																	  (Boolean) mMap.get("hidden"),
-																	  (Boolean) mMap.get("required"),
-																	  InputType.valueOf((String) mMap.get("inputType")),
-																	  (String) mMap.get("default"));
+				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"));
 				
-				MetadataFieldLabel label = new MetadataFieldLabel((String) mMap.get("label"));
+				ProjectFieldProfile profile = projectFieldProfileRepo.create(label,
+																	  		 projectRepo.findByName(folder),
+																	  		 (String) mMap.get("gloss"), 
+																	  		 (Boolean) mMap.get("repeatable"), 
+																	  		 (Boolean) mMap.get("readOnly"),
+																	  		 (Boolean) mMap.get("hidden"),
+																	  		 (Boolean) mMap.get("required"),
+																	  		 InputType.valueOf((String) mMap.get("inputType")),
+																	  		 (String) mMap.get("default"));
 				
 				label.addProfile(profile);
-			
+				metadataFieldLabelRepo.save(label);
+				
 				fields.add(new MetadataField(label));
+								
+				project.addProfile(profile);
+				projectRepo.save(project);
 			}
 		}
 		
@@ -255,31 +270,32 @@ public class WatcherService implements Runnable {
                     		
 	                    	if((documentRepo.findByName(docString) == null)) {
 	                    		
-	                    		Project project = projectRepo.findByName(folder);
-	                    		
-	                    		if(project == null) {
-	                    			project = projectRepo.save(new Project(folder));
-	                    		}
-	                    		
 	        					String pdfPath = "/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";
 	            				String txtPath = "/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
 	            				
 	                    		String pdfUri = host+pdfPath;
 	                    		String txtUri = host+txtPath;
 	                         		
-	        					Document document = new Document(project, docString, txtUri, pdfUri, txtPath, pdfPath, "Open");
+	        					Document document = documentRepo.create(project, docString, txtUri, pdfUri, txtPath, pdfPath, "Open");
 	        					
 	        					fields.forEach(field -> {
-	        						field.setDocument(document);
-	        						document.addField(field);
+	        						document.addField(metadataFieldRepo.create(document, field.getLabel()));
 	        					});
-	        					
-	        					project.addDocument(document);
-
+	        	        		
+	        	        		project.addDocument(documentRepo.save(document));
+	        	        		
 	        					Map<String, Object> docMap = new HashMap<String, Object>();
 	        					docMap.put("document", document);
 	        					docMap.put("isNew", "true");
-	        					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));	        					
+	        					
+	        					try {
+	        						simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));	
+	        		        	}
+	        		        	catch(Exception e) {
+	        		        		System.out.println("CRASHED WHILE TRYING TO SEND DOCUMENT!!!");
+	        		        		e.printStackTrace();
+	        		        		System.exit(-1);
+	        		        	}
 	        					
 	        		        	projectRepo.save(project);
 	                    	}

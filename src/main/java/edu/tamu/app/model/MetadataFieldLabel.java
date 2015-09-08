@@ -23,6 +23,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
@@ -34,24 +35,24 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @Table
 public class MetadataFieldLabel {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(nullable = false, unique = true)
+	@Column(unique = true)
 	private String name;
 	
-	@OneToMany(mappedBy = "label", fetch = FetchType.EAGER)	
+	@OneToMany(mappedBy="label", fetch=FetchType.EAGER)	
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = ProjectFieldProfile.class, property = "id")
 	@JsonIdentityReference(alwaysAsId = true)
 	private List<ProjectFieldProfile> profiles = new ArrayList<ProjectFieldProfile>();
 	
-	@OneToMany(mappedBy = "label", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy="label", fetch=FetchType.EAGER)
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataField.class, property = "id")
 	@JsonIdentityReference(alwaysAsId = true)
 	private List<MetadataField> fields = new ArrayList<MetadataField>();
-
+	
 	public MetadataFieldLabel() { }
 	
 	public MetadataFieldLabel(String name) {
@@ -74,6 +75,7 @@ public class MetadataFieldLabel {
 		this.name = name;
 	}
 
+	@JsonIgnore
 	public List<ProjectFieldProfile> getProfiles() {
 		return profiles;
 	}
@@ -93,7 +95,8 @@ public class MetadataFieldLabel {
 	public void clearProfiles() {
 		profiles = new ArrayList<ProjectFieldProfile>();
 	}
-	
+
+	@JsonIgnore
 	public List<MetadataField> getFields() {
 		return fields;
 	}
