@@ -21,16 +21,8 @@ import edu.tamu.app.model.ControlledVocabulary;
  *
  */
 @Repository
-public interface ControlledVocabularyRepo extends JpaRepository <ControlledVocabulary, Long>{
-	
-	public ControlledVocabulary create(String name);
+public interface ControlledVocabularyRepo extends JpaRepository<ControlledVocabulary, Long> {
 	
 	public ControlledVocabulary findByValue(String value);
-	
-	@Override
-	public void delete(ControlledVocabulary cv);
-	
-	@Override
-	public void deleteAll();
-	
+		
 }

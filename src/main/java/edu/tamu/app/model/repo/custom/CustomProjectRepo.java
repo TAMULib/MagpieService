@@ -19,10 +19,6 @@ import edu.tamu.app.model.Project;
  */
 public interface CustomProjectRepo {
 
-	public Project create(String name);
-	
-	public void delete(Project project);
-	
-	public void deleteAll();
+	public Project create(Project project);
 	
 }

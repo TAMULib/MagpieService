@@ -13,7 +13,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.AppUser;
-import edu.tamu.app.model.repo.custom.CustomAppUserRepo;
 
 /**
  * User repository.
@@ -22,7 +21,7 @@ import edu.tamu.app.model.repo.custom.CustomAppUserRepo;
  *
  */
 @Repository
-public interface AppUserRepo extends JpaRepository <AppUser, Long>, CustomAppUserRepo{
+public interface AppUserRepo extends JpaRepository <AppUser, Long> {
 	
 	/**
 	 * Retrieve user by UIN.

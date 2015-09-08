@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -22,9 +23,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -41,38 +39,45 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class Document {
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
+	@Column(nullable = false)
 	private String name;
 	
+	@Column(nullable = false)
 	private String status;
 	
+	@Column(nullable = true)
 	private String annotator;
 	
+	@Column(nullable = true)
 	private String notes;
 
-	private String txtUri;
-
+	@Column(nullable = false)
 	private String pdfUri;
 	
+	@Column(nullable = false)
 	private String pdfPath;
 	
+	@Column(nullable = false)
+	private String txtUri;
+	
+	@Column(nullable = false)
 	private String txtPath;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=Project.class, property="id") 
+	@ManyToOne(optional = false, fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "id") 
 	@JsonIdentityReference(alwaysAsId=true)
 	private Project project;
 	
-	@OneToMany(mappedBy="document", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)	
-	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataField.class, property="id")
-	@JsonIdentityReference(alwaysAsId=false)
+	@OneToMany(mappedBy="document", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private List<MetadataField> fields = new ArrayList<MetadataField>();
 	
 	public Document() { }
 	
-	public Document(String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
+	public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
+		this.project = project;
 		this.name = name;
 		this.txtUri = txtUri;
 		this.pdfUri = pdfUri;
@@ -128,6 +133,14 @@ public class Document {
 	public void setTxtUri(String txtUri) {
 		this.txtUri = txtUri;
 	}
+	
+	public String getTxtPath() {
+		return txtPath;
+	}
+
+	public void setTxtPath(String txtPath) {
+		this.txtPath = txtPath;
+	}
 
 	public String getPdfUri() {
 		return pdfUri;
@@ -144,15 +157,7 @@ public class Document {
 	public void setPdfPath(String pdfPath) {
 		this.pdfPath = pdfPath;
 	}
-
-	public String getTxtPath() {
-		return txtPath;
-	}
-
-	public void setTxtPath(String txtPath) {
-		this.txtPath = txtPath;
-	}
-
+	
 	public Project getProject() {
 		return project;
 	}
@@ -161,34 +166,26 @@ public class Document {
 		this.project = project;
 	}
 
-	public List<MetadataField> getMetadataFields() {
+	public List<MetadataField> getFields() {
 		return fields;
 	}
 
-	public void setMetadataFields(List<MetadataField> fields) {
+	public void setFields(List<MetadataField> fields) {
 		this.fields = fields;
 	}
 	
-	public void addMetadataField(MetadataField field) {
+	public void addField(MetadataField field) {
 		fields.add(field);
 	}
 	
-	public void removeMetadataField(MetadataField field) {
+	public void removeField(MetadataField field) {
 		fields.remove(field);
 	}
 	
-	public void clearMetadataFields() {
+	public void clearFields() {
 		fields = new ArrayList<MetadataField>();
 	}
 	
-	/* 
-	 * TODO: 
-	 * 
-	 * template hardcoded classpath in application properties
-	 * or use classpath
-	 * 
-	 */
-
 	/**
 	 *  Gets the file off the disk
 	 *  

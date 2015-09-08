@@ -25,20 +25,12 @@ import edu.tamu.app.model.MetadataFieldLabel;
  *
  */
 @Repository
-public interface MetadataFieldRepo extends JpaRepository <MetadataField, Long> {
-			
-	public MetadataField create(Document document, MetadataFieldLabel label);
-	
+public interface MetadataFieldRepo extends JpaRepository<MetadataField, Long> {
+
 	public List<MetadataField> findByDocument(Document document);
 	
 	public List<MetadataField> findByLabel(MetadataFieldLabel label);
 	
 	public MetadataField findByDocumentAndLabel(Document document, MetadataFieldLabel label);
-	
-	@Override
-	public void delete(MetadataField field);
-	
-	@Override
-	public void deleteAll();
-	
+
 }

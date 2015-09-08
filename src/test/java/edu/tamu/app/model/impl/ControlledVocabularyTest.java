@@ -44,7 +44,7 @@ public class ControlledVocabularyTest {
 	@Test
 	public void testCreateControlledVocabulary() {
 		Assert.assertEquals("ControlledVocabularyRepo is not empty.", 0, controlledVocabularyRepo.count());
-		ControlledVocabulary testControlledVocabulary = controlledVocabularyRepo.create("test");
+		ControlledVocabulary testControlledVocabulary = controlledVocabularyRepo.save(new ControlledVocabulary("test"));
 		Assert.assertEquals("Test ControlledVocabulary was not created.", 1, controlledVocabularyRepo.count());
 		Assert.assertEquals("Expected test ControlledVocabulary was not created.", "test", testControlledVocabulary.getValue());
 	}
@@ -52,16 +52,15 @@ public class ControlledVocabularyTest {
 	@Test
 	public void testDuplicateControlledVocabulary() {
 		Assert.assertEquals("ControlledVocabularyRepo is not empty.", 0, controlledVocabularyRepo.count());
-		controlledVocabularyRepo.create("test");
-		controlledVocabularyRepo.create("test");
-		Assert.assertEquals("Test ControlledVocabulary was created duplicate.", 1, controlledVocabularyRepo.count());
-		
+		controlledVocabularyRepo.save(new ControlledVocabulary("test"));
+		controlledVocabularyRepo.save(new ControlledVocabulary("test"));
+		Assert.assertEquals("Test ControlledVocabulary duplicate.", 1, controlledVocabularyRepo.count());
 	}
 	
 	@Test
 	public void testFindControlledVocabulary() {
 		Assert.assertEquals("ControlledVocabularyRepo is not empty.", 0, controlledVocabularyRepo.count());
-		ControlledVocabulary testControlledVocabulary = controlledVocabularyRepo.create("test");
+		ControlledVocabulary testControlledVocabulary = controlledVocabularyRepo.save(new ControlledVocabulary("test"));
 		Assert.assertEquals("Test ControlledVocabulary was not created.", 1, controlledVocabularyRepo.count());
 		ControlledVocabulary assertControlledVocabulary = controlledVocabularyRepo.findByValue("test");
 		Assert.assertEquals("Expected test ControlledVocabulary was not created.", testControlledVocabulary.getValue(), assertControlledVocabulary.getValue());
@@ -70,11 +69,10 @@ public class ControlledVocabularyTest {
 	@Test
 	public void testDeleteControlledVocabulary() {
 		Assert.assertEquals("ControlledVocabularyRepo is not empty.", 0, controlledVocabularyRepo.count());
-		ControlledVocabulary testControlledVocabulary = controlledVocabularyRepo.create("test");
+		ControlledVocabulary testControlledVocabulary = controlledVocabularyRepo.save(new ControlledVocabulary("test"));
 		Assert.assertEquals("Test ControlledVocabulary was not created.", 1, controlledVocabularyRepo.count());
 		controlledVocabularyRepo.delete(testControlledVocabulary);
 		Assert.assertEquals("Test ControlledVocabulary was not deleted.", 0, controlledVocabularyRepo.count());
-		
 	}
 	
 	@After

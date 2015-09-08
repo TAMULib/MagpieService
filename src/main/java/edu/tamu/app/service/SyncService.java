@@ -37,9 +37,10 @@ import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.RequestId;
 import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.MetadataField;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.MetadataFieldLabel;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.ProjectFieldProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
@@ -152,13 +153,13 @@ public class SyncService implements Runnable {
         	
         	System.out.println("Watching: " + projectPath.getFileName().toString());
         	
-        	Project project = projectRepo.create(projectPath.getFileName().toString());
+        	Project project = projectRepo.save(new Project(projectPath.getFileName().toString()));
         	
         	List<Path> documents = fileList(projectPath.toString());
         	
-        	List<Object> profile = (List<Object>) projectMap.get(projectPath.getFileName().toString());
+        	List<Object> profileObjList = (List<Object>) projectMap.get(projectPath.getFileName().toString());
         	
-        	List<MetadataFieldLabel> labels = new ArrayList<MetadataFieldLabel>();
+        	List<MetadataField> fields = new ArrayList<MetadataField>();
         	
         	executorService.submit(new WatcherService(projectRepo,
         											  documentRepo,
@@ -172,24 +173,27 @@ public class SyncService implements Runnable {
 					   								  objectMapper,
 					   								  projectPath.getFileName().toString()));
         	
-        	if(profile == null) profile = (List<Object>) projectMap.get("default");
+        	if(profileObjList == null) profileObjList = (List<Object>) projectMap.get("default");
         	
-        	for(Object metadata : profile) {
+        	for(Object metadata : profileObjList) {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
-				    		
-				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"));
 				
-				projectFieldProfileRepo.create(label,
-									  		   project,
-									  		   (String) mMap.get("gloss"), 
-									  		   (Boolean) mMap.get("repeatable"), 
-									  		   (Boolean) mMap.get("readOnly"),
-									  		   (Boolean) mMap.get("hidden"),
-									  		   (Boolean) mMap.get("required"),
-									  		   InputType.valueOf((String) mMap.get("inputType")),(String) mMap.get("default"));
-								
-				labels.add(label);
+				ProjectFieldProfile profile = new ProjectFieldProfile(project,
+																  	  (String) mMap.get("gloss"), 
+																  	  (Boolean) mMap.get("repeatable"), 
+																  	  (Boolean) mMap.get("readOnly"),
+																  	  (Boolean) mMap.get("hidden"),
+																  	  (Boolean) mMap.get("required"),
+																  	  InputType.valueOf((String) mMap.get("inputType")),
+																  	  (String) mMap.get("default"));
+				
+				MetadataFieldLabel label = new MetadataFieldLabel((String) mMap.get("label"), profile);
+				
+				fields.add(new MetadataField(label));
+				
+				project.addProfile(profile);
+				
 			}
         	
         	for(Path documentPath : documents) {
@@ -200,14 +204,35 @@ public class SyncService implements Runnable {
 				String txtPath = "/mnt/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".txt";
         		String pdfUri = host+pdfPath;
         		String txtUri = host+txtPath;
-
-				Document document = documentRepo.create(documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open", labels);
-
+        		
+        		Document document = new Document(project, documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open");
+        		
+        		fields.forEach(field -> {
+        			System.out.println("     " + field.getLabel().getName());
+					field.setDocument(document);					
+					document.addField(field);
+				});
+        		
+        		project.addDocument(document);
+        		        		
 				Map<String, Object> docMap = new HashMap<String, Object>();
+				
 				docMap.put("document", document);
+				
 				docMap.put("isNew", "true");
+				
 				simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
+				
         	}
+        	
+        	try {
+        		projectRepo.create(project);
+        	}
+        	catch(Exception e) {
+        		System.out.println("CRASHED WHILE TRYING TO SAVE PROJECT!!!");
+        		e.printStackTrace();
+        	}
+        	
         }
 		
 	}

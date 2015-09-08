@@ -134,7 +134,7 @@ public class ExportController {
  			
  			//for each schema in the metadata
  			Map <String, PrintStream> schemaToFile = new HashMap<String, PrintStream>();
- 			List<MetadataField> metadatafields = document.getMetadataFields();
+ 			List<MetadataField> metadatafields = document.getFields();
  			
  			for(MetadataField metadataField : metadatafields) {
  	 			//write a dublin-core style xml file

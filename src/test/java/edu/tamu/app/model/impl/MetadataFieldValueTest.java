@@ -1,7 +1,5 @@
 package edu.tamu.app.model.impl;
 
-import java.util.ArrayList;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,14 +19,19 @@ import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import edu.tamu.app.config.TestDataSourceConfiguration;
 import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataField;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
+import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectFieldProfile;
 import edu.tamu.app.model.repo.ControlledVocabularyRepo;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
+import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
+import edu.tamu.app.model.repo.ProjectRepo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestDataSourceConfiguration.class})
@@ -37,6 +40,9 @@ import edu.tamu.app.model.repo.MetadataFieldValueRepo;
     					  TransactionalTestExecutionListener.class,
     					  DbUnitTestExecutionListener.class })
 public class MetadataFieldValueTest {
+	
+	@Autowired
+	private ProjectRepo projectRepo;
 	
 	@Autowired
 	private DocumentRepo documentRepo;
@@ -51,11 +57,18 @@ public class MetadataFieldValueTest {
 	private MetadataFieldValueRepo metadataFieldValueRepo;
 	
 	@Autowired
+	private ProjectFieldProfileRepo projectFieldProfileRepo;
+	
+	@Autowired
 	private ControlledVocabularyRepo controlledVocabularyRepo;
 		
+	private Project testProject;
+	
 	private Document testDocument;
 	
 	private MetadataFieldLabel testLabel;
+	
+	private ProjectFieldProfile testProfile;
 	
 	private MetadataField testField;
 	
@@ -66,15 +79,17 @@ public class MetadataFieldValueTest {
 	
 	@Before
 	public void setUp() {
-		testDocument = documentRepo.create("testDocument", null, null, null, null, "Unassigned");
-		testLabel = metadataFieldLabelRepo.create("testLabel");
-		testField = metadataFieldRepo.create(testDocument, testLabel);
+		testProject = projectRepo.save(new Project("testProject"));
+		testProfile = projectFieldProfileRepo.save(new ProjectFieldProfile(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default"));
+		testDocument = documentRepo.save(new Document(testProject, "testDocument", null, null, null, null, "Unassigned"));
+		testLabel = metadataFieldLabelRepo.save(new MetadataFieldLabel("testLabel", testProfile));
+		testField = metadataFieldRepo.save(new MetadataField(testDocument, testLabel));
 	}
 	
 	@Test
 	public void testSaveMetadataFieldValue() {
 		Assert.assertEquals("MetadataFieldValueRepo is not empty.", 0, metadataFieldValueRepo.count());
-		MetadataFieldValue testValue = metadataFieldValueRepo.create("test", testField);
+		MetadataFieldValue testValue = metadataFieldValueRepo.save(new MetadataFieldValue("test", testField));
 		Assert.assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
 		Assert.assertEquals("Expected Test MetadataFieldValue was not created.", "test", testValue.getValue());	
 	}
@@ -82,7 +97,7 @@ public class MetadataFieldValueTest {
 	@Test
 	public void testFindMetadataFieldValue() {
 		Assert.assertEquals("MetadataFieldValueRepo is not empty.", 0, metadataFieldValueRepo.count());
-		MetadataFieldValue testValue = metadataFieldValueRepo.create("test", testField);
+		MetadataFieldValue testValue = metadataFieldValueRepo.save(new MetadataFieldValue("test", testField));
 		Assert.assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
 		testValue = metadataFieldValueRepo.findByValueAndField("test", testField);
 		Assert.assertEquals("Test MetadataFieldValue was not found.", "test", testValue.getValue());
@@ -91,7 +106,7 @@ public class MetadataFieldValueTest {
 	@Test
 	public void testDeleteMetadataFieldValue() {
 		Assert.assertEquals("MetadataFieldValueRepo is not empty.", 0, metadataFieldValueRepo.count());
-		MetadataFieldValue testValue = metadataFieldValueRepo.create("test", testField);
+		MetadataFieldValue testValue = metadataFieldValueRepo.save(new MetadataFieldValue("test", testField));
 		Assert.assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
 		metadataFieldValueRepo.delete(testValue);
 		Assert.assertEquals("Test MetadataFieldValue was not deleted.", 0, metadataFieldValueRepo.count());
@@ -101,11 +116,11 @@ public class MetadataFieldValueTest {
 	public void testCascadeOnDeleteMetadataFieldValue() {
 		
 		Assert.assertEquals("ControlledVocabularyRepo is not empty.", 0, controlledVocabularyRepo.count());
-		ControlledVocabulary testControlledVocabulary = controlledVocabularyRepo.create("test");
+		ControlledVocabulary testControlledVocabulary = controlledVocabularyRepo.save(new ControlledVocabulary("test"));
 		Assert.assertEquals("Test ControlledVocabulary was not created.", 1, controlledVocabularyRepo.count());
 		
 		Assert.assertEquals("MetadataFieldValueRepo is not empty.", 0, metadataFieldValueRepo.count());
-		MetadataFieldValue testValue = metadataFieldValueRepo.create(testControlledVocabulary, testField);
+		MetadataFieldValue testValue = metadataFieldValueRepo.save(new MetadataFieldValue(testControlledVocabulary, testField));
 		Assert.assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
 		
 		Assert.assertEquals("Test MetadataFieldValue with ControlledVocabulary was not created.", testControlledVocabulary.getValue(), testValue.getValue());
@@ -119,10 +134,12 @@ public class MetadataFieldValueTest {
 	
 	@After
 	public void cleanUp() {
+		projectRepo.deleteAll();
 		documentRepo.deleteAll();
 		metadataFieldRepo.deleteAll();		
 		metadataFieldLabelRepo.deleteAll();
 		metadataFieldValueRepo.deleteAll();
+		projectFieldProfileRepo.deleteAll();
 		controlledVocabularyRepo.deleteAll();
 	}
 	

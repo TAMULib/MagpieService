@@ -9,13 +9,17 @@
  */
 package edu.tamu.app.model;
 
-import javax.persistence.CascadeType;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -31,39 +35,45 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @Table
 public class ProjectFieldProfile {
-
+	
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
+	@Column(nullable = false)
 	private String gloss;
 	
+	@Column(nullable = true)
 	private boolean isRepeatable;
 	
+	@Column(nullable = true)
 	private boolean isReadOnly;
 	
+	@Column(nullable = true)
 	private boolean isHidden;
 	
+	@Column(nullable = true)
 	private boolean isRequired;
 	
+	@Column(nullable = false)
 	private InputType inputType;
 	
+	@Column(nullable = true)
 	private String defaultValue;
 	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataFieldLabel.class, property="id") 
-	@JsonIdentityReference(alwaysAsId=false)
-	private MetadataFieldLabel label;
-	
-	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=Project.class, property="id") 
 	@JsonIdentityReference(alwaysAsId=true)
 	private Project project;
 	
+	@OneToMany(mappedBy = "profile", fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=MetadataFieldLabel.class, property="id") 
+	@JsonIdentityReference(alwaysAsId=true)
+	private List<MetadataFieldLabel> labels = new ArrayList<MetadataFieldLabel>();
+	
 	public ProjectFieldProfile() { }
 
-	public ProjectFieldProfile(MetadataFieldLabel label, Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {		
-		this.label = label;
+	public ProjectFieldProfile(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
 		this.project = project;
 		this.gloss = gloss;
 		this.isReadOnly = isReadOnly == null ? false : isReadOnly;
@@ -138,20 +148,32 @@ public class ProjectFieldProfile {
 		this.defaultValue = defaultValue;
 	}
 
-	public MetadataFieldLabel getLabel() {
-		return label;
-	}
-
-	public void setLabel(MetadataFieldLabel label) {
-		this.label = label;
-	}
-
 	public Project getProject() {
 		return project;
 	}
 
 	public void setProject(Project project) {
 		this.project = project;
+	}
+
+	public List<MetadataFieldLabel> getLabels() {
+		return labels;
+	}
+
+	public void setLabels(List<MetadataFieldLabel> labels) {
+		this.labels = labels;
+	}
+	
+	public void addLabel(MetadataFieldLabel label) {
+		labels.add(label);
+	}
+	
+	public void removeLabel(MetadataFieldLabel label) {
+		labels.remove(label);
+	}
+	
+	public void clearLabels() {
+		labels = new ArrayList<MetadataFieldLabel>();
 	}
 
 }

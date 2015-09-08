@@ -22,13 +22,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 /**
  * 
  * 
@@ -40,20 +33,16 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 public class Project {
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
-	@Column(unique = true)
+	@Column(unique = true, nullable = false)
 	private String name;
 	
-	@OneToMany(mappedBy = "project", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)	
-	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=ProjectFieldProfile.class, property="id")
-	@JsonIdentityReference(alwaysAsId=false)
+	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)	
 	private List<ProjectFieldProfile> profiles = new ArrayList<ProjectFieldProfile>();
 	
-	@OneToMany(mappedBy = "project", cascade = {CascadeType.DETACH, CascadeType.REFRESH}, fetch=FetchType.EAGER, orphanRemoval = false)
-	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, scope=Document.class, property="id")
-	@JsonIdentityReference(alwaysAsId=false)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = false)
 	private List<Document> documents = new ArrayList<Document>();
 	
 	public Project() { }

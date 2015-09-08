@@ -13,7 +13,6 @@ import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -50,8 +49,6 @@ import edu.tamu.app.model.MetadataField;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
-import edu.tamu.app.model.response.marc.FlatMARC;
-import edu.tamu.app.service.VoyagerService;
 
 /** 
  * Metadata Field Controller
@@ -82,8 +79,8 @@ public class MetadataFieldController {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
-	@Autowired 
-	private VoyagerService voyagerService; 
+//	@Autowired 
+//	private VoyagerService voyagerService; 
 	
 	/**
 	 * Endpoint to return list of projects.
@@ -209,14 +206,14 @@ public class MetadataFieldController {
 		
 		for(Document document : documents) {
 			
-			List<MetadataField> metadataFields = document.getMetadataFields();
+			List<MetadataField> metadataFields = document.getFields();
 			
 			List<String> documentMetadata = new ArrayList<String>();
 			
 			documentMetadata.add(document.getName() + ".pdf");
 			
 			Collections.sort(metadataFields, new LabelComparator());
-			
+						
 			for(MetadataField metadatum : metadataFields) {
 				
 				String values = null;
@@ -260,18 +257,13 @@ public class MetadataFieldController {
 		
 		for(Document document : documents) {
 			
-			List<MetadataField> metadataFields = document.getMetadataFields();
+			List<MetadataField> metadataFields = document.getFields();
 			
 			for(MetadataField metadataField : metadataFields) {
 				
 				for(MetadataFieldValue metadataFieldValue : metadataField.getValues()) {
 					
 					List<String> documentMetadata = new ArrayList<String>();
-					
-					// TODO: why does metadatafield value have a name and a label
-					
-					//documentMetadata.add(metadataField.getLabel().getName());
-					
 					
 					documentMetadata.add(metadataField.getLabel().getName());
 					documentMetadata.add(metadataFieldValue.getValue());
@@ -334,67 +326,12 @@ public class MetadataFieldController {
 		}		
 		
 		int removed = 0;
-		for(MetadataField field : documentRepo.findByName(map.get("name")).getMetadataFields()) {
+		for(MetadataField field : documentRepo.findByName(map.get("name")).getFields()) {
 			metadataFieldRepo.delete(field);
 			removed++;
 		}
 		
 		return new ApiResponse("success", "removed " + removed, new RequestId(requestId));
-	}
-	
-	/**
-	 * Endpoint to return metadata fields by name.
-	 * 
-	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
-	 * 
-	 * @return		ApiResImpl
-	 * 
-	 * @throws 		Exception
-	 */
-	@SuppressWarnings("unchecked")
-	@MessageMapping("/get")
-	@Auth
-	@SendToUser
-	public ApiResponse getMetadata(Message<?> message, @ReqId String requestId) throws Exception {		
-		
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String data = accessor.getNativeHeader("data").get(0).toString();
-		Map<String, String> headerMap = new HashMap<String, String>();
-		
-		try {
-			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		List<MetadataField> metadataFields = documentRepo.findByName(headerMap.get("name")).getMetadataFields();
-		
-		
-		Map<String, Object> metadataMap = new HashMap<String, Object>();
-		
-		FlatMARC flatMarc = new FlatMARC(voyagerService.getMARC(headerMap.get("name")));
-		
-		Field[] marcFields = FlatMARC.class.getDeclaredFields();
-		for (Field field : marcFields) {
-			field.setAccessible(true);
-            List<String> marcList = new ArrayList<String>();
-            if(field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
-            	for(String string : (List<String>) field.get(flatMarc)) {
-            		marcList.add(string);
-            	}
-            }
-            else {
-            	marcList.add(field.get(flatMarc).toString());
-            }            
-            metadataMap.put(field.getName().replace('_','.'), marcList);
-        }
-		
-		for (MetadataField field : metadataFields) {			
-			metadataMap.put(field.getLabel().getName(), field.getValues());
-		}
-		
-		return new ApiResponse("success", metadataMap, new RequestId(requestId));
 	}
 	
 	/**
@@ -433,7 +370,7 @@ public class MetadataFieldController {
 						
 			MetadataField metadataField = null;
 					
-			for(MetadataField field :  document.getMetadataFields()) {
+			for(MetadataField field : document.getFields()) {
 				if(field.getLabel().getName().equals(label)) {
 					metadataField = field;
 				}
@@ -443,7 +380,7 @@ public class MetadataFieldController {
 				metadataField.addValue(new MetadataFieldValue(value, metadataField));
 			}
 			
-			document.addMetadataField(metadataField);
+			document.addField(metadataField);
 			
 			documentRepo.save(document);
 		}

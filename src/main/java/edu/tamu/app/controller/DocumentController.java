@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.controller;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,7 @@ import edu.tamu.framework.model.RequestId;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
@@ -114,6 +116,7 @@ public class DocumentController {
 	 * @throws 		Exception
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	@MessageMapping("/get")
 	@Auth
 	@SendToUser
@@ -126,21 +129,42 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Document doc = documentRepo.findByName(headerMap.get("name"));
-		Map<String,Object> map = new HashMap<String,Object>();
-		map.put("annotator", doc.getAnnotator());
+		
+		Document document = documentRepo.findByName(headerMap.get("name"));
 		
 		
-		List<String> labels = new ArrayList<String>();
-		doc.getMetadataFields().forEach(field -> {
-			labels.add(field.getLabel().getName());
+		FlatMARC flatMarc = new FlatMARC(voyagerService.getMARC(headerMap.get("name")));
+		
+		Field[] marcFields = FlatMARC.class.getDeclaredFields();
+		
+		
+		Map<String, List<String>> metadataMap = new HashMap<String, List<String>>();
+		
+		for (Field field : marcFields) {
+			field.setAccessible(true);
+            List<String> marcList = new ArrayList<String>();
+            if(field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
+            	for(String string : (List<String>) field.get(flatMarc)) {
+            		marcList.add(string);
+            	}
+            }
+            else {
+            	marcList.add(field.get(flatMarc).toString());
+            }
+            
+            metadataMap.put(field.getName().replace('_','.'), marcList);
+        }
+		
+		document.getFields().forEach(field -> {
+			List<String> values = metadataMap.get(field.getLabel().getName());
+			if(values != null) {
+				values.forEach(value -> {
+					field.addValue(new MetadataFieldValue(value, field));
+				});
+			}
 		});
-		map.put("metadataLabels", labels);
-		
-		
-		map.put("notes", doc.getNotes());
-				
-		return new ApiResponse("success", map, new RequestId(requestId));
+						
+		return new ApiResponse("success", document, new RequestId(requestId));
 	}
 	
 	/**
@@ -158,25 +182,33 @@ public class DocumentController {
 	@Auth
 	@SendToUser
 	public ApiResponse pageDocuments(Message<?> message, @ReqId String requestId) throws Exception {
+		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();		
+		
 		Map<String,String> headerMap = new HashMap<String,String>();
+		
 		try {
 			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
-	    Direction sortDirection;	    
-	    if(headerMap.get("direction").equals("asc")) {
+	    
+		Direction sortDirection;	    
+	   
+		if(headerMap.get("direction").equals("asc")) {
 	    	sortDirection = Sort.Direction.ASC;
 	    }
 	    else {
 	    	sortDirection = Sort.Direction.DESC;
 	    }
+	    
 		String name = headerMap.get("name");
 		String annotator = headerMap.get("annotator");
 		String[] status = new String[2];
+		
 		status[0] = headerMap.get("status");
+		
 		if(status[0].equals("Assigned")) {
 			status[1] = "Rejected";
 		}
@@ -185,8 +217,7 @@ public class DocumentController {
 		}
 				
 		Pageable request = new PageRequest(Integer.parseInt(headerMap.get("page")) - 1, Integer.parseInt(headerMap.get("size")), sortDirection, headerMap.get("field"));
-		Page<Document> documents = null;				
-		
+		Page<Document> documents = null;
 		
 		if(name.length() > 0) {			
 			if(status[0].length() > 0) {
@@ -232,7 +263,8 @@ public class DocumentController {
 		}
 		else {
 			documents = documentRepo.findAll(request);
-		}	    
+		}
+		
 	    return new ApiResponse("success", documents, new RequestId(requestId));
 	}
 
@@ -279,66 +311,66 @@ public class DocumentController {
 	}
 	
 	
-	/**
-	 * Returns the url of the requested txt document.
-	 * 
-	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
-	 * 
-	 * @return		ApiResImpl
-	 * 
-	 * @throws 		Exception
-	 * 
-	 */
-	@MessageMapping("/txt")
-	@Auth
-	@SendToUser
-	public ApiResponse txt(Message<?> message, @ReqId String requestId) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);		
-		String data = accessor.getNativeHeader("data").get(0).toString();		
-		Map<String,String> map = new HashMap<String,String>();		
-		try {
-			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}		
-		Document doc = documentRepo.findByName(map.get("name"));
-		
-		Map<String, Object> txtMap = new HashMap<String, Object>();
-		txtMap.put("uri", doc.getTxtUri());
-		
-		return new ApiResponse("success", txtMap, new RequestId(requestId));
-	}
+//	/**
+//	 * Returns the url of the requested txt document.
+//	 * 
+//	 * @param 		message			Message<?>
+//	 * @param 		requestId		@ReqId String
+//	 * 
+//	 * @return		ApiResImpl
+//	 * 
+//	 * @throws 		Exception
+//	 * 
+//	 */
+//	@MessageMapping("/txt")
+//	@Auth
+//	@SendToUser
+//	public ApiResponse txt(Message<?> message, @ReqId String requestId) throws Exception {
+//		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);		
+//		String data = accessor.getNativeHeader("data").get(0).toString();		
+//		Map<String,String> map = new HashMap<String,String>();		
+//		try {
+//			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}		
+//		Document doc = documentRepo.findByName(map.get("name"));
+//		
+//		Map<String, Object> txtMap = new HashMap<String, Object>();
+//		txtMap.put("uri", doc.getTxtUri());
+//		
+//		return new ApiResponse("success", txtMap, new RequestId(requestId));
+//	}
 	
-	/**
-	 * Returns the url of the requested pdf document.
-	 * 
-	 * @param 		message			Message<?> message
-	 * @param 		requestId		@ReqId String
-	 * 
-	 * @return		ApiResImpl
-	 * 
-	 * @throws 		Exception
-	 * 
-	 */
-	@MessageMapping("/pdf")
-	@Auth
-	@SendToUser
-	public ApiResponse pdf(Message<?> message, @ReqId String requestId) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String data = accessor.getNativeHeader("data").get(0).toString();		
-		Map<String,String> map = new HashMap<String,String>();		
-		try {
-			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}		
-		Document doc = documentRepo.findByName(map.get("name"));
-		
-		Map<String, Object> pdfMap = new HashMap<String, Object>();
-		pdfMap.put("uri", doc.getPdfUri());
-		
-		return new ApiResponse("success", pdfMap, new RequestId(requestId));
-	}
+//	/**
+//	 * Returns the url of the requested pdf document.
+//	 * 
+//	 * @param 		message			Message<?> message
+//	 * @param 		requestId		@ReqId String
+//	 * 
+//	 * @return		ApiResImpl
+//	 * 
+//	 * @throws 		Exception
+//	 * 
+//	 */
+//	@MessageMapping("/pdf")
+//	@Auth
+//	@SendToUser
+//	public ApiResponse pdf(Message<?> message, @ReqId String requestId) throws Exception {
+//		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+//		String data = accessor.getNativeHeader("data").get(0).toString();		
+//		Map<String,String> map = new HashMap<String,String>();		
+//		try {
+//			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}		
+//		Document doc = documentRepo.findByName(map.get("name"));
+//		
+//		Map<String, Object> pdfMap = new HashMap<String, Object>();
+//		pdfMap.put("uri", doc.getPdfUri());
+//		
+//		return new ApiResponse("success", pdfMap, new RequestId(requestId));
+//	}
 	
 }
