@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectFieldProfile;
+import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
@@ -62,7 +62,7 @@ public class ProjectRepoImpl implements CustomProjectRepo {
 	@Override
 	@Transactional
 	public void delete(Project project) {
-		List<ProjectFieldProfile> profiles = project.getProfiles();
+		List<ProjectLabelProfile> profiles = project.getProfiles();
 		if(profiles.size() > 0) {
 			profiles.forEach(profile -> {
 				profile.setProject(null);

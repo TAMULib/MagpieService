@@ -45,7 +45,7 @@ import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.RequestId;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldValue;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
 import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
@@ -203,7 +203,7 @@ public class MetadataFieldController {
 		
 		for(Document document : documents) {
 			
-			List<MetadataField> metadataFields = document.getFields();
+			List<MetadataFieldGroup> metadataFields = document.getFields();
 			
 			List<String> documentMetadata = new ArrayList<String>();
 			
@@ -211,7 +211,7 @@ public class MetadataFieldController {
 			
 			Collections.sort(metadataFields, new LabelComparator());
 						
-			for(MetadataField metadatum : metadataFields) {
+			for(MetadataFieldGroup metadatum : metadataFields) {
 				
 				String values = null;
 				for(MetadataFieldValue medataFieldValue : metadatum.getValues()) {					
@@ -254,9 +254,9 @@ public class MetadataFieldController {
 		
 		for(Document document : documents) {
 			
-			List<MetadataField> metadataFields = document.getFields();
+			List<MetadataFieldGroup> metadataFields = document.getFields();
 			
-			for(MetadataField metadataField : metadataFields) {
+			for(MetadataFieldGroup metadataField : metadataFields) {
 				
 				for(MetadataFieldValue metadataFieldValue : metadataField.getValues()) {
 					
@@ -290,7 +290,7 @@ public class MetadataFieldController {
 	@Auth
 	@SendToUser
 	public ApiResponse all(Message<?> message, @ReqId String requestId) throws Exception {		
-		Map<String, List<MetadataField>> metadataMap = new HashMap<String, List<MetadataField>>();
+		Map<String, List<MetadataFieldGroup>> metadataMap = new HashMap<String, List<MetadataFieldGroup>>();
 		metadataMap.put("list", metadataFieldRepo.findAll());		
 		return new ApiResponse("success", metadataMap, new RequestId(requestId));
 	}
@@ -323,7 +323,7 @@ public class MetadataFieldController {
 		}		
 		
 		int removed = 0;
-		for(MetadataField field : documentRepo.findByName(map.get("name")).getFields()) {
+		for(MetadataFieldGroup field : documentRepo.findByName(map.get("name")).getFields()) {
 			metadataFieldRepo.delete(field);
 			removed++;
 		}
@@ -365,9 +365,9 @@ public class MetadataFieldController {
 			
 			Document document = documentRepo.findByName((String) map.get("name"));
 						
-			MetadataField metadataField = null;
+			MetadataFieldGroup metadataField = null;
 					
-			for(MetadataField field : document.getFields()) {
+			for(MetadataFieldGroup field : document.getFields()) {
 				if(field.getLabel().getName().equals(label)) {
 					metadataField = field;
 				}
@@ -391,7 +391,7 @@ public class MetadataFieldController {
 	 * @author
 	 *
 	 */
-	class LabelComparator implements Comparator<MetadataField>
+	class LabelComparator implements Comparator<MetadataFieldGroup>
 	{
 		/**
 		 * Compare labels of MetadataFieldImpl
@@ -402,7 +402,7 @@ public class MetadataFieldController {
 		 * @return		int
 		 */
 		@Override
-		public int compare(MetadataField m1, MetadataField m2) {
+		public int compare(MetadataFieldGroup m1, MetadataFieldGroup m2) {
 			return m1.getLabel().getName().compareTo(m2.getLabel().getName());
 		}
 	}

@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 @Entity
 @Table
-public class ProjectFieldProfile {
+public class ProjectLabelProfile {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,9 +59,9 @@ public class ProjectFieldProfile {
 	@JsonIdentityReference(alwaysAsId = true)
 	private Project project;
 	
-	public ProjectFieldProfile() { }
+	public ProjectLabelProfile() { }
 
-	public ProjectFieldProfile(MetadataFieldLabel label, Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {		
+	public ProjectLabelProfile(MetadataFieldLabel label, Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {		
 		this.label = label;
 		this.project = project;
 		this.gloss = gloss;

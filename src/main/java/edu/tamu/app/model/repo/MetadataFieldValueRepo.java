@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.ControlledVocabulary;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.custom.CustomMetadataFieldValueRepo;
 
@@ -28,17 +28,17 @@ import edu.tamu.app.model.repo.custom.CustomMetadataFieldValueRepo;
 @Repository
 public interface MetadataFieldValueRepo extends JpaRepository <MetadataFieldValue, Long>, CustomMetadataFieldValueRepo {
 	
-	public MetadataFieldValue create(ControlledVocabulary cv, MetadataField field);
+	public MetadataFieldValue create(ControlledVocabulary cv, MetadataFieldGroup field);
 	
-	public MetadataFieldValue create(String value, MetadataField field);
+	public MetadataFieldValue create(String value, MetadataFieldGroup field);
 
-	public MetadataFieldValue findByValueAndField(String value, MetadataField field);
+	public MetadataFieldValue findByValueAndField(String value, MetadataFieldGroup field);
 	
-	public MetadataFieldValue findByCvAndField(ControlledVocabulary cv, MetadataField field);
+	public MetadataFieldValue findByCvAndField(ControlledVocabulary cv, MetadataFieldGroup field);
 	
 	public List<MetadataFieldValue> findByValue(String value);
 	
-	public List<MetadataFieldValue> findByField(MetadataField field);
+	public List<MetadataFieldValue> findByField(MetadataFieldGroup field);
 	
 	public List<MetadataFieldValue> findByCv(ControlledVocabulary cv);
 	

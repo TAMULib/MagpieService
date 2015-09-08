@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.MetadataFieldValue;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.ControlledVocabularyRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
@@ -44,7 +44,7 @@ public class MetadataFieldValueRepoImpl implements CustomMetadataFieldValueRepo 
 	private ControlledVocabularyRepo controlledVocabularyRepo;
 	
 	@Override
-	public MetadataFieldValue create(ControlledVocabulary cv, MetadataField field) {
+	public MetadataFieldValue create(ControlledVocabulary cv, MetadataFieldGroup field) {
 		MetadataFieldValue value = metadataFieldValueRepo.findByCvAndField(cv, field);		
 		if(value == null) {
 			return metadataFieldValueRepo.save(new MetadataFieldValue(cv, field));
@@ -53,7 +53,7 @@ public class MetadataFieldValueRepoImpl implements CustomMetadataFieldValueRepo 
 	}
 	
 	@Override
-	public MetadataFieldValue create(String value, MetadataField field) {		
+	public MetadataFieldValue create(String value, MetadataFieldGroup field) {		
 		MetadataFieldValue metadataFieldValue = metadataFieldValueRepo.findByValueAndField(value, field);		
 		if(metadataFieldValue == null) {
 			metadataFieldValue = metadataFieldValueRepo.save(new MetadataFieldValue(value, field));
@@ -66,7 +66,7 @@ public class MetadataFieldValueRepoImpl implements CustomMetadataFieldValueRepo 
 	@Override
 	@Transactional
 	public void delete(MetadataFieldValue value) {
-		MetadataField field = value.getField();
+		MetadataFieldGroup field = value.getField();
 		if(field != null) {
 			value.setField(null);
 			field.removeValue(value);

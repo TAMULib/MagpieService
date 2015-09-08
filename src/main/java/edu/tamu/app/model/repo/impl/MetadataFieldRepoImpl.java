@@ -21,7 +21,7 @@ import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
@@ -52,17 +52,17 @@ public class MetadataFieldRepoImpl implements CustomMetadataFieldRepo {
 	private MetadataFieldValueRepo metadataFieldValueRepo;
 	
 	@Override
-	public MetadataField create(Document document, MetadataFieldLabel label) {
-		MetadataField field = metadataFieldRepo.findByDocumentAndLabel(document, label);		
+	public MetadataFieldGroup create(Document document, MetadataFieldLabel label) {
+		MetadataFieldGroup field = metadataFieldRepo.findByDocumentAndLabel(document, label);		
 		if(field == null) {
-			return metadataFieldRepo.save(new MetadataField(document, label));
+			return metadataFieldRepo.save(new MetadataFieldGroup(document, label));
 		}
 		return field;
 	}
 		
 	@Override
 	@Transactional
-	public void delete(MetadataField field) {
+	public void delete(MetadataFieldGroup field) {
 		Document document = field.getDocument();
 		if(document != null) {
 			field.setDocument(null);

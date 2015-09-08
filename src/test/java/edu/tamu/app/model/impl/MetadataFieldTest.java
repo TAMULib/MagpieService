@@ -19,11 +19,11 @@ import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import edu.tamu.app.config.TestDataSourceConfiguration;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.InputType;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectFieldProfile;
+import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
@@ -63,7 +63,7 @@ public class MetadataFieldTest {
 	
 	private MetadataFieldLabel testLabel;
 	
-	private ProjectFieldProfile testProfile;
+	private ProjectLabelProfile testProfile;
 		
 	@BeforeClass
     public static void init() {
@@ -83,7 +83,7 @@ public class MetadataFieldTest {
 	@Test
 	public void testCreateMetadataField() {
 		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldRepo.count());
-		MetadataField testField = metadataFieldRepo.create(testDocument, testLabel);
+		MetadataFieldGroup testField = metadataFieldRepo.create(testDocument, testLabel);
 		Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldRepo.count());
 		Assert.assertEquals("Expected Test MetadataField was not created.", testLabel.getName(), testField.getLabel().getName());
 	}
@@ -91,7 +91,7 @@ public class MetadataFieldTest {
 	@Test
 	public void testFindMetadataField() {
 		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldRepo.count());
-		MetadataField testField = metadataFieldRepo.create(testDocument, testLabel);
+		MetadataFieldGroup testField = metadataFieldRepo.create(testDocument, testLabel);
 		Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldRepo.count());
 		testField = metadataFieldRepo.findByDocumentAndLabel(testDocument, testLabel);
 		Assert.assertEquals("Test MetadataField was not found.", testLabel.getName(), testField.getLabel().getName());
@@ -100,7 +100,7 @@ public class MetadataFieldTest {
 	@Test
 	public void testDeleteMetadataField() {
 		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldRepo.count());
-		MetadataField testField = metadataFieldRepo.create(testDocument, testLabel);
+		MetadataFieldGroup testField = metadataFieldRepo.create(testDocument, testLabel);
 		Assert.assertEquals("Document repository is empty.", 1, metadataFieldRepo.count());
 		metadataFieldRepo.delete(testField);
 		Assert.assertEquals("Test Document was not removed.", 0, metadataFieldRepo.count());
@@ -110,7 +110,7 @@ public class MetadataFieldTest {
 	public void testCascadeOnDeleteMetadataField() {
 		
 		Assert.assertEquals("Field repository is not empty.", 0, metadataFieldRepo.count());
-		MetadataField testField = metadataFieldRepo.create(testDocument, testLabel);
+		MetadataFieldGroup testField = metadataFieldRepo.create(testDocument, testLabel);
 		Assert.assertEquals("Test field was not created.", 1, metadataFieldRepo.count());
 		
 		Assert.assertEquals("MetadataFieldValue repository is not empty.", 0, metadataFieldValueRepo.count());

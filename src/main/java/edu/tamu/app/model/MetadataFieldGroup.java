@@ -34,7 +34,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 @Entity
 @Table
-public class MetadataField {
+public class MetadataFieldGroup {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,13 +52,13 @@ public class MetadataField {
 	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)	
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
 	
-	public MetadataField() { }
+	public MetadataFieldGroup() { }
 	
-	public MetadataField(MetadataFieldLabel label) {
+	public MetadataFieldGroup(MetadataFieldLabel label) {
 		this.label = label;
 	}
 	
-	public MetadataField(Document document, MetadataFieldLabel label) {
+	public MetadataFieldGroup(Document document, MetadataFieldLabel label) {
 		this.document = document;
 		this.label = label;
 	}

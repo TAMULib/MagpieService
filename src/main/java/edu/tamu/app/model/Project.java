@@ -40,7 +40,7 @@ public class Project {
 	private String name;
 	
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	private List<ProjectFieldProfile> profiles = new ArrayList<ProjectFieldProfile>();
+	private List<ProjectLabelProfile> profiles = new ArrayList<ProjectLabelProfile>();
 	
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval = false)
 	private List<Document> documents = new ArrayList<Document>();
@@ -67,24 +67,24 @@ public class Project {
 		this.name = name;
 	}
 
-	public List<ProjectFieldProfile> getProfiles() {
+	public List<ProjectLabelProfile> getProfiles() {
 		return profiles;
 	}
 
-	public void setProfiles(List<ProjectFieldProfile> profiles) {
+	public void setProfiles(List<ProjectLabelProfile> profiles) {
 		this.profiles = profiles;
 	}
 	
-	public void addProfile(ProjectFieldProfile profile) {
+	public void addProfile(ProjectLabelProfile profile) {
 		profiles.add(profile);
 	}
 	
-	public void removeProfile(ProjectFieldProfile profile) {
+	public void removeProfile(ProjectLabelProfile profile) {
 		profiles.remove(profile);
 	}
 	
 	public void clearProfiles() {
-		profiles = new ArrayList<ProjectFieldProfile>();
+		profiles = new ArrayList<ProjectLabelProfile>();
 	}
 
 	public List<Document> getDocuments() {

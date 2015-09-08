@@ -18,7 +18,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
@@ -64,7 +64,7 @@ public class DocumentRepoImpl implements CustomDocumentRepo {
 			projectRepo.save(project);
 		}
 		
-		List<MetadataField> fields = document.getFields();
+		List<MetadataFieldGroup> fields = document.getFields();
 		if(fields.size() > 0) {
 			fields.forEach(field -> {
 				field.setDocument(null);

@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectFieldProfile;
+import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectFieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
@@ -45,17 +45,17 @@ public class ProjectFieldProfileRepoImpl implements CustomProjectFieldProfileRep
 	private ProjectRepo projectRepo;
 		
 	@Override
-	public ProjectFieldProfile create(MetadataFieldLabel label, Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
-		ProjectFieldProfile profile = projectFieldProfileRepo.findByLabelAndProject(label, project);		
+	public ProjectLabelProfile create(MetadataFieldLabel label, Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
+		ProjectLabelProfile profile = projectFieldProfileRepo.findByLabelAndProject(label, project);		
 		if(profile == null) {
-			return projectFieldProfileRepo.save(new ProjectFieldProfile(label, project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
+			return projectFieldProfileRepo.save(new ProjectLabelProfile(label, project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
 		}
 		return profile;
 	}
 	
 	@Override
 	@Transactional
-	public void delete(ProjectFieldProfile profile) {
+	public void delete(ProjectLabelProfile profile) {
 		MetadataFieldLabel label = profile.getLabel();
 		if(label != null) {
 			profile.setLabel(null);

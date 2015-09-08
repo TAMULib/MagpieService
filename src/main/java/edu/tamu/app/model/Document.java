@@ -63,7 +63,7 @@ public class Document {
 	private Project project;
 	
 	@OneToMany(mappedBy="document", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	private List<MetadataField> fields = new ArrayList<MetadataField>();
+	private List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
 	
 	public Document() { }
 	
@@ -157,24 +157,24 @@ public class Document {
 		this.project = project;
 	}
 
-	public List<MetadataField> getFields() {
+	public List<MetadataFieldGroup> getFields() {
 		return fields;
 	}
 
-	public void setFields(List<MetadataField> fields) {
+	public void setFields(List<MetadataFieldGroup> fields) {
 		this.fields = fields;
 	}
 	
-	public void addField(MetadataField field) {
+	public void addField(MetadataFieldGroup field) {
 		fields.add(field);
 	}
 	
-	public void removeField(MetadataField field) {
+	public void removeField(MetadataFieldGroup field) {
 		fields.remove(field);
 	}
 	
 	public void clearFields() {
-		fields = new ArrayList<MetadataField>();
+		fields = new ArrayList<MetadataFieldGroup>();
 	}
 	
 	/**

@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldValue;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.Data;
@@ -131,9 +131,9 @@ public class ExportController {
  			
  			//for each schema in the metadata
  			Map <String, PrintStream> schemaToFile = new HashMap<String, PrintStream>();
- 			List<MetadataField> metadatafields = document.getFields();
+ 			List<MetadataFieldGroup> metadatafields = document.getFields();
  			
- 			for(MetadataField metadataField : metadatafields) {
+ 			for(MetadataFieldGroup metadataField : metadatafields) {
  	 			//write a dublin-core style xml file
  				String label = metadataField.getLabel().getName();
  				String schema = label.split("\\.")[0];

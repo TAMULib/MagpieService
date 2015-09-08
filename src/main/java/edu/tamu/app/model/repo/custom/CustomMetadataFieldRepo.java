@@ -10,7 +10,7 @@
 package edu.tamu.app.model.repo.custom;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 
 /**
@@ -21,9 +21,9 @@ import edu.tamu.app.model.MetadataFieldLabel;
  */
 public interface CustomMetadataFieldRepo {
 
-	public MetadataField create(Document document, MetadataFieldLabel label);
+	public MetadataFieldGroup create(Document document, MetadataFieldLabel label);
 	
-	public void delete(MetadataField value);
+	public void delete(MetadataFieldGroup value);
 	
 	public void deleteAll();
 	

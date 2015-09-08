@@ -44,14 +44,14 @@ public class MetadataFieldLabel {
 	private String name;
 	
 	@OneToMany(mappedBy="label", fetch=FetchType.EAGER)	
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = ProjectFieldProfile.class, property = "id")
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = ProjectLabelProfile.class, property = "id")
 	@JsonIdentityReference(alwaysAsId = true)
-	private List<ProjectFieldProfile> profiles = new ArrayList<ProjectFieldProfile>();
+	private List<ProjectLabelProfile> profiles = new ArrayList<ProjectLabelProfile>();
 	
 	@OneToMany(mappedBy="label", fetch=FetchType.EAGER)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataField.class, property = "id")
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id")
 	@JsonIdentityReference(alwaysAsId = true)
-	private List<MetadataField> fields = new ArrayList<MetadataField>();
+	private List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
 	
 	public MetadataFieldLabel() { }
 	
@@ -76,45 +76,45 @@ public class MetadataFieldLabel {
 	}
 
 	@JsonIgnore
-	public List<ProjectFieldProfile> getProfiles() {
+	public List<ProjectLabelProfile> getProfiles() {
 		return profiles;
 	}
 
-	public void setProfiles(List<ProjectFieldProfile> profiles) {
+	public void setProfiles(List<ProjectLabelProfile> profiles) {
 		this.profiles = profiles;
 	}
 	
-	public void addProfile(ProjectFieldProfile profile) {
+	public void addProfile(ProjectLabelProfile profile) {
 		profiles.add(profile);
 	}
 	
-	public void removeProfile(ProjectFieldProfile profile) {
+	public void removeProfile(ProjectLabelProfile profile) {
 		profiles.remove(profile);
 	}
 	
 	public void clearProfiles() {
-		profiles = new ArrayList<ProjectFieldProfile>();
+		profiles = new ArrayList<ProjectLabelProfile>();
 	}
 
 	@JsonIgnore
-	public List<MetadataField> getFields() {
+	public List<MetadataFieldGroup> getFields() {
 		return fields;
 	}
 
-	public void setFields(List<MetadataField> fields) {
+	public void setFields(List<MetadataFieldGroup> fields) {
 		this.fields = fields;
 	}
 	
-	public void addField(MetadataField field) {
+	public void addField(MetadataFieldGroup field) {
 		fields.add(field);
 	}
 	
-	public void removeField(MetadataField field) {
+	public void removeField(MetadataFieldGroup field) {
 		fields.remove(field);
 	}
 	
 	public void clearFields() {
-		fields = new ArrayList<MetadataField>();
+		fields = new ArrayList<MetadataFieldGroup>();
 	}
 	
 }

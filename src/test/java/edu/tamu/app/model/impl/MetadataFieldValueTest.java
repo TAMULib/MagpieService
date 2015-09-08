@@ -20,11 +20,11 @@ import edu.tamu.app.config.TestDataSourceConfiguration;
 import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.InputType;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectFieldProfile;
+import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.ControlledVocabularyRepo;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
@@ -68,9 +68,9 @@ public class MetadataFieldValueTest {
 	
 	private MetadataFieldLabel testLabel;
 	
-	private ProjectFieldProfile testProfile;
+	private ProjectLabelProfile testProfile;
 	
-	private MetadataField testField;
+	private MetadataFieldGroup testField;
 	
 	@BeforeClass
     public static void init() {

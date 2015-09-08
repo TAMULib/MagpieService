@@ -42,10 +42,10 @@ import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.RequestId;
 import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectFieldProfile;
+import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldRepo;
@@ -168,7 +168,7 @@ public class WatcherService implements Runnable {
 			e.printStackTrace();
 		}
 	
-		List<MetadataField> fields = new ArrayList<MetadataField>();
+		List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
 		
 		String host = env.getProperty("app.host");
 		String mount = env.getProperty("app.mount");
@@ -208,7 +208,7 @@ public class WatcherService implements Runnable {
 				
 				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"));
 				
-				ProjectFieldProfile profile = projectFieldProfileRepo.create(label,
+				ProjectLabelProfile profile = projectFieldProfileRepo.create(label,
 																	  		 projectRepo.findByName(folder),
 																	  		 (String) mMap.get("gloss"), 
 																	  		 (Boolean) mMap.get("repeatable"), 
@@ -221,7 +221,7 @@ public class WatcherService implements Runnable {
 				label.addProfile(profile);
 				metadataFieldLabelRepo.save(label);
 				
-				fields.add(new MetadataField(label));
+				fields.add(new MetadataFieldGroup(label));
 								
 				project.addProfile(profile);
 				projectRepo.save(project);

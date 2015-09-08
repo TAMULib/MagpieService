@@ -38,9 +38,9 @@ public class MetadataFieldValue {
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataField.class, property = "id") 
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id") 
 	@JsonIdentityReference(alwaysAsId = true)
-	private MetadataField field;
+	private MetadataFieldGroup field;
 	
 	// probably should be CascadeType.ALL
 	@ManyToOne(optional = true, cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
@@ -51,12 +51,12 @@ public class MetadataFieldValue {
 	
 	public MetadataFieldValue() { }
 	
-	public MetadataFieldValue(ControlledVocabulary cv, MetadataField field) { 
+	public MetadataFieldValue(ControlledVocabulary cv, MetadataFieldGroup field) { 
 		this.cv = cv;
 		this.field = field;
 	}
 	
-	public MetadataFieldValue(String value, MetadataField field) { 
+	public MetadataFieldValue(String value, MetadataFieldGroup field) { 
 		this.value = value;
 		this.field = field;
 	}
@@ -69,11 +69,11 @@ public class MetadataFieldValue {
 		this.id = id;
 	}
 
-	public MetadataField getField() {
+	public MetadataFieldGroup getField() {
 		return field;
 	}
 
-	public void setField(MetadataField field) {
+	public void setField(MetadataFieldGroup field) {
 		this.field = field;
 	}
 

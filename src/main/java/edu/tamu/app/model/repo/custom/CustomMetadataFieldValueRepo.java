@@ -10,7 +10,7 @@
 package edu.tamu.app.model.repo.custom;
 
 import edu.tamu.app.model.ControlledVocabulary;
-import edu.tamu.app.model.MetadataField;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 
 /**
@@ -21,9 +21,9 @@ import edu.tamu.app.model.MetadataFieldValue;
  */
 public interface CustomMetadataFieldValueRepo {
 
-	public MetadataFieldValue create(ControlledVocabulary cv, MetadataField field);
+	public MetadataFieldValue create(ControlledVocabulary cv, MetadataFieldGroup field);
 	
-	public MetadataFieldValue create(String value, MetadataField field);
+	public MetadataFieldValue create(String value, MetadataFieldGroup field);
 	
 	public void delete(MetadataFieldValue value);
 	
