@@ -12,7 +12,6 @@ package edu.tamu.app.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +103,7 @@ public class DocumentController {
 	@Auth
 	@SendToUser
 	public ApiResponse allDocuments(Message<?> message, @ReqId String requestId) throws Exception {
-		Map<String,List<Document>> map = new HashMap<String,List<Document>>();
+		Map<String, List<Document>> map = new HashMap<String, List<Document>>();
 		map.put("list", documentRepo.findAll());
 		return new ApiResponse("success", map, new RequestId(requestId));
 	}
@@ -124,9 +123,9 @@ public class DocumentController {
 	@Auth
 	@SendToUser
 	public ApiResponse documentByName(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
-		Map<String,String> headerMap = new HashMap<String,String>();
+		Map<String, String> headerMap = new HashMap<String, String>();
 		try {
-			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String, String>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -134,15 +133,6 @@ public class DocumentController {
 		Document document = documentRepo.findByName(headerMap.get("name"));
 		
 		document.setFields(new TreeSet<MetadataFieldGroup>(document.getFields()));
-		
-		/*
-		document.getFields().forEach(field -> {
-			System.out.println("  " + field.getLabel().getName());
-			field.getValues().forEach(value -> {
-				System.out.println("      " + value.getValue());
-			});
-		});
-		*/
 		
 		return new ApiResponse("success", document, new RequestId(requestId));
 	}
@@ -311,15 +301,6 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		/*
-		document.getFields().forEach(field -> {
-			System.out.println("  " + field.getLabel().getName());
-			field.getValues().forEach(value -> {
-				System.out.println("      " + value.getValue());
-			});
-		});
-		*/
 		
 		Map<String, Object> documentMap = new HashMap<String, Object>();
 		

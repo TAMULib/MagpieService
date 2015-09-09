@@ -153,7 +153,7 @@ public class SyncService implements Runnable {
 		
 		String directory = null;
 		try {
-			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath();			
+			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/projects/";			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

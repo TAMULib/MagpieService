@@ -21,7 +21,6 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
-import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -117,7 +116,7 @@ public class DocumentTest {
 		Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldRepo.count());
 		
 		Assert.assertEquals("MetadataFieldValue repository is not empty.", 0, metadataFieldValueRepo.count());
-		MetadataFieldValue testValue = metadataFieldValueRepo.create("test", testField);
+		metadataFieldValueRepo.create("test", testField);
 		Assert.assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
 		
 		testDocument.addField(testField);

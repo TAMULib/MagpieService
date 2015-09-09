@@ -11,7 +11,6 @@ package edu.tamu.app.model;
 
 import java.lang.Comparable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.persistence.CascadeType;
