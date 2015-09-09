@@ -208,7 +208,7 @@ public class MetadataFieldController {
 		
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
-		projectRepo.findByName(project).getDocuments().stream().filter(isPublished()).collect(Collectors.<Document>toList()).forEach(document -> {
+		projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList()).forEach(document -> {
 			
 			Set<MetadataFieldGroup> metadataFields = new TreeSet<MetadataFieldGroup>(document.getFields());
 			
@@ -257,7 +257,7 @@ public class MetadataFieldController {
 		System.out.println("Generating SAF for project " + project);
 		
 		//for each published document
-		List<Document> documents = projectRepo.findByName(project).getDocuments().stream().filter(isPublished()).collect(Collectors.<Document>toList());
+		List<Document> documents = projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
 		
 		//TODO:  get straight on where we want to write this bad boy
 		
@@ -362,6 +362,8 @@ public class MetadataFieldController {
 		return value;
 	}
 	
+	//TODO: replace the following three endpoint methods with one passing in @Data with status
+	
 	/**
 	 * Endpoint to return all published metadata fields.
 	 * 
@@ -381,6 +383,86 @@ public class MetadataFieldController {
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
 		documentRepo.findByStatus("Published").forEach(document -> {
+					
+			new TreeSet<MetadataFieldGroup>(document.getFields()).forEach(field -> {
+				
+				field.getValues().forEach(value -> {
+					
+					List<String> documentMetadata = new ArrayList<String>();
+					
+					documentMetadata.add(field.getLabel().getName());
+					documentMetadata.add(value.getValue());
+					
+					metadata.add(documentMetadata);
+					
+				});
+				
+			});
+			
+		});
+		
+		return new ApiResponse("success", metadata, new RequestId(requestId));
+	}
+	
+	/**
+	 * Endpoint to return all published metadata fields.
+	 * 
+	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/accepted")
+	@Auth
+	@SendToUser
+	public ApiResponse accepted(Message<?> message, @ReqId String requestId) throws Exception {
+		
+		List<List<String>> metadata = new ArrayList<List<String>>();
+		
+		documentRepo.findByStatus("Accepted").forEach(document -> {
+					
+			new TreeSet<MetadataFieldGroup>(document.getFields()).forEach(field -> {
+				
+				field.getValues().forEach(value -> {
+					
+					List<String> documentMetadata = new ArrayList<String>();
+					
+					documentMetadata.add(field.getLabel().getName());
+					documentMetadata.add(value.getValue());
+					
+					metadata.add(documentMetadata);
+					
+				});
+				
+			});
+			
+		});
+		
+		return new ApiResponse("success", metadata, new RequestId(requestId));
+	}
+	
+	/**
+	 * Endpoint to return all pending metadata fields.
+	 * 
+	 * @param 		message			Message<?>
+	 * @param 		requestId		@ReqId String
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/pending")
+	@Auth
+	@SendToUser
+	public ApiResponse pending(Message<?> message, @ReqId String requestId) throws Exception {
+		
+		List<List<String>> metadata = new ArrayList<List<String>>();
+		
+		documentRepo.findByStatus("Pending").forEach(document -> {
 					
 			new TreeSet<MetadataFieldGroup>(document.getFields()).forEach(field -> {
 				
@@ -424,6 +506,14 @@ public class MetadataFieldController {
 	
 	public static Predicate<Document> isPublished() {		
 	    return d -> d.getStatus().equals("Published");
+	}
+	
+	public static Predicate<Document> isAccepted() {		
+	    return d -> d.getStatus().equals("Accepted");
+	}
+	
+	public static Predicate<Document> isPending() {		
+	    return d -> d.getStatus().equals("Pending");
 	}
 	
 }
