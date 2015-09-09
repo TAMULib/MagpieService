@@ -190,7 +190,8 @@ public class WatcherService implements Runnable {
 		
 		String directory = "";
 		try {
-			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/" + folder;
+			//directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/" + folder;
+			directory = appContext.getResource(mount).getFile().getAbsolutePath() + "/" + folder;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -202,7 +203,8 @@ public class WatcherService implements Runnable {
 		if(!folder.equals("projects")) {
 			
 			try {
-				directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/projects/" + folder;
+				//directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/projects/" + folder;
+				directory = appContext.getResource(mount).getFile().getAbsolutePath() + "/projects/" + folder;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
