@@ -283,8 +283,8 @@ public class WatcherService implements Runnable {
                     		
 	                    	if((documentRepo.findByName(docString) == null)) {
 	                    		
-	        					String pdfPath = "/mnt/projects/"+folder+"/"+docString+"/"+docString+".pdf";
-	            				String txtPath = "/mnt/projects/"+folder+"/"+docString+"/"+docString+".txt";
+	        					String pdfPath = "/mnt/projects/projects/"+folder+"/"+docString+"/"+docString+".pdf";
+	            				String txtPath = "/mnt/projects/projects/"+folder+"/"+docString+"/"+docString+".txt";
 	            				
 	                    		String pdfUri = host+pdfPath;
 	                    		String txtUri = host+txtPath;

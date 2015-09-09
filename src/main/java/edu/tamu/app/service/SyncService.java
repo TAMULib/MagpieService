@@ -216,8 +216,8 @@ public class SyncService implements Runnable {
         		
         		System.out.println("Adding: " + documentPath.getFileName().toString());
         		
-    			String pdfPath = "/mnt/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".pdf";
-				String txtPath = "/mnt/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".txt";
+    			String pdfPath = "/mnt/projects/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".pdf";
+				String txtPath = "/mnt/projects/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".txt";
         		String pdfUri = host+pdfPath;
         		String txtUri = host+txtPath;
         		
