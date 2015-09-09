@@ -3,6 +3,7 @@ package edu.tamu.app.model.impl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ import edu.tamu.app.model.repo.AppUserRepo;
     					  DirtiesContextTestExecutionListener.class,
     					  TransactionalTestExecutionListener.class,
     					  DbUnitTestExecutionListener.class })
-public class UserTest {
+public class AppUserTest {
 	
 	@Autowired
 	private AppUserRepo userRepo;
@@ -35,6 +36,11 @@ public class UserTest {
 	private AppUser testUser1 = new AppUser(uin);
 	
 	private AppUser testUser2 = new AppUser(uin);
+	
+	@BeforeClass
+    public static void init() {
+		
+    }
 	
 	@Before
 	public void setUp() {

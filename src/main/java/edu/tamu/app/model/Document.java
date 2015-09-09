@@ -9,118 +9,179 @@
  */
 package edu.tamu.app.model;
 
-import java.util.List;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
-import edu.tamu.app.model.impl.MetadataLabelImpl;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
- * Document interface.
  * 
- * @author
+ * 
+ * @author 
  *
  */
-public interface Document {
-
-	public Long getId();
+@Entity
+@Table
+public class Document {
 	
-	public void setId(Long id);
+	@Id
+	private String name;
+	
+	private String status;
+	
+	private String annotator;
+	
+	private String notes;
+
+	private String txtUri;
+
+	private String pdfUri;
+	
+	private String pdfPath;
+	
+	private String txtPath;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name") 
+	@JsonIdentityReference(alwaysAsId = true)
+	private Project project;
+	
+	@OneToMany(mappedBy="document", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REMOVE, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)	
+	private Set<MetadataFieldGroup> fields = new HashSet<MetadataFieldGroup>();
+	
+	public Document() { }
+	
+	public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
+		this.project = project;
+		this.name = name;
+		this.txtUri = txtUri;
+		this.pdfUri = pdfUri;
+		this.pdfPath = pdfPath;
+		this.txtPath = txtPath;
+		this.status = status;
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getAnnotator() {
+		return annotator;
+	}
+
+	public void setAnnotator(String annotator) {
+		this.annotator = annotator;
+	}
+
+	public String getNotes() {
+		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+	public String getTxtUri() {
+		return txtUri;
+	}
+
+	public void setTxtUri(String txtUri) {
+		this.txtUri = txtUri;
+	}
+
+	public String getPdfUri() {
+		return pdfUri;
+	}
+
+	public void setPdfUri(String pdfUri) {
+		this.pdfUri = pdfUri;
+	}
+
+	public String getPdfPath() {
+		return pdfPath;
+	}
+
+	public void setPdfPath(String pdfPath) {
+		this.pdfPath = pdfPath;
+	}
+
+	public String getTxtPath() {
+		return txtPath;
+	}
+
+	public void setTxtPath(String txtPath) {
+		this.txtPath = txtPath;
+	}
+
+	@JsonIgnore
+	public Project getProject() {
+		return project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	public Set<MetadataFieldGroup> getFields() {
+		return fields;
+	}
+
+	public void setFields(Set<MetadataFieldGroup> fields) {
+		this.fields = fields;
+	}
+	
+	public void addField(MetadataFieldGroup field) {
+		fields.add(field);
+	}
+	
+	public void removeField(MetadataFieldGroup field) {
+		fields.remove(field);
+	}
+	
+	public void clearFields() {
+		fields = new HashSet<MetadataFieldGroup>();
+	}
 	
 	/**
-	 * Gets name.
-	 * 
-	 * @return		String
+	 *  Gets the file off the disk
+	 *  
 	 */
-	public String getName();
-
-	/**
-	 * Sets name.
-	 * 
-	 * @param 		name			String
-	 */
-	public void setName(String name);
+	public File pdf() {	
+		return new File("src/main/resources/static/"+getPdfPath());
+		
+	}
 	
 	/**
-	 * Gets project.
-	 * 
-	 * @return		String
+	 *  Gets the file off the disk
+	 *  
 	 */
-	public String getProject();
-
-	/**
-	 * Sets project.
-	 * 
-	 * @param 		project			String
-	 */
-	public void setProject(String project);
-	
-	/**
-	 * Gets pdf uri.
-	 * 
-	 * @return		String
-	 */
-	public String getPdfUri();
-
-	/**
-	 * Sets pdf uri.
-	 * 
-	 * @param 		uri					String
-	 */
-	public void setPdfUri(String uri);
-	
-	/**
-	 * Gets status.
-	 * 
-	 * @return		String
-	 */
-	public String getStatus();
-
-	/**
-	 * Sets status.
-	 * 
-	 * @param 		status				String
-	 */
-	public void setStatus(String status);
-	
-	/**
-	 * Gets annotator.
-	 * 
-	 * @return		String
-	 */
-	public String getAnnotator();
-
-	/**
-	 * Sets annotator.
-	 * 
-	 * @param 		annotator			String
-	 */
-	public void setAnnotator(String annotator);
-	
-	/**
-	 * Gets notes.
-	 * 
-	 * @return		String
-	 */
-	public String getNotes();
-
-	/**
-	 * Sets notes.
-	 * 
-	 * @param 		annotator			String
-	 */
-	public void setNotes(String notes);
-	
-	/**
-	 * Gets metadata labels.
-	 * 
-	 * @return		List<MetadataLabelImpl>
-	 */
-	public List<MetadataLabelImpl> getMetadataLabels();
-
-	/**
-	 * Sets metadata labels.
-	 * 
-	 * @param 		metadataLabels		List<MetadataLabelImpl>
-	 */
-	public void setMetadataLabels(List<MetadataLabelImpl> metadataLabels);
+	public File txt() {		
+		return new File("src/main/resources/static/"+getTxtPath());
+		
+	}
 	
 }

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-class ContextClosedHandler implements ApplicationListener<ContextClosedEvent> {
+public class ContextClosedHandler implements ApplicationListener<ContextClosedEvent> {
     
 	@Autowired 
     private ExecutorService executorService;

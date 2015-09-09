@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
-import edu.tamu.app.model.repo.AppUserRepoCustom;
+import edu.tamu.app.model.repo.custom.AppUserRepoCustom;
 
 /** 
  * Implementaiton of the user repository.
@@ -31,14 +31,13 @@ public class AppUserRepoImpl implements AppUserRepoCustom {
 	 * 
 	 * @param       uin        Long
 	 * 
-	 * @see edu.tamu.app.model.repo.AppUserRepoCustom#create(java.lang.Long)
+	 * @see edu.tamu.app.model.repo.custom.AppUserRepoCustom#create(java.lang.Long)
 	 */
 	@Override
 	public AppUser create(Long uin) {
-		AppUser user = null;
-		if(userRepo.getUserByUin(uin)==null) {
-			user = new AppUser(uin);
-			userRepo.save(user);
+		AppUser user = userRepo.getUserByUin(uin);
+		if(user == null) {
+			return userRepo.save(new AppUser(uin));
 		}
 		return user;
 	}

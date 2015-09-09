@@ -36,38 +36,41 @@ public class AppWebSocketRequestService extends WebSocketRequestService {
 	@Override
 	public Message<?> getMessageAndSetRequest(String destination, String user, int index) {
 		
-		System.out.println("destination: "+destination);
-		System.out.println("user: "+user);
-		System.out.println("index: "+index);
-		
 		Message<?> message = null;
 		WebSocketRequest request = requests.get(index);
-		
-		//MetadataTool  Specific Logic:			
-		if(destination.contains("/csv/{project}")) {
-			
-			if(request.getUser().equals(user) && request.getDestination().contains("csv")) {
-				
+
+		if(destination.contains("/saf/{project}")) {			
+			if(request.getUser().equals(user) && request.getDestination().contains("saf")) {				
 				message = request.getMessage();
 				requests.remove(index);
-			}
-		} else if(destination.contains("/headers/{project}")) {
-			
+			}			
+		} 
+		else if(destination.contains("/csv/{project}")) {			
+			if(request.getUser().equals(user) && request.getDestination().contains("csv")) {				
+				message = request.getMessage();
+				requests.remove(index);
+			}			
+		} 
+		else if(destination.contains("/headers/{project}")) {			
 			if(request.getUser().equals(user) && request.getDestination().contains("headers")) {	
 				message = request.getMessage();
 				requests.remove(index);
 			}
-		} else if(destination.contains("/marc/{bibId}")) {
-			
+		} 
+		else if(destination.contains("/marc/{bibId}")) {			
 			if(request.getUser().equals(user) && request.getDestination().contains("marc")) {	
 				message = request.getMessage();
 				requests.remove(index);
 			}
-		} else if (destination.equals("/{label}")) {
+		} 
+		else if (destination.equals("/{label}")) {
 			if(request.getUser().equals(user)) {
 				message = request.getMessage();
 				requests.remove(index);
 			}
+		}
+		else {
+			System.out.println("Unknown destination: " + destination);
 		}
 		
 		return message;
