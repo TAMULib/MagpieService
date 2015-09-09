@@ -56,10 +56,8 @@ public class MetadataFieldValueRepoImpl implements MetadataFieldValueRepoCustom 
 	public MetadataFieldValue create(String value, MetadataFieldGroup field) {		
 		MetadataFieldValue metadataFieldValue = metadataFieldValueRepo.findByValueAndField(value, field);		
 		if(metadataFieldValue == null) {
-			metadataFieldValue = metadataFieldValueRepo.save(new MetadataFieldValue(value, field));
+			return metadataFieldValueRepo.save(new MetadataFieldValue(value, field));
 		}
-		field.addValue(metadataFieldValue);
-		metadataFieldRepo.save(field);
 		return metadataFieldValue;
 	}
 

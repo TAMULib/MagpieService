@@ -9,7 +9,9 @@
  */
 package edu.tamu.app.model;
 
+import java.lang.Comparable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -35,7 +37,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 @Entity
 @Table
-public class MetadataFieldGroup {
+public class MetadataFieldGroup implements Comparable<MetadataFieldGroup>  {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -49,7 +51,7 @@ public class MetadataFieldGroup {
 	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	private MetadataFieldLabel label;
 	
-	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)	
+	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
 	
 	public MetadataFieldGroup() { }
@@ -107,5 +109,29 @@ public class MetadataFieldGroup {
 	public void clearValues() {
 		values = new ArrayList<MetadataFieldValue>();
 	}
+
 	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null) {
+			return false;
+		}
+		if(!(obj instanceof MetadataFieldGroup)) {
+			return false;
+		}
+		MetadataFieldGroup other = (MetadataFieldGroup) obj;
+		return id.equals(other.id);
+	}
+
+	@Override
+	public int hashCode() {
+	    return id == null ? 0 : 29 * id.hashCode();
+	}
+
+
+    @Override
+    public int compareTo(MetadataFieldGroup f) {
+        return id.compareTo(f.getId());
+    }
+
 }

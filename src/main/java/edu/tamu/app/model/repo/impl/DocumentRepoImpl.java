@@ -9,7 +9,7 @@
  */
 package edu.tamu.app.model.repo.impl;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -63,16 +63,9 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
 		Document oldDocument = documentRepo.findByName(newDocument.getName());
 		
 		newDocument.getFields().forEach(field -> {
-			
-			System.out.println("FIELD: " + field.getLabel().getName());
-			
-			MetadataFieldGroup oldField = metadataFieldRepo.findByDocumentAndLabel(oldDocument, field.getLabel());			
-			oldField.clearValues();
+			MetadataFieldGroup oldField = metadataFieldRepo.findByDocumentAndLabel(oldDocument, field.getLabel());
 			oldField.setValues(field.getValues());
 			field.getValues().forEach(value -> {
-				
-				System.out.println("VALUE: " + value.getValue());
-				
 				value.setField(oldField);
 				metadataFieldValueRepo.save(value);
 			});
@@ -91,7 +84,7 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
 			projectRepo.save(project);
 		}
 		
-		List<MetadataFieldGroup> fields = document.getFields();
+		Set<MetadataFieldGroup> fields = document.getFields();
 		if(fields.size() > 0) {
 			fields.forEach(field -> {
 				field.setDocument(null);

@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -203,14 +204,12 @@ public class MetadataFieldController {
 		
 		for(Document document : documents) {
 			
-			List<MetadataFieldGroup> metadataFields = document.getFields();
+			Set<MetadataFieldGroup> metadataFields = document.getFields();
 			
 			List<String> documentMetadata = new ArrayList<String>();
 			
 			documentMetadata.add(document.getName() + ".pdf");
-			
-			Collections.sort(metadataFields, new LabelComparator());
-						
+									
 			for(MetadataFieldGroup metadatum : metadataFields) {
 				
 				String values = null;
@@ -254,7 +253,7 @@ public class MetadataFieldController {
 		
 		for(Document document : documents) {
 			
-			List<MetadataFieldGroup> metadataFields = document.getFields();
+			Set<MetadataFieldGroup> metadataFields = document.getFields();
 			
 			for(MetadataFieldGroup metadataField : metadataFields) {
 				
@@ -384,27 +383,5 @@ public class MetadataFieldController {
 		
 		return new ApiResponse("success", "ok", new RequestId(requestId));
 	}
-	
-	/**
-	 * Class for comparing MetadataFieldImpl by label.
-	 * 
-	 * @author
-	 *
-	 */
-	class LabelComparator implements Comparator<MetadataFieldGroup>
-	{
-		/**
-		 * Compare labels of MetadataFieldImpl
-		 * 
-		 * @param		mfi1		MetadataFieldImpl
-		 * @param		mfi2		MetadataFieldImpl
-		 * 
-		 * @return		int
-		 */
-		@Override
-		public int compare(MetadataFieldGroup m1, MetadataFieldGroup m2) {
-			return m1.getLabel().getName().compareTo(m2.getLabel().getName());
-		}
-	}
-		
+			
 }

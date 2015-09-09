@@ -10,8 +10,8 @@
 package edu.tamu.app.model;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -58,8 +58,8 @@ public class Document {
 	@JsonIdentityReference(alwaysAsId = true)
 	private Project project;
 	
-	@OneToMany(mappedBy="document", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	private List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
+	@OneToMany(mappedBy="document", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REMOVE, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)	
+	private Set<MetadataFieldGroup> fields = new HashSet<MetadataFieldGroup>();
 	
 	public Document() { }
 	
@@ -146,11 +146,11 @@ public class Document {
 		this.project = project;
 	}
 
-	public List<MetadataFieldGroup> getFields() {
+	public Set<MetadataFieldGroup> getFields() {
 		return fields;
 	}
 
-	public void setFields(List<MetadataFieldGroup> fields) {
+	public void setFields(Set<MetadataFieldGroup> fields) {
 		this.fields = fields;
 	}
 	
@@ -163,7 +163,7 @@ public class Document {
 	}
 	
 	public void clearFields() {
-		fields = new ArrayList<MetadataFieldGroup>();
+		fields = new HashSet<MetadataFieldGroup>();
 	}
 	
 	/**

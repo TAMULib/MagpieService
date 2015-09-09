@@ -15,6 +15,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,7 +132,8 @@ public class ExportController {
  			
  			//for each schema in the metadata
  			Map <String, PrintStream> schemaToFile = new HashMap<String, PrintStream>();
- 			List<MetadataFieldGroup> metadatafields = document.getFields();
+ 			
+ 			Set<MetadataFieldGroup> metadatafields = document.getFields();
  			
  			for(MetadataFieldGroup metadataField : metadatafields) {
  	 			//write a dublin-core style xml file

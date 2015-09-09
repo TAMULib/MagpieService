@@ -12,6 +12,8 @@ package edu.tamu.app.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,6 +38,7 @@ import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.Data;
 import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
@@ -130,12 +133,16 @@ public class DocumentController {
 		
 		Document document = documentRepo.findByName(headerMap.get("name"));
 		
+		document.setFields(new TreeSet<MetadataFieldGroup>(document.getFields()));
+		
+		/*
 		document.getFields().forEach(field -> {
 			System.out.println("  " + field.getLabel().getName());
 			field.getValues().forEach(value -> {
 				System.out.println("      " + value.getValue());
 			});
 		});
+		*/
 		
 		return new ApiResponse("success", document, new RequestId(requestId));
 	}
@@ -305,12 +312,14 @@ public class DocumentController {
 			e.printStackTrace();
 		}
 		
+		/*
 		document.getFields().forEach(field -> {
 			System.out.println("  " + field.getLabel().getName());
 			field.getValues().forEach(value -> {
 				System.out.println("      " + value.getValue());
 			});
 		});
+		*/
 		
 		Map<String, Object> documentMap = new HashMap<String, Object>();
 		
