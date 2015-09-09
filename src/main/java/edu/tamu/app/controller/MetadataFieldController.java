@@ -362,10 +362,8 @@ public class MetadataFieldController {
 		return value;
 	}
 	
-	//TODO: replace the following three endpoint methods with one passing in @Data with status
-	
 	/**
-	 * Endpoint to return all published metadata fields.
+	 * Endpoint to return all by status metadata fields.
 	 * 
 	 * @param 		message			Message<?>
 	 * @param 		requestId		@ReqId String
@@ -375,94 +373,14 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/published")
+	@MessageMapping("/status/{status}")
 	@Auth
 	@SendToUser
-	public ApiResponse published(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse published(Message<?> message, @DestinationVariable String status, @ReqId String requestId) throws Exception {
 		
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
-		documentRepo.findByStatus("Published").forEach(document -> {
-					
-			new TreeSet<MetadataFieldGroup>(document.getFields()).forEach(field -> {
-				
-				field.getValues().forEach(value -> {
-					
-					List<String> documentMetadata = new ArrayList<String>();
-					
-					documentMetadata.add(field.getLabel().getName());
-					documentMetadata.add(value.getValue());
-					
-					metadata.add(documentMetadata);
-					
-				});
-				
-			});
-			
-		});
-		
-		return new ApiResponse("success", metadata, new RequestId(requestId));
-	}
-	
-	/**
-	 * Endpoint to return all published metadata fields.
-	 * 
-	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
-	 * 
-	 * @return		ApiResImpl
-	 * 
-	 * @throws 		Exception
-	 * 
-	 */
-	@MessageMapping("/accepted")
-	@Auth
-	@SendToUser
-	public ApiResponse accepted(Message<?> message, @ReqId String requestId) throws Exception {
-		
-		List<List<String>> metadata = new ArrayList<List<String>>();
-		
-		documentRepo.findByStatus("Accepted").forEach(document -> {
-					
-			new TreeSet<MetadataFieldGroup>(document.getFields()).forEach(field -> {
-				
-				field.getValues().forEach(value -> {
-					
-					List<String> documentMetadata = new ArrayList<String>();
-					
-					documentMetadata.add(field.getLabel().getName());
-					documentMetadata.add(value.getValue());
-					
-					metadata.add(documentMetadata);
-					
-				});
-				
-			});
-			
-		});
-		
-		return new ApiResponse("success", metadata, new RequestId(requestId));
-	}
-	
-	/**
-	 * Endpoint to return all pending metadata fields.
-	 * 
-	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
-	 * 
-	 * @return		ApiResImpl
-	 * 
-	 * @throws 		Exception
-	 * 
-	 */
-	@MessageMapping("/pending")
-	@Auth
-	@SendToUser
-	public ApiResponse pending(Message<?> message, @ReqId String requestId) throws Exception {
-		
-		List<List<String>> metadata = new ArrayList<List<String>>();
-		
-		documentRepo.findByStatus("Pending").forEach(document -> {
+		documentRepo.findByStatus(status).forEach(document -> {
 					
 			new TreeSet<MetadataFieldGroup>(document.getFields()).forEach(field -> {
 				
