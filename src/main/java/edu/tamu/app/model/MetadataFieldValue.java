@@ -17,6 +17,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -46,8 +48,16 @@ public class MetadataFieldValue {
 	@ManyToOne(optional = true, cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	private ControlledVocabulary cv;
 	
-	@Column(nullable = true)
+	@Column(columnDefinition = "TEXT", nullable = true)
 	private String value;
+	
+	@PrePersist
+	@PreUpdate
+	protected void sanitize() {
+		if(value != null) {
+			value = value.replaceAll("[\u0000-\u001f]", "");
+		}
+	}
 	
 	public MetadataFieldValue() { }
 	

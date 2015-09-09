@@ -95,6 +95,14 @@ public class MetadataFieldValueTest {
 	}
 	
 	@Test
+	public void testSaveWithControlCharacterMetadataFieldValue() {
+		Assert.assertEquals("MetadataFieldValueRepo is not empty.", 0, metadataFieldValueRepo.count());
+		MetadataFieldValue testValue = metadataFieldValueRepo.create("test\n\r\t\b\f", testField);
+		Assert.assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
+		Assert.assertEquals("Expected Test MetadataFieldValue was not created.", "test", testValue.getValue());	
+	}
+	
+	@Test
 	public void testFindMetadataFieldValue() {
 		Assert.assertEquals("MetadataFieldValueRepo is not empty.", 0, metadataFieldValueRepo.count());
 		MetadataFieldValue testValue = metadataFieldValueRepo.create("test", testField);
