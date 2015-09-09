@@ -208,7 +208,7 @@ public class MetadataFieldController {
 		
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
-		projectRepo.findByName(project).getDocuments().stream().filter(isPublished()).collect(Collectors.<Document>toList()).forEach(document -> {
+		projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList()).forEach(document -> {
 			
 			Set<MetadataFieldGroup> metadataFields = new TreeSet<MetadataFieldGroup>(document.getFields());
 			
@@ -257,7 +257,7 @@ public class MetadataFieldController {
 		System.out.println("Generating SAF for project " + project);
 		
 		//for each published document
-		List<Document> documents = projectRepo.findByName(project).getDocuments().stream().filter(isPublished()).collect(Collectors.<Document>toList());
+		List<Document> documents = projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
 		
 		//TODO:  get straight on where we want to write this bad boy
 		
@@ -363,7 +363,7 @@ public class MetadataFieldController {
 	}
 	
 	/**
-	 * Endpoint to return all published metadata fields.
+	 * Endpoint to return all by status metadata fields.
 	 * 
 	 * @param 		message			Message<?>
 	 * @param 		requestId		@ReqId String
@@ -373,14 +373,14 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/published")
+	@MessageMapping("/status/{status}")
 	@Auth
 	@SendToUser
-	public ApiResponse published(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse published(Message<?> message, @DestinationVariable String status, @ReqId String requestId) throws Exception {
 		
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
-		documentRepo.findByStatus("Published").forEach(document -> {
+		documentRepo.findByStatus(status).forEach(document -> {
 					
 			new TreeSet<MetadataFieldGroup>(document.getFields()).forEach(field -> {
 				
@@ -424,6 +424,14 @@ public class MetadataFieldController {
 	
 	public static Predicate<Document> isPublished() {		
 	    return d -> d.getStatus().equals("Published");
+	}
+	
+	public static Predicate<Document> isAccepted() {		
+	    return d -> d.getStatus().equals("Accepted");
+	}
+	
+	public static Predicate<Document> isPending() {		
+	    return d -> d.getStatus().equals("Pending");
 	}
 	
 }

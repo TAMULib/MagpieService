@@ -57,6 +57,12 @@ public class AppWebSocketRequestService extends WebSocketRequestService {
 				requests.remove(index);
 			}
 		} 
+		else if(destination.contains("/status/{status}")) {			
+			if(request.getUser().equals(user) && request.getDestination().contains("status")) {	
+				message = request.getMessage();
+				requests.remove(index);
+			}
+		} 
 		else if(destination.contains("/marc/{bibId}")) {			
 			if(request.getUser().equals(user) && request.getDestination().contains("marc")) {	
 				message = request.getMessage();

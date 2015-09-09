@@ -15,6 +15,8 @@ import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -31,7 +33,14 @@ import edu.tamu.framework.model.Credentials;
 import edu.tamu.framework.model.RequestId;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
+import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
+import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.MetadataFieldValueRepo;
+import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
+import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.SyncService;
+import edu.tamu.app.service.VoyagerService;
 
 /** 
  * Admin Controller.
@@ -52,14 +61,41 @@ public class AdminController {
 	@Autowired
 	private AppUserRepo userRepo;
 	
+	@Autowired 
+	private VoyagerService voyagerService; 
+	
 	@Autowired
-	public ObjectMapper objectMapper;
+	private ProjectRepo projectRepo;
 	
-	@Autowired 
-    private ExecutorService executorService;
+	@Autowired
+	private DocumentRepo documentRepo;
 	
-	@Autowired 
-	private SimpMessagingTemplate simpMessagingTemplate; 
+	@Autowired
+	private ProjectLabelProfileRepo projectLabelProfileRepo;
+	
+	@Autowired
+	private MetadataFieldGroupRepo metadataFieldRepo;
+	
+	@Autowired
+	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	
+	@Autowired
+	private MetadataFieldValueRepo metadataFieldValueRepo;
+
+	@Autowired
+	private Environment env;
+	
+	@Autowired
+	private ApplicationContext appContext;
+	
+	@Autowired
+	private SimpMessagingTemplate simpMessagingTemplate;
+	
+	@Autowired
+	private ExecutorService executorService;
+	
+	@Autowired
+	private ObjectMapper objectMapper;
 	
 	/**
 	 * Checks if user is in the repo. If not saves user to repo.
@@ -142,7 +178,18 @@ public class AdminController {
 		
 		System.out.println("Syncronizing projects with database.");
 		
-		executorService.submit(new SyncService());
+		executorService.submit(new SyncService(voyagerService,
+											   projectRepo,
+											   documentRepo,
+											   projectLabelProfileRepo,
+											   metadataFieldRepo,
+											   metadataFieldLabelRepo,
+											   metadataFieldValueRepo,
+											   env,
+											   appContext,
+											   simpMessagingTemplate,
+											   executorService,
+											   objectMapper));
 		
 		return new ApiResponse("success", "ok", new RequestId(requestId));
 	}
