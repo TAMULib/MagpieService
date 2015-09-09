@@ -231,6 +231,12 @@ public class DocumentController {
 			documents = documentRepo.findAll(request);
 		}
 		
+		// clear fields to avoid sending more data than required for list
+		
+		for(Document document : documents) {
+			document.clearFields();
+		}
+		
 	    return new ApiResponse("success", documents, new RequestId(requestId));
 	}
 

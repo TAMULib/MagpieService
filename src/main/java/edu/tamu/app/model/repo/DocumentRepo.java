@@ -27,7 +27,7 @@ import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
  *
  */
 @Repository
-public interface DocumentRepo extends JpaRepository <Document, Long>, DocumentRepoCustom {
+public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRepoCustom {
 	
 	public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
 	
@@ -58,16 +58,6 @@ public interface DocumentRepo extends JpaRepository <Document, Long>, DocumentRe
 	 * 
 	 */
 	public List<Document> findByStatus(String status);
-	
-	/**
-	 * Retrieve document by status and project.
-	 * 
-	 * @param 		name				String
-	 * 
-	 * @return		Document
-	 * 
-	 */
-	public List<Document> findByStatusAndProject(String status, String project);
 	
 	/**
 	 * Retrieve document by name.
