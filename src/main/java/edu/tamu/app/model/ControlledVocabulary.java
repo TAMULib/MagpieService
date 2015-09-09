@@ -19,6 +19,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -47,6 +49,12 @@ public class ControlledVocabulary {
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldValue.class, property = "id")
 	@JsonIdentityReference(alwaysAsId = true)
 	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
+	
+	@PrePersist
+	@PreUpdate
+	protected void sanitize() {
+		value = value.replaceAll("[\u0000-\u001f]", "");
+	}
 	
 	public ControlledVocabulary() { }
 	
