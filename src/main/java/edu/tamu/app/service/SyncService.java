@@ -142,6 +142,9 @@ public class SyncService implements Runnable {
 		Map<String, Object> projectMap = null;
 		
 		try {
+			if(objectMapper == null) {
+				System.out.println("NULL OBJECT MAPPER");
+			}
 			projectMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
