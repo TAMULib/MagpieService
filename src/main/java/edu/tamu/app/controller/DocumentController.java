@@ -229,7 +229,7 @@ public class DocumentController {
 			objects = documentRepo.findByAnnotatorContainingIgnoreCase(request, annotator);
 		}
 		else {
-			objects = documentRepo.findAllAsObjects(request);
+			objects = documentRepo.findAllAsObject(request);
 		}
 				
 	    return new ApiResponse("success", objects, new RequestId(requestId));

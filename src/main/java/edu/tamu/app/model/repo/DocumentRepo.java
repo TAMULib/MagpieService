@@ -64,13 +64,13 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	/**
 	 * Retrieve all documents.
 	 * 
-	 * @param 		name				String
+	 * @param 		page				Pageable
 	 * 
 	 * @return		Document
 	 * 
 	 */
 	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d")
-	public Page<Object> findAllAsObjects(Pageable page);
+	public Page<Object> findAllAsObject(Pageable page);
 	
 	/**
 	 * Retrieve document by name.
