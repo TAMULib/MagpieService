@@ -10,6 +10,7 @@
 package edu.tamu.app;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
@@ -102,8 +103,10 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
     	if(createSymlink.equals("true")) {
     		try {
 				Files.createSymbolicLink( Paths.get(event.getApplicationContext().getResource("classpath:static/mnt").getFile().getAbsolutePath() + symlink), Paths.get(mount));
+			} catch (FileAlreadyExistsException e) {
+				System.out.println("\nSYMLINK ALREADY EXISTS\n");
 			} catch (IOException e) {
-				System.out.println("\nFAILED TO CREATE SYMLINK!!!\n");				
+				System.out.println("\nFAILED TO CREATE SYMLINK!!!\n");
 				e.printStackTrace();
 			}
     	}
