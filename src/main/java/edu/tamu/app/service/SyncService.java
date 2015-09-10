@@ -151,8 +151,13 @@ public class SyncService implements Runnable {
 		}
 	
 		String host = env.getProperty("app.host");
-		String mount = env.getProperty("app.mount");
-		String symlink = env.getProperty("app.symlink");
+		String mount = env.getProperty("app.mount");	
+		String link = env.getProperty("app.symlink.create");
+		
+		String symlink = "";
+		if(link.equals("true")) {
+			symlink = env.getProperty("app.symlink");
+		}
 		
 		String directory = null;
 		try {
