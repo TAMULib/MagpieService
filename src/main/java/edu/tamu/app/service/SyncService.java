@@ -219,16 +219,18 @@ public class SyncService implements Runnable {
         	
         	for(Path documentPath : documents) {
         		
-        		System.out.println("Adding: " + documentPath.getFileName().toString());
-        		
     			String pdfPath = "/mnt" + symlink + "/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".pdf";
 				String txtPath = "/mnt" + symlink + "/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".txt";
         		String pdfUri = host+pdfPath;
         		String txtUri = host+txtPath;
         		
-        		if(documentRepo.findByName(documentPath.getFileName().toString()) == null) {
-        		
-	        		Document document = documentRepo.create(project, documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open");
+        		String documentName = documentPath.getFileName().toString();
+
+        		if(documentRepo.findByName(documentName) == null) {
+
+        			System.out.println("Adding: " + documentName);
+
+	        		Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, "Open");
 	        		
 	        		fields.forEach(field -> {
 						document.addField(metadataFieldRepo.create(document, field.getLabel()));
