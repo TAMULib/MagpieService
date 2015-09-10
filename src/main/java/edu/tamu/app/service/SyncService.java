@@ -324,9 +324,9 @@ public class SyncService implements Runnable {
         		System.exit(-1);
         	}
         	
-        	System.out.println("Sync Service Finished");
-        	
         }
+        
+        System.out.println("Sync Service Finished");
 		
 	}
 	
