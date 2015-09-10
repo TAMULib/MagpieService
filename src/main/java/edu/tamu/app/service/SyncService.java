@@ -226,76 +226,80 @@ public class SyncService implements Runnable {
         		String pdfUri = host+pdfPath;
         		String txtUri = host+txtPath;
         		
-        		Document document = documentRepo.create(project, documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open");
+        		if(documentRepo.findByName(documentPath.getFileName().toString()) == null) {
         		
-        		fields.forEach(field -> {
-					document.addField(metadataFieldRepo.create(document, field.getLabel()));
-				});
-        		
-        		
-        		FlatMARC flatMarc = null;
-				try {
-					flatMarc = new FlatMARC(voyagerService.getMARC(document.getName()));
-				} catch (Exception e1) {
-					System.out.println("ERROR WHILE TRYING TO RETRIEVE MARC RECORD!!!");
-					e1.printStackTrace();
-				}
-				
-				Field[] marcFields = FlatMARC.class.getDeclaredFields();
-				
-				Map<String, List<String>> metadataMap = new HashMap<String, List<String>>();
-				
-				for (Field field : marcFields) {
-					field.setAccessible(true);
-		            List<String> marcList = new ArrayList<String>();
-		            if(field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
-		            	try {
-							for(String string : (List<String>) field.get(flatMarc)) {
-								marcList.add(string);
-							}
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
-						}
-		            }
-		            else {
-		            	try {
-							marcList.add(field.get(flatMarc).toString());
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
-						}
-		            }
-		            
-		            metadataMap.put(field.getName().replace('_','.'), marcList);
-		        }
-				
-				document.getFields().forEach(field -> {
-					List<String> values = metadataMap.get(field.getLabel().getName());
-					if(values != null) {
-						values.forEach(value -> {
-							field.addValue(metadataFieldValueRepo.create(value, field));
-						});
+	        		Document document = documentRepo.create(project, documentPath.getFileName().toString(), txtUri, pdfUri, txtPath, pdfPath, "Open");
+	        		
+	        		fields.forEach(field -> {
+						document.addField(metadataFieldRepo.create(document, field.getLabel()));
+					});
+	        		
+	        		
+	        		FlatMARC flatMarc = null;
+					try {
+						flatMarc = new FlatMARC(voyagerService.getMARC(document.getName()));
+					} catch (Exception e1) {
+						System.out.println("ERROR WHILE TRYING TO RETRIEVE MARC RECORD!!!");
+						e1.printStackTrace();
 					}
-				});
-        		
-        		
-        		project.addDocument(documentRepo.save(document));
-        		        		
-				Map<String, Object> docMap = new HashMap<String, Object>();				
-				docMap.put("document", document);				
-				docMap.put("isNew", "true");
+					
+					Field[] marcFields = FlatMARC.class.getDeclaredFields();
+					
+					Map<String, List<String>> metadataMap = new HashMap<String, List<String>>();
+					
+					for (Field field : marcFields) {
+						field.setAccessible(true);
+			            List<String> marcList = new ArrayList<String>();
+			            if(field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
+			            	try {
+								for(String string : (List<String>) field.get(flatMarc)) {
+									marcList.add(string);
+								}
+							} catch (IllegalArgumentException e) {
+								e.printStackTrace();
+							} catch (IllegalAccessException e) {
+								e.printStackTrace();
+							}
+			            }
+			            else {
+			            	try {
+								marcList.add(field.get(flatMarc).toString());
+							} catch (IllegalArgumentException e) {
+								e.printStackTrace();
+							} catch (IllegalAccessException e) {
+								e.printStackTrace();
+							}
+			            }
+			            
+			            metadataMap.put(field.getName().replace('_','.'), marcList);
+			        }
+					
+					document.getFields().forEach(field -> {
+						List<String> values = metadataMap.get(field.getLabel().getName());
+						if(values != null) {
+							values.forEach(value -> {
+								field.addValue(metadataFieldValueRepo.create(value, field));
+							});
+						}
+					});
+	        		
+	        		
+	        		project.addDocument(documentRepo.save(document));
+	        		        		
+					Map<String, Object> docMap = new HashMap<String, Object>();				
+					docMap.put("document", document);				
+					docMap.put("isNew", "true");
+					
+					try {
+						simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
+		        	}
+		        	catch(Exception e) {
+		        		System.out.println("CRASHED WHILE TRYING TO SEND DOCUMENT!!!");
+		        		e.printStackTrace();
+		        		System.exit(-1);
+		        	}
 				
-				try {
-					simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
-	        	}
-	        	catch(Exception e) {
-	        		System.out.println("CRASHED WHILE TRYING TO SEND DOCUMENT!!!");
-	        		e.printStackTrace();
-	        		System.exit(-1);
-	        	}
+        		}
 				
         	}
         	
