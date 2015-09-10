@@ -81,12 +81,15 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 	
 	@Autowired
 	private ObjectMapper objectMapper;
-		
-    @Value("${app.create.symlink}") 
-	private String createSymlink;
-    
-    @Value("${app.mount}") 
+	
+	@Value("${app.mount}") 
    	private String mount;
+	
+	@Value("${app.symlink}") 
+	private String symlink;
+		
+    @Value("${app.symlink.create}") 
+	private String createSymlink;
     
     /**
      * Method for event context refreshes.
@@ -98,13 +101,13 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
     	
     	if(createSymlink.equals("true")) {
     		try {
-				Files.createSymbolicLink( Paths.get(event.getApplicationContext().getResource("classpath:static/mnt").getFile().getAbsolutePath() + "/projects"), Paths.get(mount));
+				Files.createSymbolicLink( Paths.get(event.getApplicationContext().getResource("classpath:static/mnt").getFile().getAbsolutePath() + symlink), Paths.get(mount));
 			} catch (IOException e) {
 				System.out.println("\nFAILED TO CREATE SYMLINK!!!\n");				
 				e.printStackTrace();
 			}
     	}
-
+    	
     	executorService.submit(new SyncService(voyagerService,
     										   projectRepo,
     										   documentRepo,

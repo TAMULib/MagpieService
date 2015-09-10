@@ -150,9 +150,9 @@ public class SyncService implements Runnable {
 			e.printStackTrace();
 		}
 	
-		
 		String host = env.getProperty("app.host");
 		String mount = env.getProperty("app.mount");
+		String symlink = env.getProperty("app.symlink");
 		
 		String directory = null;
 		try {
@@ -216,8 +216,8 @@ public class SyncService implements Runnable {
         		
         		System.out.println("Adding: " + documentPath.getFileName().toString());
         		
-    			String pdfPath = "/mnt/projects/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".pdf";
-				String txtPath = "/mnt/projects/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".txt";
+    			String pdfPath = "/mnt" + symlink + "/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".pdf";
+				String txtPath = "/mnt" + symlink + "/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".txt";
         		String pdfUri = host+pdfPath;
         		String txtUri = host+txtPath;
         		

@@ -187,6 +187,7 @@ public class WatcherService implements Runnable {
 		
 		String host = env.getProperty("app.host");
 		String mount = env.getProperty("app.mount");
+		String symlink = env.getProperty("app.symlink");
 		
 		String directory = "";
 		try {
@@ -283,8 +284,8 @@ public class WatcherService implements Runnable {
                     		
 	                    	if((documentRepo.findByName(docString) == null)) {
 	                    		
-	        					String pdfPath = "/mnt/projects/projects/"+folder+"/"+docString+"/"+docString+".pdf";
-	            				String txtPath = "/mnt/projects/projects/"+folder+"/"+docString+"/"+docString+".txt";
+	        					String pdfPath = "/mnt" + symlink + "/projects/"+folder+"/"+docString+"/"+docString+".pdf";
+	            				String txtPath = "/mnt" + symlink + "/projects/"+folder+"/"+docString+"/"+docString+".txt";
 	            				
 	                    		String pdfUri = host+pdfPath;
 	                    		String txtUri = host+txtPath;
