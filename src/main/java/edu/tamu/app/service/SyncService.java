@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -57,7 +56,6 @@ import edu.tamu.app.model.response.marc.FlatMARC;
  *
  */
 @Service
-@PropertySource("classpath:/config/application.properties")
 public class SyncService implements Runnable {
 	
 	private VoyagerService voyagerService; 
@@ -84,6 +82,8 @@ public class SyncService implements Runnable {
 	
 	private ObjectMapper objectMapper;
 	
+	private WatcherManagerService watcherManagerService;
+	
 	/**
 	 * Default constructor.
 	 * 
@@ -92,7 +92,8 @@ public class SyncService implements Runnable {
 		super();
 	}
 	
-	public SyncService(VoyagerService voyagerService,
+	public SyncService(WatcherManagerService watcherManagerService,
+					   VoyagerService voyagerService,
 					   ProjectRepo projectRepo,
 					   DocumentRepo documentRepo,
 					   ProjectLabelProfileRepo projectLabelProfileRepo,
@@ -105,6 +106,7 @@ public class SyncService implements Runnable {
 					   ExecutorService executorService,
 					   ObjectMapper objectMapper) {
 		super();
+		this.watcherManagerService = watcherManagerService;
 		this.voyagerService = voyagerService;
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
@@ -170,29 +172,37 @@ public class SyncService implements Runnable {
         
         for(Path projectPath : projects) {
         	
-        	System.out.println("Watching: " + projectPath.getFileName().toString());
+        	String projectName = projectPath.getFileName().toString();
         	
-        	Project project = projectRepo.create(projectPath.getFileName().toString());
+        	Project project = projectRepo.create(projectName);
         	
         	List<Path> documents = fileList(projectPath.toString());
         	
-        	List<Object> profileObjList = (List<Object>) projectMap.get(projectPath.getFileName().toString());
+        	List<Object> profileObjList = (List<Object>) projectMap.get(projectName);
         	
         	List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
-        	
-        	executorService.submit(new WatcherService(voyagerService,
-        											  projectRepo,
-        											  documentRepo,
-        											  projectLabelProfileRepo,
-        											  metadataFieldRepo,
-        											  metadataFieldLabelRepo,
-        											  metadataFieldValueRepo,
-					   								  env,
-					   								  appContext,
-					   								  simpMessagingTemplate,
-					   								  executorService,
-					   								  objectMapper,
-					   								  projectPath.getFileName().toString()));
+        	        	
+        	if(!watcherManagerService.isWatcherServiceActive(projectName)) {
+        		
+        		System.out.println("Watching: " + projectName);
+        		
+	        	executorService.submit(new WatcherService(watcherManagerService,
+	        											  voyagerService,
+	        											  projectRepo,
+	        											  documentRepo,
+	        											  projectLabelProfileRepo,
+	        											  metadataFieldRepo,
+	        											  metadataFieldLabelRepo,
+	        											  metadataFieldValueRepo,
+						   								  env,
+						   								  appContext,
+						   								  simpMessagingTemplate,
+						   								  executorService,
+						   								  objectMapper,
+						   								  projectName));
+	        	
+	        	watcherManagerService.addActiveWatcherService(projectName);
+        	}        	
         	
         	if(profileObjList == null) profileObjList = (List<Object>) projectMap.get("default");
         	
@@ -219,13 +229,13 @@ public class SyncService implements Runnable {
         	
         	for(Path documentPath : documents) {
         		
-    			String pdfPath = "/mnt" + symlink + "/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".pdf";
-				String txtPath = "/mnt" + symlink + "/projects/"+projectPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+"/"+documentPath.getFileName().toString()+".txt";
+        		String documentName = documentPath.getFileName().toString();
+        		
+    			String pdfPath = "/mnt" + symlink + "/projects/"+projectName+"/"+documentName+"/"+documentName+".pdf";
+				String txtPath = "/mnt" + symlink + "/projects/"+projectName+"/"+documentName+"/"+documentName+".txt";
         		String pdfUri = host+pdfPath;
         		String txtUri = host+txtPath;
         		
-        		String documentName = documentPath.getFileName().toString();
-
         		if(documentRepo.findByName(documentName) == null) {
 
         			System.out.println("Adding: " + documentName);

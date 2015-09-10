@@ -35,6 +35,7 @@ import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.SyncService;
 import edu.tamu.app.service.VoyagerService;
+import edu.tamu.app.service.WatcherManagerService;
 import edu.tamu.app.service.WatcherService;
 
 /** 
@@ -83,6 +84,9 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 	@Autowired
 	private ObjectMapper objectMapper;
 	
+	@Autowired
+	private WatcherManagerService watcherManagerService;
+	
 	@Value("${app.mount}") 
    	private String mount;
 	
@@ -111,7 +115,8 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 			}
     	}
     	
-    	executorService.submit(new SyncService(voyagerService,
+    	executorService.submit(new SyncService(watcherManagerService,
+    										   voyagerService,
     										   projectRepo,
     										   documentRepo,
     										   projectLabelProfileRepo,
@@ -124,7 +129,10 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 			      							   executorService,
 			      							   objectMapper));
     	
-    	executorService.submit(new WatcherService(voyagerService,
+    	System.out.println("Watching: projects");
+    	
+    	executorService.submit(new WatcherService(watcherManagerService,
+    											  voyagerService,
     											  projectRepo,
 				   								  documentRepo,
 				   								  projectLabelProfileRepo,
@@ -137,6 +145,8 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 					  						      executorService,
 					  						      objectMapper,
 					  							  "projects"));
+    	
+    	watcherManagerService.addActiveWatcherService("projects");
 
     }  
     

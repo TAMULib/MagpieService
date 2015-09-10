@@ -28,10 +28,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -61,9 +59,7 @@ import edu.tamu.app.model.response.marc.FlatMARC;
  * @author
  *
  */
-@Component
 @Service
-@PropertySource("classpath:/config/application.properties")
 public class WatcherService implements Runnable {
 	
 	private VoyagerService voyagerService; 
@@ -90,6 +86,8 @@ public class WatcherService implements Runnable {
 	
 	private ObjectMapper objectMapper;
 	
+	private WatcherManagerService watcherManagerService;
+	
 	private String folder;
 	
 	/**
@@ -100,7 +98,8 @@ public class WatcherService implements Runnable {
 		super();
 	}
 	
-	public WatcherService(VoyagerService voyagerService,
+	public WatcherService(WatcherManagerService watcherManagerService,
+						  VoyagerService voyagerService,
 						  ProjectRepo projectRepo,
 						  DocumentRepo documentRepo,
 						  ProjectLabelProfileRepo projectLabelProfileRepo,
@@ -113,6 +112,7 @@ public class WatcherService implements Runnable {
 						  ExecutorService executorService,
 						  ObjectMapper objectMapper) {
 		super();
+		this.watcherManagerService = watcherManagerService;
 		this.voyagerService = voyagerService;
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
@@ -127,7 +127,8 @@ public class WatcherService implements Runnable {
 		this.objectMapper = objectMapper;
 	}
 	
-	public WatcherService(VoyagerService voyagerService,
+	public WatcherService(WatcherManagerService watcherManagerService,
+						  VoyagerService voyagerService,
 						  ProjectRepo projectRepo,
 						  DocumentRepo documentRepo,
 						  ProjectLabelProfileRepo projectLabelProfileRepo,
@@ -141,6 +142,7 @@ public class WatcherService implements Runnable {
 						  ObjectMapper objectMapper,
 						  String folder) {
 		super();
+		this.watcherManagerService = watcherManagerService;
 		this.voyagerService = voyagerService;
 		this.projectRepo = projectRepo;
 		this.documentRepo = documentRepo;
@@ -266,19 +268,26 @@ public class WatcherService implements Runnable {
 
                     if (kind == ENTRY_CREATE) {
                     	if(folder.equals("projects")) {
-                    		executorService.submit(new WatcherService(voyagerService,
-                    												  projectRepo,
-                    												  documentRepo,
-                    												  projectLabelProfileRepo,
-                    												  metadataFieldRepo,
-                    												  metadataFieldLabelRepo,
-                    												  metadataFieldValueRepo,
-	   								  								  env,
-	   								  								  appContext,
-	   								  								  simpMessagingTemplate,
-	   								  								  executorService,
-	   								  								  objectMapper,
-	   								  								  docString));
+                    		
+                    		if(!watcherManagerService.isWatcherServiceActive(docString)) {
+                    			
+                    			executorService.submit(new WatcherService(watcherManagerService,
+																	      voyagerService,
+																		  projectRepo,
+																		  documentRepo,
+																		  projectLabelProfileRepo,
+																		  metadataFieldRepo,
+																		  metadataFieldLabelRepo,
+																		  metadataFieldValueRepo,
+										  								  env,
+										  								  appContext,
+										  								  simpMessagingTemplate,
+										  								  executorService,
+										  								  objectMapper,
+										  								  docString));
+                    			
+                    			watcherManagerService.addActiveWatcherService(docString);                    			
+                    		}
                     	}
                     	else {
                     		

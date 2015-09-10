@@ -41,6 +41,7 @@ import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.SyncService;
 import edu.tamu.app.service.VoyagerService;
+import edu.tamu.app.service.WatcherManagerService;
 
 /** 
  * Admin Controller.
@@ -96,6 +97,9 @@ public class AdminController {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	@Autowired
+	private WatcherManagerService watcherManagerService;
 	
 	/**
 	 * Checks if user is in the repo. If not saves user to repo.
@@ -178,7 +182,8 @@ public class AdminController {
 		
 		System.out.println("Syncronizing projects with database.");
 		
-		executorService.submit(new SyncService(voyagerService,
+		executorService.submit(new SyncService(watcherManagerService,
+											   voyagerService,
 											   projectRepo,
 											   documentRepo,
 											   projectLabelProfileRepo,
