@@ -14,6 +14,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.Document;
@@ -60,6 +62,17 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	public List<Document> findByStatus(String status);
 	
 	/**
+	 * Retrieve all documents.
+	 * 
+	 * @param 		name				String
+	 * 
+	 * @return		Document
+	 * 
+	 */
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d")
+	public Page<Object> findAllAsObjects(Pageable page);
+	
+	/**
 	 * Retrieve document by name.
 	 * 
 	 * @param 		page				Pageable
@@ -68,7 +81,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByNameContainingIgnoreCase(Pageable page, String name);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+	public Page<Object> findByNameContainingIgnoreCase(Pageable page, @Param("name") String name);
 	
 	/**
 	 * Retrieve document by name and status.
@@ -82,7 +96,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCase(Pageable page, String name1, String status1, String name2, String status2);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE (LOWER(d.name) LIKE LOWER(CONCAT('%', :name1, '%')) AND LOWER(d.status) LIKE(CONCAT('%', :status1, '%'))) OR (LOWER(d.name) LIKE LOWER(CONCAT('%', :name2, '%')) AND LOWER(d.status) LIKE(CONCAT('%', :status2, '%')))")
+	public Page<Object> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCase(Pageable page, @Param("name1") String name1, @Param("status1") String status1, @Param("name2") String name2, @Param("status2") String status2);
 	
 	/**
 	 * Retrieve document by name and status.
@@ -94,7 +109,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCase(Pageable page, String name, String status);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%'))")
+	public Page<Object> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCase(Pageable page, @Param("name") String name, @Param("status") String status);
 	
 	/**
 	 * Retrieve document by name and annotator.
@@ -106,7 +122,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByNameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String name, String annotator);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
+	public Page<Object> findByNameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, @Param("name") String name, @Param("annotator") String annotator);
 	
 	
 	/**
@@ -119,7 +136,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByStatusContainingIgnoreCaseOrStatusContainingIgnoreCase(Pageable page, String status1, String status2);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.status) LIKE LOWER(CONCAT('%', :status1, '%')) OR LOWER(d.status) LIKE LOWER(CONCAT('%', :status2, '%'))")
+	public Page<Object> findByStatusContainingIgnoreCaseOrStatusContainingIgnoreCase(Pageable page, @Param("status1") String status1, @Param("status2") String status2);
 	
 	/**
 	 * Retrieve document by status.
@@ -130,7 +148,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByStatusContainingIgnoreCase(Pageable page, String status);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%'))")
+	public Page<Object> findByStatusContainingIgnoreCase(Pageable page, @Param("status") String status);
 	
 	/**
 	 * Retrieve document by status and annotator.
@@ -144,7 +163,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String status1, String annotator1, String status2, String annotator2);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE (LOWER(d.status) LIKE LOWER(CONCAT('%', :status1, '%')) AND LOWER(d.annotator) LIKE(CONCAT('%', :annotator1, '%'))) OR (LOWER(d.status) LIKE LOWER(CONCAT('%', :status2, '%')) AND LOWER(d.annotator) LIKE(CONCAT('%', :annotator2, '%')))")
+	public Page<Object> findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, @Param("status1") String status1, @Param("annotator1") String annotator1, @Param("status2") String status2, @Param("annotator2") String annotator2);
 	
 	/**
 	 * Retrieve document by status and annotator.
@@ -156,7 +176,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String status, String annotator);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
+	public Page<Object> findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, @Param("status") String status, @Param("annotator") String annotator);
 	
 	/**
 	 * Retrieve document by annotator.
@@ -167,7 +188,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByAnnotatorContainingIgnoreCase(Pageable page, String annotator);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
+	public Page<Object> findByAnnotatorContainingIgnoreCase(Pageable page, @Param("annotator") String annotator);
 		
 	/**
 	 * Retrieve document by name and status.
@@ -183,7 +205,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String name1, String status1, String annotator1, String name2, String status2, String annotator2);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE (LOWER(d.name) LIKE LOWER(CONCAT('%', :name1, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status1, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator1, '%'))) OR (LOWER(d.name) LIKE LOWER(CONCAT('%', :name2, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status2, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator2, '%')))")
+	public Page<Object> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, @Param("name1") String name1, @Param("status1") String status1, @Param("annotator1") String annotator1, @Param("name2") String name2, @Param("status2") String status2, @Param("annotator2") String annotator2);
 	
 	/**
 	 * Retrieve document by name and status.
@@ -196,6 +219,7 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	public Page<Document> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, String name, String status, String annotator);
+	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
+	public Page<Object> findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(Pageable page, @Param("name") String name, @Param("status") String status, @Param("annotator") String annotator);
 	
 }

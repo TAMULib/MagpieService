@@ -183,61 +183,56 @@ public class DocumentController {
 		}
 				
 		Pageable request = new PageRequest(Integer.parseInt(headerMap.get("page")) - 1, Integer.parseInt(headerMap.get("size")), sortDirection, headerMap.get("field"));
-		Page<Document> documents = null;
+		
+		Page<Object> objects = null;
 		
 		if(name.length() > 0) {			
 			if(status[0].length() > 0) {
 				if(annotator.length() > 0) {
 					if(status[1].length() > 0) {
-						documents = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator, name, status[1], annotator);	
+						objects = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator, name, status[1], annotator);	
 					}
 					else {
-						documents = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator);
+						objects = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator);
 					}
 				}
 				else {
-					documents = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCase(request, name, status[0], name, status[1]);	
+					objects = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCase(request, name, status[0], name, status[1]);	
 				}				
 			}
 			else if(annotator.length() > 0) {
-				documents = documentRepo.findByNameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, annotator);				
+				objects = documentRepo.findByNameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, annotator);				
 			}
 			else {
-				documents = documentRepo.findByNameContainingIgnoreCase(request, name);
+				objects = documentRepo.findByNameContainingIgnoreCase(request, name);
 			}			
 		}
 		else if(status[0].length() > 0) {
 			if(annotator.length() > 0) {
 				if(status[1].length() > 0) {
-					documents = documentRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status[0], annotator, status[1], annotator);
+					objects = documentRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status[0], annotator, status[1], annotator);
 				}
 				else {
-					documents = documentRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status[0], annotator);
+					objects = documentRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status[0], annotator);
 				}
 			}
 			else {
 				if(status[1].length() > 0) {
-					documents = documentRepo.findByStatusContainingIgnoreCaseOrStatusContainingIgnoreCase(request, status[0], status[1]);
+					objects = documentRepo.findByStatusContainingIgnoreCaseOrStatusContainingIgnoreCase(request, status[0], status[1]);
 				}
 				else {
-					documents = documentRepo.findByStatusContainingIgnoreCase(request, status[0]);
+					objects = documentRepo.findByStatusContainingIgnoreCase(request, status[0]);
 				}
 			}			
 		}
 		else if(annotator.length() > 0) {
-			documents = documentRepo.findByAnnotatorContainingIgnoreCase(request, annotator);
+			objects = documentRepo.findByAnnotatorContainingIgnoreCase(request, annotator);
 		}
 		else {
-			documents = documentRepo.findAll(request);
+			objects = documentRepo.findAllAsObjects(request);
 		}
-		
-		// clear fields to avoid sending more data than required for list
-		
-		for(Document document : documents) {
-			document.clearFields();
-		}
-		
-	    return new ApiResponse("success", documents, new RequestId(requestId));
+				
+	    return new ApiResponse("success", objects, new RequestId(requestId));
 	}
 
 	/**
