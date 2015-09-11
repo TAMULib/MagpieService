@@ -191,9 +191,10 @@ public class SyncService implements Runnable {
         	
         	if(profileObjList == null) profileObjList = (List<Object>) projectMap.get("default");
         	
+        	
         	for(Object metadata : profileObjList) {
-				
-				Map<String, Object> mMap = (Map<String, Object>) metadata;
+        		
+        		Map<String, Object> mMap = (Map<String, Object>) metadata;
 				
 				ProjectLabelProfile profile = projectLabelProfileRepo.create(project,
 																			 mMap.get("gloss") == null ? "" : (String) mMap.get("gloss"), 
@@ -210,9 +211,9 @@ public class SyncService implements Runnable {
 
 				project.addProfile(profile);
 				projectRepo.save(project);
-			}
+        	}
         	
-        	for(Path documentPath : documents) {
+        	documents.parallelStream().forEach(documentPath -> {        		
         		
         		String documentName = documentPath.getFileName().toString();
         		
@@ -227,7 +228,7 @@ public class SyncService implements Runnable {
 
 	        		Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, "Open");
 	        		
-	        		fields.forEach(field -> {
+	        		fields.stream().forEach(field -> {
 						document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
 					});
 	        		
@@ -271,7 +272,7 @@ public class SyncService implements Runnable {
 			            metadataMap.put(field.getName().replace('_','.'), marcList);
 			        }
 					
-					document.getFields().forEach(field -> {
+					document.getFields().parallelStream().forEach(field -> {
 						List<String> values = metadataMap.get(field.getLabel().getName());
 						if(values != null) {
 							values.forEach(value -> {
@@ -298,7 +299,7 @@ public class SyncService implements Runnable {
 				
         		}
 				
-        	}
+        	});
         	
         	try {
         		projectRepo.save(project);

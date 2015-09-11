@@ -117,7 +117,9 @@ public class MetadataFieldController {
             for (Path path : directoryStream) {
             	projects.add(path.getFileName().toString());            
             }
-        } catch (IOException ex) {}
+        } catch (IOException ex) {
+        	System.out.println("Could not create directory stream!! No projects added!");
+        }
 
 		return new ApiResponse("success", projects, new RequestId(requestId));
 	}

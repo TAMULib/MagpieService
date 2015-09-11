@@ -54,7 +54,7 @@ public class ControlledVocabularyRepoImpl implements ControlledVocabularyRepoCus
 	public void delete(ControlledVocabulary cv) {
 		 Set<MetadataFieldValue> values = cv.getValues();		 
 		 if(values.size() > 0) {	
-			 values.forEach(value -> {
+			 values.parallelStream().forEach(value -> {
 				 value.setCv(null);
 				 metadataFieldValueRepo.save(value);
 			 });
@@ -66,7 +66,7 @@ public class ControlledVocabularyRepoImpl implements ControlledVocabularyRepoCus
 	
 	@Override
 	public void deleteAll() {
-		controlledVocabularyRepo.findAll().forEach(cv -> {
+		controlledVocabularyRepo.findAll().parallelStream().forEach(cv -> {
 			controlledVocabularyRepo.delete(cv);
 		});
 	}

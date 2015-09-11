@@ -83,7 +83,7 @@ public class MetadataFieldValueRepoImpl implements MetadataFieldValueRepoCustom 
 	
 	@Override
 	public void deleteAll() {
-		metadataFieldValueRepo.findAll().forEach(value -> {
+		metadataFieldValueRepo.findAll().parallelStream().forEach(value -> {
 			metadataFieldValueRepo.delete(value);
 		});
 	}

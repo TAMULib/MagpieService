@@ -65,7 +65,7 @@ public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom 
 		
 		Set<MetadataFieldGroup> fields = label.getFields();		 
 		if(fields.size() > 0) {
-			fields.forEach(field -> {
+			fields.parallelStream().forEach(field -> {
 				field.setLabel(null);
 				metadataFieldRepo.save(field);
 			});
@@ -77,7 +77,7 @@ public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom 
 	
 	@Override
 	public void deleteAll() {
-		metadataFieldLabelRepo.findAll().forEach(label -> {
+		metadataFieldLabelRepo.findAll().parallelStream().forEach(label -> {
 			metadataFieldLabelRepo.delete(label);
 		});
 	}

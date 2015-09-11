@@ -60,7 +60,7 @@ public class ProjectLabelProfileRepoImpl implements ProjectLabelProfileRepoCusto
 	public void delete(ProjectLabelProfile profile) {
 		Set<MetadataFieldLabel> labels = profile.getLabels();
 		if(labels.size() > 0) {
-			labels.forEach(l -> {
+			labels.parallelStream().forEach(l -> {
 				l.setProfile(null);
 				metadataFieldLabelRepo.save(l);
 			});
@@ -79,7 +79,7 @@ public class ProjectLabelProfileRepoImpl implements ProjectLabelProfileRepoCusto
 	
 	@Override
 	public void deleteAll() {
-		projectFieldProfileRepo.findAll().forEach(profile -> {
+		projectFieldProfileRepo.findAll().parallelStream().forEach(profile -> {
 			projectFieldProfileRepo.delete(profile);
 		});
 	}

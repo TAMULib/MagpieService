@@ -270,7 +270,7 @@ public class WatcherService implements Runnable {
 	                         		
 	        					Document document = documentRepo.create(project, docString, txtUri, pdfUri, txtPath, pdfPath, "Open");
 	        					
-	        					fields.forEach(field -> {
+	        					fields.parallelStream().forEach(field -> {
 	        						document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
 	        					});
 	        					
@@ -314,7 +314,7 @@ public class WatcherService implements Runnable {
 	        			            metadataMap.put(field.getName().replace('_','.'), marcList);
 	        			        }
 	        					
-	        					document.getFields().forEach(field -> {
+	        					document.getFields().parallelStream().forEach(field -> {
 	        						List<String> values = metadataMap.get(field.getLabel().getName());
 	        						if(values != null) {
 	        							values.forEach(value -> {
@@ -358,6 +358,7 @@ public class WatcherService implements Runnable {
                 }
                  
                 boolean valid = key.reset();
+                
                 if (!valid) {
                     break;
                 }

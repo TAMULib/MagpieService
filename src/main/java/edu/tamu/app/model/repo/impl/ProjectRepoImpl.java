@@ -64,7 +64,7 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
 	public void delete(Project project) {
 		Set<ProjectLabelProfile> profiles = project.getProfiles();
 		if(profiles.size() > 0) {
-			profiles.forEach(profile -> {
+			profiles.parallelStream().forEach(profile -> {
 				profile.setProject(null);
 				projectFieldProfileRepo.save(profile);
 			});
@@ -73,7 +73,7 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
 		
 		Set<Document> documents = project.getDocuments();
 		if(documents.size() > 0) {	
-			documents.forEach(document -> {
+			documents.parallelStream().forEach(document -> {
 				document.setProject(null);
 				documentRepo.save(document);
 			});
@@ -85,7 +85,7 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
 	
 	@Override
 	public void deleteAll() {
-		projectRepo.findAll().forEach(project -> {
+		projectRepo.findAll().parallelStream().forEach(project -> {
 			projectRepo.delete(project);
 		});
 	}

@@ -62,10 +62,10 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
 	public Document update(Document newDocument) {
 		Document oldDocument = documentRepo.findByName(newDocument.getName());
 		
-		newDocument.getFields().forEach(field -> {
+		newDocument.getFields().parallelStream().forEach(field -> {
 			MetadataFieldGroup oldField = metadataFieldRepo.findByDocumentAndLabel(oldDocument, field.getLabel());
 			oldField.setValues(field.getValues());
-			field.getValues().forEach(value -> {
+			field.getValues().parallelStream().forEach(value -> {
 				value.setField(oldField);
 				metadataFieldValueRepo.save(value);
 			});
@@ -86,7 +86,7 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
 		
 		Set<MetadataFieldGroup> fields = document.getFields();
 		if(fields.size() > 0) {
-			fields.forEach(field -> {
+			fields.parallelStream().forEach(field -> {
 				field.setDocument(null);
 				metadataFieldRepo.save(field);
 			});
@@ -98,7 +98,7 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
 	
 	@Override
 	public void deleteAll() {
-		documentRepo.findAll().forEach(document -> {
+		documentRepo.findAll().parallelStream().forEach(document -> {
 			documentRepo.delete(document);
 		});
 	}	

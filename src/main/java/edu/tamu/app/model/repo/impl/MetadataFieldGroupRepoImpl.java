@@ -79,7 +79,7 @@ public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom 
 		
 		Set<MetadataFieldValue> values = field.getValues();
 		if(values.size() > 0) {			
-			values.forEach(value -> {
+			values.parallelStream().forEach(value -> {
 				ControlledVocabulary cv = value.getCv();
 				if(cv != null) {
 					cv.removeValue(value);
@@ -95,7 +95,7 @@ public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom 
 	
 	@Override
 	public void deleteAll() {
-		metadataFieldRepo.findAll().forEach(field -> {
+		metadataFieldRepo.findAll().parallelStream().forEach(field -> {
 			metadataFieldRepo.delete(field);
 		});
 	}
