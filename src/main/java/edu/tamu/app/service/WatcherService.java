@@ -29,8 +29,8 @@ import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -71,10 +71,7 @@ public class WatcherService implements Runnable {
 	
 	@Autowired
 	private VoyagerService voyagerService; 
-	
-	@Autowired @Lazy
-	private WatcherService watcherService;
-	
+		
 	@Autowired
 	private ObjectMapper objectMapper;
 	
@@ -249,11 +246,16 @@ public class WatcherService implements Runnable {
                     		
                     		if(!watcherManagerService.isWatcherServiceActive(docString)) {
                     			
-                    			watcherService.setFolder(docString);
-                    			
+                    			WatcherService watcherService = new WatcherService(docString);
+                        		
+                        		AutowireCapableBeanFactory factory = appContext.getAutowireCapableBeanFactory();
+
+                        		factory.autowireBean( watcherService );
+                        		factory.initializeBean( watcherService, "bean" );
+                        		
                     			executorService.submit(watcherService);
                     			
-                    			watcherManagerService.addActiveWatcherService(docString);                    			
+                    			watcherManagerService.addActiveWatcherService(docString);
                     		}
                     	}
                     	else {

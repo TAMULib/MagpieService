@@ -9,7 +9,7 @@
  */
 package edu.tamu.app.model.repo.impl;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -52,7 +52,7 @@ public class ControlledVocabularyRepoImpl implements ControlledVocabularyRepoCus
 	@Override
 	@Transactional
 	public void delete(ControlledVocabulary cv) {
-		 List<MetadataFieldValue> values = cv.getValues();		 
+		 Set<MetadataFieldValue> values = cv.getValues();		 
 		 if(values.size() > 0) {	
 			 values.forEach(value -> {
 				 value.setCv(null);

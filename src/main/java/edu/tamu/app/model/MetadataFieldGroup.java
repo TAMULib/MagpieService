@@ -10,8 +10,8 @@
 package edu.tamu.app.model;
 
 import java.lang.Comparable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -49,7 +49,7 @@ public class MetadataFieldGroup implements Comparable<MetadataFieldGroup>  {
 	private MetadataFieldLabel label;
 	
 	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
+	private Set<MetadataFieldValue> values = new HashSet<MetadataFieldValue>();
 	
 	public MetadataFieldGroup() { }
 	
@@ -87,11 +87,11 @@ public class MetadataFieldGroup implements Comparable<MetadataFieldGroup>  {
 		this.label = label;
 	}
 
-	public List<MetadataFieldValue> getValues() {
+	public Set<MetadataFieldValue> getValues() {
 		return values;
 	}
 
-	public void setValues(List<MetadataFieldValue> values) {
+	public void setValues(Set<MetadataFieldValue> values) {
 		this.values = values;
 	}
 	
@@ -104,7 +104,7 @@ public class MetadataFieldGroup implements Comparable<MetadataFieldGroup>  {
 	}
 	
 	public void clearValues() {
-		values = new ArrayList<MetadataFieldValue>();
+		values = new HashSet<MetadataFieldValue>();
 	}
 
 	

@@ -9,8 +9,8 @@
  */
 package edu.tamu.app.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -39,7 +39,7 @@ public class ControlledVocabulary {
 	@OneToMany(mappedBy="cv", fetch = FetchType.EAGER)	
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldValue.class, property = "id")
 	@JsonIdentityReference(alwaysAsId = true)
-	private List<MetadataFieldValue> values = new ArrayList<MetadataFieldValue>();
+	private Set<MetadataFieldValue> values = new HashSet<MetadataFieldValue>();
 	
 	@PrePersist
 	@PreUpdate
@@ -62,11 +62,11 @@ public class ControlledVocabulary {
 	}
 
 	@JsonIgnore
-	public List<MetadataFieldValue> getValues() {
+	public Set<MetadataFieldValue> getValues() {
 		return values;
 	}
 
-	public void setValues(List<MetadataFieldValue> values) {
+	public void setValues(Set<MetadataFieldValue> values) {
 		this.values = values;
 	}
 
@@ -79,7 +79,7 @@ public class ControlledVocabulary {
 	}
 	
 	public void clearValues() {
-		values = new ArrayList<MetadataFieldValue>();
+		values = new HashSet<MetadataFieldValue>();
 	}
 	
 }

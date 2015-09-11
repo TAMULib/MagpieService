@@ -9,7 +9,7 @@
  */
 package edu.tamu.app.model.repo.impl;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -77,7 +77,7 @@ public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom 
 			metadataFieldLabelRepo.save(label);			
 		}
 		
-		List<MetadataFieldValue> values = field.getValues();
+		Set<MetadataFieldValue> values = field.getValues();
 		if(values.size() > 0) {			
 			values.forEach(value -> {
 				ControlledVocabulary cv = value.getCv();

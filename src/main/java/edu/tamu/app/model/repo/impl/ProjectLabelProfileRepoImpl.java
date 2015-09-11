@@ -9,7 +9,7 @@
  */
 package edu.tamu.app.model.repo.impl;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -58,7 +58,7 @@ public class ProjectLabelProfileRepoImpl implements ProjectLabelProfileRepoCusto
 	@Override
 	@Transactional
 	public void delete(ProjectLabelProfile profile) {
-		List<MetadataFieldLabel> labels = profile.getLabels();
+		Set<MetadataFieldLabel> labels = profile.getLabels();
 		if(labels.size() > 0) {
 			labels.forEach(l -> {
 				l.setProfile(null);

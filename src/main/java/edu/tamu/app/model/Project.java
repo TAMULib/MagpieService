@@ -9,8 +9,8 @@
  */
 package edu.tamu.app.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -31,10 +31,10 @@ public class Project {
 	private String name;
 	
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	private List<ProjectLabelProfile> profiles = new ArrayList<ProjectLabelProfile>();
+	private Set<ProjectLabelProfile> profiles = new HashSet<ProjectLabelProfile>();
 	
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval = false)
-	private List<Document> documents = new ArrayList<Document>();
+	private Set<Document> documents = new HashSet<Document>();
 	
 	public Project() { }
 	
@@ -50,11 +50,11 @@ public class Project {
 		this.name = name;
 	}
 
-	public List<ProjectLabelProfile> getProfiles() {
+	public Set<ProjectLabelProfile> getProfiles() {
 		return profiles;
 	}
 
-	public void setProfiles(List<ProjectLabelProfile> profiles) {
+	public void setProfiles(Set<ProjectLabelProfile> profiles) {
 		this.profiles = profiles;
 	}
 	
@@ -67,14 +67,14 @@ public class Project {
 	}
 	
 	public void clearProfiles() {
-		profiles = new ArrayList<ProjectLabelProfile>();
+		profiles = new HashSet<ProjectLabelProfile>();
 	}
 
-	public List<Document> getDocuments() {
+	public Set<Document> getDocuments() {
 		return documents;
 	}
 
-	public void setDocuments(List<Document> documents) {
+	public void setDocuments(Set<Document> documents) {
 		this.documents = documents;
 	}
 	
@@ -87,7 +87,7 @@ public class Project {
 	}
 	
 	public void clearDocuments() {
-		documents = new ArrayList<Document>();
+		documents = new HashSet<Document>();
 	}
 
 }

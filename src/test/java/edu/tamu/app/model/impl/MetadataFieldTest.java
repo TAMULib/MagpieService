@@ -120,7 +120,7 @@ public class MetadataFieldTest {
 		
 		testField = metadataFieldGroupRepo.save(testField);
 		
-		Assert.assertEquals("Test MetadataField with expected MetadataFieldValue was not save.", testValue.getValue(), testField.getValues().get(0).getValue());
+		Assert.assertEquals("Test MetadataField with expected MetadataFieldValue was not save.", testValue.getValue(), ((MetadataFieldValue)testField.getValues().toArray()[0]).getValue());
 		
 		metadataFieldGroupRepo.delete(testField);
 		Assert.assertEquals("Test field was not deleted.", 0, metadataFieldGroupRepo.count());

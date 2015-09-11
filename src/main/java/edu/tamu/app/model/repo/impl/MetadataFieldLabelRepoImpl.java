@@ -9,7 +9,7 @@
  */
 package edu.tamu.app.model.repo.impl;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -63,7 +63,7 @@ public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom 
 			metadataFieldLabelRepo.save(label);
 		}
 		
-		List<MetadataFieldGroup> fields = label.getFields();		 
+		Set<MetadataFieldGroup> fields = label.getFields();		 
 		if(fields.size() > 0) {
 			fields.forEach(field -> {
 				field.setLabel(null);

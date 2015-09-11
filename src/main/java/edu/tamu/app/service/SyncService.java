@@ -27,8 +27,8 @@ import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -65,9 +65,6 @@ public class SyncService implements Runnable {
 	
 	@Autowired
 	private VoyagerService voyagerService; 
-	
-	@Autowired @Lazy
-	private WatcherService watcherService;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -180,7 +177,12 @@ public class SyncService implements Runnable {
         		
         		System.out.println("Watching: " + projectName);
         		
-        		watcherService.setFolder(projectName);
+        		WatcherService watcherService = new WatcherService(projectName);
+        		
+        		AutowireCapableBeanFactory factory = appContext.getAutowireCapableBeanFactory();
+
+        		factory.autowireBean( watcherService );
+        		factory.initializeBean( watcherService, "bean" );
         		
 	        	executorService.submit(watcherService);
 	        	

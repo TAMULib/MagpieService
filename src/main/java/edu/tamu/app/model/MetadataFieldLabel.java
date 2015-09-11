@@ -9,8 +9,8 @@
  */
 package edu.tamu.app.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -42,7 +42,7 @@ public class MetadataFieldLabel {
 	@OneToMany(mappedBy="label", fetch=FetchType.EAGER)
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id")
 	@JsonIdentityReference(alwaysAsId = true)
-	private List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
+	private Set<MetadataFieldGroup> fields = new HashSet<MetadataFieldGroup>();
 	
 	public MetadataFieldLabel() { }
 	
@@ -68,11 +68,11 @@ public class MetadataFieldLabel {
 	}
 
 	@JsonIgnore
-	public List<MetadataFieldGroup> getFields() {
+	public Set<MetadataFieldGroup> getFields() {
 		return fields;
 	}
 
-	public void setFields(List<MetadataFieldGroup> fields) {
+	public void setFields(Set<MetadataFieldGroup> fields) {
 		this.fields = fields;
 	}
 	
@@ -85,7 +85,7 @@ public class MetadataFieldLabel {
 	}
 	
 	public void clearFields() {
-		fields = new ArrayList<MetadataFieldGroup>();
+		fields = new HashSet<MetadataFieldGroup>();
 	}
 	
 }

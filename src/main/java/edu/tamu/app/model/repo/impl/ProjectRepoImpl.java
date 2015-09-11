@@ -9,7 +9,7 @@
  */
 package edu.tamu.app.model.repo.impl;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -62,7 +62,7 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
 	@Override
 	@Transactional
 	public void delete(Project project) {
-		List<ProjectLabelProfile> profiles = project.getProfiles();
+		Set<ProjectLabelProfile> profiles = project.getProfiles();
 		if(profiles.size() > 0) {
 			profiles.forEach(profile -> {
 				profile.setProject(null);
@@ -71,7 +71,7 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
 			project.clearProfiles();
 		}
 		
-		List<Document> documents = project.getDocuments();
+		Set<Document> documents = project.getDocuments();
 		if(documents.size() > 0) {	
 			documents.forEach(document -> {
 				document.setProject(null);
