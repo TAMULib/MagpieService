@@ -27,8 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.Environment;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -60,33 +63,59 @@ import edu.tamu.app.model.response.marc.FlatMARC;
  *
  */
 @Service
+@Scope(value = "prototype")
 public class WatcherService implements Runnable {
 	
-	private VoyagerService voyagerService; 
-	
-	private ProjectRepo projectRepo;
-	
-	private DocumentRepo documentRepo;
-	
-	private ProjectLabelProfileRepo projectLabelProfileRepo;
-	
-	private MetadataFieldGroupRepo metadataFieldRepo;
-	
-	private MetadataFieldLabelRepo metadataFieldLabelRepo;
-	
-	private MetadataFieldValueRepo metadataFieldValueRepo;
-	
-	private Environment env;
-	
+	@Autowired
 	private ApplicationContext appContext;
 	
-	private SimpMessagingTemplate simpMessagingTemplate;
+	@Autowired
+	private VoyagerService voyagerService; 
 	
-	private ExecutorService executorService;
+	@Autowired @Lazy
+	private WatcherService watcherService;
 	
+	@Autowired
 	private ObjectMapper objectMapper;
 	
+	@Autowired
+	private ExecutorService executorService;
+	
+	@Autowired
 	private WatcherManagerService watcherManagerService;
+	
+	@Autowired
+	private SimpMessagingTemplate simpMessagingTemplate;
+	
+	@Autowired
+	private ProjectRepo projectRepo;
+	
+	@Autowired
+	private DocumentRepo documentRepo;
+	
+	@Autowired
+	private ProjectLabelProfileRepo projectLabelProfileRepo;
+	
+	@Autowired
+	private MetadataFieldGroupRepo metadataFieldRepo;
+	
+	@Autowired
+	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	
+	@Autowired
+	private MetadataFieldValueRepo metadataFieldValueRepo;
+	
+	@Value("${app.host}") 
+   	private String host;
+	
+	@Value("${app.mount}") 
+   	private String mount;
+	
+	@Value("${app.symlink.create}") 
+   	private String link;
+	
+	@Value("${app.symlink}") 
+   	private String symlink;
 	
 	private String folder;
 	
@@ -98,63 +127,16 @@ public class WatcherService implements Runnable {
 		super();
 	}
 	
-	public WatcherService(WatcherManagerService watcherManagerService,
-						  VoyagerService voyagerService,
-						  ProjectRepo projectRepo,
-						  DocumentRepo documentRepo,
-						  ProjectLabelProfileRepo projectLabelProfileRepo,
-						  MetadataFieldGroupRepo metadataFieldRepo,
-						  MetadataFieldLabelRepo metadataFieldLabelRepo,
-						  MetadataFieldValueRepo metadataFieldValueRepo,
-						  Environment env,
-						  ApplicationContext appContext,
-						  SimpMessagingTemplate simpMessagingTemplate,
-						  ExecutorService executorService,
-						  ObjectMapper objectMapper) {
+	public WatcherService(String folder) {
 		super();
-		this.watcherManagerService = watcherManagerService;
-		this.voyagerService = voyagerService;
-		this.projectRepo = projectRepo;
-		this.documentRepo = documentRepo;
-		this.projectLabelProfileRepo = projectLabelProfileRepo;
-		this.metadataFieldRepo = metadataFieldRepo;
-		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
-		this.metadataFieldValueRepo = metadataFieldValueRepo;
-		this.env = env;
-		this.appContext = appContext;
-		this.simpMessagingTemplate = simpMessagingTemplate;
-		this.executorService = executorService;
-		this.objectMapper = objectMapper;
+		this.folder = folder;
 	}
 	
-	public WatcherService(WatcherManagerService watcherManagerService,
-						  VoyagerService voyagerService,
-						  ProjectRepo projectRepo,
-						  DocumentRepo documentRepo,
-						  ProjectLabelProfileRepo projectLabelProfileRepo,
-						  MetadataFieldGroupRepo metadataFieldRepo,
-						  MetadataFieldLabelRepo metadataFieldLabelRepo,
-						  MetadataFieldValueRepo metadataFieldValueRepo,
-						  Environment env,
-						  ApplicationContext appContext,
-						  SimpMessagingTemplate simpMessagingTemplate,
-						  ExecutorService executorService,
-						  ObjectMapper objectMapper,
-						  String folder) {
-		super();
-		this.watcherManagerService = watcherManagerService;
-		this.voyagerService = voyagerService;
-		this.projectRepo = projectRepo;
-		this.documentRepo = documentRepo;
-		this.projectLabelProfileRepo = projectLabelProfileRepo;
-		this.metadataFieldRepo = metadataFieldRepo;
-		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
-		this.metadataFieldValueRepo = metadataFieldValueRepo;
-		this.env = env;
-		this.appContext = appContext;
-		this.simpMessagingTemplate = simpMessagingTemplate;
-		this.executorService = executorService;
-		this.objectMapper = objectMapper;
+	public String getFolder() {
+		return folder;
+	}
+	
+	public void setFolder(String folder) {
 		this.folder = folder;
 	}
 	
@@ -186,10 +168,6 @@ public class WatcherService implements Runnable {
 		}
 	
 		List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
-		
-		String host = env.getProperty("app.host");
-		String mount = env.getProperty("app.mount");
-		String symlink = env.getProperty("app.symlink");
 		
 		String directory = "";
 		try {
@@ -271,20 +249,9 @@ public class WatcherService implements Runnable {
                     		
                     		if(!watcherManagerService.isWatcherServiceActive(docString)) {
                     			
-                    			executorService.submit(new WatcherService(watcherManagerService,
-																	      voyagerService,
-																		  projectRepo,
-																		  documentRepo,
-																		  projectLabelProfileRepo,
-																		  metadataFieldRepo,
-																		  metadataFieldLabelRepo,
-																		  metadataFieldValueRepo,
-										  								  env,
-										  								  appContext,
-										  								  simpMessagingTemplate,
-										  								  executorService,
-										  								  objectMapper,
-										  								  docString));
+                    			watcherService.setFolder(docString);
+                    			
+                    			executorService.submit(watcherService);
                     			
                     			watcherManagerService.addActiveWatcherService(docString);                    			
                     		}

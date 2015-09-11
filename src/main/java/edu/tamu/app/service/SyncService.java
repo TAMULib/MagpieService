@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.Environment;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -58,31 +60,56 @@ import edu.tamu.app.model.response.marc.FlatMARC;
 @Service
 public class SyncService implements Runnable {
 	
-	private VoyagerService voyagerService; 
-		
-	private ProjectRepo projectRepo;
-	
-	private DocumentRepo documentRepo;
-	
-	private ProjectLabelProfileRepo projectLabelProfileRepo;
-	
-	private MetadataFieldGroupRepo metadataFieldRepo;
-	
-	private MetadataFieldLabelRepo metadataFieldLabelRepo;
-	
-	private MetadataFieldValueRepo metadataFieldValueRepo;
-	
-	private Environment env;
-	
+	@Autowired
 	private ApplicationContext appContext;
 	
-	private SimpMessagingTemplate simpMessagingTemplate;
+	@Autowired
+	private VoyagerService voyagerService; 
 	
-	private ExecutorService executorService;
+	@Autowired @Lazy
+	private WatcherService watcherService;
 	
+	@Autowired
 	private ObjectMapper objectMapper;
 	
+	@Autowired
+	private ExecutorService executorService;
+	
+	@Autowired
 	private WatcherManagerService watcherManagerService;
+	
+	@Autowired
+	private SimpMessagingTemplate simpMessagingTemplate;
+	
+	@Autowired
+	private ProjectRepo projectRepo;
+	
+	@Autowired
+	private DocumentRepo documentRepo;
+	
+	@Autowired
+	private ProjectLabelProfileRepo projectLabelProfileRepo;
+	
+	@Autowired
+	private MetadataFieldGroupRepo metadataFieldRepo;
+	
+	@Autowired
+	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	
+	@Autowired
+	private MetadataFieldValueRepo metadataFieldValueRepo;
+	
+	@Value("${app.host}") 
+   	private String host;
+	
+	@Value("${app.mount}") 
+   	private String mount;
+	
+	@Value("${app.symlink.create}") 
+   	private String link;
+	
+	@Value("${app.symlink}") 
+   	private String symlink;
 	
 	/**
 	 * Default constructor.
@@ -92,43 +119,19 @@ public class SyncService implements Runnable {
 		super();
 	}
 	
-	public SyncService(WatcherManagerService watcherManagerService,
-					   VoyagerService voyagerService,
-					   ProjectRepo projectRepo,
-					   DocumentRepo documentRepo,
-					   ProjectLabelProfileRepo projectLabelProfileRepo,
-					   MetadataFieldGroupRepo metadataFieldRepo,
-					   MetadataFieldLabelRepo metadataFieldLabelRepo,
-					   MetadataFieldValueRepo metadataFieldValueRepo,
-					   Environment env,
-					   ApplicationContext appContext,
-					   SimpMessagingTemplate simpMessagingTemplate,
-					   ExecutorService executorService,
-					   ObjectMapper objectMapper) {
-		super();
-		this.watcherManagerService = watcherManagerService;
-		this.voyagerService = voyagerService;
-		this.projectRepo = projectRepo;
-		this.documentRepo = documentRepo;
-		this.metadataFieldRepo = metadataFieldRepo;
-		this.projectLabelProfileRepo = projectLabelProfileRepo;
-		this.metadataFieldLabelRepo = metadataFieldLabelRepo;
-		this.metadataFieldValueRepo = metadataFieldValueRepo;
-		this.env = env;
-		this.appContext = appContext;
-		this.simpMessagingTemplate = simpMessagingTemplate;
-		this.executorService = executorService;
-		this.objectMapper = objectMapper;
-	}
-
 	/**
 	 * SyncService runnable.
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void run() {		
+	public void run() {
+				
 		System.out.println("Running Sync Service");
+		
+		if(link.equals("false")) {
+			symlink = "";
+		}
 		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -151,16 +154,7 @@ public class SyncService implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	
-		String host = env.getProperty("app.host");
-		String mount = env.getProperty("app.mount");	
-		String link = env.getProperty("app.symlink.create");
-		
-		String symlink = "";
-		if(link.equals("true")) {
-			symlink = env.getProperty("app.symlink");
-		}
-		
+			
 		String directory = null;
 		try {
 			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/projects/";
@@ -186,20 +180,9 @@ public class SyncService implements Runnable {
         		
         		System.out.println("Watching: " + projectName);
         		
-	        	executorService.submit(new WatcherService(watcherManagerService,
-	        											  voyagerService,
-	        											  projectRepo,
-	        											  documentRepo,
-	        											  projectLabelProfileRepo,
-	        											  metadataFieldRepo,
-	        											  metadataFieldLabelRepo,
-	        											  metadataFieldValueRepo,
-						   								  env,
-						   								  appContext,
-						   								  simpMessagingTemplate,
-						   								  executorService,
-						   								  objectMapper,
-						   								  projectName));
+        		watcherService.setFolder(projectName);
+        		
+	        	executorService.submit(watcherService);
 	        	
 	        	watcherManagerService.addActiveWatcherService(projectName);
         	}        	

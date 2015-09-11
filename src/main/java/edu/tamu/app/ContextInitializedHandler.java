@@ -21,20 +21,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.core.env.Environment;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
-import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
-import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.SyncService;
-import edu.tamu.app.service.VoyagerService;
 import edu.tamu.app.service.WatcherManagerService;
 import edu.tamu.app.service.WatcherService;
 
@@ -48,44 +37,20 @@ import edu.tamu.app.service.WatcherService;
 @ConditionalOnWebApplication
 public class ContextInitializedHandler implements ApplicationListener<ContextRefreshedEvent> {
     
-	@Autowired 
-	private VoyagerService voyagerService; 
-	
-	@Autowired
-	private ProjectRepo projectRepo;
-	
-	@Autowired
-	private DocumentRepo documentRepo;
-	
-	@Autowired
-	private ProjectLabelProfileRepo projectLabelProfileRepo;
-	
-	@Autowired
-	private MetadataFieldGroupRepo metadataFieldRepo;
-	
-	@Autowired
-	private MetadataFieldLabelRepo metadataFieldLabelRepo;
-	
-	@Autowired
-	private MetadataFieldValueRepo metadataFieldValueRepo;
-
-	@Autowired
-	private Environment env;
-	
 	@Autowired
 	private ApplicationContext appContext;
-	
-	@Autowired
-	private SimpMessagingTemplate simpMessagingTemplate;
 	
 	@Autowired
 	private ExecutorService executorService;
 	
 	@Autowired
-	private ObjectMapper objectMapper;
+	private WatcherManagerService watcherManagerService;
 	
 	@Autowired
-	private WatcherManagerService watcherManagerService;
+	private SyncService syncService;
+	
+	@Autowired
+	private WatcherService watcherService;
 	
 	@Value("${app.mount}") 
    	private String mount;
@@ -104,6 +69,10 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
      */
     public void onApplicationEvent(ContextRefreshedEvent event) {
     	
+    	if(appContext == null) {
+			System.out.println("APP CONTEXT IS NULL");
+		}
+    	
     	if(createSymlink.equals("true")) {
     		try {
 				Files.createSymbolicLink( Paths.get(event.getApplicationContext().getResource("classpath:static/mnt").getFile().getAbsolutePath() + symlink), Paths.get(mount));
@@ -115,36 +84,13 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 			}
     	}
     	
-    	executorService.submit(new SyncService(watcherManagerService,
-    										   voyagerService,
-    										   projectRepo,
-    										   documentRepo,
-    										   projectLabelProfileRepo,
-    										   metadataFieldRepo,
-    										   metadataFieldLabelRepo,
-    										   metadataFieldValueRepo,
-			      							   env,
-			      							   appContext,
-			      							   simpMessagingTemplate,
-			      							   executorService,
-			      							   objectMapper));
+    	executorService.submit(syncService);
     	
     	System.out.println("Watching: projects");
     	
-    	executorService.submit(new WatcherService(watcherManagerService,
-    											  voyagerService,
-    											  projectRepo,
-				   								  documentRepo,
-				   								  projectLabelProfileRepo,
-    											  metadataFieldRepo,
-    											  metadataFieldLabelRepo,
-    											  metadataFieldValueRepo,
-					  						      env,
-					  						      appContext,
-					  						      simpMessagingTemplate,
-					  						      executorService,
-					  						      objectMapper,
-					  							  "projects"));
+    	watcherService.setFolder("projects");
+    	
+    	executorService.submit(watcherService);
     	
     	watcherManagerService.addActiveWatcherService("projects");
 

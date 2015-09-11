@@ -250,9 +250,9 @@ public class DocumentController {
 	@Auth
 	@SendToUser
 	public ApiResponse update(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
-		Map<String,String> map = new HashMap<String,String>();		
+		Map<String, String> map = new HashMap<String, String>();		
 		try {
-			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
+			map = objectMapper.readValue(data, new TypeReference<HashMap<String, String>>(){});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
