@@ -53,21 +53,21 @@ import edu.tamu.app.service.VoyagerService;
 @RestController
 @MessageMapping("/document")
 public class DocumentController {
+
+	@Autowired
+	private ObjectMapper objectMapper;
+	
+	@Autowired 
+	private VoyagerService voyagerService; 
+	
+	@Autowired 
+	private SimpMessagingTemplate simpMessagingTemplate; 
 	
 	@Autowired
 	private DocumentRepo documentRepo;
 	
 	@Autowired
 	private MetadataFieldGroupRepo metadataFieldGroupRepo;
-	
-	@Autowired
-	private ObjectMapper objectMapper;
-	
-	@Autowired 
-	private SimpMessagingTemplate simpMessagingTemplate; 
-	
-	@Autowired 
-	private VoyagerService voyagerService; 
 	
 	/**
 	 * Endpoint to return marc record.

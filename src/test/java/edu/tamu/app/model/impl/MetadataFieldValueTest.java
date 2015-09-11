@@ -48,7 +48,7 @@ public class MetadataFieldValueTest {
 	private DocumentRepo documentRepo;
 	
 	@Autowired
-	private MetadataFieldGroupRepo metadataFieldRepo;
+	private MetadataFieldGroupRepo metadataFieldGroupRepo;
 	
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
@@ -83,7 +83,7 @@ public class MetadataFieldValueTest {
 		testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
 		testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
 		testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");		
-		testField = metadataFieldRepo.create(testDocument, testLabel);	
+		testField = metadataFieldGroupRepo.create(testDocument, testLabel);	
 	}
 	
 	@Test
@@ -146,7 +146,7 @@ public class MetadataFieldValueTest {
 		projectFieldProfileRepo.deleteAll();
 		metadataFieldValueRepo.deleteAll();
 		metadataFieldLabelRepo.deleteAll();
-		metadataFieldRepo.deleteAll();	
+		metadataFieldGroupRepo.deleteAll();	
 		documentRepo.deleteAll();
 		projectRepo.deleteAll();
 	}

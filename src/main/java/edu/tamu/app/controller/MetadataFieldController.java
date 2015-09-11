@@ -81,7 +81,7 @@ public class MetadataFieldController {
 	private ProjectLabelProfileRepo projectFieldProfileRepo;
 	
 	@Autowired
-	private MetadataFieldGroupRepo metadataFieldRepo;
+	private MetadataFieldGroupRepo metadataFieldGroupRepo;
 	
 	@Autowired
 	ApplicationContext appContext;
@@ -418,7 +418,7 @@ public class MetadataFieldController {
 	@SendToUser
 	public ApiResponse all(Message<?> message, @ReqId String requestId) throws Exception {		
 		Map<String, List<MetadataFieldGroup>> metadataMap = new HashMap<String, List<MetadataFieldGroup>>();
-		metadataMap.put("list", metadataFieldRepo.findAll());		
+		metadataMap.put("list", metadataFieldGroupRepo.findAll());		
 		return new ApiResponse("success", metadataMap, new RequestId(requestId));
 	}
 	

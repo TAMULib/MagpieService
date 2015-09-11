@@ -88,16 +88,16 @@ public class SyncService implements Runnable {
 	private DocumentRepo documentRepo;
 	
 	@Autowired
-	private ProjectLabelProfileRepo projectLabelProfileRepo;
-	
-	@Autowired
-	private MetadataFieldGroupRepo metadataFieldRepo;
+	private MetadataFieldGroupRepo metadataFieldGroupRepo;
 	
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
 	
 	@Autowired
 	private MetadataFieldValueRepo metadataFieldValueRepo;
+	
+	@Autowired
+	private ProjectLabelProfileRepo projectLabelProfileRepo;
 	
 	@Value("${app.host}") 
    	private String host;
@@ -226,7 +226,7 @@ public class SyncService implements Runnable {
 	        		Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, "Open");
 	        		
 	        		fields.forEach(field -> {
-						document.addField(metadataFieldRepo.create(document, field.getLabel()));
+						document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
 					});
 	        		
 	        		

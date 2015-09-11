@@ -46,7 +46,7 @@ public class MetadataFieldTest {
 	private DocumentRepo documentRepo;
 	
 	@Autowired
-	private MetadataFieldGroupRepo metadataFieldRepo;
+	private MetadataFieldGroupRepo metadataFieldGroupRepo;
 	
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
@@ -81,36 +81,36 @@ public class MetadataFieldTest {
 	
 	@Test
 	public void testCreateMetadataField() {
-		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldRepo.count());
-		MetadataFieldGroup testField = metadataFieldRepo.create(testDocument, testLabel);
-		Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldRepo.count());
+		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldGroupRepo.count());
+		MetadataFieldGroup testField = metadataFieldGroupRepo.create(testDocument, testLabel);
+		Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldGroupRepo.count());
 		Assert.assertEquals("Expected Test MetadataField was not created.", testLabel.getName(), testField.getLabel().getName());
 	}
 		
 	@Test
 	public void testFindMetadataField() {
-		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldRepo.count());
-		MetadataFieldGroup testField = metadataFieldRepo.create(testDocument, testLabel);
-		Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldRepo.count());
-		testField = metadataFieldRepo.findByDocumentAndLabel(testDocument, testLabel);
+		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldGroupRepo.count());
+		MetadataFieldGroup testField = metadataFieldGroupRepo.create(testDocument, testLabel);
+		Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldGroupRepo.count());
+		testField = metadataFieldGroupRepo.findByDocumentAndLabel(testDocument, testLabel);
 		Assert.assertEquals("Test MetadataField was not found.", testLabel.getName(), testField.getLabel().getName());
 	}
 	
 	@Test
 	public void testDeleteMetadataField() {
-		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldRepo.count());
-		MetadataFieldGroup testField = metadataFieldRepo.create(testDocument, testLabel);
-		Assert.assertEquals("Document repository is empty.", 1, metadataFieldRepo.count());
-		metadataFieldRepo.delete(testField);
-		Assert.assertEquals("Test Document was not removed.", 0, metadataFieldRepo.count());
+		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldGroupRepo.count());
+		MetadataFieldGroup testField = metadataFieldGroupRepo.create(testDocument, testLabel);
+		Assert.assertEquals("Document repository is empty.", 1, metadataFieldGroupRepo.count());
+		metadataFieldGroupRepo.delete(testField);
+		Assert.assertEquals("Test Document was not removed.", 0, metadataFieldGroupRepo.count());
 	}
 	
 	@Test
 	public void testCascadeOnDeleteMetadataField() {
 		
-		Assert.assertEquals("Field repository is not empty.", 0, metadataFieldRepo.count());
-		MetadataFieldGroup testField = metadataFieldRepo.create(testDocument, testLabel);
-		Assert.assertEquals("Test field was not created.", 1, metadataFieldRepo.count());
+		Assert.assertEquals("Field repository is not empty.", 0, metadataFieldGroupRepo.count());
+		MetadataFieldGroup testField = metadataFieldGroupRepo.create(testDocument, testLabel);
+		Assert.assertEquals("Test field was not created.", 1, metadataFieldGroupRepo.count());
 		
 		Assert.assertEquals("MetadataFieldValue repository is not empty.", 0, metadataFieldValueRepo.count());
 		MetadataFieldValue testValue = metadataFieldValueRepo.create("test", testField);
@@ -118,12 +118,12 @@ public class MetadataFieldTest {
 		
 		testField.addValue(testValue);
 		
-		testField = metadataFieldRepo.save(testField);
+		testField = metadataFieldGroupRepo.save(testField);
 		
 		Assert.assertEquals("Test MetadataField with expected MetadataFieldValue was not save.", testValue.getValue(), testField.getValues().get(0).getValue());
 		
-		metadataFieldRepo.delete(testField);
-		Assert.assertEquals("Test field was not deleted.", 0, metadataFieldRepo.count());
+		metadataFieldGroupRepo.delete(testField);
+		Assert.assertEquals("Test field was not deleted.", 0, metadataFieldGroupRepo.count());
 		
 		Assert.assertEquals("Test MetadataFieldValue was not deleted.", 0, metadataFieldValueRepo.count());
 	}
@@ -133,7 +133,7 @@ public class MetadataFieldTest {
 		projectFieldProfileRepo.deleteAll();
 		metadataFieldValueRepo.deleteAll();
 		metadataFieldLabelRepo.deleteAll();
-		metadataFieldRepo.deleteAll();
+		metadataFieldGroupRepo.deleteAll();
 		documentRepo.deleteAll();
 		projectRepo.deleteAll();
 	}

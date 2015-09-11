@@ -34,10 +34,10 @@ import edu.tamu.app.model.repo.ProjectRepo;
 public class MetadataFieldLabelTest {
 	
 	@Autowired
-	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	private ProjectRepo projectRepo;
 	
 	@Autowired
-	private ProjectRepo projectRepo;
+	private MetadataFieldLabelRepo metadataFieldLabelRepo;
 	
 	@Autowired
 	private ProjectLabelProfileRepo projectFieldProfileRepo;

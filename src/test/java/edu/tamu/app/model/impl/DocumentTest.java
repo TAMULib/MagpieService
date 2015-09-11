@@ -45,7 +45,7 @@ public class DocumentTest {
 	private DocumentRepo documentRepo;
 	
 	@Autowired
-	private MetadataFieldGroupRepo metadataFieldRepo;
+	private MetadataFieldGroupRepo metadataFieldGroupRepo;
 	
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
@@ -111,9 +111,9 @@ public class DocumentTest {
 		
 		metadataFieldLabelRepo.save(testLabel);
 		
-		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldRepo.count());
-		MetadataFieldGroup testField = metadataFieldRepo.create(testDocument, testLabel);
-		Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldRepo.count());
+		Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldGroupRepo.count());
+		MetadataFieldGroup testField = metadataFieldGroupRepo.create(testDocument, testLabel);
+		Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldGroupRepo.count());
 		
 		Assert.assertEquals("MetadataFieldValue repository is not empty.", 0, metadataFieldValueRepo.count());
 		metadataFieldValueRepo.create("test", testField);
@@ -130,7 +130,7 @@ public class DocumentTest {
 		
 		Assert.assertEquals("Test ProjectFieldProfile was deleted.", 1, projectFieldProfileRepo.count());
 		
-		Assert.assertEquals("Test MetadataField was not deleted.", 0, metadataFieldRepo.count());
+		Assert.assertEquals("Test MetadataField was not deleted.", 0, metadataFieldGroupRepo.count());
 		
 		Assert.assertEquals("Test MetadataFieldValue was not deleted.", 0, metadataFieldValueRepo.count());		
 	}
@@ -140,7 +140,7 @@ public class DocumentTest {
 		projectFieldProfileRepo.deleteAll();
 		metadataFieldValueRepo.deleteAll();
 		metadataFieldLabelRepo.deleteAll();
-		metadataFieldRepo.deleteAll();
+		metadataFieldGroupRepo.deleteAll();
 		documentRepo.deleteAll();
 		projectRepo.deleteAll();
 	}
