@@ -12,6 +12,7 @@ package edu.tamu.app.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -38,16 +39,22 @@ public class ProjectLabelProfile {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
+	@Column(nullable = false)
 	private String gloss;
 	
-	private boolean repeatable;
+	@Column(nullable = false)
+	private Boolean repeatable;
 	
-	private boolean readOnly;
+	@Column(nullable = false)
+	private Boolean readOnly;
 	
-	private boolean hidden;
+	@Column(nullable = false)
+	private Boolean hidden;
 	
-	private boolean required;
+	@Column(nullable = false)
+	private Boolean required;
 	
+	@Column(nullable = false)
 	private InputType inputType;
 	
 	private String defaultValue;
@@ -91,35 +98,35 @@ public class ProjectLabelProfile {
 		this.gloss = gloss;
 	}
 
-	public boolean isRepeatable() {
+	public Boolean isRepeatable() {
 		return repeatable;
 	}
 
-	public void setRepeatable(boolean isRepeatable) {
+	public void setRepeatable(Boolean isRepeatable) {
 		this.repeatable = isRepeatable;
 	}
 
-	public boolean isReadOnly() {
+	public Boolean isReadOnly() {
 		return readOnly;
 	}
 
-	public void setReadOnly(boolean isReadOnly) {
+	public void setReadOnly(Boolean isReadOnly) {
 		this.readOnly = isReadOnly;
 	}
 
-	public boolean isHidden() {
+	public Boolean isHidden() {
 		return hidden;
 	}
 
-	public void setHidden(boolean isHidden) {
+	public void setHidden(Boolean isHidden) {
 		this.hidden = isHidden;
 	}
 
-	public boolean isRequired() {
+	public Boolean isRequired() {
 		return required;
 	}
 
-	public void setRequired(boolean isRequired) {
+	public void setRequired(Boolean isRequired) {
 		this.required = isRequired;
 	}
 

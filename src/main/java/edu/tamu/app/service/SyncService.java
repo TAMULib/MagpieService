@@ -196,11 +196,11 @@ public class SyncService implements Runnable {
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
 				
 				ProjectLabelProfile profile = projectLabelProfileRepo.create(project,
-																			 (String) mMap.get("gloss"), 
-																			 (Boolean) mMap.get("repeatable"), 
-																			 (Boolean) mMap.get("readOnly"),
-																			 (Boolean) mMap.get("hidden"),
-																			 (Boolean) mMap.get("required"),
+																			 mMap.get("gloss") == null ? "" : (String) mMap.get("gloss"), 
+																			 mMap.get("repeatable") == null ? false : (Boolean) mMap.get("repeatable"), 
+																			 mMap.get("readOnly") == null ? false : (Boolean) mMap.get("readOnly"),
+																			 mMap.get("hidden") == null ? false : (Boolean) mMap.get("hidden"),
+																			 mMap.get("required") == null ? false : (Boolean) mMap.get("required"),
 																			 InputType.valueOf((String) mMap.get("inputType")),
 																			 (String) mMap.get("default"));
 				
