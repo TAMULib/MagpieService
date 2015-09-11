@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -212,13 +213,19 @@ public class MetadataFieldController {
 		
 		projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList()).forEach(document -> {
 			
-			Set<MetadataFieldGroup> metadataFields = new TreeSet<MetadataFieldGroup>(document.getFields());
+			Set<MetadataFieldGroup> metadataFields = document.getFields();
+			
+			List<MetadataFieldGroup> metadataFieldsList = new ArrayList<MetadataFieldGroup>();
+			
+			metadataFieldsList.addAll(metadataFields);
+			
+			Collections.sort(metadataFieldsList, new LabelComparator());
 			
 			List<String> documentMetadata = new ArrayList<String>();
 			
 			documentMetadata.add(document.getName() + ".pdf");
 			
-			metadataFields.forEach(field -> {
+			metadataFieldsList.forEach(field -> {
 				String values = null;
 				boolean firstPass = true;
 				for(MetadataFieldValue medataFieldValue : field.getValues()) {					
@@ -316,9 +323,15 @@ public class MetadataFieldController {
  			//for each schema in the metadata
  			Map <String, PrintStream> schemaToFile = new HashMap<String, PrintStream>();
  			
- 			Set<MetadataFieldGroup> metadatafields = document.getFields();
+ 			Set<MetadataFieldGroup> metadataFields = document.getFields();
  			
- 			for(MetadataFieldGroup metadataField : metadatafields) {
+ 			List<MetadataFieldGroup> metadataFieldsList = new ArrayList<MetadataFieldGroup>();
+			
+			metadataFieldsList.addAll(metadataFields);
+			
+			Collections.sort(metadataFieldsList, new LabelComparator());
+ 			
+ 			for(MetadataFieldGroup metadataField : metadataFieldsList) {
  	 			//write a dublin-core style xml file
  				String label = metadataField.getLabel().getName();
  				String schema = label.split("\\.")[0];
@@ -434,6 +447,28 @@ public class MetadataFieldController {
 	
 	public static Predicate<Document> isPending() {		
 	    return d -> d.getStatus().equals("Pending");
+	}
+	
+	/**
+	 * Class for comparing MetadataFieldImpl by label.
+	 * 
+	 * @author
+	 *
+	 */
+	class LabelComparator implements Comparator<MetadataFieldGroup>
+	{
+		/**
+		 * Compare labels of MetadataFieldImpl
+		 * 
+		 * @param		mfg1		MetadataFieldGroup
+		 * @param		mfg2		MetadataFieldGroup
+		 * 
+		 * @return		int
+		 */
+		@Override
+		public int compare(MetadataFieldGroup mfg1, MetadataFieldGroup mfg2) {
+			return mfg1.getLabel().getName().compareTo(mfg2.getLabel().getName());
+		}
 	}
 	
 }
