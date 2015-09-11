@@ -12,16 +12,12 @@ package edu.tamu.app.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -35,14 +31,9 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
-@Table
 public class ControlledVocabulary {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	@Column(unique = true)
 	private String value;
 	
 	@OneToMany(mappedBy="cv", fetch = FetchType.EAGER)	
@@ -60,14 +51,6 @@ public class ControlledVocabulary {
 	
 	public ControlledVocabulary(String value) {
 		this.value = value;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getValue() {

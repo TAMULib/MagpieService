@@ -18,7 +18,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -32,7 +31,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
-@Table
 public class MetadataFieldLabel {
 
 	@Id

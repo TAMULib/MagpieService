@@ -222,7 +222,7 @@ public class SyncService implements Runnable {
 				MetadataFieldLabel label = metadataFieldLabelRepo.create((String) mMap.get("label"), profile);
 				
 				fields.add(new MetadataFieldGroup(label));
-								
+
 				project.addProfile(profile);
 				projectRepo.save(project);
 			}

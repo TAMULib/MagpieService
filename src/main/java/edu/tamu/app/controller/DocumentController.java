@@ -190,43 +190,43 @@ public class DocumentController {
 			if(status[0].length() > 0) {
 				if(annotator.length() > 0) {
 					if(status[1].length() > 0) {
-						objects = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator, name, status[1], annotator);	
+						objects = documentRepo.findByMultipleNameAndStatusAndAnnotatorAsObject(request, name, status[0], annotator, name, status[1], annotator);	
 					}
 					else {
-						objects = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, status[0], annotator);
+						objects = documentRepo.findByNameAndStatusAndAnnotatorAsObject(request, name, status[0], annotator);
 					}
 				}
 				else {
-					objects = documentRepo.findByNameContainingIgnoreCaseAndStatusContainingIgnoreCaseOrNameContainingIgnoreCaseAndStatusContainingIgnoreCase(request, name, status[0], name, status[1]);	
+					objects = documentRepo.findByMultipleNameAndStatusAsObject(request, name, status[0], name, status[1]);	
 				}				
 			}
 			else if(annotator.length() > 0) {
-				objects = documentRepo.findByNameContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, name, annotator);				
+				objects = documentRepo.findByNameAndAnnotatorAsObject(request, name, annotator);				
 			}
 			else {
-				objects = documentRepo.findByNameContainingIgnoreCase(request, name);
+				objects = documentRepo.findByNameAsObject(request, name);
 			}			
 		}
 		else if(status[0].length() > 0) {
 			if(annotator.length() > 0) {
 				if(status[1].length() > 0) {
-					objects = documentRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCaseOrStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status[0], annotator, status[1], annotator);
+					objects = documentRepo.findByMultipleStatusAndAnnotatorAsObject(request, status[0], annotator, status[1], annotator);
 				}
 				else {
-					objects = documentRepo.findByStatusContainingIgnoreCaseAndAnnotatorContainingIgnoreCase(request, status[0], annotator);
+					objects = documentRepo.findByStatusAndAnnotatorAsObject(request, status[0], annotator);
 				}
 			}
 			else {
 				if(status[1].length() > 0) {
-					objects = documentRepo.findByStatusContainingIgnoreCaseOrStatusContainingIgnoreCase(request, status[0], status[1]);
+					objects = documentRepo.findByMultipleStatusAsObject(request, status[0], status[1]);
 				}
 				else {
-					objects = documentRepo.findByStatusContainingIgnoreCase(request, status[0]);
+					objects = documentRepo.findByStatusAsObject(request, status[0]);
 				}
 			}			
 		}
 		else if(annotator.length() > 0) {
-			objects = documentRepo.findByAnnotatorContainingIgnoreCase(request, annotator);
+			objects = documentRepo.findByAnnotatorAsObject(request, annotator);
 		}
 		else {
 			objects = documentRepo.findAllAsObject(request);
@@ -268,11 +268,9 @@ public class DocumentController {
 		document.setNotes(map.get("notes"));
 		document.setStatus(map.get("status"));
 		
-		documentRepo.save(document);
-		
 		Map<String, Object> documentMap = new HashMap<String, Object>();
 		
-		documentMap.put("document", document);
+		documentMap.put("document", documentRepo.save(document));
 		documentMap.put("isNew", "false");
 		
 		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", documentMap, new RequestId(requestId)));
