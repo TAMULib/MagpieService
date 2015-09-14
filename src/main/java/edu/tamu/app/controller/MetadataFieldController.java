@@ -16,10 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,6 +30,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -86,6 +83,9 @@ public class MetadataFieldController {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
+	@Autowired
+	private ApplicationContext appContext;
+	
 	/**
 	 * Endpoint to return list of projects.
 	 * 
@@ -101,18 +101,10 @@ public class MetadataFieldController {
 	@Auth
 	@SendToUser
 	public ApiResponse getProjects(Message<?> message, @ReqId String requestId) throws Exception {
-				
-		String directory = mount + "/projects/";
-				
 		List<String> projects = new ArrayList<>();
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory))) {
-            for (Path path : directoryStream) {
-            	projects.add(path.getFileName().toString());            
-            }
-        } catch (IOException ex) {
-        	System.out.println("Could not create directory stream!! No projects added!");
-        }
-
+        projectRepo.findAll().stream().forEach(project -> {
+        	projects.add(project.getName());
+        });
 		return new ApiResponse("success", projects, new RequestId(requestId));
 	}
 	
@@ -259,7 +251,12 @@ public class MetadataFieldController {
 		//for each published document
 		List<Document> documents = projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
 		
-		String directory = mount + "/exports/";
+		String directory = null;
+		try {
+			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/exports/";
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		String archiveDirectoryName = directory + project + System.currentTimeMillis();
 		
