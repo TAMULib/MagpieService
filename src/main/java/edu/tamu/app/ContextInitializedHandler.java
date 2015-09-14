@@ -72,7 +72,7 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
     	
     	if(createSymlink.equals("true")) {
     		try {
-				Files.createSymbolicLink( Paths.get(event.getApplicationContext().getResource("classpath:static").getFile().getAbsolutePath() + mount), Paths.get(mount));
+				Files.createSymbolicLink( Paths.get(event.getApplicationContext().getResource("classpath:static").getFile().getAbsolutePath() + mount), Paths.get("/mnt" + mount));
 			} catch (FileAlreadyExistsException e) {
 				System.out.println("\nSYMLINK ALREADY EXISTS\n");
 			} catch (IOException e) {
