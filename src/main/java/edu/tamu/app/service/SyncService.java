@@ -104,10 +104,7 @@ public class SyncService implements Runnable {
 	
 	@Value("${app.symlink.create}") 
    	private String link;
-	
-	@Value("${app.symlink}") 
-   	private String symlink;
-	
+		
 	/**
 	 * Default constructor.
 	 * 
@@ -125,11 +122,7 @@ public class SyncService implements Runnable {
 	public void run() {
 				
 		System.out.println("Running Sync Service");
-		
-		if(link.equals("false")) {
-			symlink = "";
-		}
-		
+				
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
 		
@@ -217,8 +210,8 @@ public class SyncService implements Runnable {
         		
         		String documentName = documentPath.getFileName().toString();
         		
-    			String pdfPath = "/mnt" + symlink + "/projects/"+projectName+"/"+documentName+"/"+documentName+".pdf";
-				String txtPath = "/mnt" + symlink + "/projects/"+projectName+"/"+documentName+"/"+documentName+".txt";
+    			String pdfPath = mount + "/projects/"+projectName+"/"+documentName+"/"+documentName+".pdf";
+				String txtPath = mount + "/projects/"+projectName+"/"+documentName+"/"+documentName+".txt";
         		String pdfUri = host+pdfPath;
         		String txtUri = host+txtPath;
         		

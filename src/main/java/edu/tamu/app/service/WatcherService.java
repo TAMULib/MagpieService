@@ -111,9 +111,6 @@ public class WatcherService implements Runnable {
 	@Value("${app.symlink.create}") 
    	private String link;
 	
-	@Value("${app.symlink}") 
-   	private String symlink;
-	
 	private String folder;
 	
 	/**
@@ -262,8 +259,8 @@ public class WatcherService implements Runnable {
                     		
 	                    	if((documentRepo.findByName(docString) == null)) {
 	                    		
-	        					String pdfPath = "/mnt" + symlink + "/projects/"+folder+"/"+docString+"/"+docString+".pdf";
-	            				String txtPath = "/mnt" + symlink + "/projects/"+folder+"/"+docString+"/"+docString+".txt";
+	        					String pdfPath = mount + "/projects/"+folder+"/"+docString+"/"+docString+".pdf";
+	            				String txtPath = mount + "/projects/"+folder+"/"+docString+"/"+docString+".txt";
 	            				
 	                    		String pdfUri = host+pdfPath;
 	                    		String txtUri = host+txtPath;
