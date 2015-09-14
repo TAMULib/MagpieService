@@ -5,6 +5,6 @@
 .project/*
 .settings/*
 bin/
-src/main/resources/static/mnt/projects/*
-src/main/resources/static/mnt/exports/*
+src/main/resources/static/metadatatool/projects/*
+src/main/resources/static/metadatatool/exports/*
 /target/
