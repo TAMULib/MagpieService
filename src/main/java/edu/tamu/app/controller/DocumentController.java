@@ -256,21 +256,12 @@ public class DocumentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-				
-		Document document = documentRepo.findByName(map.get("name"));
-		if(map.get("status").equals("Open")) {
-			document.setAnnotator("");
-		}
-		else {
-			document.setAnnotator(map.get("user"));
-		}
 		
-		document.setNotes(map.get("notes"));
-		document.setStatus(map.get("status"));
+		System.out.println(documentRepo.quickSave(map.get("name"), map.get("user"), map.get("status"), map.get("notes")) + " record updated!");
 		
 		Map<String, Object> documentMap = new HashMap<String, Object>();
 		
-		documentMap.put("document", documentRepo.save(document));
+		documentMap.put("document", documentRepo.findByName(map.get("name")));
 		documentMap.put("isNew", "false");
 		
 		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", documentMap, new RequestId(requestId)));
@@ -294,7 +285,7 @@ public class DocumentController {
 	@SendToUser
 	public ApiResponse save(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
 		
-		Document document = null;		
+		Document document = null;
 		try {
 			document = objectMapper.readValue(data, Document.class);
 		} catch (Exception e) {
