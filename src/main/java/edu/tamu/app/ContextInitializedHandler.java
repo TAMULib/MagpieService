@@ -9,12 +9,14 @@
  */
 package edu.tamu.app;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,7 +73,15 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 		}
     	
     	if(createSymlink.equals("true")) {
+    		
+			try {
+				FileUtils.deleteDirectory( new File(event.getApplicationContext().getResource("classpath:static").getFile().getAbsolutePath() + mount) );
+			} catch (IOException e) {
+				System.out.println("\nDIRECTORY DOES NOT EXIST\n");
+			}
+    		
     		try {
+    			
 				Files.createSymbolicLink( Paths.get(event.getApplicationContext().getResource("classpath:static").getFile().getAbsolutePath() + mount), Paths.get("/mnt" + mount));
 			} catch (FileAlreadyExistsException e) {
 				System.out.println("\nSYMLINK ALREADY EXISTS\n");
