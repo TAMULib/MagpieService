@@ -251,7 +251,7 @@ public class MetadataFieldController {
 		//for each published document
 		List<Document> documents = projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
 		
-		String directory = null;
+		String directory = "";
 		try {
 			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/exports/";
 		} catch (IOException e) {
@@ -275,17 +275,9 @@ public class MetadataFieldController {
 			//create a directory
 			File itemDirectory = new File(archiveDirectoryName + "/" + document.getName());
 			itemDirectory.mkdir();
-			
-			//copy the content files to the directory
-			File pdf = document.pdf();
-			
-			// TODO: do something with File txt or remove it
-			
-			@SuppressWarnings("unused")
-			File txt = document.txt();
- 			
+				
  			try {
-			    FileUtils.copyDirectory(pdf.getParentFile(), itemDirectory);
+			    FileUtils.copyDirectory(itemDirectory.getParentFile(), itemDirectory);
 			} catch (IOException e) {
 			    e.printStackTrace();
 			}
@@ -296,7 +288,7 @@ public class MetadataFieldController {
  			license.close();
  			
  			PrintStream manifest = new PrintStream(itemDirectory+"/contents");
- 			manifest.print(pdf.getName()+"\tbundle:ORIGINAL\tprimary:true\tpermissions:-r 'member'\nlicense.txt\tbundle:LICENSE");
+ 			manifest.print(document.getName() + "\tbundle:ORIGINAL\tprimary:true\tpermissions:-r 'member'\nlicense.txt\tbundle:LICENSE");
  			manifest.flush();
  			manifest.close();
  			

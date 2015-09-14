@@ -9,7 +9,6 @@
  */
 package edu.tamu.app.model;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -162,24 +161,6 @@ public class Document {
 	
 	public void clearFields() {
 		fields = new HashSet<MetadataFieldGroup>();
-	}
-	
-	/**
-	 *  Gets the file off the disk
-	 *  
-	 */
-	public File pdf() {	
-		return new File("src/main/resources/static/"+getPdfPath());
-		
-	}
-	
-	/**
-	 *  Gets the file off the disk
-	 *  
-	 */
-	public File txt() {		
-		return new File("src/main/resources/static/"+getTxtPath());
-		
 	}
 	
 }
