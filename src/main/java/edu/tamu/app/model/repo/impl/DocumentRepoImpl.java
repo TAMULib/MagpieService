@@ -62,6 +62,10 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
 	public Document update(Document newDocument) {
 		Document oldDocument = documentRepo.findByName(newDocument.getName());
 		
+		oldDocument.setAnnotator(newDocument.getAnnotator());
+		
+		oldDocument.setStatus(newDocument.getStatus());
+		
 		newDocument.getFields().parallelStream().forEach(field -> {
 			MetadataFieldGroup oldField = metadataFieldRepo.findByDocumentAndLabel(oldDocument, field.getLabel());
 			oldField.setValues(field.getValues());

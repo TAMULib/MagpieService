@@ -11,9 +11,12 @@ package edu.tamu.app.model.repo;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -61,6 +64,21 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 */
 	public List<Document> findByStatus(String status);
 	
+	/**
+	 * Updates document.
+	 * 
+	 * @param 		name
+	 * @param 		annotator
+	 * @param 		status
+	 * @param 		notes
+	 * @return		Document
+	 */
+	@Modifying
+	@Transactional
+	@Query(value = "UPDATE Document set annotator = :annotator, status = :status, notes = :notes WHERE name = :name")
+	public int quickSave(@Param("name") String name, @Param("annotator") String annotator, @Param("status") String status, @Param("notes") String notes);
+		
+		
 	/**
 	 * Retrieve all documents.
 	 * 
