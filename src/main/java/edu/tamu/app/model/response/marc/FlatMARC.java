@@ -92,7 +92,7 @@ public class FlatMARC {
 				}
 				
 				// dc.dc_subject.lcsh and dc.dc_subject
-				if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650")) {				
+				if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650") || df.getTag().equals("651")) {
 					Subfield[] subFields = df.getSubfield();
 					
 					String lcsh = "";
@@ -100,7 +100,7 @@ public class FlatMARC {
 					for(Subfield subField : subFields) {
 						
 						if(df.getInd2().equals("4")) {
-							dc_subject += subField.getValue();
+							dc_subject += scrubField(".", subField.getValue());
 						}
 						else {
 							if(subField.getCode().equals("a")) {
@@ -227,9 +227,7 @@ public class FlatMARC {
 		this.thesis_degree_grantor = thesis_degree_grantor;
 	}
 	
-	// scrubber is string, if 2 characters rightTrim will not remove it all
 	private String scrubField(String scrubber, String scrubbable) {
-		// trim first to make sure no extra spaces at ends
 		scrubbable = scrubbable.trim();
 		if (scrubbable.endsWith(scrubber)) {
 			return rightTrim(scrubber.length(), scrubbable);
@@ -237,7 +235,6 @@ public class FlatMARC {
 		return scrubbable;
 	}
 	
-	// pass in length to trim
 	private String rightTrim(int length, String trimmable) {
 		return trimmable.substring(0, trimmable.length() - length);
 	}
