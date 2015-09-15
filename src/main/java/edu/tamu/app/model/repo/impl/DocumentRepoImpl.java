@@ -62,7 +62,9 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
 	public Document update(Document newDocument) {
 		Document oldDocument = documentRepo.findByName(newDocument.getName());
 		
-		oldDocument.setStatus(newDocument.getStatus());
+		if(newDocument.getStatus().length() > 0) {
+			oldDocument.setStatus(newDocument.getStatus());
+		}
 		
 		oldDocument.setNotes(newDocument.getNotes());
 		
