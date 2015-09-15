@@ -78,7 +78,7 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
-							thesis_degree_grantor += subField.getValue();
+							thesis_degree_grantor += scrubField(".", subField.getValue());
 						}
 					}
 				}
