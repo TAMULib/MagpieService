@@ -259,7 +259,7 @@ public class DocumentController {
 		
 		int results = documentRepo.quickSave(map.get("name"), (map.get("status").equals("Open")) ? "" : map.get("user"), map.get("status"), map.get("notes"));
 		
-		if(results < 1) return new ApiResponse("failure", "document no updated", new RequestId(requestId));
+		if(results < 1) return new ApiResponse("failure", "document not updated", new RequestId(requestId));
 		
 		Map<String, Object> documentMap = new HashMap<String, Object>();
 		
