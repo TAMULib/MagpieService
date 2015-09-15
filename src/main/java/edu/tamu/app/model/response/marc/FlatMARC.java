@@ -27,7 +27,7 @@ public class FlatMARC {
 				if(df.getTag().equals("100")) {
 					Subfield[] subFields = df.getSubfield();
 					if(subFields.length > 0) {
-						dc_creator = subFields[0].getValue();
+						dc_creator = scrubField(".", subFields[0].getValue());
 					}
 				}
 				
@@ -36,7 +36,7 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-							dc_title += scrubField(".",subField.getValue());
+							dc_title += scrubField(".", subField.getValue());
 						}
 					}
 				}
@@ -46,7 +46,7 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
-							dc_date_issued = dc_date_created = scrubField(".",subField.getValue());
+							dc_date_issued = dc_date_created = scrubField(".", subField.getValue());
 						}
 					}
 				}
@@ -57,7 +57,7 @@ public class FlatMARC {
 						Subfield[] subFields = df.getSubfield();
 						for(Subfield subField : subFields) {
 							if(df.getInd2().equals("0") || df.getInd2().equals("1")) {
-								dc_date_issued = dc_date_created = subField.getValue();
+								dc_date_issued = dc_date_created = scrubField(".", subField.getValue());
 							}
 						}					
 					}
@@ -68,7 +68,7 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-							dc_description += scrubField(".",subField.getValue());
+							dc_description += scrubField(".", subField.getValue());
 						}
 					}
 				}
