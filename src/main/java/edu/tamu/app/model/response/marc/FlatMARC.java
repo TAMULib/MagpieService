@@ -227,15 +227,19 @@ public class FlatMARC {
 		this.thesis_degree_grantor = thesis_degree_grantor;
 	}
 	
+	// scrubber is string, if 2 characters rightTrim will not remove it all
 	private String scrubField(String scrubber, String scrubbable) {
+		// trim first to make sure no extra spaces at ends
+		scrubbable = scrubbable.trim();
 		if (scrubbable.endsWith(scrubber)) {
-			return rightTrim(scrubbable);
+			return rightTrim(scrubber.length(), scrubbable);
 		}
 		return scrubbable;
 	}
 	
-	private String rightTrim(String trimmable) {
-		return trimmable.substring(0,trimmable.length()-1);
+	// pass in length to trim
+	private String rightTrim(int length, String trimmable) {
+		return trimmable.substring(0, trimmable.length() - length);
 	}
 
 }
