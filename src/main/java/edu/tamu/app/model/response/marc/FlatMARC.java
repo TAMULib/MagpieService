@@ -64,10 +64,15 @@ public class FlatMARC {
 				}
 				
 				// dc.description
-				if(df.getTag().equals("300") || df.getTag().equals("500") || df.getTag().equals("502") || df.getTag().equals("504")) {
+				if(df.getTag().equals("500") || df.getTag().equals("502")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
-						if(df.getInd2().equals("0")) {
+						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
+							if(dc_description.length() > 0) {
+								System.out.println("Multiple description found. Deferring to the first.");
+								System.out.println(scrubField(".", subField.getValue()));
+								continue;
+							}
 							dc_description += scrubField(".", subField.getValue());
 						}
 					}
@@ -79,7 +84,9 @@ public class FlatMARC {
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
 							thesis_degree_grantor += scrubField(".", subField.getValue());
-							dc_description += " -- " + thesis_degree_grantor;
+							if(dc_description.length() > 0) {
+								dc_description += " -- " + thesis_degree_grantor;
+							}
 						}
 					}
 				}
