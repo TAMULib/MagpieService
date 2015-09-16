@@ -67,12 +67,7 @@ public class FlatMARC {
 				if(df.getTag().equals("300") || df.getTag().equals("500") || df.getTag().equals("502") || df.getTag().equals("504")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
-						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-							if(dc_description.length() > 0) {
-								System.out.println("Multiple description found. Deferring to the first.");
-								System.out.println(scrubField(".", subField.getValue()));
-								continue;
-							}
+						if(df.getInd2().equals("0")) {
 							dc_description += scrubField(".", subField.getValue());
 						}
 					}
@@ -83,12 +78,8 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
-							if(thesis_degree_grantor.length() > 0) {
-								System.out.println("Multiple thesis degree grantor found. Deferring to the first.");
-								System.out.println(scrubField(".", subField.getValue()));
-								continue;
-							}
 							thesis_degree_grantor += scrubField(".", subField.getValue());
+							dc_description += " -- " + thesis_degree_grantor;
 						}
 					}
 				}
@@ -96,28 +87,20 @@ public class FlatMARC {
 				// dc.description.abstract
 				if(df.getTag().equals("520")) {
 					Subfield[] subFields = df.getSubfield();
-					for(Subfield subField : subFields) {
-						if(dc_description_abstract.length() > 0) {
-							System.out.println("Multiple abstract found. Deferring to the first.");
-							System.out.println(scrubField(".", subField.getValue()));
-							continue;
-						}
+					for(Subfield subField : subFields) {						
 						dc_description_abstract += subField.getValue();
 					}
 				}
 				
 				// dc.subject.lcsh and dc.subject
 				if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650") || df.getTag().equals("651")) {
-					Subfield[] subFields = df.getSubfield();
-					
-					String lcsh = "";
-					
-					for(Subfield subField : subFields) {
-						
+					Subfield[] subFields = df.getSubfield();					
+					String lcsh = "";					
+					for(Subfield subField : subFields) {						
 						if(df.getInd2().equals("4")) {
 							dc_subject += scrubField(".", subField.getValue());
 						}
-						else {
+						else if(df.getInd2().equals("0")){
 							if(subField.getCode().equals("a")) {
 								lcsh += subField.getValue();
 							}
