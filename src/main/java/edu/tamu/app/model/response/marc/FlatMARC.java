@@ -69,7 +69,8 @@ public class FlatMARC {
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
 							if(dc_description.length() > 0) {
-								System.out.println("MULTIPLE DESCRIPTIONS FOUND. DEFERING TO THE FIRST.");
+								System.out.println("Multiple description found. Deferring to the first.");
+								System.out.println(scrubField(".", subField.getValue()));
 								continue;
 							}
 							dc_description += scrubField(".", subField.getValue());
@@ -83,7 +84,8 @@ public class FlatMARC {
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
 							if(thesis_degree_grantor.length() > 0) {
-								System.out.println("MULTIPLE THESIS DEGREE GRANTOR FOUND. DEFERING TO THE FIRST.");
+								System.out.println("Multiple thesis degree grantor found. Deferring to the first.");
+								System.out.println(scrubField(".", subField.getValue()));
 								continue;
 							}
 							thesis_degree_grantor += scrubField(".", subField.getValue());
@@ -96,7 +98,8 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(dc_description_abstract.length() > 0) {
-							System.out.println("MULTIPLE ABSTRACT FOUND. DEFERING TO THE FIRST.");
+							System.out.println("Multiple abstract found. Deferring to the first.");
+							System.out.println(scrubField(".", subField.getValue()));
 							continue;
 						}
 						dc_description_abstract += subField.getValue();
