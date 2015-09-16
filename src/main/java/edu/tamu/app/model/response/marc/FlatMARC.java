@@ -107,10 +107,8 @@ public class FlatMARC {
 						if(df.getInd2().equals("4")) {
 							dc_subject += scrubField(".", subField.getValue());
 						}
-						else if(df.getInd2().equals("0")){
-							if(subField.getCode().equals("a")) {
-								lcsh += subField.getValue();
-							}
+						else if(df.getInd2().equals("0")) {
+							lcsh += subField.getValue();
 						}					
 						if(subField.getCode().equals("x")) {
 							lcsh += " -- " + subField.getValue();
