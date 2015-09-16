@@ -23,7 +23,7 @@ public class FlatMARC {
 			
 			for(Datafield df : dataField) {
 				
-				// dc.dc_creator
+				// dc.creator
 				if(df.getTag().equals("100")) {
 					Subfield[] subFields = df.getSubfield();
 					if(subFields.length > 0) {
@@ -31,7 +31,7 @@ public class FlatMARC {
 					}
 				}
 				
-				// dc.dc_title
+				// dc.title
 				if(df.getTag().equals("245")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
@@ -63,11 +63,15 @@ public class FlatMARC {
 					}
 				}
 				
-				// dc.dc_description
-				if(df.getTag().equals("300")) {
+				// dc.description
+				if(df.getTag().equals("300") || df.getTag().equals("500") || df.getTag().equals("502") || df.getTag().equals("504")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
+							if(dc_description.length() > 0) {
+								System.out.println("MULTIPLE DESCRIPTIONS FOUND. DEFERING TO THE FIRST.");
+								continue;
+							}
 							dc_description += scrubField(".", subField.getValue());
 						}
 					}
@@ -78,20 +82,28 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
+							if(thesis_degree_grantor.length() > 0) {
+								System.out.println("MULTIPLE THESIS DEGREE GRANTOR FOUND. DEFERING TO THE FIRST.");
+								continue;
+							}
 							thesis_degree_grantor += scrubField(".", subField.getValue());
 						}
 					}
 				}
 				
-				// thesis.degree.department
+				// dc.description.abstract
 				if(df.getTag().equals("520")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
+						if(dc_description_abstract.length() > 0) {
+							System.out.println("MULTIPLE ABSTRACT FOUND. DEFERING TO THE FIRST.");
+							continue;
+						}
 						dc_description_abstract += subField.getValue();
 					}
 				}
 				
-				// dc.dc_subject.lcsh and dc.dc_subject
+				// dc.subject.lcsh and dc.subject
 				if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650") || df.getTag().equals("651")) {
 					Subfield[] subFields = df.getSubfield();
 					
@@ -123,11 +135,17 @@ public class FlatMARC {
 					}	
 				}
 				
-				// dc.dc_subject
+				// dc.subject
 				if(df.getTag().equals("653")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
-						dc_subject += subField.getValue();
+						if(dc_subject.length() > 0) {
+							dc_subject += ", " + subField.getValue();
+						}
+						else {
+							dc_subject += subField.getValue();
+						}
+						
 					}
 				}
 				
