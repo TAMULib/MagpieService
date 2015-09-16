@@ -110,16 +110,15 @@ public class FlatMARC {
 						else if(df.getInd2().equals("0")) {
 							lcsh += subField.getValue();
 						}					
-						if(subField.getCode().equals("x")) {
-							lcsh += " -- " + subField.getValue();
+						if(subField.getCode().equals("x") || subField.getCode().equals("z")) {
+							if(lcsh.length() > 0) {
+								lcsh += " -- " + subField.getValue();
+							}
+							else {
+								lcsh += subField.getValue();
+							}
+							
 						}					
-						if(subField.getCode().equals("z")) {
-							lcsh += " -- " + subField.getValue();
-						}					
-						if(subField.getCode().equals("z")) {
-							lcsh += " -- " + subField.getValue();
-						}
-											
 					}
 					if(!"".equals(lcsh)) {
 						dc_subject_lcsh.add(lcsh);
