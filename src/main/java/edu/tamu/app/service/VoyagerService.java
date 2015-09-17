@@ -46,11 +46,11 @@ public class VoyagerService {
 	private String app;
 	
 	@Autowired
-	private HttpUtility httpService;
+	private HttpUtility httpUtility;
 	
 	public VoyagerServiceData getMARC(String bibId) throws Exception {				
 		String urlString = "http://"+host+":"+port+"/"+app+"/GetHoldingsService?bibId=" + bibId;		
-		String xmlResponse = httpService.makeHttpRequest(urlString, "GET");
+		String xmlResponse = httpUtility.makeHttpRequest(urlString, "GET");
        
 		xmlResponse = xmlResponse.replace("ser:", "");
 		xmlResponse = xmlResponse.replace("hol:", "");

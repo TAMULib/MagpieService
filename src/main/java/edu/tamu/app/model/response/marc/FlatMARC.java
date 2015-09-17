@@ -23,20 +23,20 @@ public class FlatMARC {
 			
 			for(Datafield df : dataField) {
 				
-				// dc.dc_creator
+				// dc.creator
 				if(df.getTag().equals("100")) {
 					Subfield[] subFields = df.getSubfield();
 					if(subFields.length > 0) {
-						dc_creator = subFields[0].getValue();
+						dc_creator = scrubField(".", subFields[0].getValue());
 					}
 				}
 				
-				// dc.dc_title
+				// dc.title
 				if(df.getTag().equals("245")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-							dc_title += scrubField(".",subField.getValue());
+							dc_title += scrubField(".", subField.getValue());
 						}
 					}
 				}
@@ -46,7 +46,7 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
-							dc_date_issued = dc_date_created = scrubField(".",subField.getValue());
+							dc_date_issued = dc_date_created = scrubField(".", subField.getValue());
 						}
 					}
 				}
@@ -57,18 +57,23 @@ public class FlatMARC {
 						Subfield[] subFields = df.getSubfield();
 						for(Subfield subField : subFields) {
 							if(df.getInd2().equals("0") || df.getInd2().equals("1")) {
-								dc_date_issued = dc_date_created = subField.getValue();
+								dc_date_issued = dc_date_created = scrubField(".", subField.getValue());
 							}
 						}					
 					}
 				}
 				
-				// dc.dc_description
-				if(df.getTag().equals("300")) {
+				// dc.description
+				if(df.getTag().equals("500") || df.getTag().equals("502")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("a") || subField.getCode().equals("b")) {
-							dc_description += scrubField(".",subField.getValue());
+							if(dc_description.length() > 0) {
+								System.out.println("Multiple description found. Deferring to the first.");
+								System.out.println(scrubField(".", subField.getValue()));
+								continue;
+							}
+							dc_description += scrubField(".", subField.getValue());
 						}
 					}
 				}
@@ -78,56 +83,59 @@ public class FlatMARC {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
 						if(subField.getCode().equals("c")) {
-							thesis_degree_grantor += subField.getValue();
+							thesis_degree_grantor += scrubField(".", subField.getValue());
+							if(dc_description.length() > 0) {
+								dc_description += " -- " + thesis_degree_grantor;
+							}
 						}
 					}
 				}
 				
-				// thesis.degree.department
+				// dc.description.abstract
 				if(df.getTag().equals("520")) {
 					Subfield[] subFields = df.getSubfield();
-					for(Subfield subField : subFields) {
+					for(Subfield subField : subFields) {						
 						dc_description_abstract += subField.getValue();
 					}
 				}
 				
-				// dc.dc_subject.lcsh and dc.dc_subject
-				if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650")) {				
-					Subfield[] subFields = df.getSubfield();
-					
-					String lcsh = "";
-					
-					for(Subfield subField : subFields) {
-						
+				// dc.subject.lcsh and dc.subject
+				if(df.getTag().equals("600") || df.getTag().equals("610") || df.getTag().equals("611") || df.getTag().equals("630") || df.getTag().equals("650") || df.getTag().equals("651")) {
+					Subfield[] subFields = df.getSubfield();					
+					String lcsh = "";					
+					for(Subfield subField : subFields) {						
 						if(df.getInd2().equals("4")) {
-							dc_subject += subField.getValue();
+							dc_subject += scrubField(".", subField.getValue());
 						}
-						else {
-							if(subField.getCode().equals("a")) {
+						else if(df.getInd2().equals("0")) {
+							lcsh += subField.getValue();
+						}					
+						if(subField.getCode().equals("x") || subField.getCode().equals("z")) {
+							if(lcsh.length() > 0) {
+								lcsh += " -- " + subField.getValue();
+							}
+							else {
 								lcsh += subField.getValue();
 							}
+							
 						}					
-						if(subField.getCode().equals("x")) {
-							lcsh += " -- " + subField.getValue();
-						}					
-						if(subField.getCode().equals("z")) {
-							lcsh += " -- " + subField.getValue();
-						}					
-						if(subField.getCode().equals("z")) {
-							lcsh += " -- " + subField.getValue();
-						}
-											
 					}
 					if(!"".equals(lcsh)) {
 						dc_subject_lcsh.add(lcsh);
 					}	
 				}
 				
-				// dc.dc_subject
+				// dc.subject
 				if(df.getTag().equals("653")) {
 					Subfield[] subFields = df.getSubfield();
 					for(Subfield subField : subFields) {
-						dc_subject += subField.getValue();
+						if(dc_subject.length() > 0) {
+							dc_subject += ", " + subField.getValue();
+						}
+						else {
+							dc_subject += subField.getValue();
+						}
+						
 					}
 				}
 				
@@ -228,14 +236,15 @@ public class FlatMARC {
 	}
 	
 	private String scrubField(String scrubber, String scrubbable) {
+		scrubbable = scrubbable.trim();
 		if (scrubbable.endsWith(scrubber)) {
-			return rightTrim(scrubbable);
+			return rightTrim(scrubber.length(), scrubbable);
 		}
 		return scrubbable;
 	}
 	
-	private String rightTrim(String trimmable) {
-		return trimmable.substring(0,trimmable.length()-1);
+	private String rightTrim(int length, String trimmable) {
+		return trimmable.substring(0, trimmable.length() - length);
 	}
 
 }

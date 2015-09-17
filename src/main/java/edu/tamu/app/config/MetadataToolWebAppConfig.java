@@ -20,8 +20,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import edu.tamu.app.ApplicationContextProvider;
-
 /** 
  * Web MVC Configuration for application controller.
  * 
@@ -31,8 +29,8 @@ import edu.tamu.app.ApplicationContextProvider;
 @Configuration
 @ComponentScan(basePackages = {"edu.tamu.app.config", "edu.tamu.app.controller"})
 @ConfigurationProperties(prefix="app.controller")
-public class MetadataToolWebAppConfig extends WebMvcConfigurerAdapter{	
-	
+public class MetadataToolWebAppConfig extends WebMvcConfigurerAdapter {
+			
 	 /**
      * Executor Service configuration.
      * 
@@ -45,15 +43,4 @@ public class MetadataToolWebAppConfig extends WebMvcConfigurerAdapter{
        	return executorService;
 	}
 	
-    /**
-     * Application context provider bean.
-     * 
-     * @return		ApplicationContextProvider
-     * 
-     */
-    @Bean(name="appContextProvider")
-    private static ApplicationContextProvider appContextProvider() {
-    	return new ApplicationContextProvider();
-    }
-			
 }

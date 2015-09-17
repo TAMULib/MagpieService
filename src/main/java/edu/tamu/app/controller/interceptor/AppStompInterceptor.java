@@ -34,6 +34,9 @@ public class AppStompInterceptor extends CoreStompInterceptor {
 	@Value("${app.authority.admins}")
 	private String[] admins;
 	
+	@Value("${app.authority.managers}")
+	private String[] managers;
+
 	/**
 	 * @param       shib        Credentials
 	 * 
@@ -50,10 +53,18 @@ public class AppStompInterceptor extends CoreStompInterceptor {
     		if(shib.getRole() == null) {
     			shib.setRole("ROLE_USER");
     		}
-        	String shibUin = shib.getUin();
+        	
+    		String shibUin = shib.getUin();
+    		
+    		for(String uin : managers) {
+    			if(uin.equals(shibUin)) {
+    				shib.setRole("ROLE_MANAGER");
+    			}
+    		}
+    		
     		for(String uin : admins) {
     			if(uin.equals(shibUin)) {
-    				shib.setRole("ROLE_ADMIN");					
+    				shib.setRole("ROLE_ADMIN");
     			}
     		}
     		

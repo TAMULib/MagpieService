@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,9 +18,8 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 
-import edu.tamu.framework.model.Credentials;
-
 import edu.tamu.app.config.TestDataSourceConfiguration;
+import edu.tamu.framework.model.Credentials;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestDataSourceConfiguration.class})
@@ -34,9 +34,13 @@ public class ShibTest {
 	
 	private long timestamp = new Date().getTime()+(5*60*1000);
 	
-	@Before
-	public void setup() {
+	@BeforeClass
+    public static void init() {
 		
+    }
+	
+	@Before
+	public void setup() {		
 		aggieJackToken = new HashMap<>();
 		aggieJackToken.put("lastName","Daniels");
 		aggieJackToken.put("firstName","Jack");
