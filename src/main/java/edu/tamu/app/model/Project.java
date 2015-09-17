@@ -30,18 +30,28 @@ public class Project {
 	@Id
 	private String name;
 	
+	private Boolean isLocked = false;
+	
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private Set<ProjectLabelProfile> profiles = new HashSet<ProjectLabelProfile>();
 	
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch=FetchType.EAGER, orphanRemoval = false)
 	private Set<Document> documents = new HashSet<Document>();
 	
-	public Project() { }
+	public Project() {}
 	
 	public Project(String name) {
 		this.name = name;
 	}
 
+	public Boolean getLockStatus() {
+		return this.isLocked;
+	}
+
+	public void setLockStatus(Boolean status) {
+		this.isLocked = status;
+	}
+	
 	public String getName() {
 		return name;
 	}

@@ -49,6 +49,7 @@ import edu.tamu.framework.model.RequestId;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.MetadataFieldGroup;
+import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
@@ -101,10 +102,8 @@ public class MetadataFieldController {
 	@Auth
 	@SendToUser
 	public ApiResponse getProjects(Message<?> message, @ReqId String requestId) throws Exception {
-		List<String> projects = new ArrayList<>();
-        projectRepo.findAll().stream().forEach(project -> {
-        	projects.add(project.getName());
-        });
+		List<Object> projects = new ArrayList<>();
+		projects = projectRepo.findAllAsObject();
 		return new ApiResponse("success", projects, new RequestId(requestId));
 	}
 	
@@ -247,9 +246,10 @@ public class MetadataFieldController {
 	public ApiResponse saf(@Shib Object shibObj, @DestinationVariable String project, @ReqId String requestId) throws Exception {
 		
 		System.out.println("Generating SAF for project " + project);
-		
 		//for each published document
-		List<Document> documents = projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
+
+		Project exportableProject = projectRepo.findByName(project);
+		List<Document> documents = exportableProject.getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
 		
 		String directory = "";
 		try {
@@ -337,7 +337,9 @@ public class MetadataFieldController {
 			}
  			
 		}
-		
+		exportableProject.setLockStatus(true);
+		projectRepo.save(exportableProject);
+
 		return new ApiResponse("success", "Your SAF has been written to the server filesystem.", new RequestId(requestId));
 	}
 

@@ -9,7 +9,10 @@
  */
 package edu.tamu.app.model.repo;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.Project;
@@ -29,6 +32,15 @@ public interface ProjectRepo extends JpaRepository <Project, Long>, ProjectRepoC
 	public Project create(String name);
 
 	public Project findByName(String name);
+	
+	/**
+	 * Retrieve all projects, with fields from the primary table.
+	 * 
+	 * @return		List of Object
+	 * 
+	 */
+	@Query(value = "SELECT p.name, p.isLocked FROM Project p")
+	public List<Object> findAllAsObject();
 	
 	@Override
 	public void delete(Project project);
