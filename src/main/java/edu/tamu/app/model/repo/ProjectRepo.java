@@ -39,7 +39,7 @@ public interface ProjectRepo extends JpaRepository <Project, Long>, ProjectRepoC
 	 * @return		List of Object
 	 * 
 	 */
-	@Query(value = "SELECT p.name, p.isLocked FROM Project p")
+	@Query(value = "SELECT p.name, p.isLocked FROM Project p ORDER BY p.name")
 	public List<Object> findAllAsObject();
 	
 	@Override
