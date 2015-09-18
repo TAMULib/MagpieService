@@ -108,6 +108,28 @@ public class MetadataFieldController {
 	}
 	
 	/**
+	 * Endpoint to unlock a given project
+	 * 
+	 * @param 		message			Message<?>
+	 * @param 		projectToUnlock	@DestinationVariable String
+	 * @param 		requestId		@ReqId String
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/unlock/{projectToUnlock}")
+	@Auth
+	@SendToUser
+	public ApiResponse unlockProject(Message<?> message, @DestinationVariable String projectToUnlock, @ReqId String requestId) throws Exception {
+		Project project = projectRepo.findByName(projectToUnlock);
+		project.setLockStatus(false);;
+		projectRepo.save(project);
+		return new ApiResponse("success", new RequestId(requestId));
+	}
+	
+	/**
 	 * Endpoint to return metadata headers for given project.
 	 * 
 	 * @param 		message			Message<?>

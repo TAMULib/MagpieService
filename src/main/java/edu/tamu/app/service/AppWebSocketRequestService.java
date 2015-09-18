@@ -50,7 +50,13 @@ public class AppWebSocketRequestService extends WebSocketRequestService {
 				message = request.getMessage();
 				requests.remove(index);
 			}			
-		} 
+		}
+		else if(destination.contains("/unlock/{projectToUnlock}")) {			
+			if(request.getUser().equals(user) && request.getDestination().contains("unlock")) {	
+				message = request.getMessage();
+				requests.remove(index);
+			}
+		}
 		else if(destination.contains("/headers/{project}")) {			
 			if(request.getUser().equals(user) && request.getDestination().contains("headers")) {	
 				message = request.getMessage();
