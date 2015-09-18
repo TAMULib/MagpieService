@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectMinimal;
 import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
 
 /**
@@ -39,8 +40,8 @@ public interface ProjectRepo extends JpaRepository <Project, Long>, ProjectRepoC
 	 * @return		List of Object
 	 * 
 	 */
-	@Query(value = "SELECT p.name, p.isLocked FROM Project p ORDER BY p.name")
-	public List<Object> findAllAsObject();
+	@Query(value = "SELECT new edu.tamu.app.model.ProjectMinimal(p.name, p.isLocked) FROM Project p ORDER BY p.name")
+	public List<ProjectMinimal> findAllAsObject();
 	
 	@Override
 	public void delete(Project project);

@@ -44,11 +44,11 @@ public class Project {
 		this.name = name;
 	}
 
-	public Boolean getLockStatus() {
+	public Boolean getIsLocked() {
 		return this.isLocked;
 	}
 
-	public void setLockStatus(Boolean status) {
+	public void setIsLocked(Boolean status) {
 		this.isLocked = status;
 	}
 	

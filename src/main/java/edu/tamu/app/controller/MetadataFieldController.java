@@ -50,6 +50,7 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectMinimal;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
@@ -102,7 +103,7 @@ public class MetadataFieldController {
 	@Auth
 	@SendToUser
 	public ApiResponse getProjects(Message<?> message, @ReqId String requestId) throws Exception {
-		List<Object> projects = new ArrayList<>();
+		List<ProjectMinimal> projects = new ArrayList<>();
 		projects = projectRepo.findAllAsObject();
 		return new ApiResponse("success", projects, new RequestId(requestId));
 	}
@@ -124,7 +125,7 @@ public class MetadataFieldController {
 	@SendToUser
 	public ApiResponse unlockProject(Message<?> message, @DestinationVariable String projectToUnlock, @ReqId String requestId) throws Exception {
 		Project project = projectRepo.findByName(projectToUnlock);
-		project.setLockStatus(false);;
+		project.setIsLocked(false);;
 		projectRepo.save(project);
 		return new ApiResponse("success", new RequestId(requestId));
 	}
@@ -359,7 +360,7 @@ public class MetadataFieldController {
 			}
  			
 		}
-		exportableProject.setLockStatus(true);
+		exportableProject.setIsLocked(true);
 		projectRepo.save(exportableProject);
 
 		return new ApiResponse("success", "Your SAF has been written to the server filesystem.", new RequestId(requestId));
