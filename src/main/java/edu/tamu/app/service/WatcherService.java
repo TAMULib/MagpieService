@@ -138,7 +138,7 @@ public class WatcherService implements Runnable {
 	 * WatcherService runnable.
 	 * 
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "resource" })
 	@Override
 	public void run() {
 		
