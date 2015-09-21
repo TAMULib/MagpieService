@@ -38,8 +38,8 @@ import edu.tamu.framework.aspect.annotation.Data;
 import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
+import edu.tamu.app.model.PartialDocument;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
 
@@ -65,9 +65,6 @@ public class DocumentController {
 	
 	@Autowired
 	private DocumentRepo documentRepo;
-	
-	@Autowired
-	private MetadataFieldGroupRepo metadataFieldGroupRepo;
 	
 	/**
 	 * Endpoint to return marc record.
@@ -184,55 +181,55 @@ public class DocumentController {
 				
 		Pageable request = new PageRequest(Integer.parseInt(headerMap.get("page")) - 1, Integer.parseInt(headerMap.get("size")), sortDirection, headerMap.get("field"));
 		
-		Page<Object> objects = null;
+		Page<PartialDocument> partialDocuments = null;
 		
 		if(name.length() > 0) {			
 			if(status[0].length() > 0) {
 				if(annotator.length() > 0) {
 					if(status[1].length() > 0) {
-						objects = documentRepo.findByMultipleNameAndStatusAndAnnotatorAsObject(request, name, status[0], annotator, name, status[1], annotator);	
+						partialDocuments = documentRepo.findByMultipleNameAndStatusAndAnnotatorAsPartialDocument(request, name, status[0], annotator, name, status[1], annotator);	
 					}
 					else {
-						objects = documentRepo.findByNameAndStatusAndAnnotatorAsObject(request, name, status[0], annotator);
+						partialDocuments = documentRepo.findByNameAndStatusAndAnnotatorAsPartialDocument(request, name, status[0], annotator);
 					}
 				}
 				else {
-					objects = documentRepo.findByMultipleNameAndStatusAsObject(request, name, status[0], name, status[1]);	
+					partialDocuments = documentRepo.findByMultipleNameAndStatusAsPartialDocument(request, name, status[0], name, status[1]);	
 				}				
 			}
 			else if(annotator.length() > 0) {
-				objects = documentRepo.findByNameAndAnnotatorAsObject(request, name, annotator);				
+				partialDocuments = documentRepo.findByNameAndAnnotatorAsPartialDocument(request, name, annotator);				
 			}
 			else {
-				objects = documentRepo.findByNameAsObject(request, name);
+				partialDocuments = documentRepo.findByNameAsPartialDocument(request, name);
 			}			
 		}
 		else if(status[0].length() > 0) {
 			if(annotator.length() > 0) {
 				if(status[1].length() > 0) {
-					objects = documentRepo.findByMultipleStatusAndAnnotatorAsObject(request, status[0], annotator, status[1], annotator);
+					partialDocuments = documentRepo.findByMultipleStatusAndAnnotatorAsPartialDocument(request, status[0], annotator, status[1], annotator);
 				}
 				else {
-					objects = documentRepo.findByStatusAndAnnotatorAsObject(request, status[0], annotator);
+					partialDocuments = documentRepo.findByStatusAndAnnotatorAsPartialDocument(request, status[0], annotator);
 				}
 			}
 			else {
 				if(status[1].length() > 0) {
-					objects = documentRepo.findByMultipleStatusAsObject(request, status[0], status[1]);
+					partialDocuments = documentRepo.findByMultipleStatusAsPartialDocument(request, status[0], status[1]);
 				}
 				else {
-					objects = documentRepo.findByStatusAsObject(request, status[0]);
+					partialDocuments = documentRepo.findByStatusAsPartialDocument(request, status[0]);
 				}
 			}			
 		}
 		else if(annotator.length() > 0) {
-			objects = documentRepo.findByAnnotatorAsObject(request, annotator);
+			partialDocuments = documentRepo.findByAnnotatorAsPartialDocument(request, annotator);
 		}
 		else {
-			objects = documentRepo.findAllAsObject(request);
+			partialDocuments = documentRepo.findAllAsPartialDocument(request);
 		}
 				
-	    return new ApiResponse("success", objects, new RequestId(requestId));
+	    return new ApiResponse("success", partialDocuments, new RequestId(requestId));
 	}
 
 	/**
