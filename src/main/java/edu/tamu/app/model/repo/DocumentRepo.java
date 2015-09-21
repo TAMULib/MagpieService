@@ -22,6 +22,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.PartialDocument;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
 
@@ -87,8 +88,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Document
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d")
-	public Page<Object> findAllAsObject(Pageable page);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d")
+	public Page<PartialDocument> findAllAsPartialDocument(Pageable page);
 	
 	/**
 	 * Retrieve document by name.
@@ -99,8 +100,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%'))")
-	public Page<Object> findByNameAsObject(Pageable page, @Param("name") String name);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+	public Page<PartialDocument> findByNameAsPartialDocument(Pageable page, @Param("name") String name);
 	
 	/**
 	 * Retrieve document by name and status.
@@ -114,8 +115,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE (LOWER(d.name) LIKE LOWER(CONCAT('%', :name1, '%')) AND LOWER(d.status) LIKE(CONCAT('%', :status1, '%'))) OR (LOWER(d.name) LIKE LOWER(CONCAT('%', :name2, '%')) AND LOWER(d.status) LIKE(CONCAT('%', :status2, '%')))")
-	public Page<Object> findByMultipleNameAndStatusAsObject(Pageable page, @Param("name1") String name1, @Param("status1") String status1, @Param("name2") String name2, @Param("status2") String status2);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE (LOWER(d.name) LIKE LOWER(CONCAT('%', :name1, '%')) AND LOWER(d.status) LIKE(CONCAT('%', :status1, '%'))) OR (LOWER(d.name) LIKE LOWER(CONCAT('%', :name2, '%')) AND LOWER(d.status) LIKE(CONCAT('%', :status2, '%')))")
+	public Page<PartialDocument> findByMultipleNameAndStatusAsPartialDocument(Pageable page, @Param("name1") String name1, @Param("status1") String status1, @Param("name2") String name2, @Param("status2") String status2);
 	
 	/**
 	 * Retrieve document by name and status.
@@ -127,8 +128,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%'))")
-	public Page<Object> findByNameAndStatusAsObject(Pageable page, @Param("name") String name, @Param("status") String status);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%'))")
+	public Page<PartialDocument> findByNameAndStatusAsPartialDocument(Pageable page, @Param("name") String name, @Param("status") String status);
 	
 	/**
 	 * Retrieve document by name and annotator.
@@ -140,8 +141,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
-	public Page<Object> findByNameAndAnnotatorAsObject(Pageable page, @Param("name") String name, @Param("annotator") String annotator);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
+	public Page<PartialDocument> findByNameAndAnnotatorAsPartialDocument(Pageable page, @Param("name") String name, @Param("annotator") String annotator);
 	
 	
 	/**
@@ -154,8 +155,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.status) LIKE LOWER(CONCAT('%', :status1, '%')) OR LOWER(d.status) LIKE LOWER(CONCAT('%', :status2, '%'))")
-	public Page<Object> findByMultipleStatusAsObject(Pageable page, @Param("status1") String status1, @Param("status2") String status2);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE LOWER(d.status) LIKE LOWER(CONCAT('%', :status1, '%')) OR LOWER(d.status) LIKE LOWER(CONCAT('%', :status2, '%'))")
+	public Page<PartialDocument> findByMultipleStatusAsPartialDocument(Pageable page, @Param("status1") String status1, @Param("status2") String status2);
 	
 	/**
 	 * Retrieve document by status.
@@ -166,8 +167,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%'))")
-	public Page<Object> findByStatusAsObject(Pageable page, @Param("status") String status);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%'))")
+	public Page<PartialDocument> findByStatusAsPartialDocument(Pageable page, @Param("status") String status);
 	
 	/**
 	 * Retrieve document by status and annotator.
@@ -181,8 +182,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE (LOWER(d.status) LIKE LOWER(CONCAT('%', :status1, '%')) AND LOWER(d.annotator) LIKE(CONCAT('%', :annotator1, '%'))) OR (LOWER(d.status) LIKE LOWER(CONCAT('%', :status2, '%')) AND LOWER(d.annotator) LIKE(CONCAT('%', :annotator2, '%')))")
-	public Page<Object> findByMultipleStatusAndAnnotatorAsObject(Pageable page, @Param("status1") String status1, @Param("annotator1") String annotator1, @Param("status2") String status2, @Param("annotator2") String annotator2);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE (LOWER(d.status) LIKE LOWER(CONCAT('%', :status1, '%')) AND LOWER(d.annotator) LIKE(CONCAT('%', :annotator1, '%'))) OR (LOWER(d.status) LIKE LOWER(CONCAT('%', :status2, '%')) AND LOWER(d.annotator) LIKE(CONCAT('%', :annotator2, '%')))")
+	public Page<PartialDocument> findByMultipleStatusAndAnnotatorAsPartialDocument(Pageable page, @Param("status1") String status1, @Param("annotator1") String annotator1, @Param("status2") String status2, @Param("annotator2") String annotator2);
 	
 	/**
 	 * Retrieve document by status and annotator.
@@ -194,8 +195,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
-	public Page<Object> findByStatusAndAnnotatorAsObject(Pageable page, @Param("status") String status, @Param("annotator") String annotator);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
+	public Page<PartialDocument> findByStatusAndAnnotatorAsPartialDocument(Pageable page, @Param("status") String status, @Param("annotator") String annotator);
 	
 	/**
 	 * Retrieve document by annotator.
@@ -206,8 +207,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
-	public Page<Object> findByAnnotatorAsObject(Pageable page, @Param("annotator") String annotator);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
+	public Page<PartialDocument> findByAnnotatorAsPartialDocument(Pageable page, @Param("annotator") String annotator);
 		
 	/**
 	 * Retrieve document by name and status.
@@ -223,8 +224,8 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE (LOWER(d.name) LIKE LOWER(CONCAT('%', :name1, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status1, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator1, '%'))) OR (LOWER(d.name) LIKE LOWER(CONCAT('%', :name2, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status2, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator2, '%')))")
-	public Page<Object> findByMultipleNameAndStatusAndAnnotatorAsObject(Pageable page, @Param("name1") String name1, @Param("status1") String status1, @Param("annotator1") String annotator1, @Param("name2") String name2, @Param("status2") String status2, @Param("annotator2") String annotator2);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE (LOWER(d.name) LIKE LOWER(CONCAT('%', :name1, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status1, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator1, '%'))) OR (LOWER(d.name) LIKE LOWER(CONCAT('%', :name2, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status2, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator2, '%')))")
+	public Page<PartialDocument> findByMultipleNameAndStatusAndAnnotatorAsPartialDocument(Pageable page, @Param("name1") String name1, @Param("status1") String status1, @Param("annotator1") String annotator1, @Param("name2") String name2, @Param("status2") String status2, @Param("annotator2") String annotator2);
 	
 	/**
 	 * Retrieve document by name and status.
@@ -237,7 +238,7 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	 * @return		Page<Document>
 	 * 
 	 */
-	@Query(value = "SELECT d.name, d.status, d.annotator FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
-	public Page<Object> findByNameAndStatusAndAnnotatorAsObject(Pageable page, @Param("name") String name, @Param("status") String status, @Param("annotator") String annotator);
+	@Query(value = "SELECT new edu.tamu.app.model.PartialDocument(d.name, d.status, d.annotator) FROM Document d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', :name, '%')) AND LOWER(d.status) LIKE LOWER(CONCAT('%', :status, '%')) AND LOWER(d.annotator) LIKE LOWER(CONCAT('%', :annotator, '%'))")
+	public Page<PartialDocument> findByNameAndStatusAndAnnotatorAsPartialDocument(Pageable page, @Param("name") String name, @Param("status") String status, @Param("annotator") String annotator);
 	
 }
