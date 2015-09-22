@@ -65,6 +65,30 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
 	public List<Document> findByStatus(String status);
 	
 	/**
+	 * Retrieve documents by projectName and status.
+	 * 
+	 * @param 		projectName			String
+	 * @param 		status				String
+	 * 
+	 * @return		List<Document>
+	 * 
+	 */
+
+	public List<Document> findByProjectNameAndStatus(String projectName, String status);
+
+	/**
+	 * Retrieve documents by projectName and whose status is not the given status.
+	 * 
+	 * @param 		projectName			String
+	 * @param 		status				String
+	 * 
+	 * @return		List<Document>
+	 * 
+	 */
+
+	public List<Document> findByProjectNameAndStatusNot(String projectName, String status);
+
+	/**
 	 * Updates document.
 	 * 
 	 * @param 		name

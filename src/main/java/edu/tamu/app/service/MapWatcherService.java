@@ -58,6 +58,7 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.impl.DocumentRepoImpl;
 import edu.tamu.app.model.response.marc.FlatMARC;
 
 /** 
@@ -127,8 +128,6 @@ public class MapWatcherService implements Runnable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
-		//check for map files, and do stuff with them
-		System.out.println("Im running so fast");
 		String directory = "";
 		try {
 			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/" + folder;
@@ -141,7 +140,8 @@ public class MapWatcherService implements Runnable {
             dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
              
             System.out.println("MapWatch Service registered for dir: " + dir.getFileName());
-             
+            //the string representing the published state
+            String changeStatus = "Published";
             while (true) {
                 WatchKey key;
                 try {
@@ -160,20 +160,43 @@ public class MapWatcherService implements Runnable {
                     if (kind == ENTRY_CREATE) {
                     	String line;
                     	try {
+                        	//read and iterate over mapfile
                     		InputStream stream = new FileInputStream(directory+"/"+file.toFile());
                     	    InputStreamReader sReader = new InputStreamReader(stream);
                     		BufferedReader bReader = new BufferedReader(sReader);
+                    		//the project to unlock, if all documents have been published
+                    		Project unlockableProject = null;
+                    		
                     		while ((line = bReader.readLine()) != null) {
-                    			System.out.println("Stringer: "+line);
+                    			//extract document name from mapfile row
+                    			String[] itemData = line.split(" ");
+                    			String documentName = itemData[0];
+                    			Document updateDoc = documentRepo.findByName(documentName);
+
+                    			if (updateDoc != null) {
+                    				if (unlockableProject == null) {
+                    					unlockableProject = updateDoc.getProject();
+                    				}
+                    				updateDoc.setStatus(changeStatus);
+                    				documentRepo.save(updateDoc);
+                    			} else {
+                    				System.out.println("No Document found for string: "+documentName);
+                    			}
                     		}
+                			if (unlockableProject != null) {
+                				List<Document> unpublishedDocs = documentRepo.findByProjectNameAndStatusNot(unlockableProject.getName(),changeStatus);
+                            	//unlock project if all documents have been PUBLISHED
+                				if (unpublishedDocs.size() == 0) {
+                					unlockableProject.setIsLocked(false);;
+                					projectRepo.save(unlockableProject);
+                				}
+               				} else {
+                				System.out.println("No Project found");
+                			}
                     	} catch (IOException e) {
                             System.err.println(e);
                     	}
                     	
-                    	//read and iterate over imports
-                    	//get project based on bibid = project name?
-                    	//update all project documents with PUBLISHED status
-                    	//unlock project (if all documents have been PUBLISHED
                     }
                 }
             }
