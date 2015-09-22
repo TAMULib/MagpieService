@@ -276,10 +276,12 @@ public class MetadataFieldController {
 			File itemDirectory = new File(archiveDirectoryName + "/" + document.getName());
 			itemDirectory.mkdir();
 				
+			File originDir = null;
  			try {
  				String documentDirectory = appContext.getResource("classpath:static" + document.getPdfPath()).getFile().getAbsolutePath();
  				documentDirectory = documentDirectory.substring(0, documentDirectory.length() - (document.getName().length() + 5));
-			    FileUtils.copyDirectory(new File(documentDirectory), itemDirectory);
+ 				originDir = new File(documentDirectory);
+			    FileUtils.copyDirectory(originDir, itemDirectory);
 			} catch (IOException e) {	
 			    e.printStackTrace();
 			}
@@ -290,7 +292,10 @@ public class MetadataFieldController {
  			license.close();
  			
  			PrintStream manifest = new PrintStream(itemDirectory+"/contents");
- 			manifest.print(document.getName() + "\tbundle:ORIGINAL\tprimary:true\tpermissions:-r 'member'\nlicense.txt\tbundle:LICENSE");
+ 			for (File file : originDir.listFiles()) {
+ 	 			manifest.print(file.getName() + "\tbundle:ORIGINAL\tprimary:true\tpermissions:-r 'member'\n");
+ 			}
+ 			manifest.print("license.txt\tbundle:LICENSE");
  			manifest.flush();
  			manifest.close();
  			
