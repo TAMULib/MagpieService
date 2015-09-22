@@ -358,7 +358,8 @@ public class MetadataFieldController {
 				printStream.print("</dublin_core>");
 				printStream.close();
 			}
- 			
+ 			document.setStatus("Pending");
+ 			documentRepo.save(document);
 		}
 		exportableProject.setIsLocked(true);
 		projectRepo.save(exportableProject);

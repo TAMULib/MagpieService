@@ -166,6 +166,7 @@ public class MapWatcherService implements Runnable {
                     		BufferedReader bReader = new BufferedReader(sReader);
                     		//the project to unlock, if all documents have been published
                     		Project unlockableProject = null;
+            				System.out.println("Reading mapfile: "+file);
                     		
                     		while ((line = bReader.readLine()) != null) {
                     			//extract document name from mapfile row
@@ -179,16 +180,20 @@ public class MapWatcherService implements Runnable {
                     				}
                     				updateDoc.setStatus(changeStatus);
                     				documentRepo.save(updateDoc);
+                    				System.out.println("Setting status of Document: "+updateDoc.getName()+" to Published.");
                     			} else {
                     				System.out.println("No Document found for string: "+documentName);
                     			}
                     		}
                 			if (unlockableProject != null) {
-                				List<Document> unpublishedDocs = documentRepo.findByProjectNameAndStatusNot(unlockableProject.getName(),changeStatus);
-                            	//unlock project if all documents have been PUBLISHED
+                				List<Document> unpublishedDocs = documentRepo.findByProjectNameAndStatus(unlockableProject.getName(),"Pending");
+                            	//unlock project if there are no pending documents
                 				if (unpublishedDocs.size() == 0) {
-                					unlockableProject.setIsLocked(false);;
+                					unlockableProject.setIsLocked(false);
                 					projectRepo.save(unlockableProject);
+                					System.out.println("Project '"+unlockableProject.getName()+"' unlocked.");
+                				} else {
+                					System.out.println("Project '"+unlockableProject.getName()+"' was left locked because there was a count of  "+unpublishedDocs.size()+" unpublished document(s).");
                 				}
                				} else {
                 				System.out.println("No Project found");
