@@ -277,8 +277,10 @@ public class MetadataFieldController {
 			itemDirectory.mkdir();
 				
  			try {
-			    FileUtils.copyDirectory(itemDirectory.getParentFile(), itemDirectory);
-			} catch (IOException e) {
+ 				String documentDirectory = appContext.getResource("classpath:static" + document.getPdfPath()).getFile().getAbsolutePath();
+ 				documentDirectory = documentDirectory.substring(0, documentDirectory.length() - (document.getName().length() + 5));
+			    FileUtils.copyDirectory(new File(documentDirectory), itemDirectory);
+			} catch (IOException e) {	
 			    e.printStackTrace();
 			}
  			
