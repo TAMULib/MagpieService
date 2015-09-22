@@ -25,6 +25,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import edu.tamu.app.service.MapWatcherManagerService;
+import edu.tamu.app.service.MapWatcherService;
 import edu.tamu.app.service.SyncService;
 import edu.tamu.app.service.WatcherManagerService;
 import edu.tamu.app.service.WatcherService;
@@ -47,13 +49,19 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
 	
 	@Autowired
 	private WatcherManagerService watcherManagerService;
-	
+
+	@Autowired
+	private MapWatcherManagerService mapWatcherManagerService;
+
 	@Autowired
 	private SyncService syncService;
 	
 	@Autowired
 	private WatcherService watcherService;
-	
+
+	@Autowired
+	private MapWatcherService mapWatcherService;
+
 	@Value("${app.mount}") 
    	private String mount;
 			
@@ -99,6 +107,14 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
     	executorService.submit(watcherService);
     	
     	watcherManagerService.addActiveWatcherService("projects");
+
+    	System.out.println("Watching: maps");
+    	
+    	mapWatcherService.setFolder("maps");
+    	
+    	executorService.submit(mapWatcherService);
+    	
+    	mapWatcherManagerService.addActiveWatcherService("maps");
 
     }  
     
