@@ -13,55 +13,40 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
-import java.lang.reflect.Field;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Paths.get;
-import edu.tamu.framework.model.ApiResponse;
-import edu.tamu.framework.model.RequestId;
-import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.MetadataFieldLabel;
+import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
-import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.impl.DocumentRepoImpl;
-import edu.tamu.app.model.response.marc.FlatMARC;
 
 /** 
  * Watches map file folder, harvests contents, and updates app data as needed
@@ -195,6 +180,7 @@ public class MapWatcherService implements Runnable {
                 					unlockableProject.setIsLocked(false);
                 					projectRepo.save(unlockableProject);
                 					System.out.println("Project '"+unlockableProject.getName()+"' unlocked.");
+                					generateArchiveMaticaCSV(unlockableProject.getName());
                 				} else {
                 					System.out.println("Project '"+unlockableProject.getName()+"' was left locked because there was a count of  "+unpublishedDocs.size()+" unpublished document(s).");
                 				}
@@ -223,5 +209,100 @@ public class MapWatcherService implements Runnable {
         } catch (IOException ex) {
             System.err.println(ex);
         }
+	}
+	
+	private void generateArchiveMaticaCSV(String projectName) {
+		String [] elements = {"title","creator", "subject","description", "publisher","contributor", "date","type", "format","identifier", "source",
+				"language", "relation","coverage", "rights"};		
+		String directory = "";
+		try {
+			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/archivematica/";
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		String archiveDirectoryName = directory+projectName;
+		
+		List<Document> documents = documentRepo.findByProjectNameAndStatus(projectName, "Published");
+		if(documents.size() > 0) {	
+			File archiveDirectory = new File(archiveDirectoryName);
+			if (archiveDirectory.isDirectory() == false) {
+				archiveDirectory.mkdir();
+			}
+	
+			Date date  = new Date();
+			String formatDate = new SimpleDateFormat("YYYY/mm/dd").format(date);
+			
+			Map<String,String> map = new HashMap<String, String>();
+			map.put("dc.identifier","");
+			map.put("dc.source","");
+			map.put("dc.relation","");
+			map.put("dc.coverage","");
+			for(Document document: documents) {		
+				File itemDirectory = new File(archiveDirectoryName + "/" + document.getName());
+				if (itemDirectory.isDirectory() == false) {
+					itemDirectory.mkdir();
+				}
+				Set<MetadataFieldGroup> metadataFields = document.getFields(); 			
+	 		
+				metadataFields.forEach(field -> {
+						String values ="";
+						boolean firstPass = true;
+						for(MetadataFieldValue medataFieldValue : field.getValues()) {					
+							if(firstPass) {
+								values = medataFieldValue.getValue();
+								firstPass = false;
+							}
+							else {
+								values += "||" +  medataFieldValue.getValue();
+							}					
+						}
+						map.put(field.getLabel().getName(),values);
+					});
+	 			// writing to the ArchiveMatica format metadata csv file
+				try{
+					FileWriter fw = new FileWriter(itemDirectory+"/metadata_"+System.currentTimeMillis()+".csv");
+					fw.append("parts"+",");
+					for(int i=0;i<elements.length;i++) {
+						//writing the element 
+						for(Map.Entry<String, String> entry : map.entrySet()) {
+							if(entry.getKey().contains(elements[i])) {						
+								fw.append(entry.getKey()+",");
+							}
+						}
+					}
+					fw.append("\n");
+					fw.append("objects/"+document.getName()+",");
+					//writing the data values
+					for(int i=0;i<elements.length;i++) {
+						for(Map.Entry<String,String> entry : map.entrySet()) {
+							if(entry.getKey().contains(elements[i])) {
+								
+								if(entry.getKey().contains("parts")) {
+									map.put(entry.getKey(), "objects/"+document.getName());
+								}
+								if(entry.getKey().contains("date")) {
+									map.put(entry.getKey(), formatDate);
+								}
+								if(entry.getKey().contains("type")) {
+									map.put(entry.getKey(), "Archival Information Package");
+								}
+								if(entry.getKey().contains("format")) {
+									map.put(entry.getKey(), "Image/tiff");
+								}
+								if(entry.getKey().contains("language")) {
+									map.put(entry.getKey(), "English");
+								}
+								fw.write(entry.getValue()+",");
+							}
+						}
+					}
+					fw.flush();
+					fw.close();
+				} catch(Exception ioe) {
+					ioe.printStackTrace();
+				}
+			}
+		}
 	}
 }
