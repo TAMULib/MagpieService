@@ -15,12 +15,14 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 import java.lang.reflect.Field;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -161,7 +163,8 @@ public class MapWatcherService implements Runnable {
                     	String line;
                     	try {
                         	//read and iterate over mapfile
-                    		InputStream stream = new FileInputStream(directory+"/"+file.toFile());
+                    		String mapFileName = directory+"/"+file.toFile();
+                    		InputStream stream = new FileInputStream(mapFileName);
                     	    InputStreamReader sReader = new InputStreamReader(stream);
                     		BufferedReader bReader = new BufferedReader(sReader);
                     		//the project to unlock, if all documents have been published
@@ -197,6 +200,13 @@ public class MapWatcherService implements Runnable {
                 				}
                				} else {
                 				System.out.println("No Project found");
+                			}
+                			bReader.close();
+                			File mapFile = new File(mapFileName);
+                			if (mapFile.delete()) {
+                				System.out.println("Mapfile: "+mapFileName+" removed.");
+                			} else {
+                				System.out.println("Error removing mapfile: "+mapFileName+".");
                 			}
                     	} catch (IOException e) {
                             System.err.println(e);
