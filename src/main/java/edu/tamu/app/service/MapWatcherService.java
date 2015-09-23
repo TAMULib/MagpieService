@@ -31,15 +31,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
@@ -60,15 +57,6 @@ public class MapWatcherService implements Runnable {
 	
 	@Autowired
 	private ApplicationContext appContext;
-	
-	@Autowired
-	private ObjectMapper objectMapper;
-	
-	@Autowired
-	private ExecutorService executorService;
-	
-	@Autowired
-	private WatcherManagerService watcherManagerService;
 	
 	@Autowired
 	private ProjectRepo projectRepo;
