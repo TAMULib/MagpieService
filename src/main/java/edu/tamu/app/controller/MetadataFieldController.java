@@ -24,8 +24,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -349,7 +347,7 @@ public class MetadataFieldController {
 	}
 	
 	public void generateArchiveMaticaCSV(String project) {
-		String [] elements = {"parts","title","creator", "subject","description", "publisher","contributor", "date","type", "format","identifier", "source",
+		String [] elements = {"title","creator", "subject","description", "publisher","contributor", "date","type", "format","identifier", "source",
 				"language", "relation","coverage", "rights"};		
 		String directory = "";
 		try {
@@ -366,21 +364,24 @@ public class MetadataFieldController {
 		}
 		Date date  = new Date();
 		String formatDate = new SimpleDateFormat("YYYY/mm/dd").format(date);
-		Map<String, String> map = new HashMap<String, String>();
+		
+		Map<String,String> map = new HashMap<String, String>();
 		for(Document document: documents) {		
 			File itemDirectory = new File(archiveDirectoryName + "/BibId_" + document.getName());
 			itemDirectory.mkdir();
+			
 			Set<MetadataFieldGroup> metadataFields = document.getFields(); 			
  			
- 			for(MetadataFieldGroup metadataField : metadataFields) {
- 				for(MetadataFieldValue metadataFieldValue : metadataField.getValues()) { 					
- 				map.put(metadataField.getLabel().getName(), metadataFieldValue.getValue());
+			for(MetadataFieldGroup metadataField : metadataFields) {
+ 				for(MetadataFieldValue metadataFieldValue : metadataField.getValues()) {  					
+ 					map.put(metadataField.getLabel().getName(), metadataFieldValue.getValue());
  			}
  			}
+ 			
  			// writing to the ArchiveMatica format metadat.csv file
 			try{
 				FileWriter fw = new FileWriter(itemDirectory+"/metadata.csv");
-				
+				fw.append("parts"+",");
 				for(int i=0;i<elements.length;i++) {
 					//writing the element 
 					for(Map.Entry<String, String> entry : map.entrySet()) {
@@ -390,11 +391,12 @@ public class MetadataFieldController {
 					}
 				}
 				fw.append("\n");
-				
+				fw.append("objects/"+document.getName()+",");
 				//writing the data values
 				for(int i=0;i<elements.length;i++) {
-					for(Map.Entry<String, String> entry : map.entrySet()) {
+					for(Map.Entry<String,String> entry : map.entrySet()) {
 						if(entry.getKey().contains(elements[i])) {
+							
 							if(entry.getKey().contains("parts")) {
 								map.put(entry.getKey(), "objects/"+document.getName());
 							}
@@ -419,8 +421,7 @@ public class MetadataFieldController {
 			} catch(Exception ioe) {
 				ioe.printStackTrace();
 			}
-		
-		//System.out.println("\n\n\n*********METADATA FIELD CONTROLLER generate ARCHIVE MATICA ENDS********\n\n\n ");
+
 		}
 	}
 	
