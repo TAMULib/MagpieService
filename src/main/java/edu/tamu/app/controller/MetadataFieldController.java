@@ -366,6 +366,10 @@ public class MetadataFieldController {
 		String formatDate = new SimpleDateFormat("YYYY/mm/dd").format(date);
 		
 		Map<String,String> map = new HashMap<String, String>();
+		map.put("dc.identifier","");
+		map.put("dc.source","");
+		map.put("dc.relation","");
+		map.put("dc.coverage","");
 		for(Document document: documents) {		
 			File itemDirectory = new File(archiveDirectoryName + "/BibId_" + document.getName());
 			itemDirectory.mkdir();
