@@ -22,7 +22,6 @@ import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
 
 /**
@@ -38,9 +37,6 @@ public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom 
 	
 	@Autowired
 	private MetadataFieldLabelRepo metadataFieldLabelRepo;
-	
-	@Autowired
-	private ProjectLabelProfileRepo projectFieldProfileRepo;
 	
 	@Autowired
 	private MetadataFieldGroupRepo metadataFieldRepo;

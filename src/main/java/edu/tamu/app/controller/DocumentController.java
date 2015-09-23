@@ -39,7 +39,6 @@ import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
 
@@ -65,9 +64,6 @@ public class DocumentController {
 	
 	@Autowired
 	private DocumentRepo documentRepo;
-	
-	@Autowired
-	private MetadataFieldGroupRepo metadataFieldGroupRepo;
 	
 	/**
 	 * Endpoint to return marc record.

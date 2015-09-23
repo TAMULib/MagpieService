@@ -13,55 +13,31 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
-import java.lang.reflect.Field;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Paths.get;
-import edu.tamu.framework.model.ApiResponse;
-import edu.tamu.framework.model.RequestId;
-import edu.tamu.app.model.InputType;
+
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
-import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.impl.DocumentRepoImpl;
-import edu.tamu.app.model.response.marc.FlatMARC;
 
 /** 
  * Watches map file folder, harvests contents, and updates app data as needed
@@ -75,15 +51,6 @@ public class MapWatcherService implements Runnable {
 	
 	@Autowired
 	private ApplicationContext appContext;
-	
-	@Autowired
-	private ObjectMapper objectMapper;
-	
-	@Autowired
-	private ExecutorService executorService;
-	
-	@Autowired
-	private WatcherManagerService watcherManagerService;
 	
 	@Autowired
 	private ProjectRepo projectRepo;
