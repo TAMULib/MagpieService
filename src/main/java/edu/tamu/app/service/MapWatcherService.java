@@ -204,6 +204,11 @@ public class MapWatcherService implements Runnable {
                     	
                     }
                 }
+                boolean valid = key.reset();
+                
+                if (!valid) {
+                    break;
+                }
             }
         } catch (IOException ex) {
             System.err.println(ex);
