@@ -371,13 +371,21 @@ public class MetadataFieldController {
 			itemDirectory.mkdir();
 			
 			Set<MetadataFieldGroup> metadataFields = document.getFields(); 			
- 			
-			for(MetadataFieldGroup metadataField : metadataFields) {
- 				for(MetadataFieldValue metadataFieldValue : metadataField.getValues()) {  					
- 					map.put(metadataField.getLabel().getName(), metadataFieldValue.getValue());
- 			}
- 			}
- 			
+ 		
+			metadataFields.forEach(field -> {
+					String values ="";
+					boolean firstPass = true;
+					for(MetadataFieldValue medataFieldValue : field.getValues()) {					
+						if(firstPass) {
+							values = medataFieldValue.getValue();
+							firstPass = false;
+						}
+						else {
+							values += "||" +  medataFieldValue.getValue();
+						}					
+					}
+					map.put(field.getLabel().getName(),values);
+				});
  			// writing to the ArchiveMatica format metadat.csv file
 			try{
 				FileWriter fw = new FileWriter(itemDirectory+"/metadata.csv");
