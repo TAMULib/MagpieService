@@ -13,14 +13,19 @@ import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -311,6 +316,7 @@ public class MetadataFieldController {
  				//System.out.println("Got schema " + schema);
  				String element = label.split("\\.")[1];
  				//System.out.println("Got element "+ element);
+ 				
  				String qualifier = null;
  				if(label.split("\\.").length > 2) {
  					qualifier = label.split("\\.")[2];
@@ -336,10 +342,88 @@ public class MetadataFieldController {
 				printStream.close();
 			}
  			
+ 			
 		}
-		
+		generateArchiveMaticaCSV(project);
 		return new ApiResponse("success", "Your SAF has been written to the server filesystem.", new RequestId(requestId));
 	}
+	
+	public void generateArchiveMaticaCSV(String project) {
+		String [] elements = {"parts","title","creator", "subject","description", "publisher","contributor", "date","type", "format","identifier", "source",
+				"language", "relation","coverage", "rights"};		
+		String directory = "";
+		try {
+			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/exports/";
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		String archiveDirectoryName = directory +project+System.currentTimeMillis();
+		
+		List<Document> documents = projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());	
+		if(documents.size() > 0) {	
+			File safDirectory = new File(archiveDirectoryName);
+			safDirectory.mkdir();
+		}
+		Date date  = new Date();
+		String formatDate = new SimpleDateFormat("YYYY/mm/dd").format(date);
+		Map<String, String> map = new HashMap<String, String>();
+		for(Document document: documents) {		
+			File itemDirectory = new File(archiveDirectoryName + "/BibId_" + document.getName());
+			itemDirectory.mkdir();
+			Set<MetadataFieldGroup> metadataFields = document.getFields(); 			
+ 			
+ 			for(MetadataFieldGroup metadataField : metadataFields) {
+ 				for(MetadataFieldValue metadataFieldValue : metadataField.getValues()) { 					
+ 				map.put(metadataField.getLabel().getName(), metadataFieldValue.getValue());
+ 			}
+ 			}
+ 			// writing to the ArchiveMatica format metadat.csv file
+			try{
+				FileWriter fw = new FileWriter(itemDirectory+"/metadata.csv");
+				
+				for(int i=0;i<elements.length;i++) {
+					//writing the element 
+					for(Map.Entry<String, String> entry : map.entrySet()) {
+						if(entry.getKey().contains(elements[i])) {						
+							fw.append(entry.getKey()+",");
+						}
+					}
+				}
+				fw.append("\n");
+				
+				//writing the data values
+				for(int i=0;i<elements.length;i++) {
+					for(Map.Entry<String, String> entry : map.entrySet()) {
+						if(entry.getKey().contains(elements[i])) {
+							if(entry.getKey().contains("parts")) {
+								map.put(entry.getKey(), "objects/"+document.getName());
+							}
+							if(entry.getKey().contains("date")) {
+								map.put(entry.getKey(), formatDate);
+							}
+							if(entry.getKey().contains("type")) {
+								map.put(entry.getKey(), "Archival Information Package");
+							}
+							if(entry.getKey().contains("format")) {
+								map.put(entry.getKey(), "Image/tiff");
+							}
+							if(entry.getKey().contains("language")) {
+								map.put(entry.getKey(), "English");
+							}
+							fw.write(entry.getValue()+",");
+						}
+					}
+				}
+				fw.flush();
+				fw.close();
+			} catch(Exception ioe) {
+				ioe.printStackTrace();
+			}
+		
+		//System.out.println("\n\n\n*********METADATA FIELD CONTROLLER generate ARCHIVE MATICA ENDS********\n\n\n ");
+		}
+	}
+	
 
 	private String escapeForXML(String value) {
 		value = value.replace("&", "&amp;");
