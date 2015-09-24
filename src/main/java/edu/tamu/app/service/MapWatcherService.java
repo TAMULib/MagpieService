@@ -247,15 +247,16 @@ public class MapWatcherService implements Runnable {
 						}
 						map.put(field.getLabel().getName(),values);
 					});
-	 			// writing to the ArchiveMatica format metadata csv file
+
+				// writing to the ArchiveMatica format metadata csv file
 				try{
 					FileWriter fw = new FileWriter(itemDirectory+"/metadata_"+System.currentTimeMillis()+".csv");
-					fw.append("parts"+",");
+					fw.append("\"parts\""+",");
 					for(int i=0;i<elements.length;i++) {
 						//writing the element 
 						for(Map.Entry<String, String> entry : map.entrySet()) {
 							if(entry.getKey().contains(elements[i])) {						
-								fw.append(entry.getKey()+",");
+								fw.append("\""+entry.getKey()+"\",");
 							}
 						}
 					}
@@ -281,7 +282,7 @@ public class MapWatcherService implements Runnable {
 								if(entry.getKey().contains("language")) {
 									map.put(entry.getKey(), "English");
 								}
-								fw.write(entry.getValue()+",");
+								fw.write("\""+entry.getValue()+"\",");
 							}
 						}
 					}
