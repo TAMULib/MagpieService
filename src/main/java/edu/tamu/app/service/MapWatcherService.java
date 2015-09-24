@@ -38,12 +38,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import org.apache.log4j.Logger;
+
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+
 
 /** 
  * Watches map file folder, harvests contents, and updates app data as needed
@@ -74,6 +77,8 @@ public class MapWatcherService implements Runnable {
    	private String link;
 	
 	private String folder;
+	
+	private static final Logger logger = Logger.getLogger(MapWatcherService.class);
 	
 	/**
 	 * Default constructor.
@@ -114,7 +119,7 @@ public class MapWatcherService implements Runnable {
             Path dir = FileSystems.getDefault().getPath(directory, "");
             dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
              
-            System.out.println("MapWatch Service registered for dir: " + dir.getFileName());
+            logger.info("MapWatch Service registered for dir: " + dir.getFileName());
             //the string representing the published state
             String changeStatus = "Published";
             while (true) {
@@ -129,9 +134,8 @@ public class MapWatcherService implements Runnable {
                     WatchEvent.Kind<?> kind = event.kind();
                     WatchEvent<Path> ev = (WatchEvent<Path>) event;
                     Path file = ev.context();
-
                     
-                    System.out.println(kind.name() + ": " + file);
+                    logger.info(kind.name() + ": " + file);
                     if (kind == ENTRY_CREATE) {
                     	String line;
                     	try {
@@ -142,7 +146,7 @@ public class MapWatcherService implements Runnable {
                     		BufferedReader bReader = new BufferedReader(sReader);
                     		//the project to unlock, if all documents have been published
                     		Project unlockableProject = null;
-            				System.out.println("Reading mapfile: "+file);
+            				logger.info("Reading mapfile: "+file);
                     		
                     		while ((line = bReader.readLine()) != null) {
                     			//extract document name from mapfile row
@@ -156,9 +160,9 @@ public class MapWatcherService implements Runnable {
                     				}
                     				updateDoc.setStatus(changeStatus);
                     				documentRepo.save(updateDoc);
-                    				System.out.println("Setting status of Document: "+updateDoc.getName()+" to Published.");
+                    				logger.info("Setting status of Document: "+updateDoc.getName()+" to Published.");
                     			} else {
-                    				System.out.println("No Document found for string: "+documentName);
+                    				logger.info("No Document found for string: "+documentName);
                     			}
                     		}
                 			if (unlockableProject != null) {
@@ -167,23 +171,23 @@ public class MapWatcherService implements Runnable {
                 				if (unpublishedDocs.size() == 0) {
                 					unlockableProject.setIsLocked(false);
                 					projectRepo.save(unlockableProject);
-                					System.out.println("Project '"+unlockableProject.getName()+"' unlocked.");
+                					logger.info("Project '"+unlockableProject.getName()+"' unlocked.");
                 					generateArchiveMaticaCSV(unlockableProject.getName());
                 				} else {
-                					System.out.println("Project '"+unlockableProject.getName()+"' was left locked because there was a count of  "+unpublishedDocs.size()+" unpublished document(s).");
+                					logger.info("Project '"+unlockableProject.getName()+"' was left locked because there was a count of  "+unpublishedDocs.size()+" unpublished document(s).");
                 				}
                				} else {
-                				System.out.println("No Project found");
+                				logger.info("No Project found");
                 			}
                 			bReader.close();
                 			File mapFile = new File(mapFileName);
                 			if (mapFile.delete()) {
-                				System.out.println("Mapfile: "+mapFileName+" removed.");
+                				logger.info("Mapfile: "+mapFileName+" removed.");
                 			} else {
-                				System.out.println("Error removing mapfile: "+mapFileName+".");
+                				logger.info("Error removing mapfile: "+mapFileName+".");
                 			}
                     	} catch (IOException e) {
-                            System.err.println(e);
+                            logger.error(e);
                     	}
                     	
                     }
@@ -195,11 +199,12 @@ public class MapWatcherService implements Runnable {
                 }
             }
         } catch (IOException ex) {
-            System.err.println(ex);
+            logger.error(ex);
         }
 	}
 	
 	private void generateArchiveMaticaCSV(String projectName) {
+		logger.info("Writing Archivematica CSV for: "+projectName);
 		String [] elements = {"title","creator", "subject","description", "publisher","contributor", "date","type", "format","identifier", "source",
 				"language", "relation","coverage", "rights"};		
 		String directory = "";
@@ -289,7 +294,7 @@ public class MapWatcherService implements Runnable {
 					fw.flush();
 					fw.close();
 				} catch(Exception ioe) {
-					ioe.printStackTrace();
+					logger.error(ioe);
 				}
 			}
 		}
