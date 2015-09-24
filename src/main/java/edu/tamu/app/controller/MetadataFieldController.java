@@ -28,6 +28,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -83,6 +84,9 @@ public class MetadataFieldController {
 	
 	@Autowired
 	private ApplicationContext appContext;
+	
+	private static final Logger logger = Logger.getLogger(MetadataFieldController.class);
+
 	
 	/**
 	 * Endpoint to return list of projects.
@@ -151,7 +155,7 @@ public class MetadataFieldController {
 		try {
 			json = new String(readAllBytes(get(fullPath + "/metadata.json")));
 		} catch (IOException e2) {
-			e2.printStackTrace();
+			logger.error("Error reading metadata json",e2);
 		}
 		
 		Map<String, Object> metadataMap = null;
@@ -159,7 +163,7 @@ public class MetadataFieldController {
 		try {
 			metadataMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error reading metadata json value",e);
 		}
 		
 		List<String> metadataHeaders = new ArrayList<String>();
@@ -274,12 +278,14 @@ public class MetadataFieldController {
 		try {
 			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/exports/";
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error building exports directory",e);
 		}
 		
 		String archiveDirectoryName = directory + project + System.currentTimeMillis();
 		
-		System.out.println(archiveDirectoryName);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Archive Directory: "+archiveDirectoryName);
+		}
 		
 		if(documents.size() > 0) {
 			//make a containing directory for the SAF			
@@ -289,7 +295,9 @@ public class MetadataFieldController {
 		
 		for(Document document: documents) {
 			
-			System.out.println("Writing archive for document " + document.getName());
+			if (logger.isDebugEnabled()) {
+				logger.debug("Writing archive for document " + document.getName());
+			}
 			
 			//create a directory
 			File itemDirectory = new File(archiveDirectoryName + "/" + document.getName());
@@ -302,7 +310,7 @@ public class MetadataFieldController {
  				originDir = new File(documentDirectory);
 			    FileUtils.copyDirectory(originDir, itemDirectory);
 			} catch (IOException e) {	
-			    e.printStackTrace();
+			    logger.error("Error copying document directory",e);
 			}
  			
  			PrintStream license = new PrintStream(itemDirectory+"/license.txt");

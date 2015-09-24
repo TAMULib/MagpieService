@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -25,14 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.app.model.AppUser;
+import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.framework.aspect.annotation.Shib;
 import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.Credentials;
 import edu.tamu.framework.model.RequestId;
-import edu.tamu.app.model.AppUser;
-import edu.tamu.app.model.repo.AppUserRepo;
 
 /** 
  * User Controller
@@ -52,6 +53,8 @@ public class UserController {
 	
 	@Autowired 
 	private SimpMessagingTemplate simpMessagingTemplate; 
+	
+	private static final Logger logger = Logger.getLogger(UserController.class);
 	
 	/**
 	 * Websocket endpoint to request credentials.
@@ -116,7 +119,7 @@ public class UserController {
 		try {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error reading data header",e);
 		}		
 		AppUser user = userRepo.getUserByUin(Long.decode(map.get("uin")));		
 		user.setRole(map.get("role"));		

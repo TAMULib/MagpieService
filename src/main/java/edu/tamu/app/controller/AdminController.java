@@ -11,17 +11,18 @@ package edu.tamu.app.controller;
 
 import java.util.concurrent.ExecutorService;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.tamu.app.service.SyncService;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.RequestId;
-import edu.tamu.app.service.SyncService;
 
 /** 
  * Admin Controller.
@@ -38,6 +39,8 @@ public class AdminController {
 	
 	@Autowired
 	private ExecutorService executorService;
+	
+	private static final Logger logger = Logger.getLogger(AdminController.class);
 
 	/**
 	 * Synchronizes the project directory with the database.
@@ -55,7 +58,7 @@ public class AdminController {
 	@SendToUser
 	public ApiResponse syncDocuments(Message<?> message, @ReqId String requestId) throws Exception {
 		
-		System.out.println("Syncronizing projects with database.");
+		logger.info("Syncronizing projects with database.");
 		
 		executorService.submit(syncService);
 		

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,16 +32,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.framework.model.ApiResponse;
-import edu.tamu.framework.model.RequestId;
-import edu.tamu.framework.aspect.annotation.Auth;
-import edu.tamu.framework.aspect.annotation.Data;
-import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
+import edu.tamu.framework.aspect.annotation.Auth;
+import edu.tamu.framework.aspect.annotation.Data;
+import edu.tamu.framework.aspect.annotation.ReqId;
+import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.framework.model.RequestId;
 
 /** 
  * Document Controller
@@ -64,6 +65,8 @@ public class DocumentController {
 	
 	@Autowired
 	private DocumentRepo documentRepo;
+	
+	private static final Logger logger = Logger.getLogger(DocumentController.class);
 	
 	/**
 	 * Endpoint to return marc record.
@@ -123,7 +126,7 @@ public class DocumentController {
 		try {
 			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String, String>>(){});
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error reading data value",e);
 		}
 		
 		Document document = documentRepo.findByName(headerMap.get("name"));
@@ -153,7 +156,7 @@ public class DocumentController {
 		try {
 			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error reading data value",e);
 		}		
 	    
 		Direction sortDirection;	    
@@ -250,7 +253,7 @@ public class DocumentController {
 		try {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String, String>>(){});
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error reading data value",e);
 		}
 		
 		int results = documentRepo.quickSave(map.get("name"), (map.get("status").equals("Open")) ? "" : map.get("user"), map.get("status"), map.get("notes"));
@@ -287,7 +290,7 @@ public class DocumentController {
 		try {
 			document = objectMapper.readValue(data, Document.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error reading data value",e);
 		}
 		
 		Map<String, Object> documentMap = new HashMap<String, Object>();
