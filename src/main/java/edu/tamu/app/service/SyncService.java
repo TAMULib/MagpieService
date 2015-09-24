@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -104,6 +105,8 @@ public class SyncService implements Runnable {
 	
 	@Value("${app.symlink.create}") 
    	private String link;
+	
+	private static final Logger logger = Logger.getLogger(SyncService.class);
 		
 	/**
 	 * Default constructor.
@@ -120,8 +123,9 @@ public class SyncService implements Runnable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
-				
-		System.out.println("Running Sync Service");
+		if (logger.isDebugEnabled()) {
+			logger.debug("Running Sync Service");
+		}
 				
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -131,18 +135,18 @@ public class SyncService implements Runnable {
 		try {
 			json = new String(readAllBytes(get(fullPath + "/metadata.json")));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Failed to read the metadata json",e);
 		}
 		
 		Map<String, Object> projectMap = null;
 		
 		try {
-			if(objectMapper == null) {
-				System.out.println("NULL OBJECT MAPPER");
+			if(objectMapper == null && logger.isDebugEnabled()) {
+				logger.debug("NULL OBJECT MAPPER");
 			}
 			projectMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error with the Object Mapper",e);
 		}
 			
 		String directory = null;
@@ -168,7 +172,7 @@ public class SyncService implements Runnable {
         	        	
         	if(!watcherManagerService.isWatcherServiceActive(projectName)) {
         		
-        		System.out.println("Watching: " + projectName);
+        		logger.info("Watching: " + projectName);
         		
         		WatcherService watcherService = new WatcherService(projectName);
         		
@@ -217,7 +221,7 @@ public class SyncService implements Runnable {
         		
         		if(documentRepo.findByName(documentName) == null) {
 
-        			System.out.println("Adding: " + documentName);
+        			logger.info("Adding: " + documentName);
 
 	        		Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, "Open");
 	        		
@@ -230,8 +234,7 @@ public class SyncService implements Runnable {
 					try {
 						flatMarc = new FlatMARC(voyagerService.getMARC(document.getName()));
 					} catch (Exception e1) {
-						System.out.println("ERROR WHILE TRYING TO RETRIEVE MARC RECORD!!!");
-						e1.printStackTrace();
+						logger.error("ERROR WHILE TRYING TO RETRIEVE MARC RECORD!!!",e1);
 					}
 					
 					Field[] marcFields = FlatMARC.class.getDeclaredFields();
@@ -247,18 +250,18 @@ public class SyncService implements Runnable {
 									marcList.add(string);
 								}
 							} catch (IllegalArgumentException e) {
-								e.printStackTrace();
+								logger.error("Illegal Argument",e);
 							} catch (IllegalAccessException e) {
-								e.printStackTrace();
+								logger.error("Illegal Access",e);
 							}
 			            }
 			            else {
 			            	try {
 								marcList.add(field.get(flatMarc).toString());
 							} catch (IllegalArgumentException e) {
-								e.printStackTrace();
+								logger.error("Illegal Argument",e);
 							} catch (IllegalAccessException e) {
-								e.printStackTrace();
+								logger.error("Illegal Access",e);
 							}
 			            }
 			            
@@ -285,28 +288,21 @@ public class SyncService implements Runnable {
 						simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));
 		        	}
 		        	catch(Exception e) {
-		        		System.out.println("CRASHED WHILE TRYING TO SEND DOCUMENT!!!");
-		        		e.printStackTrace();
+						logger.error("CRASHED WHILE TRYING TO SEND DOCUMENT!!!",e);
 		        		System.exit(-1);
 		        	}
-				
         		}
-				
         	});
         	
         	try {
         		projectRepo.save(project);
         	}
         	catch(Exception e) {
-        		System.out.println("CRASHED WHILE TRYING TO SAVE PROJECT!!!");
-        		e.printStackTrace();
+				logger.error("CRASHED WHILE TRYING TO SAVE PROJECT!!!",e);
         		System.exit(-1);
         	}
-        	
         }
-        
-        System.out.println("Sync Service Finished");
-		
+        logger.info("Sync Service Finished");
 	}
 	
 	/**

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -113,6 +114,9 @@ public class WatcherService implements Runnable {
 	
 	private String folder;
 	
+	private static final Logger logger = Logger.getLogger(WatcherService.class);
+
+	
 	/**
 	 * Default constructor.
 	 * 
@@ -150,7 +154,7 @@ public class WatcherService implements Runnable {
 		try {
 			json = new String(readAllBytes(get(fullPath + "/metadata.json")));
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error reading metadata json file",e);
 		}
 		
 		Map<String, Object> projectMap = null;
@@ -158,7 +162,7 @@ public class WatcherService implements Runnable {
 		try {
 			projectMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error reading the metadata json with the Object Mapper",e);
 		}
 	
 		List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
@@ -167,7 +171,7 @@ public class WatcherService implements Runnable {
 		try {
 			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/" + folder;
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error building the directory",e);
 		}
 		
 		
@@ -179,7 +183,7 @@ public class WatcherService implements Runnable {
 			try {
 				directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/projects/" + folder;
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error("Error building the project directory",e);
 			}
 			
 			List<Object> profileObjList = (List<Object>) projectMap.get(folder);
@@ -219,7 +223,7 @@ public class WatcherService implements Runnable {
             Path dir = FileSystems.getDefault().getPath(directory, "");
             dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
              
-            System.out.println("Watch Service registered for dir: " + dir.getFileName());
+            logger.info("Watch Service registered for dir: " + dir.getFileName());
              
             while (true) {
                 WatchKey key;
@@ -236,7 +240,7 @@ public class WatcherService implements Runnable {
                     
                     String docString = fileName.toString();
                     
-                    System.out.println(kind.name() + ": " + fileName);
+                    logger.info(kind.name() + ": " + fileName);
 
                     if (kind == ENTRY_CREATE) {
                     	if(folder.equals("projects")) {
@@ -276,8 +280,7 @@ public class WatcherService implements Runnable {
 								try {
 									flatMarc = new FlatMARC(voyagerService.getMARC(document.getName()));
 								} catch (Exception e1) {
-									System.out.println("ERROR WHILE TRYING TO RETRIEVE MARC RECORD!!!");
-									e1.printStackTrace();
+									logger.error("ERROR WHILE TRYING TO RETRIEVE MARC RECORD!!!",e1);
 								}
 	        					
 	        					Field[] marcFields = FlatMARC.class.getDeclaredFields();
@@ -293,18 +296,18 @@ public class WatcherService implements Runnable {
 												marcList.add(string);
 											}
 										} catch (IllegalArgumentException e) {
-											e.printStackTrace();
+											logger.error("Illegal Argument",e);
 										} catch (IllegalAccessException e) {
-											e.printStackTrace();
+											logger.error("Illegal Access",e);
 										}
 	        			            }
 	        			            else {
 	        			            	try {
 											marcList.add(field.get(flatMarc).toString());
 										} catch (IllegalArgumentException e) {
-											e.printStackTrace();
+											logger.error("Illegal Argument",e);
 										} catch (IllegalAccessException e) {
-											e.printStackTrace();
+											logger.error("Illegal Access",e);
 										}
 	        			            }
 	        			            
@@ -331,8 +334,7 @@ public class WatcherService implements Runnable {
 	        						simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));	
 	        		        	}
 	        		        	catch(Exception e) {
-	        		        		System.out.println("CRASHED WHILE TRYING TO SEND DOCUMENT!!!");
-	        		        		e.printStackTrace();
+	        		        		logger.error("CRASHED WHILE TRYING TO SEND DOCUMENT!!!",e);
 	        		        		System.exit(-1);
 	        		        	}
 	        					
@@ -362,7 +364,7 @@ public class WatcherService implements Runnable {
             }
              
         } catch (IOException ex) {
-            System.err.println(ex);
+            logger.error("IO error",ex);
         }
 		
 	}

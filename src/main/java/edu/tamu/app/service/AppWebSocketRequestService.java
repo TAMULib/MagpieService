@@ -10,6 +10,7 @@
 package edu.tamu.app.service;
 
 
+import org.apache.log4j.Logger;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,8 @@ import edu.tamu.framework.service.WebSocketRequestService;
  */
 @Service
 public class AppWebSocketRequestService extends WebSocketRequestService {
+
+	private static final Logger logger = Logger.getLogger(AppWebSocketRequestService.class);
 
 	/**
 	 * gets message and sets request 
@@ -82,10 +85,10 @@ public class AppWebSocketRequestService extends WebSocketRequestService {
 			}
 		}
 		else {
-			System.out.println("Unknown destination: " + destination);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Unknown destination: " + destination);
+			}
 		}
-		
 		return message;
 	}
-
 }
