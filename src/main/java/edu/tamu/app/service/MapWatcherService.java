@@ -141,6 +141,9 @@ public class MapWatcherService implements Runnable {
                     	try {
                         	//read and iterate over mapfile
                     		String mapFileName = directory+"/"+file.toFile();
+                    		if (logger.isDebugEnabled()) {
+                    			logger.debug("The map file is named: "+mapFileName);
+                    		}
                     		InputStream stream = new FileInputStream(mapFileName);
                     	    InputStreamReader sReader = new InputStreamReader(stream);
                     		BufferedReader bReader = new BufferedReader(sReader);
@@ -152,6 +155,10 @@ public class MapWatcherService implements Runnable {
                     			//extract document name from mapfile row
                     			String[] itemData = line.split(" ");
                     			String documentName = itemData[0];
+                        		if (logger.isDebugEnabled()) {
+                        			logger.debug("The document name is: "+documentName);
+                        		}
+
                     			Document updateDoc = documentRepo.findByName(documentName);
 
                     			if (updateDoc != null) {
@@ -268,7 +275,7 @@ public class MapWatcherService implements Runnable {
 					}
 					csvUtil.appendRow(csvRow);
 					csvRow.clear();
-					csvRow.add("objects/"+document.getName()+",");
+					csvRow.add("objects/"+document.getName());
 					//writing the data values
 					for(int i=0;i<elements.length;i++) {
 						for(Map.Entry<String,String> entry : map.entrySet()) {
