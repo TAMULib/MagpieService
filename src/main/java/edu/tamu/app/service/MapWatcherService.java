@@ -16,7 +16,6 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,19 +25,19 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-
-import org.apache.log4j.Logger;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
@@ -46,6 +45,7 @@ import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.utilities.CsvUtility;
 
 
 /** 
@@ -255,18 +255,20 @@ public class MapWatcherService implements Runnable {
 
 				// writing to the ArchiveMatica format metadata csv file
 				try{
-					FileWriter fw = new FileWriter(itemDirectory+"/metadata_"+System.currentTimeMillis()+".csv");
-					fw.append("\"parts\""+",");
+					CsvUtility csvUtil = new CsvUtility();
+					ArrayList<String> csvRow = new ArrayList<String>();
+					csvRow.add("parts");
 					for(int i=0;i<elements.length;i++) {
 						//writing the element 
 						for(Map.Entry<String, String> entry : map.entrySet()) {
 							if(entry.getKey().contains(elements[i])) {						
-								fw.append("\""+entry.getKey()+"\",");
+								csvRow.add(entry.getKey());
 							}
 						}
 					}
-					fw.append("\n");
-					fw.append("objects/"+document.getName()+",");
+					csvUtil.appendRow(csvRow);
+					csvRow.clear();
+					csvRow.add("objects/"+document.getName()+",");
 					//writing the data values
 					for(int i=0;i<elements.length;i++) {
 						for(Map.Entry<String,String> entry : map.entrySet()) {
@@ -287,12 +289,13 @@ public class MapWatcherService implements Runnable {
 								if(entry.getKey().contains("language")) {
 									map.put(entry.getKey(), "English");
 								}
-								fw.write("\""+entry.getValue()+"\",");
+								csvRow.add(entry.getValue());
 							}
 						}
 					}
-					fw.flush();
-					fw.close();
+					csvUtil.appendRow(csvRow);
+					csvRow.clear();
+					csvUtil.generateCsvFile(itemDirectory+"/metadata_"+System.currentTimeMillis()+".csv");
 				} catch(Exception ioe) {
 					logger.error(ioe);
 				}
