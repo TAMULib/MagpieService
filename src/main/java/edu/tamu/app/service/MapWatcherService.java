@@ -148,7 +148,7 @@ public class MapWatcherService implements Runnable {
                     	    InputStreamReader sReader = new InputStreamReader(stream);
                     		BufferedReader bReader = new BufferedReader(sReader);
                     		//the project to unlock, if all documents have been published
-                    		Project unlockableProject = null;
+                    		String unlockableProjectName = null;
             				logger.info("Reading mapfile: "+file);
                     		
                     		while ((line = bReader.readLine()) != null) {
@@ -162,8 +162,8 @@ public class MapWatcherService implements Runnable {
                     			Document updateDoc = documentRepo.findByName(documentName);
 
                     			if (updateDoc != null) {
-                    				if (unlockableProject == null) {
-                    					unlockableProject = updateDoc.getProject();
+                    				if (unlockableProjectName == null) {
+                    					unlockableProjectName = updateDoc.getProject().getName();
                     				}
                     				updateDoc.setStatus(changeStatus);
                     				documentRepo.save(updateDoc);
@@ -172,16 +172,18 @@ public class MapWatcherService implements Runnable {
                     				logger.info("No Document found for string: "+documentName);
                     			}
                     		}
-                			if (unlockableProject != null) {
-                				List<Document> unpublishedDocs = documentRepo.findByProjectNameAndStatus(unlockableProject.getName(),"Pending");
+                			if (unlockableProjectName != null) {
+                				List<Document> unpublishedDocs = documentRepo.findByProjectNameAndStatus(unlockableProjectName,"Pending");
                             	//unlock project if there are no pending documents
                 				if (unpublishedDocs.size() == 0) {
+                					//get the project fresh so the documents we modified above keep their changes
+                					Project unlockableProject = projectRepo.findByName(unlockableProjectName);
                 					unlockableProject.setIsLocked(false);
                 					projectRepo.save(unlockableProject);
                 					logger.info("Project '"+unlockableProject.getName()+"' unlocked.");
                 					generateArchiveMaticaCSV(unlockableProject.getName());
                 				} else {
-                					logger.info("Project '"+unlockableProject.getName()+"' was left locked because there was a count of  "+unpublishedDocs.size()+" unpublished document(s).");
+                					logger.info("Project '"+unlockableProjectName+"' was left locked because there was a count of  "+unpublishedDocs.size()+" unpublished document(s).");
                 				}
                				} else {
                 				logger.info("No Project found");
