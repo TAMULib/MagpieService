@@ -167,7 +167,7 @@ public class MapWatcherService implements Runnable {
                     				}
                     				updateDoc.setStatus(changeStatus);
                     				documentRepo.save(updateDoc);
-                    				logger.info("Setting status of Document: "+updateDoc.getName()+" to Published.");
+                    				logger.info("Setting status of Document: "+updateDoc.getName()+" to "+changeStatus);
                     			} else {
                     				logger.info("No Document found for string: "+documentName);
                     			}
