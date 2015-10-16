@@ -9,6 +9,8 @@
  */
 package edu.tamu.app.controller;
 
+import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +31,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.framework.aspect.annotation.Auth;
-import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.framework.aspect.annotation.Shib;
 import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.Credentials;
-import edu.tamu.framework.model.RequestId;
 
 /** 
  * User Controller
@@ -71,8 +71,8 @@ public class UserController {
 	@RequestMapping("/credentials")
 	@SendToUser
 	@Auth
-	public ApiResponse credentials(@Shib Object shibObj, @ReqId String requestId) throws Exception {
-		return new ApiResponse("success", (Credentials) shibObj, new RequestId(requestId));
+	public ApiResponse credentials(@Shib Object shibObj) throws Exception {
+		return new ApiResponse(SUCCESS, (Credentials) shibObj);
 	}
 	
 	
@@ -90,10 +90,10 @@ public class UserController {
 	@MessageMapping("/all")
 	@Auth
 	@SendToUser
-	public ApiResponse allUsers(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse allUsers(Message<?> message) throws Exception {
 		Map<String,List<AppUser>> map = new HashMap<String,List<AppUser>>();
 		map.put("list", userRepo.findAll());		
-		return new ApiResponse("success", map, new RequestId(requestId));
+		return new ApiResponse(SUCCESS, map);
 	}
 	
 	/**
@@ -110,7 +110,7 @@ public class UserController {
 	@MessageMapping("/update_role")
 	@Auth
 	@SendToUser
-	public ApiResponse updateRole(Message<?> message, @ReqId String requestId) throws Exception {		
+	public ApiResponse updateRole(Message<?> message) throws Exception {		
 		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		String data = accessor.getNativeHeader("data").get(0).toString();		
@@ -129,9 +129,9 @@ public class UserController {
 		userMap.put("list", userRepo.findAll());
 		userMap.put("changedUserUin", map.get("uin"));
 		
-		this.simpMessagingTemplate.convertAndSend("/channel/users", new ApiResponse("success", userMap, new RequestId(requestId)));
+		this.simpMessagingTemplate.convertAndSend("/channel/users", new ApiResponse(SUCCESS, userMap));
 		
-		return new ApiResponse("success", "ok", new RequestId(requestId));
+		return new ApiResponse(SUCCESS, "ok");
 	}
 
 }

@@ -9,12 +9,15 @@
  */
 package edu.tamu.app.service;
 
+import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import static java.nio.file.Files.readAllBytes;
+import static java.nio.file.Paths.get;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
-import java.lang.reflect.Field;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -39,23 +42,20 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Paths.get;
-import edu.tamu.framework.model.ApiResponse;
-import edu.tamu.framework.model.RequestId;
-import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectLabelProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
+import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
+import edu.tamu.framework.model.ApiResponse;
 
 /** 
  * Watcher Service. Watches projects folder and inserts created documents into database.
@@ -331,7 +331,7 @@ public class WatcherService implements Runnable {
 	        					docMap.put("isNew", "true");
 	        					
 	        					try {
-	        						simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", docMap, new RequestId("0")));	
+	        						simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, docMap));	
 	        		        	}
 	        		        	catch(Exception e) {
 	        		        		logger.error("CRASHED WHILE TRYING TO SEND DOCUMENT!!!",e);

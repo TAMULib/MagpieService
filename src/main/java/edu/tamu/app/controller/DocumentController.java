@@ -9,6 +9,9 @@
  */
 package edu.tamu.app.controller;
 
+import static edu.tamu.framework.enums.ApiResponseType.ERROR;
+import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +43,7 @@ import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.Data;
-import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.framework.model.ApiResponse;
-import edu.tamu.framework.model.RequestId;
 
 /** 
  * Document Controller
@@ -84,8 +85,8 @@ public class DocumentController {
 	@MessageMapping("/marc/{bibId}")
 	@Auth
 	@SendToUser
-	public ApiResponse getMARC(@DestinationVariable String bibId, Message<?> message, @ReqId String requestId) throws Exception {
-		return new ApiResponse("success", new FlatMARC(voyagerService.getMARC(bibId)), new RequestId(requestId));
+	public ApiResponse getMARC(@DestinationVariable String bibId, Message<?> message) throws Exception {
+		return new ApiResponse(SUCCESS, new FlatMARC(voyagerService.getMARC(bibId)));
 	}
 	
 	/**
@@ -102,10 +103,10 @@ public class DocumentController {
 	@MessageMapping("/all")
 	@Auth
 	@SendToUser
-	public ApiResponse allDocuments(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse allDocuments(Message<?> message) throws Exception {
 		Map<String, List<Document>> map = new HashMap<String, List<Document>>();
 		map.put("list", documentRepo.findAll());
-		return new ApiResponse("success", map, new RequestId(requestId));
+		return new ApiResponse(SUCCESS, map);
 	}
 	
 	/**
@@ -122,7 +123,7 @@ public class DocumentController {
 	@MessageMapping("/get")
 	@Auth
 	@SendToUser
-	public ApiResponse documentByName(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
+	public ApiResponse documentByName(Message<?> message, @Data String data) throws Exception {
 		Map<String, String> headerMap = new HashMap<String, String>();
 		try {
 			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String, String>>(){});
@@ -134,7 +135,7 @@ public class DocumentController {
 		
 		document.setFields(new TreeSet<MetadataFieldGroup>(document.getFields()));
 		
-		return new ApiResponse("success", document, new RequestId(requestId));
+		return new ApiResponse(SUCCESS, document);
 	}
 	
 	/**
@@ -151,7 +152,7 @@ public class DocumentController {
 	@MessageMapping("/page")
 	@Auth
 	@SendToUser
-	public ApiResponse pageDocuments(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
+	public ApiResponse pageDocuments(Message<?> message, @Data String data) throws Exception {
 		Map<String,String> headerMap = new HashMap<String,String>();
 		
 		try {
@@ -232,7 +233,7 @@ public class DocumentController {
 			partialDocuments = documentRepo.findAllAsPartialDocument(request);
 		}
 				
-	    return new ApiResponse("success", partialDocuments, new RequestId(requestId));
+	    return new ApiResponse(SUCCESS, partialDocuments);
 	}
 
 	/**
@@ -249,7 +250,7 @@ public class DocumentController {
 	@MessageMapping("/update")
 	@Auth
 	@SendToUser
-	public ApiResponse update(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
+	public ApiResponse update(Message<?> message, @Data String data) throws Exception {
 		Map<String, String> map = new HashMap<String, String>();		
 		try {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String, String>>(){});
@@ -259,16 +260,18 @@ public class DocumentController {
 		
 		int results = documentRepo.quickSave(map.get("name"), (map.get("status").equals("Open")) ? "" : map.get("user"), map.get("status"), map.get("notes"));
 		
-		if(results < 1) return new ApiResponse("failure", "document not updated", new RequestId(requestId));
+		if(results < 1) {
+			return new ApiResponse(ERROR, "Document not updated");
+		}
 		
 		Map<String, Object> documentMap = new HashMap<String, Object>();
 		
 		documentMap.put("document", documentRepo.findByName(map.get("name")));
 		documentMap.put("isNew", "false");
 		
-		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", documentMap, new RequestId(requestId)));
+		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
 		
-		return new ApiResponse("success", "ok", new RequestId(requestId));
+		return new ApiResponse(SUCCESS, "ok");
 	}
 	
 	/**
@@ -285,7 +288,7 @@ public class DocumentController {
 	@MessageMapping("/save")
 	@Auth
 	@SendToUser
-	public ApiResponse save(Message<?> message, @ReqId String requestId, @Data String data) throws Exception {
+	public ApiResponse save(Message<?> message, @Data String data) throws Exception {
 		
 		Document document = null;
 		try {
@@ -299,9 +302,9 @@ public class DocumentController {
 		documentMap.put("document", documentRepo.update(document));
 		documentMap.put("isNew", "false");
 		
-		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse("success", documentMap, new RequestId(requestId)));
+		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
 		
-		return new ApiResponse("success", "ok", new RequestId(requestId));
+		return new ApiResponse(SUCCESS, "ok");
 	}
 		
 }

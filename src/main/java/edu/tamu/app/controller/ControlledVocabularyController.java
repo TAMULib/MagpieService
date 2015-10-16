@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.controller;
 
+import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
@@ -22,7 +23,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.model.ApiResponse;
-import edu.tamu.framework.model.RequestId;
 
 /** 
  * Document Controller
@@ -63,9 +62,6 @@ public class ControlledVocabularyController {
 	@Auth
 	@SendToUser
 	public ApiResponse getAllControlledVocabulary(Message<?> message) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
-		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
 		
@@ -85,7 +81,7 @@ public class ControlledVocabularyController {
 			logger.error("Error reading cv json",e);
 		}
 		
-		return new ApiResponse("success", cvMap, new RequestId(requestId));
+		return new ApiResponse(SUCCESS, cvMap);
 	}
 
 	/**
@@ -103,9 +99,6 @@ public class ControlledVocabularyController {
 	@Auth
 	@SendToUser
 	public ApiResponse getControlledVocabularyByField(Message<?> message, @DestinationVariable String label) throws Exception {
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String requestId = accessor.getNativeHeader("id").get(0);
-		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
 		
@@ -125,7 +118,7 @@ public class ControlledVocabularyController {
 			logger.error("Error reading cv json value",e);
 		}
 		
-		return new ApiResponse("success", cvMap.get(label), new RequestId(requestId));
+		return new ApiResponse(SUCCESS, cvMap.get(label));
 	}
 		
 }
