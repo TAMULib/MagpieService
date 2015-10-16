@@ -214,8 +214,7 @@ public class MapWatcherService implements Runnable {
 	
 	private void generateArchiveMaticaCSV(String projectName) {
 		logger.info("Writing Archivematica CSV for: "+projectName);
-		String [] elements = {"title","creator", "subject","description", "publisher","contributor", "date","type", "format","identifier", "source",
-				"language", "relation","coverage", "rights"};		
+		String [] elements = {"title","creator", "subject","description", "publisher","contributor", "date","type", "format","identifier", "source", "language", "relation","coverage", "rights"};		
 		String directory = "";
 		try {
 			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/archivematica/";

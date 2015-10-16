@@ -37,6 +37,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
@@ -84,6 +85,9 @@ public class MetadataFieldController {
 	
 	@Autowired
 	private ApplicationContext appContext;
+	
+	@Autowired 
+	private SimpMessagingTemplate simpMessagingTemplate; 
 	
 	private static final Logger logger = Logger.getLogger(MetadataFieldController.class);
 
@@ -253,7 +257,7 @@ public class MetadataFieldController {
 	}
 	
 	/**
-	 * Websocket endpoint to request credentials.
+	 * Websocket endpoint to export saf.
 	 * 
 	 * @param 		shibObj			@Shib Object
 	 * @param 		requestId		@ReqId String
@@ -371,7 +375,14 @@ public class MetadataFieldController {
 				printStream.close();
 			}
  			document.setStatus("Pending");
- 			documentRepo.save(document);
+ 			document = documentRepo.save(document);
+ 			
+ 			Map<String, Object> documentMap = new HashMap<String, Object>();
+ 			
+ 			documentMap.put("document", document);
+ 			documentMap.put("isNew", "false");
+ 			
+ 			simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
 		}
 		exportableProject.setIsLocked(true);
 		projectRepo.save(exportableProject);

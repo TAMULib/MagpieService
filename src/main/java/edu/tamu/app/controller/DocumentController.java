@@ -269,7 +269,7 @@ public class DocumentController {
 		documentMap.put("document", documentRepo.findByName(map.get("name")));
 		documentMap.put("isNew", "false");
 		
-		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
+		simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
 		
 		return new ApiResponse(SUCCESS, "ok");
 	}
@@ -302,7 +302,7 @@ public class DocumentController {
 		documentMap.put("document", documentRepo.update(document));
 		documentMap.put("isNew", "false");
 		
-		this.simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
+		simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
 		
 		return new ApiResponse(SUCCESS, "ok");
 	}

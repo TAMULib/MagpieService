@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
 public class CsvUtility {
+	
 	public ArrayList<ArrayList<String>> csvContents;
 	
 	private static final Logger logger = Logger.getLogger(CsvUtility.class);
