@@ -75,9 +75,8 @@ public class DocumentController {
 	 * 
 	 * @param 		bibId			@DestinationVariable String bibId
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -93,9 +92,8 @@ public class DocumentController {
 	 * Endpoint to return all documents.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -113,9 +111,8 @@ public class DocumentController {
 	 * Endpoint to return document by filename.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -129,6 +126,7 @@ public class DocumentController {
 			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String, String>>(){});
 		} catch (Exception e) {
 			logger.error("Error reading data value",e);
+			return new ApiResponse(ERROR, "Error reading data value");
 		}
 		
 		Document document = documentRepo.findByName(headerMap.get("name"));
@@ -142,9 +140,8 @@ public class DocumentController {
 	 * Endpoint to return a page of documents.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -159,6 +156,7 @@ public class DocumentController {
 			headerMap = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
 			logger.error("Error reading data value",e);
+			 return new ApiResponse(ERROR, "Error reading data value");
 		}		
 	    
 		Direction sortDirection;	    
@@ -240,9 +238,8 @@ public class DocumentController {
 	 * Endpoint to update document status or annotator.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -256,6 +253,7 @@ public class DocumentController {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String, String>>(){});
 		} catch (Exception e) {
 			logger.error("Error reading data value",e);
+			return new ApiResponse(ERROR, "Error reading data value");
 		}
 		
 		int results = documentRepo.quickSave(map.get("name"), (map.get("status").equals("Open")) ? "" : map.get("user"), map.get("status"), map.get("notes"));
@@ -278,9 +276,8 @@ public class DocumentController {
 	 * Endpoint to save document.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -295,6 +292,7 @@ public class DocumentController {
 			document = objectMapper.readValue(data, Document.class);
 		} catch (Exception e) {
 			logger.error("Error reading data value",e);
+			return new ApiResponse(ERROR, "Error reading data value");
 		}
 		
 		Map<String, Object> documentMap = new HashMap<String, Object>();

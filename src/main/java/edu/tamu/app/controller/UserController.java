@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.controller;
 
+import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.util.HashMap;
@@ -60,9 +61,8 @@ public class UserController {
 	 * Websocket endpoint to request credentials.
 	 * 
 	 * @param 		shibObj			@Shib Object
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -80,9 +80,8 @@ public class UserController {
 	 * Endpoint to return all users.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 *  
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -100,14 +99,13 @@ public class UserController {
 	 * Endpoint to update users role.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/update_role")
+	@MessageMapping("/update-role")
 	@Auth
 	@SendToUser
 	public ApiResponse updateRole(Message<?> message) throws Exception {		
@@ -120,6 +118,7 @@ public class UserController {
 			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
 		} catch (Exception e) {
 			logger.error("Error reading data header",e);
+			return new ApiResponse(ERROR, "Error reading data header");
 		}		
 		AppUser user = userRepo.getUserByUin(Long.decode(map.get("uin")));		
 		user.setRole(map.get("role"));		

@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.controller;
 
+import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import static java.nio.file.Files.readAllBytes;
@@ -96,9 +97,8 @@ public class MetadataFieldController {
 	 * Endpoint to return list of projects.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -117,9 +117,8 @@ public class MetadataFieldController {
 	 * 
 	 * @param 		message			Message<?>
 	 * @param 		projectToUnlock	@DestinationVariable String
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -139,9 +138,8 @@ public class MetadataFieldController {
 	 * 
 	 * @param 		message			Message<?>
 	 * @param 		project			@DestinationVariable String
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -160,6 +158,7 @@ public class MetadataFieldController {
 			json = new String(readAllBytes(get(fullPath + "/metadata.json")));
 		} catch (IOException e2) {
 			logger.error("Error reading metadata json",e2);
+			return new ApiResponse(ERROR, "Error reading metadata json");
 		}
 		
 		Map<String, Object> metadataMap = null;
@@ -168,6 +167,7 @@ public class MetadataFieldController {
 			metadataMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
 			logger.error("Error reading metadata json value",e);
+			return new ApiResponse(ERROR, "Error reading metadata json value");
 		}
 		
 		List<String> metadataHeaders = new ArrayList<String>();
@@ -206,9 +206,8 @@ public class MetadataFieldController {
 	 * 
 	 * @param 		message			Message<?>
 	 * @param 		project			@DestinationVariable String
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -260,9 +259,8 @@ public class MetadataFieldController {
 	 * Websocket endpoint to export saf.
 	 * 
 	 * @param 		shibObj			@Shib Object
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -273,6 +271,7 @@ public class MetadataFieldController {
 	public ApiResponse saf(@Shib Object shibObj, @DestinationVariable String project) throws Exception {
 		
 		System.out.println("Generating SAF for project " + project);
+		
 		//for each published document
 
 		Project exportableProject = projectRepo.findByName(project);
@@ -283,6 +282,7 @@ public class MetadataFieldController {
 			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/exports/";
 		} catch (IOException e) {
 			logger.error("Error building exports directory",e);
+			return new ApiResponse(ERROR, "Error building exports directory");
 		}
 		
 		String archiveDirectoryName = directory + project + System.currentTimeMillis();
@@ -315,6 +315,7 @@ public class MetadataFieldController {
 			    FileUtils.copyDirectory(originDir, itemDirectory);
 			} catch (IOException e) {	
 			    logger.error("Error copying document directory",e);
+			    return new ApiResponse(ERROR, "Error copying document directory");
 			}
  			
  			PrintStream license = new PrintStream(itemDirectory+"/license.txt");
@@ -402,9 +403,8 @@ public class MetadataFieldController {
 	 * Endpoint to return all by status metadata fields.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -442,9 +442,8 @@ public class MetadataFieldController {
 	 * Endpoint to return all metadata fields.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 

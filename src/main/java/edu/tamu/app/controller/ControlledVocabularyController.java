@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.controller;
 
+import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
@@ -53,7 +54,7 @@ public class ControlledVocabularyController {
 	 * 
 	 * @param 		message			Message<?>
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -79,6 +80,7 @@ public class ControlledVocabularyController {
 			cvMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
 			logger.error("Error reading cv json",e);
+			return new ApiResponse(ERROR, "Error reading cv json");
 		}
 		
 		return new ApiResponse(SUCCESS, cvMap);
@@ -90,7 +92,7 @@ public class ControlledVocabularyController {
 	 * @param 		message			Message<?>
 	 * @param 		label			@DestinationVariable String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -108,6 +110,7 @@ public class ControlledVocabularyController {
 			json = new String(readAllBytes(get(fullPath + "/cv.json")));
 		} catch (IOException e2) {
 			logger.error("Error reading cv json",e2);
+			return new ApiResponse(ERROR, "Error reading cv json");
 		}
 		
 		Map<String, Object> cvMap = null;
@@ -116,6 +119,7 @@ public class ControlledVocabularyController {
 			cvMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
 			logger.error("Error reading cv json value",e);
+			return new ApiResponse(ERROR, "Error reading cv json value");
 		}
 		
 		return new ApiResponse(SUCCESS, cvMap.get(label));

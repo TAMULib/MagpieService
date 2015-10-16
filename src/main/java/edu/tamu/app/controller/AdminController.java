@@ -46,9 +46,8 @@ public class AdminController {
 	 * Synchronizes the project directory with the database.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
