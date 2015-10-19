@@ -9,6 +9,9 @@
  */
 package edu.tamu.app.controller;
 
+import static edu.tamu.framework.enums.ApiResponseType.ERROR;
+import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
@@ -35,6 +38,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,10 +55,8 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.framework.aspect.annotation.Auth;
-import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.framework.aspect.annotation.Shib;
 import edu.tamu.framework.model.ApiResponse;
-import edu.tamu.framework.model.RequestId;
 
 /** 
  * Metadata Field Controller
@@ -85,6 +87,9 @@ public class MetadataFieldController {
 	@Autowired
 	private ApplicationContext appContext;
 	
+	@Autowired 
+	private SimpMessagingTemplate simpMessagingTemplate; 
+	
 	private static final Logger logger = Logger.getLogger(MetadataFieldController.class);
 
 	
@@ -92,9 +97,8 @@ public class MetadataFieldController {
 	 * Endpoint to return list of projects.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -102,10 +106,10 @@ public class MetadataFieldController {
 	@MessageMapping("/projects")
 	@Auth
 	@SendToUser
-	public ApiResponse getProjects(Message<?> message, @ReqId String requestId) throws Exception {
+	public ApiResponse getProjects(Message<?> message) throws Exception {
 		List<ProjectMinimal> projects = new ArrayList<>();
 		projects = projectRepo.findAllAsObject();
-		return new ApiResponse("success", projects, new RequestId(requestId));
+		return new ApiResponse(SUCCESS, projects);
 	}
 	
 	/**
@@ -113,9 +117,8 @@ public class MetadataFieldController {
 	 * 
 	 * @param 		message			Message<?>
 	 * @param 		projectToUnlock	@DestinationVariable String
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -123,11 +126,11 @@ public class MetadataFieldController {
 	@MessageMapping("/unlock/{projectToUnlock}")
 	@Auth
 	@SendToUser
-	public ApiResponse unlockProject(Message<?> message, @DestinationVariable String projectToUnlock, @ReqId String requestId) throws Exception {
+	public ApiResponse unlockProject(Message<?> message, @DestinationVariable String projectToUnlock) throws Exception {
 		Project project = projectRepo.findByName(projectToUnlock);
 		project.setIsLocked(false);;
 		projectRepo.save(project);
-		return new ApiResponse("success", new RequestId(requestId));
+		return new ApiResponse(SUCCESS);
 	}
 	
 	/**
@@ -135,9 +138,8 @@ public class MetadataFieldController {
 	 * 
 	 * @param 		message			Message<?>
 	 * @param 		project			@DestinationVariable String
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -145,7 +147,7 @@ public class MetadataFieldController {
 	@MessageMapping("/headers/{project}")
 	@Auth
 	@SendToUser
-	public ApiResponse getMetadataHeaders(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
+	public ApiResponse getMetadataHeaders(Message<?> message, @DestinationVariable String project) throws Exception {
 		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -156,6 +158,7 @@ public class MetadataFieldController {
 			json = new String(readAllBytes(get(fullPath + "/metadata.json")));
 		} catch (IOException e2) {
 			logger.error("Error reading metadata json",e2);
+			return new ApiResponse(ERROR, "Error reading metadata json");
 		}
 		
 		Map<String, Object> metadataMap = null;
@@ -164,6 +167,7 @@ public class MetadataFieldController {
 			metadataMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
 			logger.error("Error reading metadata json value",e);
+			return new ApiResponse(ERROR, "Error reading metadata json value");
 		}
 		
 		List<String> metadataHeaders = new ArrayList<String>();
@@ -194,7 +198,7 @@ public class MetadataFieldController {
 		
 		Collections.sort(metadataHeaders);
 						
-		return new ApiResponse("success", metadataHeaders, new RequestId(requestId));
+		return new ApiResponse(SUCCESS, metadataHeaders);
 	}
 	
 	/**
@@ -202,9 +206,8 @@ public class MetadataFieldController {
 	 * 
 	 * @param 		message			Message<?>
 	 * @param 		project			@DestinationVariable String
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -212,7 +215,7 @@ public class MetadataFieldController {
 	@MessageMapping("/csv/{project}")
 	@Auth
 	@SendToUser
-	public ApiResponse getCSVByroject(Message<?> message, @DestinationVariable String project, @ReqId String requestId) throws Exception {
+	public ApiResponse getCSVByroject(Message<?> message, @DestinationVariable String project) throws Exception {
 		
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
@@ -249,16 +252,15 @@ public class MetadataFieldController {
 			
 		});
 		
-		return new ApiResponse("success", metadata, new RequestId(requestId));
+		return new ApiResponse(SUCCESS, metadata);
 	}
 	
 	/**
-	 * Websocket endpoint to request credentials.
+	 * Websocket endpoint to export saf.
 	 * 
 	 * @param 		shibObj			@Shib Object
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -266,9 +268,10 @@ public class MetadataFieldController {
 	@MessageMapping("/saf/{project}")
 	@SendToUser
 	@Auth
-	public ApiResponse saf(@Shib Object shibObj, @DestinationVariable String project, @ReqId String requestId) throws Exception {
+	public ApiResponse saf(@Shib Object shibObj, @DestinationVariable String project) throws Exception {
 		
 		System.out.println("Generating SAF for project " + project);
+		
 		//for each published document
 
 		Project exportableProject = projectRepo.findByName(project);
@@ -279,6 +282,7 @@ public class MetadataFieldController {
 			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/exports/";
 		} catch (IOException e) {
 			logger.error("Error building exports directory",e);
+			return new ApiResponse(ERROR, "Error building exports directory");
 		}
 		
 		String archiveDirectoryName = directory + project + System.currentTimeMillis();
@@ -311,6 +315,7 @@ public class MetadataFieldController {
 			    FileUtils.copyDirectory(originDir, itemDirectory);
 			} catch (IOException e) {	
 			    logger.error("Error copying document directory",e);
+			    return new ApiResponse(ERROR, "Error copying document directory");
 			}
  			
  			PrintStream license = new PrintStream(itemDirectory+"/license.txt");
@@ -371,11 +376,18 @@ public class MetadataFieldController {
 				printStream.close();
 			}
  			document.setStatus("Pending");
- 			documentRepo.save(document);
+ 			document = documentRepo.save(document);
+ 			
+ 			Map<String, Object> documentMap = new HashMap<String, Object>();
+ 			
+ 			documentMap.put("document", document);
+ 			documentMap.put("isNew", "false");
+ 			
+ 			simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
 		}
 		exportableProject.setIsLocked(true);
 		projectRepo.save(exportableProject);
-		return new ApiResponse("success", "Your SAF has been written to the server filesystem.", new RequestId(requestId));
+		return new ApiResponse(SUCCESS, "Your SAF has been written to the server filesystem.");
 	}
 	
 	private String escapeForXML(String value) {
@@ -391,9 +403,8 @@ public class MetadataFieldController {
 	 * Endpoint to return all by status metadata fields.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -401,7 +412,7 @@ public class MetadataFieldController {
 	@MessageMapping("/status/{status}")
 	@Auth
 	@SendToUser
-	public ApiResponse published(Message<?> message, @DestinationVariable String status, @ReqId String requestId) throws Exception {
+	public ApiResponse published(Message<?> message, @DestinationVariable String status) throws Exception {
 		
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
@@ -424,16 +435,15 @@ public class MetadataFieldController {
 			
 		});
 		
-		return new ApiResponse("success", metadata, new RequestId(requestId));
+		return new ApiResponse(SUCCESS, metadata);
 	}
 	
 	/**
 	 * Endpoint to return all metadata fields.
 	 * 
 	 * @param 		message			Message<?>
-	 * @param 		requestId		@ReqId String
 	 * 
-	 * @return		ApiResImpl
+	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
@@ -441,10 +451,10 @@ public class MetadataFieldController {
 	@MessageMapping("/all")
 	@Auth
 	@SendToUser
-	public ApiResponse all(Message<?> message, @ReqId String requestId) throws Exception {		
+	public ApiResponse all(Message<?> message) throws Exception {		
 		Map<String, List<MetadataFieldGroup>> metadataMap = new HashMap<String, List<MetadataFieldGroup>>();
 		metadataMap.put("list", metadataFieldGroupRepo.findAll());		
-		return new ApiResponse("success", metadataMap, new RequestId(requestId));
+		return new ApiResponse(SUCCESS, metadataMap);
 	}
 	
 	public static Predicate<Document> isPublished() {		
