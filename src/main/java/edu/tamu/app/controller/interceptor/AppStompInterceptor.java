@@ -9,14 +9,15 @@
  */
 package edu.tamu.app.controller.interceptor;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import edu.tamu.framework.interceptor.CoreStompInterceptor;
-import edu.tamu.framework.model.Credentials;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
+import edu.tamu.framework.interceptor.CoreStompInterceptor;
+import edu.tamu.framework.model.Credentials;
 
 /**
  * Stomp interceptor. Checks command, decodes and verifies token, 
@@ -36,6 +37,8 @@ public class AppStompInterceptor extends CoreStompInterceptor {
 	
 	@Value("${app.authority.managers}")
 	private String[] managers;
+	
+	private static final Logger logger = Logger.getLogger(AppStompInterceptor.class);
 
 	/**
 	 * @param       shib        Credentials
@@ -80,7 +83,7 @@ public class AppStompInterceptor extends CoreStompInterceptor {
         	
         	//System.out.println(shib.getFirstName() + " " + shib.getLastName() + " connected with session id " + headers.get("simpSessionId"));
     		
-    		System.out.println(Long.parseLong(shib.getUin()));	
+    		logger.info(Long.parseLong(shib.getUin()));	
     
     	}
     	else {

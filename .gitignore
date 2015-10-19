@@ -7,4 +7,6 @@
 bin/
 src/main/resources/static/metadatatool/projects/*
 src/main/resources/static/metadatatool/exports/*
+src/main/resources/static/metadatatool/maps/*
 /target/
+

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -45,6 +46,8 @@ public class ControlledVocabularyController {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	private static final Logger logger = Logger.getLogger(ControlledVocabularyController.class);
 	
 	/**
 	 * Get all controller vocabulary.
@@ -79,7 +82,7 @@ public class ControlledVocabularyController {
 		try {
 			cvMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error reading cv json",e);
 		}
 		
 		return new ApiResponse("success", cvMap, new RequestId(requestId));
@@ -111,7 +114,7 @@ public class ControlledVocabularyController {
 		try {
 			json = new String(readAllBytes(get(fullPath + "/cv.json")));
 		} catch (IOException e2) {
-			e2.printStackTrace();
+			logger.error("Error reading cv json",e2);
 		}
 		
 		Map<String, Object> cvMap = null;
@@ -119,7 +122,7 @@ public class ControlledVocabularyController {
 		try {
 			cvMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error reading cv json value",e);
 		}
 		
 		return new ApiResponse("success", cvMap.get(label), new RequestId(requestId));

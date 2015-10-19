@@ -19,8 +19,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -28,6 +28,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -41,18 +42,19 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.app.model.Document;
+import edu.tamu.app.model.MetadataFieldGroup;
+import edu.tamu.app.model.MetadataFieldValue;
+import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectMinimal;
+import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
+import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.ReqId;
 import edu.tamu.framework.aspect.annotation.Shib;
 import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.RequestId;
-import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldValue;
-import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
-import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
-import edu.tamu.app.model.repo.ProjectRepo;
 
 /** 
  * Metadata Field Controller
@@ -75,9 +77,6 @@ public class MetadataFieldController {
 	private DocumentRepo documentRepo;
 	
 	@Autowired
-	private ProjectLabelProfileRepo projectFieldProfileRepo;
-	
-	@Autowired
 	private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
 	@Autowired
@@ -85,6 +84,9 @@ public class MetadataFieldController {
 	
 	@Autowired
 	private ApplicationContext appContext;
+	
+	private static final Logger logger = Logger.getLogger(MetadataFieldController.class);
+
 	
 	/**
 	 * Endpoint to return list of projects.
@@ -101,11 +103,31 @@ public class MetadataFieldController {
 	@Auth
 	@SendToUser
 	public ApiResponse getProjects(Message<?> message, @ReqId String requestId) throws Exception {
-		List<String> projects = new ArrayList<>();
-        projectRepo.findAll().stream().forEach(project -> {
-        	projects.add(project.getName());
-        });
+		List<ProjectMinimal> projects = new ArrayList<>();
+		projects = projectRepo.findAllAsObject();
 		return new ApiResponse("success", projects, new RequestId(requestId));
+	}
+	
+	/**
+	 * Endpoint to unlock a given project
+	 * 
+	 * @param 		message			Message<?>
+	 * @param 		projectToUnlock	@DestinationVariable String
+	 * @param 		requestId		@ReqId String
+	 * 
+	 * @return		ApiResImpl
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@MessageMapping("/unlock/{projectToUnlock}")
+	@Auth
+	@SendToUser
+	public ApiResponse unlockProject(Message<?> message, @DestinationVariable String projectToUnlock, @ReqId String requestId) throws Exception {
+		Project project = projectRepo.findByName(projectToUnlock);
+		project.setIsLocked(false);;
+		projectRepo.save(project);
+		return new ApiResponse("success", new RequestId(requestId));
 	}
 	
 	/**
@@ -133,7 +155,7 @@ public class MetadataFieldController {
 		try {
 			json = new String(readAllBytes(get(fullPath + "/metadata.json")));
 		} catch (IOException e2) {
-			e2.printStackTrace();
+			logger.error("Error reading metadata json",e2);
 		}
 		
 		Map<String, Object> metadataMap = null;
@@ -141,7 +163,7 @@ public class MetadataFieldController {
 		try {
 			metadataMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>(){});
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error reading metadata json value",e);
 		}
 		
 		List<String> metadataHeaders = new ArrayList<String>();
@@ -247,20 +269,23 @@ public class MetadataFieldController {
 	public ApiResponse saf(@Shib Object shibObj, @DestinationVariable String project, @ReqId String requestId) throws Exception {
 		
 		System.out.println("Generating SAF for project " + project);
-		
 		//for each published document
-		List<Document> documents = projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
+
+		Project exportableProject = projectRepo.findByName(project);
+		List<Document> documents = exportableProject.getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
 		
 		String directory = "";
 		try {
 			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/exports/";
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error building exports directory",e);
 		}
 		
 		String archiveDirectoryName = directory + project + System.currentTimeMillis();
 		
-		System.out.println(archiveDirectoryName);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Archive Directory: "+archiveDirectoryName);
+		}
 		
 		if(documents.size() > 0) {
 			//make a containing directory for the SAF			
@@ -270,16 +295,22 @@ public class MetadataFieldController {
 		
 		for(Document document: documents) {
 			
-			System.out.println("Writing archive for document " + document.getName());
+			if (logger.isDebugEnabled()) {
+				logger.debug("Writing archive for document " + document.getName());
+			}
 			
 			//create a directory
 			File itemDirectory = new File(archiveDirectoryName + "/" + document.getName());
 			itemDirectory.mkdir();
 				
+			File originDir = null;
  			try {
-			    FileUtils.copyDirectory(itemDirectory.getParentFile(), itemDirectory);
-			} catch (IOException e) {
-			    e.printStackTrace();
+ 				String documentDirectory = appContext.getResource("classpath:static" + document.getPdfPath()).getFile().getAbsolutePath();
+ 				documentDirectory = documentDirectory.substring(0, documentDirectory.length() - (document.getName().length() + 5));
+ 				originDir = new File(documentDirectory);
+			    FileUtils.copyDirectory(originDir, itemDirectory);
+			} catch (IOException e) {	
+			    logger.error("Error copying document directory",e);
 			}
  			
  			PrintStream license = new PrintStream(itemDirectory+"/license.txt");
@@ -288,7 +319,10 @@ public class MetadataFieldController {
  			license.close();
  			
  			PrintStream manifest = new PrintStream(itemDirectory+"/contents");
- 			manifest.print(document.getName() + "\tbundle:ORIGINAL\tprimary:true\tpermissions:-r 'member'\nlicense.txt\tbundle:LICENSE");
+ 			for (File file : originDir.listFiles()) {
+ 	 			manifest.print(file.getName() + "\tbundle:ORIGINAL\tprimary:true\tpermissions:-r 'member'\n");
+ 			}
+ 			manifest.print("license.txt\tbundle:LICENSE");
  			manifest.flush();
  			manifest.close();
  			
@@ -311,6 +345,7 @@ public class MetadataFieldController {
  				//System.out.println("Got schema " + schema);
  				String element = label.split("\\.")[1];
  				//System.out.println("Got element "+ element);
+ 				
  				String qualifier = null;
  				if(label.split("\\.").length > 2) {
  					qualifier = label.split("\\.")[2];
@@ -335,12 +370,14 @@ public class MetadataFieldController {
 				printStream.print("</dublin_core>");
 				printStream.close();
 			}
- 			
+ 			document.setStatus("Pending");
+ 			documentRepo.save(document);
 		}
-		
+		exportableProject.setIsLocked(true);
+		projectRepo.save(exportableProject);
 		return new ApiResponse("success", "Your SAF has been written to the server filesystem.", new RequestId(requestId));
 	}
-
+	
 	private String escapeForXML(String value) {
 		value = value.replace("&", "&amp;");
 		value = value.replace("\"", "&quot;");
