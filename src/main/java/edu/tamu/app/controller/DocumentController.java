@@ -25,12 +25,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,6 +39,8 @@ import edu.tamu.app.model.PartialDocument;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
+import edu.tamu.framework.aspect.annotation.ApiMapping;
+import edu.tamu.framework.aspect.annotation.ApiVariable;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.Data;
 import edu.tamu.framework.model.ApiResponse;
@@ -51,9 +51,8 @@ import edu.tamu.framework.model.ApiResponse;
  * @author
  *
  */
-@Component
-@RestController
-@MessageMapping("/document")
+@Controller
+@ApiMapping("/document")
 public class DocumentController {
 
 	@Autowired
@@ -81,10 +80,9 @@ public class DocumentController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/marc/{bibId}")
+	@ApiMapping("/marc/{bibId}")
 	@Auth
-	@SendToUser
-	public ApiResponse getMARC(@DestinationVariable String bibId, Message<?> message) throws Exception {
+	public ApiResponse getMARC(@ApiVariable String bibId, Message<?> message) throws Exception {
 		return new ApiResponse(SUCCESS, new FlatMARC(voyagerService.getMARC(bibId)));
 	}
 	
@@ -117,9 +115,8 @@ public class DocumentController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/get")
+	@ApiMapping("/get")
 	@Auth
-	@SendToUser
 	public ApiResponse documentByName(Message<?> message, @Data String data) throws Exception {
 		Map<String, String> headerMap = new HashMap<String, String>();
 		try {
@@ -146,9 +143,8 @@ public class DocumentController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/page")
+	@ApiMapping("/page")
 	@Auth
-	@SendToUser
 	public ApiResponse pageDocuments(Message<?> message, @Data String data) throws Exception {
 		Map<String,String> headerMap = new HashMap<String,String>();
 		
@@ -244,9 +240,8 @@ public class DocumentController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/update")
+	@ApiMapping("/update")
 	@Auth
-	@SendToUser
 	public ApiResponse update(Message<?> message, @Data String data) throws Exception {
 		Map<String, String> map = new HashMap<String, String>();		
 		try {
@@ -282,9 +277,8 @@ public class DocumentController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/save")
+	@ApiMapping("/save")
 	@Auth
-	@SendToUser
 	public ApiResponse save(Message<?> message, @Data String data) throws Exception {
 		
 		Document document = null;

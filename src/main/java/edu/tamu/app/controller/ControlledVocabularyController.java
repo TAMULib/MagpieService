@@ -21,15 +21,14 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.framework.aspect.annotation.ApiMapping;
+import edu.tamu.framework.aspect.annotation.ApiVariable;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.model.ApiResponse;
 
@@ -39,9 +38,8 @@ import edu.tamu.framework.model.ApiResponse;
  * @author
  *
  */
-@Component
-@RestController
-@MessageMapping("/cv")
+@Controller
+@ApiMapping("/cv")
 public class ControlledVocabularyController {
 	
 	@Autowired
@@ -59,9 +57,8 @@ public class ControlledVocabularyController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/all")
+	@ApiMapping("/all")
 	@Auth
-	@SendToUser
 	public ApiResponse getAllControlledVocabulary(Message<?> message) throws Exception {
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -97,10 +94,9 @@ public class ControlledVocabularyController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/{label}")
+	@ApiMapping("/{label}")
 	@Auth
-	@SendToUser
-	public ApiResponse getControlledVocabularyByField(Message<?> message, @DestinationVariable String label) throws Exception {
+	public ApiResponse getControlledVocabularyByField(Message<?> message, @ApiVariable String label) throws Exception {
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
 		

@@ -9,18 +9,17 @@
  */
 package edu.tamu.app.controller;
 
+import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+
 import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.web.bind.annotation.RestController;
-
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import org.springframework.stereotype.Controller;
 
 import edu.tamu.app.service.SyncService;
+import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.model.ApiResponse;
 
@@ -30,8 +29,8 @@ import edu.tamu.framework.model.ApiResponse;
  * @author
  *
  */
-@RestController
-@MessageMapping("/admin")
+@Controller
+@ApiMapping("/admin")
 public class AdminController {
 	
 	@Autowired
@@ -52,9 +51,8 @@ public class AdminController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/sync")
+	@ApiMapping("/sync")
 	@Auth(role="ROLE_ADMIN")
-	@SendToUser
 	public ApiResponse syncDocuments(Message<?> message) throws Exception {
 		
 		logger.info("Syncronizing projects with database.");
