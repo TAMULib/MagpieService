@@ -11,3 +11,4 @@ src/main/resources/static/metadatatool/exports/*
 src/main/resources/static/metadatatool/maps/*
 /target/
 
+/.apt_generated/
