@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Micah Cooper
  *
  */
+ //TODO:  is this class necessary for the app?  It doesn't extend anything in the core.  Should it?
 @Configuration
 public class AppServletConfig {
 	
