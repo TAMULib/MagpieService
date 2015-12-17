@@ -152,10 +152,15 @@ public class MapWatcherService implements Runnable {
             				logger.info("Reading mapfile: "+file);
                     		
                     		while ((line = bReader.readLine()) != null) {
-                    			//extract document name from mapfile row
                     			String[] itemData = line.split(" ");
+                    			
+                    			//extract document name from mapfile row
                     			String documentName = itemData[0];
-                        		if (logger.isDebugEnabled()) {
+                    			
+                    			//extract document handle from mapfile row
+                    			String documentHandle = itemData[1];
+                        		
+                    			if (logger.isDebugEnabled()) {
                         			logger.debug("The document name is: "+documentName);
                         		}
 
@@ -166,6 +171,7 @@ public class MapWatcherService implements Runnable {
                     					unlockableProjectName = updateDoc.getProject().getName();
                     				}
                     				updateDoc.setStatus(changeStatus);
+                    				updateDoc.setPublishedHandle(documentHandle);
                     				documentRepo.save(updateDoc);
                     				logger.info("Setting status of Document: "+updateDoc.getName()+" to "+changeStatus);
                     			} else {

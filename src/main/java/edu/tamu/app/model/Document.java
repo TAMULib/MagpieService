@@ -50,6 +50,8 @@ public class Document {
 	
 	private String txtPath;
 	
+	private String publishedHandle;
+	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name") 
 	@JsonIdentityReference(alwaysAsId = true)
@@ -58,7 +60,10 @@ public class Document {
 	@OneToMany(mappedBy="document", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REMOVE, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)	
 	private Set<MetadataFieldGroup> fields = new HashSet<MetadataFieldGroup>();
 	
-	public Document() { }
+	public Document() 
+	{ 
+		this.publishedHandle = null;
+	}
 	
 	public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
 		this.project = project;
@@ -68,6 +73,7 @@ public class Document {
 		this.pdfPath = pdfPath;
 		this.txtPath = txtPath;
 		this.status = status;
+		this.publishedHandle = null;
 	}
 	
 	public String getName() {
@@ -132,6 +138,14 @@ public class Document {
 
 	public void setTxtPath(String txtPath) {
 		this.txtPath = txtPath;
+	}
+
+	public String getPublishedHandle() {
+		return publishedHandle;
+	}
+
+	public void setPublishedHandle(String publishedUriString) {
+		this.publishedHandle = publishedUriString;
 	}
 
 	@JsonIgnore
