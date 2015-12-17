@@ -171,7 +171,7 @@ public class MapWatcherService implements Runnable {
                     					unlockableProjectName = updateDoc.getProject().getName();
                     				}
                     				updateDoc.setStatus(changeStatus);
-                    				updateDoc.setPublishedHandle(documentHandle);
+                    				updateDoc.setPublishedUriString(updateDoc.getProject().getRepositoryUrlString()+"/"+documentHandle);
                     				documentRepo.save(updateDoc);
                     				logger.info("Setting status of Document: "+updateDoc.getName()+" to "+changeStatus);
                     			} else {

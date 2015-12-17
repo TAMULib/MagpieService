@@ -16,6 +16,7 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
@@ -45,16 +46,21 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
 	@Autowired
 	private DocumentRepo documentRepo;
 	
+	@Value("${app.defaultRepoUrl}")
+	private String defaultRepoUrl;
+	
 	@Override
 	public Project create(Project project) {
+		//TODO:  just using one url for all projects - make it per-project
+		project.setRepositoryUrlString(defaultRepoUrl);
 		return projectRepo.save(project);
 	}
 
 	@Override
 	public Project create(String name) {
-		Project project = projectRepo.findByName(name);		
+		Project project = projectRepo.findByName(name);
 		if(project == null) {
-			return projectRepo.save(new Project(name));
+			return create(new Project(name));
 		}		
 		return project;
 	}
