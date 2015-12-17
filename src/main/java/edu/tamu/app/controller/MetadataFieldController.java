@@ -380,7 +380,7 @@ public class MetadataFieldController {
 		}
 		exportableProject.setIsLocked(true);
 		projectRepo.save(exportableProject);
-		return new ApiResponse(SUCCESS, "Your SAF has been written to the server filesystem.");
+		return new ApiResponse(SUCCESS, "Your SAF has been written to the server filesystem at " + archiveDirectoryName +".");
 	}
 	
 	private String escapeForXML(String value) {
