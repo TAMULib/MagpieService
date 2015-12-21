@@ -39,6 +39,7 @@ import edu.tamu.app.model.PartialDocument;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.VoyagerService;
+import edu.tamu.app.service.DocumentPushService;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.ApiVariable;
 import edu.tamu.framework.aspect.annotation.Auth;
@@ -66,6 +67,9 @@ public class DocumentController {
 	
 	@Autowired
 	private DocumentRepo documentRepo;
+	
+	@Autowired
+	private DocumentPushService documentPushService;
 	
 	private static final Logger logger = Logger.getLogger(DocumentController.class);
 	
@@ -298,5 +302,40 @@ public class DocumentController {
 		
 		return new ApiResponse(SUCCESS, "ok");
 	}
+	
+	/**
+	 * Endpoint to save document.
+	 * 
+	 * @param 		message			Message<?>
+	 * 
+	 * @return		ApiResponse
+	 * 
+	 * @throws 		Exception
+	 * 
+	 */
+	@ApiMapping("/push")
+	@Auth
+	public ApiResponse push(Message<?> message, @Data String data) throws Exception {
+		
+		Document document = null;
+		try {
+			String name = objectMapper.readValue(data, String.class);
+			document = documentRepo.findByName(name);
+		} catch (Exception e) {
+			logger.error("Error reading data value",e);
+			return new ApiResponse(ERROR, "Error reading data value");
+		}
+		
+		Map<String, Object> documentMap = new HashMap<String, Object>();
+		
+		ApiResponse res = documentPushService.push(document);
+		documentMap.put("document", res);
+		documentMap.put("isNew", "false");
+		
+		simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
+		
+		return res;
+	}
+	
 		
 }

@@ -30,7 +30,7 @@ public class Project {
 	@Id
 	private String name;
 	
-	private String repositoryUrlString;
+	private String repositoryUIUrlString;
 	
 	private Boolean isLocked = false;
 	
@@ -63,11 +63,11 @@ public class Project {
 	}
 
 	public String getRepositoryUrlString() {
-		return repositoryUrlString;
+		return repositoryUIUrlString;
 	}
 
-	public void setRepositoryUrlString(String repositoryUrlString) {
-		this.repositoryUrlString = repositoryUrlString;
+	public void setRepositoryUIUrlString(String repositoryUIUrlString) {
+		this.repositoryUIUrlString = repositoryUIUrlString;
 	}
 
 	public Set<ProjectLabelProfile> getProfiles() {
