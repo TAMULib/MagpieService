@@ -165,13 +165,13 @@ public class DocumentPushService
 		
 		String taskDescription = "post item";
 		
-		JsonNode responseNode = doPost(createItemUrl, xmlDataToPost.getBytes(), taskDescription);
+		JsonNode responseNode = doPost(createItemUrl, xmlDataToPost.getBytes(), "application/xml", taskDescription);
 		
 		return responseNode;
 	}
 	
 	
-	private JsonNode doPost(URL restUrl, byte[] postData, String taskDescription) throws IOException
+	private JsonNode doPost(URL restUrl, byte[] postData, String contentTypeString, String taskDescription) throws IOException
 	{
 		//set up the connection for the REST call
 	    HttpURLConnection connection;
@@ -193,7 +193,7 @@ public class DocumentPushService
 		
 		connection.setRequestProperty("Accept", "application/json");
 		
-		//connection.setRequestProperty("Content-Type", "application/xml");
+		connection.setRequestProperty("Content-Type", contentTypeString);
 		
 		connection.setRequestProperty("Content-Length",  String.valueOf(postData.length));
 		
@@ -226,9 +226,9 @@ public class DocumentPushService
 		try {
 			br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		} catch (IOException e) {
-			e.printStackTrace();
 			IOException ioe = new IOException("Failed to " + taskDescription + "; Could not get input stream for a response from the connection of the post request. {" + e.getMessage() + "}");
 			ioe.setStackTrace(e.getStackTrace());
+			throw ioe;
 		}
 	      
 		//read the lines of the response into the... response :)
@@ -287,7 +287,7 @@ public class DocumentPushService
 		FileInputStream pdfFileStrm = new FileInputStream(pdfFile);
 		byte[] pdfBytes = IOUtils.toByteArray(pdfFileStrm);
 		
-		doPost(addBitstreamUrl, pdfBytes, "post bitstream");
+		doPost(addBitstreamUrl, pdfBytes, "application/pdf", "post bitstream");
 		
 		
 		try {
@@ -299,10 +299,10 @@ public class DocumentPushService
 		}
 		
 		File txtFile = appContext.getResource("classpath:static" + document.getTxtPath()).getFile();
-		FileInputStream txtFileStrm = new FileInputStream(pdfFile);
-		byte[] txtBytes = IOUtils.toByteArray(pdfFileStrm);
+		FileInputStream txtFileStrm = new FileInputStream(txtFile);
+		byte[] txtBytes = IOUtils.toByteArray(txtFileStrm);
 		
-		doPost(addBitstreamUrl, txtBytes, "post bitstream");
+		doPost(addBitstreamUrl, txtBytes, "text/plain", "post bitstream");
 	}
 	
 	
