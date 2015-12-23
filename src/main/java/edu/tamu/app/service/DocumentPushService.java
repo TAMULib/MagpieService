@@ -125,7 +125,7 @@ public class DocumentPushService
         
         //return the document in an ApiResponse
         return document;
-        //return new ApiResponse(SUCCESS,"New item created at URI: " + publishedUriString, document);			
+
 	}
 	
 	private JsonNode createItem(Document document) throws ParserConfigurationException, TransformerException, IOException
