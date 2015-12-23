@@ -315,7 +315,7 @@ public class DocumentController {
 	 */
 	@ApiMapping("/push")
 	@Auth
-	public ApiResponse push(Message<?> message, @Data String data) throws Exception {
+	public ApiResponse push(Message<?> message, @Data String data) {
 		
 		Document document = null;
 		try {
@@ -328,13 +328,20 @@ public class DocumentController {
 		
 		Map<String, Object> documentMap = new HashMap<String, Object>();
 		
-		ApiResponse res = documentPushService.push(document);
+		Document res;
+		try {
+			res = documentPushService.push(document);
+		} catch (Exception e) {
+			logger.error("The documentPushService threw an exception",e);
+			return new ApiResponse(ERROR, e.getMessage());
+		}
+		
 		documentMap.put("document", res);
 		documentMap.put("isNew", "false");
 		
 		simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
 		
-		return res;
+		return new ApiResponse(SUCCESS, "Your item has been successfully published", document);
 	}
 	
 		
