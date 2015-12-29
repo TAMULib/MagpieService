@@ -143,7 +143,7 @@ public class DocumentPushService
 		//produce the XML data from the document that we will post to the REST API
 		String xmlDataToPost;
 		try {
-			xmlDataToPost = generatePostXMLFromDocument(document);
+			xmlDataToPost = generateItemPostXMLFromDocument(document);
 		} catch (ParserConfigurationException e)
 		{
 			ParserConfigurationException pce = new ParserConfigurationException("Failed to create items; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
@@ -202,7 +202,7 @@ public class DocumentPushService
 		
 		connection.setDoOutput(true);
 		
-		// Write item metadata - i.e. create the item
+		// Write post data by opening an output stream on the connection and writing to it
 	    OutputStream os;
 		try {
 			os = connection.getOutputStream();
@@ -220,6 +220,10 @@ public class DocumentPushService
 			throw ioe;
 		}
 				
+	    
+	    System.out.println("Got response code " + connection.getResponseCode());
+	    //System.out.println("Got error stream " + connection.getErrorStream())
+	    
 		// Read response from item post
 	    StringBuilder response = new StringBuilder();
 	    BufferedReader br = null;
@@ -259,26 +263,31 @@ public class DocumentPushService
 			throw ioe;
 		}
 	    
-	    //parse response to get new handle and the item id
-	    JsonNode responseNode;
-		try {
-			responseNode = objectMapper.readTree(response.toString());
-		} catch (IOException e) {
-			IOException ioe = new IOException("Failed to " + taskDescription + "; Object mapper could not read the response from the post request into JSON. {" + e.getMessage() + "}");
-			ioe.setStackTrace(e.getStackTrace());
-			throw ioe;
-		}
+	    //parse response to get a JSON node
+	    JsonNode responseNode = null;
+	    if (response.length() > 0)
+	    {
+		    	try {
+				responseNode = objectMapper.readTree(response.toString());
+			} catch (IOException e) {
+				IOException ioe = new IOException("Failed to " + taskDescription + "; Object mapper could not read the response from the post request into JSON. {" + e.getMessage() + "}");
+				ioe.setStackTrace(e.getStackTrace());
+				throw ioe;
+			}
+	    }
+	    
 		
 		return responseNode;        
 	}
 
-	private void addBitstreams(String itemId, Document document) throws IOException {
+	private void addBitstreams(String itemId, Document document) throws IOException, ParserConfigurationException, TransformerException {
 		
+		//add the bitstream for the primary pdf
 		URL addBitstreamUrl;
 		try {
 			addBitstreamUrl = new URL(repoUrl+"/rest/items/"+itemId+"/bitstreams?name="+document.getName()+".pdf&description=primary_pdf");
 		} catch (MalformedURLException e) {
-			MalformedURLException murle = new MalformedURLException("Failed to add bitstreams; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}" );
+			MalformedURLException murle = new MalformedURLException("Failed to add pdf bitstream; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}" );
 			murle.setStackTrace(e.getStackTrace());
 			throw murle;
 		}
@@ -287,9 +296,99 @@ public class DocumentPushService
 		FileInputStream pdfFileStrm = new FileInputStream(pdfFile);
 		byte[] pdfBytes = IOUtils.toByteArray(pdfFileStrm);
 		
-		doPost(addBitstreamUrl, pdfBytes, "application/pdf", "post bitstream");
+		JsonNode pdfBitstreamJson = doPost(addBitstreamUrl, pdfBytes, "application/pdf", "post bitstream");
+		
+		System.out.println(pdfBitstreamJson.toString());
+		
+		String pdfBitstreamId = pdfBitstreamJson.get("id").asText();
+		
+		System.out.println("Time to add a policy to the new pdf bitstream of id: " + pdfBitstreamId);
+		
+//		//put the pdf bitstream into the ORIGINAL bundle and give it primary status
+//		// endpoint is /bitstreams/{bitstream id}
+//		URL modifyBitstreamUrl;
+//		try {
+//			modifyBitstreamUrl = new URL(repoUrl+"/bitstreams/" + pdfBitstreamId);
+//		}catch (MalformedURLException e) {
+//			MalformedURLException murle = new MalformedURLException("Failed to modify pdf bitstream; the REST URL to post the bitstream metadata was malformed. {" + e.getMessage() + "}" );
+//			murle.setStackTrace(e.getStackTrace());
+//			throw murle;
+//		}
+//		
+//		//produce the XML data from the document that we will post to the REST API
+//		String bitstreamXMLToPost;
+//		try {
+//			bitstreamXMLToPost = generateBitstreamPostXML("ORIGINAL", true);
+//		} catch (ParserConfigurationException e)
+//		{
+//			ParserConfigurationException pce = new ParserConfigurationException("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
+//			pce.setStackTrace(e.getStackTrace());
+//			throw pce;
+//		}
+//	    catch ( TransformerFactoryConfigurationError e )
+//	    {
+//	    		TransformerFactoryConfigurationError tfce = new TransformerFactoryConfigurationError("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
+//	    		tfce.setStackTrace(e.getStackTrace());
+//	    		throw tfce;
+//	    }
+//	    catch( TransformerException e) 
+//	    {
+//	    		TransformerException te = new TransformerException("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
+//	    		te.setStackTrace(e.getStackTrace());
+//	    		throw te;	    		
+//	    }
+//		
+//		String taskDescription = "update PDF bitstream";
+//		
+//		JsonNode responseNode = doPost(modifyBitstreamUrl, bitstreamXMLToPost.getBytes(), "application/xml", taskDescription);
+
 		
 		
+		
+		
+		
+		//put a resource policy for member group access on the pdf bitstream
+		// endpoint is /bitstreams/{bitstream id}/policy
+		//produce the XML data from the document that we will post to the REST API
+		String policyXMLToPost;
+		try {
+			policyXMLToPost = generatePolicyPostXML(pdfBitstreamId, "5");
+		} catch (ParserConfigurationException e)
+		{
+			ParserConfigurationException pce = new ParserConfigurationException("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
+			pce.setStackTrace(e.getStackTrace());
+			throw pce;
+		}
+	    catch ( TransformerFactoryConfigurationError e )
+	    {
+	    		TransformerFactoryConfigurationError tfce = new TransformerFactoryConfigurationError("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
+	    		tfce.setStackTrace(e.getStackTrace());
+	    		throw tfce;
+	    }
+	    catch( TransformerException e) 
+	    {
+	    		TransformerException te = new TransformerException("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
+	    		te.setStackTrace(e.getStackTrace());
+	    		throw te;	    		
+	    }
+		URL addPolicyUrl;
+		try {
+			addPolicyUrl = new URL(repoUrl+"/rest/bitstreams/" + pdfBitstreamId + "/policy");
+		}catch (MalformedURLException e) {
+			MalformedURLException murle = new MalformedURLException("Failed to modify pdf bitstream; the REST URL to post the bitstream metadata was malformed. {" + e.getMessage() + "}" );
+			murle.setStackTrace(e.getStackTrace());
+			throw murle;
+		}
+		
+		//System.out.println("Attempt to post: " + policyXMLToPost);
+		
+		String policyJSONToPost = "{\"action\":\"READ\",\"epersonId\":-1,\"groupId\":5,\"resourceId\":" + pdfBitstreamId + ",\"resourceType\":\"bitstream\",\"rpDescription\":null,\"rpName\":null,\"rpType\":\"TYPE_CUSTOM\",\"startDate\":null,\"endDate\":null}";
+		System.out.println("Attempt to post: " + policyJSONToPost);
+		JsonNode policyResponseNode = doPost(addPolicyUrl, policyJSONToPost.getBytes(), "application/json", "add policy");
+		
+		
+		
+		//add the bitstream for the extracted text
 		try {
 			addBitstreamUrl = new URL(repoUrl+"/rest/items/"+itemId+"/bitstreams?name="+document.getName()+".pdf.txt&description=ocr_text");
 		} catch (MalformedURLException e) {
@@ -303,6 +402,10 @@ public class DocumentPushService
 		byte[] txtBytes = IOUtils.toByteArray(txtFileStrm);
 		
 		doPost(addBitstreamUrl, txtBytes, "text/plain", "post bitstream");
+		
+		//put the txt bitstream into the TEXT bundle
+		
+		//put a resource policy for member group access on the txt bitstream
 	}
 	
 	
@@ -346,7 +449,7 @@ public class DocumentPushService
 	}
 	
 	
-	private String generatePostXMLFromDocument(Document document) throws ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException
+	private String generateItemPostXMLFromDocument(Document document) throws ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException
 	{
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -384,5 +487,65 @@ public class DocumentPushService
         serializer.transform(new DOMSource(domDoc), new StreamResult(stw)); 
 		
         return stw.toString();
+	}
+	
+	private String generateBitstreamPostXML(String bundleName, Boolean isPrimary) throws ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException
+	{
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+        org.w3c.dom.Document domDoc = docBuilder.newDocument();
+        Element rootElement = domDoc.createElement("bitstream");
+        domDoc.appendChild(rootElement);
+        
+        
+        
+        StringWriter stw = new StringWriter(); 
+        Transformer serializer = TransformerFactory.newInstance().newTransformer(); 
+        serializer.transform(new DOMSource(domDoc), new StreamResult(stw)); 
+		
+        return stw.toString();
+	}
+	
+	private String generatePolicyPostXML(String bitstreamId, String groupName) throws ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException
+	{
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+        org.w3c.dom.Document domDoc = docBuilder.newDocument();
+        Element rootElement = domDoc.createElement("policy");
+        domDoc.appendChild(rootElement);
+        
+        Element actionElement = domDoc.createElement("action");
+        actionElement.setTextContent("READ");
+        rootElement.appendChild(actionElement);
+        
+        Element epersonIdElement = domDoc.createElement("epersonId");
+        epersonIdElement.setTextContent("-1");
+        rootElement.appendChild(epersonIdElement);
+        
+        Element groupIdElement = domDoc.createElement("groupId");
+        groupIdElement.setTextContent(groupName);
+        rootElement.appendChild(groupIdElement);
+        
+        Element resourceIdElement = domDoc.createElement("resourceId");
+        resourceIdElement.setTextContent(bitstreamId);
+        rootElement.appendChild(resourceIdElement);
+        
+        Element resourceTypeElement = domDoc.createElement("resourceType");
+        resourceTypeElement.setTextContent("bitstream");
+        rootElement.appendChild(resourceTypeElement);
+        
+        Element rpTypeElement = domDoc.createElement("rpType");
+        rpTypeElement.setTextContent("TYPE_CUSTOM");
+        rootElement.appendChild(rpTypeElement);
+        
+        
+        StringWriter stw = new StringWriter(); 
+        Transformer serializer = TransformerFactory.newInstance().newTransformer(); 
+        serializer.transform(new DOMSource(domDoc), new StreamResult(stw)); 
+		
+        return stw.toString();
+
 	}
 }
