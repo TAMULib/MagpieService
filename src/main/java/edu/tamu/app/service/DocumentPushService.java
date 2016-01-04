@@ -80,6 +80,7 @@ public class DocumentPushService
 	
 	public Document push(Document document) throws Exception
 	{
+		//POST to create the item
 		JsonNode createItemResponseNode = null;
 		try {
 			createItemResponseNode = createItem(document);
@@ -282,6 +283,10 @@ public class DocumentPushService
 
 	private void addBitstreams(String itemId, Document document) throws IOException, ParserConfigurationException, TransformerException {
 		
+		
+		//*************************************
+		//  POST PDF file
+		//*************************************
 		//add the bitstream for the primary pdf
 		URL addBitstreamUrl;
 		try {
@@ -302,13 +307,12 @@ public class DocumentPushService
 		
 		String pdfBitstreamId = pdfBitstreamJson.get("id").asText();
 		
-		System.out.println("Time to add a policy to the new pdf bitstream of id: " + pdfBitstreamId);
 		
-//		//put the pdf bitstream into the ORIGINAL bundle and give it primary status
+//		//put the extracted text bitstream into the TEXT bundle
 //		// endpoint is /bitstreams/{bitstream id}
 //		URL modifyBitstreamUrl;
 //		try {
-//			modifyBitstreamUrl = new URL(repoUrl+"/bitstreams/" + pdfBitstreamId);
+//			modifyBitstreamUrl = new URL(repoUrl+"/bitstreams/" + txtBitstreamId);
 //		}catch (MalformedURLException e) {
 //			MalformedURLException murle = new MalformedURLException("Failed to modify pdf bitstream; the REST URL to post the bitstream metadata was malformed. {" + e.getMessage() + "}" );
 //			murle.setStackTrace(e.getStackTrace());
@@ -318,7 +322,7 @@ public class DocumentPushService
 //		//produce the XML data from the document that we will post to the REST API
 //		String bitstreamXMLToPost;
 //		try {
-//			bitstreamXMLToPost = generateBitstreamPostXML("ORIGINAL", true);
+//			bitstreamXMLToPost = generateBitstreamPostXML("TEXT", true);
 //		} catch (ParserConfigurationException e)
 //		{
 //			ParserConfigurationException pce = new ParserConfigurationException("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
@@ -341,36 +345,17 @@ public class DocumentPushService
 //		String taskDescription = "update PDF bitstream";
 //		
 //		JsonNode responseNode = doPost(modifyBitstreamUrl, bitstreamXMLToPost.getBytes(), "application/xml", taskDescription);
-
+//
+//		
 		
 		
 		
-		
-		
+		//*************************************
+		//  POST PDF policy
+		//*************************************
 		//put a resource policy for member group access on the pdf bitstream
 		// endpoint is /bitstreams/{bitstream id}/policy
 		//produce the XML data from the document that we will post to the REST API
-		String policyXMLToPost;
-		try {
-			policyXMLToPost = generatePolicyPostXML(pdfBitstreamId, "5");
-		} catch (ParserConfigurationException e)
-		{
-			ParserConfigurationException pce = new ParserConfigurationException("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
-			pce.setStackTrace(e.getStackTrace());
-			throw pce;
-		}
-	    catch ( TransformerFactoryConfigurationError e )
-	    {
-	    		TransformerFactoryConfigurationError tfce = new TransformerFactoryConfigurationError("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
-	    		tfce.setStackTrace(e.getStackTrace());
-	    		throw tfce;
-	    }
-	    catch( TransformerException e) 
-	    {
-	    		TransformerException te = new TransformerException("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
-	    		te.setStackTrace(e.getStackTrace());
-	    		throw te;	    		
-	    }
 		URL addPolicyUrl;
 		try {
 			addPolicyUrl = new URL(repoUrl+"/rest/bitstreams/" + pdfBitstreamId + "/policy");
@@ -388,6 +373,10 @@ public class DocumentPushService
 		
 		
 		
+		
+		//*************************************
+		//  POST txt file
+		//*************************************
 		//add the bitstream for the extracted text
 		try {
 			addBitstreamUrl = new URL(repoUrl+"/rest/items/"+itemId+"/bitstreams?name="+document.getName()+".pdf.txt&description=ocr_text");
@@ -401,7 +390,9 @@ public class DocumentPushService
 		FileInputStream txtFileStrm = new FileInputStream(txtFile);
 		byte[] txtBytes = IOUtils.toByteArray(txtFileStrm);
 		
-		doPost(addBitstreamUrl, txtBytes, "text/plain", "post bitstream");
+		JsonNode txtBitstreamJson = doPost(addBitstreamUrl, txtBytes, "text/plain", "post bitstream");
+		
+		String txtBitstreamId = txtBitstreamJson.get("id").asText();
 		
 		//put the txt bitstream into the TEXT bundle
 		
@@ -507,45 +498,5 @@ public class DocumentPushService
         return stw.toString();
 	}
 	
-	private String generatePolicyPostXML(String bitstreamId, String groupName) throws ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException
-	{
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-
-        org.w3c.dom.Document domDoc = docBuilder.newDocument();
-        Element rootElement = domDoc.createElement("policy");
-        domDoc.appendChild(rootElement);
-        
-        Element actionElement = domDoc.createElement("action");
-        actionElement.setTextContent("READ");
-        rootElement.appendChild(actionElement);
-        
-        Element epersonIdElement = domDoc.createElement("epersonId");
-        epersonIdElement.setTextContent("-1");
-        rootElement.appendChild(epersonIdElement);
-        
-        Element groupIdElement = domDoc.createElement("groupId");
-        groupIdElement.setTextContent(groupName);
-        rootElement.appendChild(groupIdElement);
-        
-        Element resourceIdElement = domDoc.createElement("resourceId");
-        resourceIdElement.setTextContent(bitstreamId);
-        rootElement.appendChild(resourceIdElement);
-        
-        Element resourceTypeElement = domDoc.createElement("resourceType");
-        resourceTypeElement.setTextContent("bitstream");
-        rootElement.appendChild(resourceTypeElement);
-        
-        Element rpTypeElement = domDoc.createElement("rpType");
-        rpTypeElement.setTextContent("TYPE_CUSTOM");
-        rootElement.appendChild(rpTypeElement);
-        
-        
-        StringWriter stw = new StringWriter(); 
-        Transformer serializer = TransformerFactory.newInstance().newTransformer(); 
-        serializer.transform(new DOMSource(domDoc), new StreamResult(stw)); 
-		
-        return stw.toString();
-
-	}
+	
 }
