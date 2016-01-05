@@ -1,8 +1,5 @@
 package edu.tamu.app.service;
 
-import static edu.tamu.framework.enums.ApiResponseType.ERROR;
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -20,7 +17,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -36,13 +32,14 @@ import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.utilities.CsvUtility;
-import edu.tamu.framework.model.ApiResponse;
 
 @Service
 public class DocumentPushService 
@@ -90,7 +87,7 @@ public class DocumentPushService
 			throw serviceEx;
 		}
         
-        System.out.println("And here is your response:\n\n" + createItemResponseNode.toString() +"\n");
+        //System.out.println("And here is your response:\n\n" + createItemResponseNode.toString() +"\n");
         
         String handleString = createItemResponseNode.get("handle").asText();
         String newItemIdString = createItemResponseNode.get("id").asText();
@@ -105,6 +102,7 @@ public class DocumentPushService
 		} catch (IOException e) {
 			IOException ioe = new IOException("Failed to create items; Could not get Spring resource for the archivematica output directory on the mount. {" + e.getMessage() + "}");
 			ioe.setStackTrace(e.getStackTrace());
+			cleanUpFailedPublish(newItemIdString);
 			throw ioe;
 		}
 		
@@ -166,13 +164,13 @@ public class DocumentPushService
 		
 		String taskDescription = "post item";
 		
-		JsonNode responseNode = doPost(createItemUrl, xmlDataToPost.getBytes(), "application/xml", taskDescription);
+		JsonNode responseNode = doRESTRequest(createItemUrl, "POST", xmlDataToPost.getBytes(), "application/xml", taskDescription);
 		
 		return responseNode;
 	}
 	
 	
-	private JsonNode doPost(URL restUrl, byte[] postData, String contentTypeString, String taskDescription) throws IOException
+	private JsonNode doRESTRequest(URL restUrl, String method, byte[] postData, String contentTypeString, String taskDescription) throws IOException
 	{
 		//set up the connection for the REST call
 	    HttpURLConnection connection;
@@ -185,7 +183,7 @@ public class DocumentPushService
 		}
 		
 		try {
-			connection.setRequestMethod("POST");
+			connection.setRequestMethod(method);
 		} catch (ProtocolException e) {
 			ProtocolException pe = new ProtocolException("Failed to " + taskDescription + "; the protocol for the request was invalid. {" + e.getMessage() + "}");
 			pe.setStackTrace(e.getStackTrace());
@@ -294,6 +292,7 @@ public class DocumentPushService
 		} catch (MalformedURLException e) {
 			MalformedURLException murle = new MalformedURLException("Failed to add pdf bitstream; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}" );
 			murle.setStackTrace(e.getStackTrace());
+			cleanUpFailedPublish(itemId);
 			throw murle;
 		}
 		
@@ -301,76 +300,57 @@ public class DocumentPushService
 		FileInputStream pdfFileStrm = new FileInputStream(pdfFile);
 		byte[] pdfBytes = IOUtils.toByteArray(pdfFileStrm);
 		
-		JsonNode pdfBitstreamJson = doPost(addBitstreamUrl, pdfBytes, "application/pdf", "post bitstream");
+		ObjectNode pdfBitstreamJson = null;
+		try {
+			pdfBitstreamJson = (ObjectNode) doRESTRequest(addBitstreamUrl, "POST", pdfBytes, "application/pdf", "post bitstream");
+		} catch(Exception e) {
+			cleanUpFailedPublish(itemId);
+			throw e;
+		}
 		
-		System.out.println(pdfBitstreamJson.toString());
+		System.out.println("*** Here is response from posting the PDF file " + pdfBitstreamJson.toString());
 		
 		String pdfBitstreamId = pdfBitstreamJson.get("id").asText();
 		
 		
-//		//put the extracted text bitstream into the TEXT bundle
-//		// endpoint is /bitstreams/{bitstream id}
-//		URL modifyBitstreamUrl;
-//		try {
-//			modifyBitstreamUrl = new URL(repoUrl+"/bitstreams/" + txtBitstreamId);
-//		}catch (MalformedURLException e) {
-//			MalformedURLException murle = new MalformedURLException("Failed to modify pdf bitstream; the REST URL to post the bitstream metadata was malformed. {" + e.getMessage() + "}" );
-//			murle.setStackTrace(e.getStackTrace());
-//			throw murle;
-//		}
-//		
-//		//produce the XML data from the document that we will post to the REST API
-//		String bitstreamXMLToPost;
-//		try {
-//			bitstreamXMLToPost = generateBitstreamPostXML("TEXT", true);
-//		} catch (ParserConfigurationException e)
-//		{
-//			ParserConfigurationException pce = new ParserConfigurationException("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
-//			pce.setStackTrace(e.getStackTrace());
-//			throw pce;
-//		}
-//	    catch ( TransformerFactoryConfigurationError e )
-//	    {
-//	    		TransformerFactoryConfigurationError tfce = new TransformerFactoryConfigurationError("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
-//	    		tfce.setStackTrace(e.getStackTrace());
-//	    		throw tfce;
-//	    }
-//	    catch( TransformerException e) 
-//	    {
-//	    		TransformerException te = new TransformerException("Failed to update PDF bitstream; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
-//	    		te.setStackTrace(e.getStackTrace());
-//	    		throw te;	    		
-//	    }
-//		
-//		String taskDescription = "update PDF bitstream";
-//		
-//		JsonNode responseNode = doPost(modifyBitstreamUrl, bitstreamXMLToPost.getBytes(), "application/xml", taskDescription);
-//
-//		
-		
 		
 		
 		//*************************************
-		//  POST PDF policy
+		//  PUT PDF bitstream metadata
 		//*************************************
 		//put a resource policy for member group access on the pdf bitstream
-		// endpoint is /bitstreams/{bitstream id}/policy
-		//produce the XML data from the document that we will post to the REST API
+		//REST endpoint is PUT /bitstreams/{bitstream id} - Update metadata of bitstream. You must put a Bitstream, does not alter the file/data
+
+		// Fix up the PDF bitstream metadata to have new policy, etc.
+		ArrayNode policiesNode = pdfBitstreamJson.putArray("policies");
+		
+		ObjectNode policyNode = objectMapper.createObjectNode();
+		policyNode.put("action", "READ");
+		//TODO:  get this out of config or whatever
+		policyNode.put("groupId", "5");
+		policyNode.put("rpType", "TYPE_CUSTOM");
+		
+		policiesNode.add(policyNode);
+		
+		
+		
 		URL addPolicyUrl;
 		try {
-			addPolicyUrl = new URL(repoUrl+"/rest/bitstreams/" + pdfBitstreamId + "/policy");
+			addPolicyUrl = new URL(repoUrl+"/rest/bitstreams/" + pdfBitstreamId) ;
 		}catch (MalformedURLException e) {
-			MalformedURLException murle = new MalformedURLException("Failed to modify pdf bitstream; the REST URL to post the bitstream metadata was malformed. {" + e.getMessage() + "}" );
+			MalformedURLException murle = new MalformedURLException("Failed to update pdf bitstream metadata; the REST URL to PUT the policy was malformed. {" + e.getMessage() + "}" );
 			murle.setStackTrace(e.getStackTrace());
+			cleanUpFailedPublish(itemId);
 			throw murle;
 		}
 		
-		//System.out.println("Attempt to post: " + policyXMLToPost);
-		
-		String policyJSONToPost = "{\"action\":\"READ\",\"epersonId\":-1,\"groupId\":5,\"resourceId\":" + pdfBitstreamId + ",\"resourceType\":\"bitstream\",\"rpDescription\":null,\"rpName\":null,\"rpType\":\"TYPE_CUSTOM\",\"startDate\":null,\"endDate\":null}";
-		System.out.println("Attempt to post: " + policyJSONToPost);
-		JsonNode policyResponseNode = doPost(addPolicyUrl, policyJSONToPost.getBytes(), "application/json", "add policy");
-		
+		try{
+			doRESTRequest(addPolicyUrl, "PUT", pdfBitstreamJson.toString().getBytes(), "application/json", "update PDF bitstream metadata");
+		} catch(Exception e) {
+			cleanUpFailedPublish(itemId);
+			throw e;
+		}
+				
 		
 		
 		
@@ -383,6 +363,7 @@ public class DocumentPushService
 		} catch (MalformedURLException e) {
 			MalformedURLException murle = new MalformedURLException("Failed to add bitstreams; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}" );
 			murle.setStackTrace(e.getStackTrace());
+			cleanUpFailedPublish(itemId);
 			throw murle;
 		}
 		
@@ -390,13 +371,67 @@ public class DocumentPushService
 		FileInputStream txtFileStrm = new FileInputStream(txtFile);
 		byte[] txtBytes = IOUtils.toByteArray(txtFileStrm);
 		
-		JsonNode txtBitstreamJson = doPost(addBitstreamUrl, txtBytes, "text/plain", "post bitstream");
+		ObjectNode txtBitstreamJson = null;
+		try {
+			txtBitstreamJson = (ObjectNode) doRESTRequest(addBitstreamUrl, "POST", txtBytes, "text/plain", "post bitstream");
+		} catch(Exception e) {
+			cleanUpFailedPublish(itemId);
+			throw e;
+		}
+		
+		
+		
+		
+		//**************************************
+		// PUT txt bitstream metadata
+		//**************************************
+		//put the txt bitstream into the TEXT bundle
+		//REST endpoint is PUT /bitstreams/{bitstream id} - Update metadata of bitstream. You must put a Bitstream, does not alter the file/data
+		
+		System.out.println("*** Here is the response from posting the text file: " + txtBitstreamJson.toString());
 		
 		String txtBitstreamId = txtBitstreamJson.get("id").asText();
 		
-		//put the txt bitstream into the TEXT bundle
+		txtBitstreamJson.put("bundleName", "TEXT");
+		//txtBitstreamJson.put("description", "ocr goodness");
 		
-		//put a resource policy for member group access on the txt bitstream
+		System.out.println("*** And here it is again after changing stuff: " + txtBitstreamJson.toString());
+		
+		URL updateTXTBitstreamUrl;
+		try {
+			updateTXTBitstreamUrl = new URL(repoUrl+"/rest/bitstreams/" + txtBitstreamId );
+		}catch (MalformedURLException e) {
+			MalformedURLException murle = new MalformedURLException("Failed to modify txt bitstream; the REST URL to post the bitstream metadata was malformed. {" + e.getMessage() + "}" );
+			murle.setStackTrace(e.getStackTrace());
+			cleanUpFailedPublish(itemId);
+			throw murle;
+		}
+		
+		System.out.println("Gimme a 200:");
+		JsonNode updateTXTBitstreamBundleResponse = null;
+		try {
+			updateTXTBitstreamBundleResponse = doRESTRequest(updateTXTBitstreamUrl, "PUT", txtBitstreamJson.toString().getBytes(), 
+					 "application/json", 
+					 "update TXT bitstream bundle");
+		} catch(Exception e) {
+			cleanUpFailedPublish(itemId);
+		}
+																 
+		
+		//System.out.println("*** We got this response for our bundle changing request: " + updateTXTBitstreamBundleResponse.toString());
+		
+		
+				
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 	
 	
@@ -480,22 +515,31 @@ public class DocumentPushService
         return stw.toString();
 	}
 	
-	private String generateBitstreamPostXML(String bundleName, Boolean isPrimary) throws ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException
+	private String generateBitstreamPostJSON(String id, String bundleName) throws ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException
 	{
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-
-        org.w3c.dom.Document domDoc = docBuilder.newDocument();
-        Element rootElement = domDoc.createElement("bitstream");
-        domDoc.appendChild(rootElement);
+        ObjectNode objNode = objectMapper.createObjectNode();
+        objNode.put("bundleName", bundleName);
+        objNode.put("id", id);
         
-        
-        
-        StringWriter stw = new StringWriter(); 
-        Transformer serializer = TransformerFactory.newInstance().newTransformer(); 
-        serializer.transform(new DOMSource(domDoc), new StreamResult(stw)); 
+        System.out.println("BitstreamPostJSON: " + objNode.toString());
+        return objNode.toString();
+	}
+	
+	private void cleanUpFailedPublish(String id) throws IOException
+	{
+		//delete the item in case there was an error along the way with all the requests.
+		//REST endpoint is DELETE /items/{item id} - Delete item.
 		
-        return stw.toString();
+		URL deleteItemUrl;
+		try {
+			deleteItemUrl = new URL(repoUrl+"/rest/items/" + id);
+		}catch (MalformedURLException e) {
+			MalformedURLException murle = new MalformedURLException("Failed to delete item " + id + "; the REST URL for the DELETE request was malformed. {" + e.getMessage() + "}" );
+			murle.setStackTrace(e.getStackTrace());
+			throw murle;
+		}
+		
+		doRESTRequest(deleteItemUrl, "DELETE", "".getBytes(), "application/json", "delete item");		
 	}
 	
 	
