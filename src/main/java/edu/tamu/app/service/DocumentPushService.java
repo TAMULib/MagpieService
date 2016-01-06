@@ -381,9 +381,15 @@ public class DocumentPushService
 		//**************************************
 		// PUT txt bitstream metadata
 		//**************************************
-		//put the txt bitstream into the TEXT bundle
+		//put the txt bitstream into the TEXT bundle and set the READ policy to the groupId.
 		//REST endpoint is PUT /bitstreams/{bitstream id} - Update metadata of bitstream. You must put a Bitstream, does not alter the file/data
 		String txtBitstreamId = txtBitstreamJson.get("id").asText();
+		policiesNode = txtBitstreamJson.putArray("policies");
+		policyNode = objectMapper.createObjectNode();
+		policyNode.put("action", "READ");
+		policyNode.put("groupId", groupId);
+		policyNode.put("rpType", "TYPE_CUSTOM");
+		policiesNode.add(policyNode);
 		txtBitstreamJson.put("bundleName", "TEXT");
 		
 		URL updateTXTBitstreamUrl;
