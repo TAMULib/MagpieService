@@ -59,6 +59,9 @@ public class DocumentPushService
 	@Value("${app.defaultCollectionId}")
 	private String collectionId;
 	
+	@Value("${app.defaultGroupId}")
+	private String groupId;
+	
 	@Value("${app.defaultRepoUrl}")
 	private String repoUrl;
 	
@@ -122,9 +125,7 @@ public class DocumentPushService
         
         document = documentRepo.save(document);
         
-        //return the document in an ApiResponse
         return document;
-
 	}
 	
 	private JsonNode createItem(Document document) throws ParserConfigurationException, TransformerException, IOException
@@ -137,7 +138,6 @@ public class DocumentPushService
 			murle.setStackTrace(e.getStackTrace());
 			throw murle;
 		}
-		
 		
 		//produce the XML data from the document that we will post to the REST API
 		String xmlDataToPost;
@@ -164,9 +164,7 @@ public class DocumentPushService
 		
 		String taskDescription = "post item";
 		
-		JsonNode responseNode = doRESTRequest(createItemUrl, "POST", xmlDataToPost.getBytes(), "application/xml", taskDescription);
-		
-		return responseNode;
+		return doRESTRequest(createItemUrl, "POST", xmlDataToPost.getBytes(), "application/xml", taskDescription);
 	}
 	
 	
@@ -220,7 +218,7 @@ public class DocumentPushService
 		}
 				
 	    
-	    System.out.println("Got response code " + connection.getResponseCode());
+	    System.out.println("REST request to " + taskDescription + " got response code " + connection.getResponseCode());
 	    //System.out.println("Got error stream " + connection.getErrorStream())
 	    
 		// Read response from item post
@@ -275,12 +273,15 @@ public class DocumentPushService
 			}
 	    }
 	    
-		
 		return responseNode;        
 	}
 
+	
+	
+	
+	
+	
 	private void addBitstreams(String itemId, Document document) throws IOException, ParserConfigurationException, TransformerException {
-		
 		
 		//*************************************
 		//  POST PDF file
@@ -308,7 +309,7 @@ public class DocumentPushService
 			throw e;
 		}
 		
-		System.out.println("*** Here is response from posting the PDF file " + pdfBitstreamJson.toString());
+		//System.out.println("*** Here is response from posting the PDF file " + pdfBitstreamJson.toString());
 		
 		String pdfBitstreamId = pdfBitstreamJson.get("id").asText();
 		
@@ -323,16 +324,11 @@ public class DocumentPushService
 
 		// Fix up the PDF bitstream metadata to have new policy, etc.
 		ArrayNode policiesNode = pdfBitstreamJson.putArray("policies");
-		
 		ObjectNode policyNode = objectMapper.createObjectNode();
 		policyNode.put("action", "READ");
-		//TODO:  get this out of config or whatever
-		policyNode.put("groupId", "5");
+		policyNode.put("groupId", groupId);
 		policyNode.put("rpType", "TYPE_CUSTOM");
-		
 		policiesNode.add(policyNode);
-		
-		
 		
 		URL addPolicyUrl;
 		try {
@@ -387,15 +383,8 @@ public class DocumentPushService
 		//**************************************
 		//put the txt bitstream into the TEXT bundle
 		//REST endpoint is PUT /bitstreams/{bitstream id} - Update metadata of bitstream. You must put a Bitstream, does not alter the file/data
-		
-		System.out.println("*** Here is the response from posting the text file: " + txtBitstreamJson.toString());
-		
 		String txtBitstreamId = txtBitstreamJson.get("id").asText();
-		
 		txtBitstreamJson.put("bundleName", "TEXT");
-		//txtBitstreamJson.put("description", "ocr goodness");
-		
-		System.out.println("*** And here it is again after changing stuff: " + txtBitstreamJson.toString());
 		
 		URL updateTXTBitstreamUrl;
 		try {
@@ -407,35 +396,21 @@ public class DocumentPushService
 			throw murle;
 		}
 		
-		System.out.println("Gimme a 200:");
-		JsonNode updateTXTBitstreamBundleResponse = null;
 		try {
-			updateTXTBitstreamBundleResponse = doRESTRequest(updateTXTBitstreamUrl, "PUT", txtBitstreamJson.toString().getBytes(), 
+			doRESTRequest(updateTXTBitstreamUrl, "PUT", txtBitstreamJson.toString().getBytes(), 
 					 "application/json", 
 					 "update TXT bitstream bundle");
-		} catch(Exception e) {
+		} catch(IOException e) {
+			IOException ioe = new IOException("Failed to update the text bitstream's bundle to TEXT. {" + e.getMessage() + "}");
+			ioe.setStackTrace(e.getStackTrace());
 			cleanUpFailedPublish(itemId);
+			throw ioe;
 		}
-																 
-		
-		//System.out.println("*** We got this response for our bundle changing request: " + updateTXTBitstreamBundleResponse.toString());
-		
-		
-				
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 	}
 	
 	
-	private String authenticateRest(String username, String password) {
+	private String authenticateRest(String username, String password) throws IOException {
 		
 		HttpURLConnection con;
 		String token = null;
@@ -468,8 +443,9 @@ public class DocumentPushService
 			
 			token = strBufRes.toString();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			IOException ioe = new IOException("Failed to authenticate to DSpace. {" + e.getMessage() + "}" );
+			ioe.setStackTrace(e.getStackTrace());
+			throw ioe;
 		}
 		return token;
 	}
@@ -515,15 +491,6 @@ public class DocumentPushService
         return stw.toString();
 	}
 	
-	private String generateBitstreamPostJSON(String id, String bundleName) throws ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException
-	{
-        ObjectNode objNode = objectMapper.createObjectNode();
-        objNode.put("bundleName", bundleName);
-        objNode.put("id", id);
-        
-        System.out.println("BitstreamPostJSON: " + objNode.toString());
-        return objNode.toString();
-	}
 	
 	private void cleanUpFailedPublish(String id) throws IOException
 	{
@@ -541,6 +508,5 @@ public class DocumentPushService
 		
 		doRESTRequest(deleteItemUrl, "DELETE", "".getBytes(), "application/json", "delete item");		
 	}
-	
 	
 }
