@@ -214,8 +214,9 @@ public class SyncService implements Runnable {
         		
         		String documentName = documentPath.getFileName().toString();
         		
+        		//TODO:  note these are hard-coded for the dissertation project :(
     			String pdfPath = mount + "/projects/"+projectName+"/"+documentName+"/"+documentName+".pdf";
-				String txtPath = mount + "/projects/"+projectName+"/"+documentName+"/"+documentName+".txt";
+			String txtPath = mount + "/projects/"+projectName+"/"+documentName+"/"+documentName+".pdf.txt";
         		String pdfUri = host+pdfPath;
         		String txtUri = host+txtPath;
         		
