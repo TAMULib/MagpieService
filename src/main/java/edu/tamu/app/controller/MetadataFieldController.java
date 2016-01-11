@@ -318,7 +318,9 @@ public class MetadataFieldController {
  			
  			PrintStream manifest = new PrintStream(itemDirectory+"/contents");
  			for (File file : originDir.listFiles()) {
- 	 			manifest.print(file.getName() + "\tbundle:ORIGINAL\tprimary:true\tpermissions:-r 'member'\n");
+ 				//if the file is of type txt, put it in the TEXT bundle.  Otherwise, ORIGINAL is the place to put it.
+ 				String bundleName = file.getName().endsWith("txt") ? "TEXT" : "ORIGINAL";
+ 	 			manifest.print(file.getName() + "\tbundle:" + bundleName + "\tprimary:true\tpermissions:-r 'member'\n");
  			}
  			manifest.print("license.txt\tbundle:LICENSE");
  			manifest.flush();
