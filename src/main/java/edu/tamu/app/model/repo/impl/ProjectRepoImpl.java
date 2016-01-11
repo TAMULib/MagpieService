@@ -49,10 +49,15 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
 	@Value("${app.defaultRepoUrl}")
 	private String defaultRepoUrl;
 	
+	@Value("${app.defaultRepoUIPath}")
+	private String defaultRepoUIPath;
+	
+	
+	
 	@Override
 	public Project create(Project project) {
 		//TODO:  just using one url for all projects - make it per-project
-		project.setRepositoryUrlString(defaultRepoUrl);
+		project.setRepositoryUIUrlString(defaultRepoUrl+"/"+defaultRepoUIPath);
 		return projectRepo.save(project);
 	}
 
