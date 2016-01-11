@@ -220,7 +220,6 @@ public class MapWatcherService implements Runnable {
 	
 	private void generateArchiveMaticaCSV(String projectName) {
 		logger.info("Writing Archivematica CSV for: "+projectName);
-		String [] elements = {"title","creator", "subject","description", "publisher","contributor", "date","type", "format","identifier", "source", "language", "relation","coverage", "rights"};		
 		String directory = "";
 		try {
 			directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/archivematica/";
@@ -231,89 +230,19 @@ public class MapWatcherService implements Runnable {
 		String archiveDirectoryName = directory+projectName;
 		
 		List<Document> documents = documentRepo.findByProjectNameAndStatus(projectName, "Published");
-		if(documents.size() > 0) {	
-			File archiveDirectory = new File(archiveDirectoryName);
-			if (archiveDirectory.isDirectory() == false) {
-				archiveDirectory.mkdir();
-			}
-	
-			Date date  = new Date();
-			String formatDate = new SimpleDateFormat("YYYY/mm/dd").format(date);
-			
-			Map<String,String> map = new HashMap<String, String>();
-			map.put("dc.identifier","");
-			map.put("dc.source","");
-			map.put("dc.relation","");
-			map.put("dc.coverage","");
-			for(Document document: documents) {		
-				File itemDirectory = new File(archiveDirectoryName + "/" + document.getName());
-				if (itemDirectory.isDirectory() == false) {
-					itemDirectory.mkdir();
-				}
-				Set<MetadataFieldGroup> metadataFields = document.getFields(); 			
-	 		
-				metadataFields.forEach(field -> {
-						String values ="";
-						boolean firstPass = true;
-						for(MetadataFieldValue medataFieldValue : field.getValues()) {					
-							if(firstPass) {
-								values = medataFieldValue.getValue();
-								firstPass = false;
-							}
-							else {
-								values += "||" +  medataFieldValue.getValue();
-							}					
-						}
-						map.put(field.getLabel().getName(),values);
-					});
-
-				// writing to the ArchiveMatica format metadata csv file
-				try{
-					CsvUtility csvUtil = new CsvUtility();
-					ArrayList<String> csvRow = new ArrayList<String>();
-					csvRow.add("parts");
-					for(int i=0;i<elements.length;i++) {
-						//writing the element 
-						for(Map.Entry<String, String> entry : map.entrySet()) {
-							if(entry.getKey().contains(elements[i])) {						
-								csvRow.add(entry.getKey());
-							}
-						}
-					}
-					csvUtil.appendRow(csvRow);
-					csvRow.clear();
-					csvRow.add("objects/"+document.getName());
-					//writing the data values
-					for(int i=0;i<elements.length;i++) {
-						for(Map.Entry<String,String> entry : map.entrySet()) {
-							if(entry.getKey().contains(elements[i])) {
-								
-								if(entry.getKey().contains("parts")) {
-									map.put(entry.getKey(), "objects/"+document.getName());
-								}
-								if(entry.getKey().contains("date")) {
-									map.put(entry.getKey(), formatDate);
-								}
-								if(entry.getKey().contains("type")) {
-									map.put(entry.getKey(), "Archival Information Package");
-								}
-								if(entry.getKey().contains("format")) {
-									map.put(entry.getKey(), "Image/tiff");
-								}
-								if(entry.getKey().contains("language")) {
-									map.put(entry.getKey(), "English");
-								}
-								csvRow.add(entry.getValue());
-							}
-						}
-					}
-					csvUtil.appendRow(csvRow);
-					csvRow.clear();
-					csvUtil.generateCsvFile(itemDirectory+"/metadata_"+System.currentTimeMillis()+".csv");
-				} catch(Exception ioe) {
-					logger.error(ioe);
-				}
-			}
+		
+		File archiveDirectory = new File(archiveDirectoryName);
+		if (archiveDirectory.isDirectory() == false) {
+			archiveDirectory.mkdir();
 		}
+		
+		for(Document document: documents) {
+			String itemDirectoryName = archiveDirectoryName + "/" + document.getName();
+			CsvUtility.generateOneArchiveMaticaCSV(document, itemDirectoryName);
+		}
+	
 	}
+	
+	
+	
 }
