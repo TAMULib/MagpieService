@@ -11,7 +11,6 @@ package edu.tamu.app.controller;
 
 import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
-
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
@@ -36,10 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -54,6 +50,8 @@ import edu.tamu.app.model.ProjectMinimal;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.framework.aspect.annotation.ApiMapping;
+import edu.tamu.framework.aspect.annotation.ApiVariable;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.Shib;
 import edu.tamu.framework.model.ApiResponse;
@@ -66,7 +64,7 @@ import edu.tamu.framework.model.ApiResponse;
  */
 @Component
 @RestController
-@MessageMapping("/metadata")
+@ApiMapping("/metadata")
 public class MetadataFieldController {
 	
 	@Value("${app.mount}") 
@@ -103,9 +101,8 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/projects")
+	@ApiMapping("/projects")
 	@Auth
-	@SendToUser
 	public ApiResponse getProjects(Message<?> message) throws Exception {
 		List<ProjectMinimal> projects = new ArrayList<>();
 		projects = projectRepo.findAllAsObject();
@@ -123,10 +120,9 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/unlock/{projectToUnlock}")
+	@ApiMapping("/unlock/{projectToUnlock}")
 	@Auth
-	@SendToUser
-	public ApiResponse unlockProject(Message<?> message, @DestinationVariable String projectToUnlock) throws Exception {
+	public ApiResponse unlockProject(Message<?> message, @ApiVariable String projectToUnlock) throws Exception {
 		Project project = projectRepo.findByName(projectToUnlock);
 		project.setIsLocked(false);;
 		projectRepo.save(project);
@@ -144,10 +140,9 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/headers/{project}")
+	@ApiMapping("/headers/{project}")
 	@Auth
-	@SendToUser
-	public ApiResponse getMetadataHeaders(Message<?> message, @DestinationVariable String project) throws Exception {
+	public ApiResponse getMetadataHeaders(Message<?> message, @ApiVariable String project) throws Exception {
 		
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
@@ -212,10 +207,9 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/csv/{project}")
+	@ApiMapping("/csv/{project}")
 	@Auth
-	@SendToUser
-	public ApiResponse getCSVByroject(Message<?> message, @DestinationVariable String project) throws Exception {
+	public ApiResponse getCSVByroject(Message<?> message, @ApiVariable String project) throws Exception {
 		
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
@@ -265,10 +259,9 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/saf/{project}")
-	@SendToUser
+	@ApiMapping("/saf/{project}")
 	@Auth
-	public ApiResponse saf(@Shib Object shibObj, @DestinationVariable String project) throws Exception {
+	public ApiResponse saf(@Shib Object shibObj, @ApiVariable String project) throws Exception {
 		
 		System.out.println("Generating SAF for project " + project);
 		
@@ -325,7 +318,9 @@ public class MetadataFieldController {
  			
  			PrintStream manifest = new PrintStream(itemDirectory+"/contents");
  			for (File file : originDir.listFiles()) {
- 	 			manifest.print(file.getName() + "\tbundle:ORIGINAL\tprimary:true\tpermissions:-r 'member'\n");
+ 				//if the file is of type txt, put it in the TEXT bundle.  Otherwise, ORIGINAL is the place to put it.
+ 				String bundleName = file.getName().endsWith("txt") ? "TEXT" : "ORIGINAL";
+ 	 			manifest.print(file.getName() + "\tbundle:" + bundleName + "\tprimary:true\tpermissions:-r 'member'\n");
  			}
  			manifest.print("license.txt\tbundle:LICENSE");
  			manifest.flush();
@@ -387,7 +382,7 @@ public class MetadataFieldController {
 		}
 		exportableProject.setIsLocked(true);
 		projectRepo.save(exportableProject);
-		return new ApiResponse(SUCCESS, "Your SAF has been written to the server filesystem.");
+		return new ApiResponse(SUCCESS, "Your SAF has been written to the server filesystem at " + archiveDirectoryName +".");
 	}
 	
 	private String escapeForXML(String value) {
@@ -409,10 +404,9 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/status/{status}")
+	@ApiMapping("/status/{status}")
 	@Auth
-	@SendToUser
-	public ApiResponse published(Message<?> message, @DestinationVariable String status) throws Exception {
+	public ApiResponse published(Message<?> message, @ApiVariable String status) throws Exception {
 		
 		List<List<String>> metadata = new ArrayList<List<String>>();
 		
@@ -448,9 +442,8 @@ public class MetadataFieldController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/all")
+	@ApiMapping("/all")
 	@Auth
-	@SendToUser
 	public ApiResponse all(Message<?> message) throws Exception {		
 		Map<String, List<MetadataFieldGroup>> metadataMap = new HashMap<String, List<MetadataFieldGroup>>();
 		metadataMap.put("list", metadataFieldGroupRepo.findAll());		

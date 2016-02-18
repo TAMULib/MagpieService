@@ -39,7 +39,7 @@ public class MockAuthServiceController {
 	@Autowired
 	private Environment env;
 		
-	@Value("${app.security.jwt.secret_key}")
+	@Value("${auth.security.jwt.secret-key}")
     private String secret_key;
 	
 	@Value("${shib.keys}")

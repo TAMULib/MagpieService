@@ -31,6 +31,7 @@ import edu.tamu.app.service.MapWatcherService;
 import edu.tamu.app.service.SyncService;
 import edu.tamu.app.service.WatcherManagerService;
 import edu.tamu.app.service.WatcherService;
+import edu.tamu.framework.CoreContextInitializedHandler;
 
 /** 
  * Handler for when the servlet context refreshes.
@@ -40,7 +41,7 @@ import edu.tamu.app.service.WatcherService;
  */
 @Component
 @ConditionalOnWebApplication
-public class ContextInitializedHandler implements ApplicationListener<ContextRefreshedEvent> {
+public class AppContextInitializedHandler extends CoreContextInitializedHandler {
     
 	@Autowired
 	private ApplicationContext appContext;
@@ -69,7 +70,7 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
     @Value("${app.symlink.create}") 
 	private String createSymlink;
     
-	private static final Logger logger = Logger.getLogger(ContextInitializedHandler.class);
+	private static final Logger logger = Logger.getLogger(AppContextInitializedHandler.class);
     
     /**
      * Method for event context refreshes.
@@ -122,6 +123,18 @@ public class ContextInitializedHandler implements ApplicationListener<ContextRef
     	
     	mapWatcherManagerService.addActiveWatcherService("maps");
 
-    }  
+    }
+
+	@Override
+	protected void before(ContextRefreshedEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void after(ContextRefreshedEvent event) {
+		// TODO Auto-generated method stub
+		
+	}  
     
 }
