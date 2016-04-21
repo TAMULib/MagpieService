@@ -18,7 +18,7 @@ import edu.tamu.app.model.MetadataFieldValue;
 
 public class CsvUtility {
 	
-	public ArrayList<ArrayList<String>> csvContents;
+	public static ArrayList<ArrayList<String>> csvContents;
 	
 	private static final Logger logger = Logger.getLogger(CsvUtility.class);
 	
@@ -60,21 +60,22 @@ public class CsvUtility {
 	}
 	
 	
-	
 	public static void generateOneArchiveMaticaCSV(Document document, String itemDirectoryName)
 	{
+		generateOneArchiveMaticaCSV(document, itemDirectoryName, false);
+	}
+	
+	
+	public static void generateOneArchiveMaticaCSV(Document document, String itemDirectoryName, Boolean testMode)
+	{	
+		
 		String [] elements = {"title","creator", "subject","description", "publisher","contributor", "date","type", "format","identifier", "source", "language", "relation","coverage", "rights"};		
 		
-		
-	
-		Date date  = new Date();
-		String formatDate = new SimpleDateFormat("YYYY/mm/dd").format(date);
-		
 		Map<String,String> map = new HashMap<String, String>();
-		map.put("dc.identifier","");
-		map.put("dc.source","");
-		map.put("dc.relation","");
-		map.put("dc.coverage","");
+		map.put("dc.identifier",document.getPublishedUriString());
+		//map.put("dc.source","");
+		//map.put("dc.relation","");
+		//map.put("dc.coverage","");
 
 		
 		File itemDirectory = new File(itemDirectoryName);
@@ -86,7 +87,7 @@ public class CsvUtility {
 		metadataFields.forEach(field -> {
 				String values ="";
 				boolean firstPass = true;
-				for(MetadataFieldValue medataFieldValue : field.getValues()) {					
+				for(MetadataFieldValue medataFieldValue : field.getValues()) {
 					if(firstPass) {
 						values = medataFieldValue.getValue();
 						firstPass = false;
@@ -99,8 +100,9 @@ public class CsvUtility {
 			});
 
 		// writing to the ArchiveMatica format metadata csv file
+		CsvUtility csvUtil = new CsvUtility();
 		try{
-			CsvUtility csvUtil = new CsvUtility();
+			
 			ArrayList<String> csvRow = new ArrayList<String>();
 			csvRow.add("parts");
 			for(int i=0;i<elements.length;i++) {
@@ -122,30 +124,15 @@ public class CsvUtility {
 						if(entry.getKey().contains("parts")) {
 							map.put(entry.getKey(), "objects/"+document.getName());
 						}
-						if(entry.getKey().contains("date")) {
-							map.put(entry.getKey(), formatDate);
-						}
-						if(entry.getKey().contains("type")) {
-							map.put(entry.getKey(), "Archival Information Package");
-						}
-						if(entry.getKey().contains("format")) {
-							map.put(entry.getKey(), "Image/tiff");
-						}
-						if(entry.getKey().contains("language")) {
-							map.put(entry.getKey(), "English");
-						}
 						csvRow.add(entry.getValue());
 					}
 				}
 			}
 			csvUtil.appendRow(csvRow);
 			csvRow.clear();
-			csvUtil.generateCsvFile(itemDirectory+"/metadata_"+System.currentTimeMillis()+".csv");
+			if(!testMode) csvUtil.generateCsvFile(itemDirectory+"/metadata_"+System.currentTimeMillis()+".csv");
 		} catch(Exception ioe) {
 			logger.error(ioe);
 		}
 	}
-	
-	
-	
 }

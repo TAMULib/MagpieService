@@ -55,7 +55,8 @@ import edu.tamu.framework.model.ApiResponse;
 /** 
  * Sync Service. Synchronizes project database with projects folders.
  * 
- * @author
+ * @author James Creel
+ * @author Micah Cooper
  *
  */
 @Service
@@ -156,7 +157,7 @@ public class SyncService implements Runnable {
 			e.printStackTrace();
 		}
 		
-		List<Path> projects = fileList(directory);
+		List<Path> projects = directoryList(directory);
         
         for(Path projectPath : projects) {
         	
@@ -305,6 +306,31 @@ public class SyncService implements Runnable {
         }
         logger.info("Sync Service Finished");
 	}
+	
+	/**
+	 * Retrieves a list of directories in a directory.
+	 * 
+	 * @param 		directory		String
+	 * 
+	 * @return		List<Path>
+	 * 
+	 */
+	public static List<Path> directoryList(String directory) {
+        List<Path> fileNames = new ArrayList<>();
+        
+        DirectoryStream.Filter<Path> filter = new DirectoryStream.Filter<Path>() {
+        	public boolean accept(Path path) throws IOException {
+        		return (Files.isDirectory(path));
+        	}
+        };
+        
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory), filter)) {
+            for (Path path : directoryStream) {
+                fileNames.add(path);            
+            }
+        } catch (IOException ex) {}
+        return fileNames;
+    }
 	
 	/**
 	 * Retrieves a list of files in a directory.
