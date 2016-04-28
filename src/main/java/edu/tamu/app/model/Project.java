@@ -30,6 +30,8 @@ public class Project {
 	@Id
 	private String name;
 	
+	private String repositoryUIUrlString;
+	
 	private Boolean isLocked = false;
 	
 	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
@@ -58,6 +60,14 @@ public class Project {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getRepositoryUrlString() {
+		return repositoryUIUrlString;
+	}
+
+	public void setRepositoryUIUrlString(String repositoryUIUrlString) {
+		this.repositoryUIUrlString = repositoryUIUrlString;
 	}
 
 	public Set<ProjectLabelProfile> getProfiles() {

@@ -19,6 +19,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -50,6 +52,8 @@ public class Document {
 	
 	private String txtPath;
 	
+	private String publishedUriString;
+	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name") 
 	@JsonIdentityReference(alwaysAsId = true)
@@ -58,7 +62,10 @@ public class Document {
 	@OneToMany(mappedBy="document", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REMOVE, CascadeType.REFRESH}, fetch = FetchType.EAGER, orphanRemoval = true)	
 	private Set<MetadataFieldGroup> fields = new HashSet<MetadataFieldGroup>();
 	
-	public Document() { }
+	public Document() 
+	{ 
+		this.publishedUriString = null;
+	}
 	
 	public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
 		this.project = project;
@@ -68,6 +75,7 @@ public class Document {
 		this.pdfPath = pdfPath;
 		this.txtPath = txtPath;
 		this.status = status;
+		this.publishedUriString = null;
 	}
 	
 	public String getName() {
@@ -134,6 +142,14 @@ public class Document {
 		this.txtPath = txtPath;
 	}
 
+	public String getPublishedUriString() {
+		return publishedUriString;
+	}
+
+	public void setPublishedUriString(String publishedUriString) {
+		this.publishedUriString = publishedUriString;
+	}
+
 	@JsonIgnore
 	public Project getProject() {
 		return project;
@@ -162,5 +178,4 @@ public class Document {
 	public void clearFields() {
 		fields = new HashSet<MetadataFieldGroup>();
 	}
-	
 }

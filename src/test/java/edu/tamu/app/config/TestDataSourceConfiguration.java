@@ -15,7 +15,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
  
 @Configuration
 @ComponentScan(basePackages = {"edu.tamu.app"})
-@PropertySource("classpath:/config/application.properties")
+@PropertySource({"classpath:/config/application.properties","classpath:/config/application-test.properties"})
 public class TestDataSourceConfiguration {
 
 	EmbeddedDatabase db;

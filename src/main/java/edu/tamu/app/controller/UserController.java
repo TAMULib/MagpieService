@@ -19,18 +19,16 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
+import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.aspect.annotation.Shib;
 import edu.tamu.framework.model.ApiResponse;
@@ -42,8 +40,8 @@ import edu.tamu.framework.model.Credentials;
  * @author
  *
  */
-@RestController
-@MessageMapping("/user")
+@Controller
+@ApiMapping("/user")
 public class UserController {
 
 	@Autowired
@@ -67,9 +65,7 @@ public class UserController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/credentials")
-	@RequestMapping("/credentials")
-	@SendToUser
+	@ApiMapping("/credentials")
 	@Auth
 	public ApiResponse credentials(@Shib Object shibObj) throws Exception {
 		return new ApiResponse(SUCCESS, (Credentials) shibObj);
@@ -86,9 +82,8 @@ public class UserController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/all")
+	@ApiMapping("/all")
 	@Auth
-	@SendToUser
 	public ApiResponse allUsers(Message<?> message) throws Exception {
 		Map<String,List<AppUser>> map = new HashMap<String,List<AppUser>>();
 		map.put("list", userRepo.findAll());		
@@ -105,9 +100,8 @@ public class UserController {
 	 * @throws 		Exception
 	 * 
 	 */
-	@MessageMapping("/update-role")
+	@ApiMapping("/update-role")
 	@Auth
-	@SendToUser
 	public ApiResponse updateRole(Message<?> message) throws Exception {		
 		
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
