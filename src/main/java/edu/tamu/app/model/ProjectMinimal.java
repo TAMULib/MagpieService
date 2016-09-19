@@ -1,5 +1,5 @@
 /* 
- * Project.java 
+ * ProjectMinimal.java 
  * 
  * Version: 
  *     $Id$ 
@@ -9,36 +9,36 @@
  */
 package edu.tamu.app.model;
 
-
 /**
  * 
  * 
- * @author 
+ * @author
  *
  */
 
 public class ProjectMinimal {
-	private String name;
-	private Boolean isLocked;
-	
-	public ProjectMinimal(String name,Boolean isLocked) {
-		setName(name);
-		setIsLocked(isLocked);
-	}
+    
+    private String name;
+    private Boolean isLocked;
 
-	public Boolean getIsLocked() {
-		return this.isLocked;
-	}
+    public ProjectMinimal(String name, Boolean isLocked) {
+        setName(name);
+        setIsLocked(isLocked);
+    }
 
-	public void setIsLocked(Boolean status) {
-		this.isLocked = status;
-	}
-	
-	public String getName() {
-		return name;
-	}
+    public Boolean getIsLocked() {
+        return this.isLocked;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setIsLocked(Boolean status) {
+        this.isLocked = status;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

@@ -15,9 +15,6 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -26,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import edu.tamu.framework.model.BaseEntity;
+
 /**
  * 
  * 
@@ -33,11 +32,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
-public class ProjectLabelProfile {
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+public class ProjectLabelProfile extends BaseEntity {
 	
 	@Column(nullable = false)
 	private String gloss;
@@ -67,27 +62,26 @@ public class ProjectLabelProfile {
 	@OneToMany(mappedBy="profile", fetch=FetchType.EAGER)	
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "name")
 	@JsonIdentityReference(alwaysAsId = true)
-	private Set<MetadataFieldLabel> labels = new HashSet<MetadataFieldLabel>();
+	private Set<MetadataFieldLabel> labels;
 	
-	public ProjectLabelProfile() { }
+	public ProjectLabelProfile() {
+	    labels = new HashSet<MetadataFieldLabel>();
+	    repeatable = false;
+        readOnly = false;
+        hidden = false;
+        required = false;
+	}
 
 	public ProjectLabelProfile(Project project, String gloss, Boolean repeatable, Boolean readOnly, Boolean hidden, Boolean required, InputType inputType, String defaultValue) {		
-		this.project = project;
+		this();
+	    this.project = project;
 		this.gloss = gloss;
-		this.repeatable = repeatable == null ? false : repeatable;
-		this.readOnly = readOnly == null ? false : readOnly;
-		this.hidden = hidden == null ?  false : hidden;
-		this.required = required == null ? false : required;
+		this.repeatable = repeatable == null ? this.repeatable : repeatable;
+		this.readOnly = readOnly == null ? this.readOnly : readOnly;
+		this.hidden = hidden == null ?  this.hidden : hidden;
+		this.required = required == null ? this.required : required;
 		this.inputType = inputType;
 		this.defaultValue = defaultValue;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getGloss() {

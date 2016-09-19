@@ -24,13 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +34,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
@@ -66,6 +58,9 @@ public class MapWatcherService implements Runnable {
 	
 	@Autowired
 	private DocumentRepo documentRepo;
+	
+	@Autowired
+    private CsvUtility csvUtility;
 	
 	@Value("${app.host}") 
    	private String host;
@@ -218,7 +213,7 @@ public class MapWatcherService implements Runnable {
         }
 	}
 	
-	private void generateArchiveMaticaCSV(String projectName) {
+	private void generateArchiveMaticaCSV(String projectName) throws IOException {
 		logger.info("Writing Archivematica CSV for: "+projectName);
 		String directory = "";
 		try {
@@ -238,7 +233,7 @@ public class MapWatcherService implements Runnable {
 		
 		for(Document document: documents) {
 			String itemDirectoryName = archiveDirectoryName + "/" + document.getName();
-			CsvUtility.generateOneArchiveMaticaCSV(document, itemDirectoryName);
+			csvUtility.generateOneArchiveMaticaCSV(document, itemDirectoryName);
 		}
 	
 	}

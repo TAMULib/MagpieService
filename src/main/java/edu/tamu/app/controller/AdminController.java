@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.Message;
 import org.springframework.stereotype.Controller;
 
 import edu.tamu.app.service.SyncService;
@@ -44,8 +43,6 @@ public class AdminController {
 	/**
 	 * Synchronizes the project directory with the database.
 	 * 
-	 * @param 		message			Message<?>
-	 * 
 	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
@@ -53,7 +50,7 @@ public class AdminController {
 	 */
 	@ApiMapping("/sync")
 	@Auth(role="ROLE_ADMIN")
-	public ApiResponse syncDocuments(Message<?> message) throws Exception {
+	public ApiResponse syncDocuments() throws Exception {
 		
 		logger.info("Syncronizing projects with database.");
 		

@@ -52,15 +52,14 @@ public class ControlledVocabularyRepoImpl implements ControlledVocabularyRepoCus
 	@Override
 	@Transactional
 	public void delete(ControlledVocabulary cv) {
-		 Set<MetadataFieldValue> values = cv.getValues();		 
-		 if(values.size() > 0) {	
+		 Set<MetadataFieldValue> values = cv.getValues();
+		 if(values != null && values.size() > 0) {	
 			 values.parallelStream().forEach(value -> {
 				 value.setCv(null);
 				 metadataFieldValueRepo.save(value);
 			 });
 			 cv.clearValues();
 		 }
-		 
 		 entityManager.remove(entityManager.contains(cv) ? cv : entityManager.merge(cv));
 	}
 	

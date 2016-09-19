@@ -9,23 +9,20 @@
  */
 package edu.tamu.app.model;
 
-import java.lang.Comparable;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+import edu.tamu.framework.model.BaseEntity;
 
 /**
  * 
@@ -34,12 +31,8 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
-public class MetadataFieldGroup implements Comparable<MetadataFieldGroup>  {
+public class MetadataFieldGroup extends BaseEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "name") 
 	@JsonIdentityReference(alwaysAsId = true)
@@ -48,29 +41,23 @@ public class MetadataFieldGroup implements Comparable<MetadataFieldGroup>  {
 	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	private MetadataFieldLabel label;
 	
-	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	private Set<MetadataFieldValue> values = new HashSet<MetadataFieldValue>();
+	@OneToMany(mappedBy = "field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+	private Set<MetadataFieldValue> values;
 	
-	public MetadataFieldGroup() { }
+	public MetadataFieldGroup() { 
+	    values = new HashSet<MetadataFieldValue>();
+	}
 	
 	public MetadataFieldGroup(MetadataFieldLabel label) {
+	    this();
 		this.label = label;
 	}
 	
 	public MetadataFieldGroup(Document document, MetadataFieldLabel label) {
+	    this(label);
 		this.document = document;
-		this.label = label;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 	
-	@JsonIgnore
 	public Document getDocument() {
 		return document;
 	}
@@ -106,29 +93,5 @@ public class MetadataFieldGroup implements Comparable<MetadataFieldGroup>  {
 	public void clearValues() {
 		values = new HashSet<MetadataFieldValue>();
 	}
-
-	
-	@Override
-	public boolean equals(Object obj) {
-		if(obj == null) {
-			return false;
-		}
-		if(!(obj instanceof MetadataFieldGroup)) {
-			return false;
-		}
-		MetadataFieldGroup other = (MetadataFieldGroup) obj;
-		return id.equals(other.id);
-	}
-
-	@Override
-	public int hashCode() {
-	    return id == null ? 0 : 29 * id.hashCode();
-	}
-
-
-    @Override
-    public int compareTo(MetadataFieldGroup f) {
-        return id.compareTo(f.getId());
-    }
 
 }

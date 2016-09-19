@@ -32,6 +32,6 @@ public interface AppUserRepo extends JpaRepository <AppUser, Long>, AppUserRepoC
 	 * @return		UserImpl
 	 * 
 	 */
-	public AppUser getUserByUin(Long uin);
+	public AppUser findByUin(Long uin);
 
 }

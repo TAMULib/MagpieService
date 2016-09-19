@@ -60,7 +60,7 @@ public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom 
 		}
 		
 		Set<MetadataFieldGroup> fields = label.getFields();		 
-		if(fields.size() > 0) {
+		if(fields != null && fields.size() > 0) {
 			fields.parallelStream().forEach(field -> {
 				field.setLabel(null);
 				metadataFieldRepo.save(field);

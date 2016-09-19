@@ -27,78 +27,76 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
 
 /**
-*
-* 
-* @author
-*
-*/
+ *
+ * 
+ * @author
+ *
+ */
 public class ProjectRepoImpl implements ProjectRepoCustom {
-	
-	@PersistenceContext
-	private EntityManager entityManager;
-	
-	@Autowired
-	private ProjectRepo projectRepo;
-	
-	@Autowired
-	private ProjectLabelProfileRepo projectFieldProfileRepo;
-	
-	@Autowired
-	private DocumentRepo documentRepo;
-	
-	@Value("${app.defaultRepoUrl}")
-	private String defaultRepoUrl;
-	
-	@Value("${app.defaultRepoUIPath}")
-	private String defaultRepoUIPath;
-	
-	
-	
-	@Override
-	public Project create(Project project) {
-		//TODO:  just using one url for all projects - make it per-project
-		project.setRepositoryUIUrlString(defaultRepoUrl+"/"+defaultRepoUIPath);
-		return projectRepo.save(project);
-	}
 
-	@Override
-	public Project create(String name) {
-		Project project = projectRepo.findByName(name);
-		if(project == null) {
-			return create(new Project(name));
-		}		
-		return project;
-	}
+    @PersistenceContext
+    private EntityManager entityManager;
 
-	@Override
-	@Transactional
-	public void delete(Project project) {
-		Set<ProjectLabelProfile> profiles = project.getProfiles();
-		if(profiles.size() > 0) {
-			profiles.parallelStream().forEach(profile -> {
-				profile.setProject(null);
-				projectFieldProfileRepo.save(profile);
-			});
-			project.clearProfiles();
-		}
-		
-		Set<Document> documents = project.getDocuments();
-		if(documents.size() > 0) {	
-			documents.parallelStream().forEach(document -> {
-				document.setProject(null);
-				documentRepo.save(document);
-			});
-			project.clearDocuments();
-		}
-				
-		entityManager.remove(entityManager.contains(project) ? project : entityManager.merge(project));
-	}
-	
-	@Override
-	public void deleteAll() {
-		projectRepo.findAll().parallelStream().forEach(project -> {
-			projectRepo.delete(project);
-		});
-	}
+    @Autowired
+    private ProjectRepo projectRepo;
+
+    @Autowired
+    private ProjectLabelProfileRepo projectFieldProfileRepo;
+
+    @Autowired
+    private DocumentRepo documentRepo;
+
+    @Value("${app.defaultRepoUrl}")
+    private String defaultRepoUrl;
+
+    @Value("${app.defaultRepoUIPath}")
+    private String defaultRepoUIPath;
+
+    @Override
+    public Project create(Project project) {
+        // TODO: just using one url for all projects - make it per-project
+        project.setRepositoryUIUrlString(defaultRepoUrl + "/" + defaultRepoUIPath);
+        return projectRepo.save(project);
+    }
+
+    @Override
+    public Project create(String name) {
+        Project project = projectRepo.findByName(name);
+        if (project == null) {
+            return create(new Project(name));
+        }
+        return project;
+    }
+
+    @Override
+    @Transactional
+    public void delete(Project project) {
+        Set<ProjectLabelProfile> profiles = project.getProfiles();
+        if (profiles != null && profiles.size() > 0) {
+            profiles.parallelStream().forEach(profile -> {
+                profile.setProject(null);
+                projectFieldProfileRepo.save(profile);
+            });
+            project.clearProfiles();
+        }
+
+        Set<Document> documents = project.getDocuments();
+        if (documents.size() > 0) {
+            documents.parallelStream().forEach(document -> {
+                document.setProject(null);
+                documentRepo.save(document);
+            });
+            project.clearDocuments();
+        }
+
+        entityManager.remove(entityManager.contains(project) ? project : entityManager.merge(project));
+    }
+
+    @Override
+    public void deleteAll() {
+        projectRepo.findAll().parallelStream().forEach(project -> {
+            projectRepo.delete(project);
+        });
+    }
 
 }

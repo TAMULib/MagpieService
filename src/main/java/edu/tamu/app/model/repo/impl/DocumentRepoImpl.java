@@ -91,7 +91,7 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
 		}
 		
 		Set<MetadataFieldGroup> fields = document.getFields();
-		if(fields.size() > 0) {
+		if(fields != null && fields.size() > 0) {
 			fields.parallelStream().forEach(field -> {
 				field.setDocument(null);
 				metadataFieldRepo.save(field);

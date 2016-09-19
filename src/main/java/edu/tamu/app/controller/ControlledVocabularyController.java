@@ -20,8 +20,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.Message;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -50,16 +48,14 @@ public class ControlledVocabularyController {
 	/**
 	 * Get all controller vocabulary.
 	 * 
-	 * @param 		message			Message<?>
-	 * 
 	 * @return		ApiResponse
 	 * 
 	 * @throws 		Exception
 	 * 
 	 */
 	@ApiMapping("/all")
-	@Auth
-	public ApiResponse getAllControlledVocabulary(Message<?> message) throws Exception {
+	@Auth(role = "ROLE_USER")
+	public ApiResponse getAllControlledVocabulary() throws Exception {
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
 		
@@ -86,7 +82,6 @@ public class ControlledVocabularyController {
 	/**
 	 * Get controlled vocabulary by label.
 	 * 
-	 * @param 		message			Message<?>
 	 * @param 		label			@DestinationVariable String
 	 * 
 	 * @return		ApiResponse
@@ -95,8 +90,8 @@ public class ControlledVocabularyController {
 	 * 
 	 */
 	@ApiMapping("/{label}")
-	@Auth
-	public ApiResponse getControlledVocabularyByField(Message<?> message, @ApiVariable String label) throws Exception {
+	@Auth(role = "ROLE_USER")
+	public ApiResponse getControlledVocabularyByField(@ApiVariable String label) throws Exception {
 		URL location = this.getClass().getResource("/config"); 
 		String fullPath = location.getPath();
 		

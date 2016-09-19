@@ -12,9 +12,9 @@ package edu.tamu.app.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import edu.tamu.framework.model.BaseEntity;
+
 /**
  * 
  * 
@@ -31,15 +33,15 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  *
  */
 @Entity
-public class ControlledVocabulary {
+public class ControlledVocabulary extends BaseEntity {
 
-	@Id
+    @Column(unique = true)
 	private String value;
 	
 	@OneToMany(mappedBy="cv", fetch = FetchType.EAGER)	
 	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldValue.class, property = "id")
 	@JsonIdentityReference(alwaysAsId = true)
-	private Set<MetadataFieldValue> values = new HashSet<MetadataFieldValue>();
+	private Set<MetadataFieldValue> values;
 	
 	@PrePersist
 	@PreUpdate
@@ -47,9 +49,12 @@ public class ControlledVocabulary {
 		value = value.replaceAll("[\u0000-\u001f]", "");
 	}
 	
-	public ControlledVocabulary() { }
+	public ControlledVocabulary() {
+	    values = new HashSet<MetadataFieldValue>();
+	}
 	
 	public ControlledVocabulary(String value) {
+	    this();
 		this.value = value;
 	}
 

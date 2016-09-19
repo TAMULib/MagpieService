@@ -59,7 +59,7 @@ public class ProjectLabelProfileRepoImpl implements ProjectLabelProfileRepoCusto
 	@Transactional
 	public void delete(ProjectLabelProfile profile) {
 		Set<MetadataFieldLabel> labels = profile.getLabels();
-		if(labels.size() > 0) {
+		if(labels != null && labels.size() > 0) {
 			labels.parallelStream().forEach(l -> {
 				l.setProfile(null);
 				metadataFieldLabelRepo.save(l);

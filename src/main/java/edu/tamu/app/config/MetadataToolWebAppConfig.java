@@ -15,9 +15,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -31,7 +33,9 @@ import edu.tamu.app.controller.interceptor.AppRestInterceptor;
  */
 @Configuration
 @ComponentScan(basePackages = {"edu.tamu.app.config", "edu.tamu.app.controller"})
-@ConfigurationProperties(prefix="app.controller")
+@ConfigurationProperties(prefix = "app.controller")
+@EnableJpaRepositories(basePackages = { "edu.tamu.app.model.repo" })
+@EntityScan(basePackages = { "edu.tamu.app.model" })
 public class MetadataToolWebAppConfig extends WebMvcConfigurerAdapter {
 			
 	 /**

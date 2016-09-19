@@ -35,11 +35,23 @@ public class AppUserRepoImpl implements AppUserRepoCustom {
 	 */
 	@Override
 	public AppUser create(Long uin) {
-		AppUser user = userRepo.getUserByUin(uin);
+		AppUser user = userRepo.findByUin(uin);
 		if(user == null) {
 			return userRepo.save(new AppUser(uin));
 		}
 		return user;
 	}
+	
+	/**
+     * {@inheritDoc}
+     */
+    @Override
+    public AppUser create(Long uin, String firstName, String lastName, String role) {
+        AppUser user = userRepo.findByUin(uin);
+        if (user == null) {
+            return userRepo.save(new AppUser(uin, firstName, lastName, role));
+        }
+        return user;
+    }
 
 }

@@ -78,7 +78,7 @@ public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom 
 		}
 		
 		Set<MetadataFieldValue> values = field.getValues();
-		if(values.size() > 0) {			
+		if(values != null && values.size() > 0) {			
 			values.parallelStream().forEach(value -> {
 				ControlledVocabulary cv = value.getCv();
 				if(cv != null) {

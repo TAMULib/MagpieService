@@ -21,8 +21,8 @@ import org.springframework.context.annotation.ComponentScan;
  * @author
  *
  */
-@ComponentScan(basePackages={"edu.tamu.framework", "edu.tamu.app"})
 @SpringBootApplication
+@ComponentScan(basePackages={"edu.tamu.framework", "edu.tamu.app"})
 public class WebServerInit extends SpringBootServletInitializer {
 	
 	/**
