@@ -9,126 +9,89 @@
  */
 package edu.tamu.app.model;
 
-import java.lang.Comparable;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+import edu.tamu.framework.model.BaseEntity;
 
 /**
  * 
  * 
- * @author 
+ * @author
  *
  */
 @Entity
-public class MetadataFieldGroup implements Comparable<MetadataFieldGroup>  {
+public class MetadataFieldGroup extends BaseEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "name") 
-	@JsonIdentityReference(alwaysAsId = true)
-	private Document document;
-	
-	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-	private MetadataFieldLabel label;
-	
-	@OneToMany(mappedBy="field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	private Set<MetadataFieldValue> values = new HashSet<MetadataFieldValue>();
-	
-	public MetadataFieldGroup() { }
-	
-	public MetadataFieldGroup(MetadataFieldLabel label) {
-		this.label = label;
-	}
-	
-	public MetadataFieldGroup(Document document, MetadataFieldLabel label) {
-		this.document = document;
-		this.label = label;
-	}
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    private Document document;
 
-	public Long getId() {
-		return id;
-	}
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH }, fetch = FetchType.EAGER)
+    private MetadataFieldLabel label;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
-	@JsonIgnore
-	public Document getDocument() {
-		return document;
-	}
+    @OneToMany(mappedBy = "field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private Set<MetadataFieldValue> values;
 
-	public void setDocument(Document document) {
-		this.document = document;
-	}
+    public MetadataFieldGroup() {
+        values = new HashSet<MetadataFieldValue>();
+    }
 
-	public MetadataFieldLabel getLabel() {
-		return label;
-	}
+    public MetadataFieldGroup(MetadataFieldLabel label) {
+        this();
+        this.label = label;
+    }
 
-	public void setLabel(MetadataFieldLabel label) {
-		this.label = label;
-	}
+    public MetadataFieldGroup(Document document, MetadataFieldLabel label) {
+        this(label);
+        this.document = document;
+    }
 
-	public Set<MetadataFieldValue> getValues() {
-		return values;
-	}
+    public Document getDocument() {
+        return document;
+    }
 
-	public void setValues(Set<MetadataFieldValue> values) {
-		this.values = values;
-	}
-	
-	public void addValue(MetadataFieldValue value) {
-		values.add(value);
-	}
-	
-	public void removeValue(MetadataFieldValue value) {
-		values.remove(value);
-	}
-	
-	public void clearValues() {
-		values = new HashSet<MetadataFieldValue>();
-	}
+    public void setDocument(Document document) {
+        this.document = document;
+    }
 
-	
-	@Override
-	public boolean equals(Object obj) {
-		if(obj == null) {
-			return false;
-		}
-		if(!(obj instanceof MetadataFieldGroup)) {
-			return false;
-		}
-		MetadataFieldGroup other = (MetadataFieldGroup) obj;
-		return id.equals(other.id);
-	}
+    public MetadataFieldLabel getLabel() {
+        return label;
+    }
 
-	@Override
-	public int hashCode() {
-	    return id == null ? 0 : 29 * id.hashCode();
-	}
+    public void setLabel(MetadataFieldLabel label) {
+        this.label = label;
+    }
 
+    public Set<MetadataFieldValue> getValues() {
+        return values;
+    }
 
-    @Override
-    public int compareTo(MetadataFieldGroup f) {
-        return id.compareTo(f.getId());
+    public void setValues(Set<MetadataFieldValue> values) {
+        this.values = values;
+    }
+
+    public void addValue(MetadataFieldValue value) {
+        values.add(value);
+    }
+
+    public void removeValue(MetadataFieldValue value) {
+        values.remove(value);
+    }
+
+    public void clearValues() {
+        values = new HashSet<MetadataFieldValue>();
     }
 
 }

@@ -18,13 +18,13 @@ import edu.tamu.app.model.Project;
  *
  */
 public interface ProjectRepoCustom {
-	
-	public Project create(Project project);
 
-	public Project create(String name);
-	
-	public void delete(Project project);
-	
-	public void deleteAll();
-	
+    public Project create(Project project);
+
+    public Project create(String name);
+
+    public void delete(Project project);
+
+    public void deleteAll();
+
 }
