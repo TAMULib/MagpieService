@@ -18,7 +18,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.ProjectLabelProfile;
+import edu.tamu.app.model.ProjectProfile;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
@@ -42,7 +42,7 @@ public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom 
 	private MetadataFieldGroupRepo metadataFieldRepo;
 	
 	@Override
-	public synchronized MetadataFieldLabel create(String name, ProjectLabelProfile profile) {		
+	public synchronized MetadataFieldLabel create(String name, ProjectProfile profile) {		
 		MetadataFieldLabel label = metadataFieldLabelRepo.findByName(name);
 		if(label == null) {
 			return metadataFieldLabelRepo.save(new MetadataFieldLabel(name, profile));
@@ -53,14 +53,14 @@ public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom 
 	@Override
 	@Transactional
 	public void delete(MetadataFieldLabel label) {
-		ProjectLabelProfile profile = label.getProfile();
+		ProjectProfile profile = label.getProfile();
 		if(profile != null) {
 			label.setProfile(null);
 			metadataFieldLabelRepo.save(label);
 		}
 		
 		Set<MetadataFieldGroup> fields = label.getFields();		 
-		if(fields != null && fields.size() > 0) {
+		if(fields.size() > 0) {
 			fields.parallelStream().forEach(field -> {
 				field.setLabel(null);
 				metadataFieldRepo.save(field);

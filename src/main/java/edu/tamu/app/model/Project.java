@@ -18,6 +18,10 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import edu.tamu.framework.model.BaseEntity;
 
 /**
@@ -37,13 +41,15 @@ public class Project extends BaseEntity {
     private Boolean isLocked = false;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    private Set<ProjectLabelProfile> profiles;
+    private Set<ProjectProfile> profiles;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = false)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Set<Document> documents;
 
     public Project() { 
-        profiles = new HashSet<ProjectLabelProfile>();
+        profiles = new HashSet<ProjectProfile>();
         documents = new HashSet<Document>();
     }
 
@@ -76,24 +82,24 @@ public class Project extends BaseEntity {
         this.repositoryUIUrlString = repositoryUIUrlString;
     }
 
-    public Set<ProjectLabelProfile> getProfiles() {
+    public Set<ProjectProfile> getProfiles() {
         return profiles;
     }
 
-    public void setProfiles(Set<ProjectLabelProfile> profiles) {
+    public void setProfiles(Set<ProjectProfile> profiles) {
         this.profiles = profiles;
     }
 
-    public void addProfile(ProjectLabelProfile profile) {
+    public void addProfile(ProjectProfile profile) {
         profiles.add(profile);
     }
 
-    public void removeProfile(ProjectLabelProfile profile) {
+    public void removeProfile(ProjectProfile profile) {
         profiles.remove(profile);
     }
 
     public void clearProfiles() {
-        profiles = new HashSet<ProjectLabelProfile>();
+        profiles = new HashSet<ProjectProfile>();
     }
 
     public Set<Document> getDocuments() {

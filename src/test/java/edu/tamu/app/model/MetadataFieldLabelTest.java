@@ -16,9 +16,9 @@ import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectLabelProfile;
+import edu.tamu.app.model.ProjectProfile;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
+import edu.tamu.app.model.repo.ProjectProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 @WebAppConfiguration
@@ -34,11 +34,11 @@ public class MetadataFieldLabelTest {
     private MetadataFieldLabelRepo metadataFieldLabelRepo;
 
     @Autowired
-    private ProjectLabelProfileRepo projectFieldProfileRepo;
+    private ProjectProfileRepo projectFieldProfileRepo;
 
     private Project testProject;
 
-    private ProjectLabelProfile testProfile;
+    private ProjectProfile testProfile;
 
     @Before
     public void setUp() {

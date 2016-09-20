@@ -38,7 +38,7 @@ public class MetadataFieldLabel extends BaseEntity {
     private String name;
 
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH }, fetch = FetchType.EAGER)
-    private ProjectLabelProfile profile;
+    private ProjectProfile profile;
 
     @OneToMany(mappedBy = "label", fetch = FetchType.EAGER)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id")
@@ -49,7 +49,7 @@ public class MetadataFieldLabel extends BaseEntity {
         fields = new HashSet<MetadataFieldGroup>();
     }
 
-    public MetadataFieldLabel(String name, ProjectLabelProfile profile) {
+    public MetadataFieldLabel(String name, ProjectProfile profile) {
         this();
         this.name = name;
         this.profile = profile;
@@ -63,11 +63,11 @@ public class MetadataFieldLabel extends BaseEntity {
         this.name = name;
     }
 
-    public ProjectLabelProfile getProfile() {
+    public ProjectProfile getProfile() {
         return profile;
     }
 
-    public void setProfile(ProjectLabelProfile profile) {
+    public void setProfile(ProjectProfile profile) {
         this.profile = profile;
     }
 

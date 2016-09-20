@@ -15,8 +15,8 @@ import org.tdl.vireo.runner.OrderedRunner;
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectLabelProfile;
-import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
+import edu.tamu.app.model.ProjectProfile;
+import edu.tamu.app.model.repo.ProjectProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 @WebAppConfiguration
@@ -29,7 +29,7 @@ public class ProjectFieldProfileTest {
     private ProjectRepo projectRepo;
 
     @Autowired
-    private ProjectLabelProfileRepo projectFieldProfileRepo;
+    private ProjectProfileRepo projectFieldProfileRepo;
 
     private Project testProject;
 
@@ -42,7 +42,7 @@ public class ProjectFieldProfileTest {
     @Test
     @Order(1)
     public void testSaveProjectFieldProfile() {
-        ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+        ProjectProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
         Assert.assertEquals("Test ProjectFieldProfile with expected project was not created.", "testProject", testProfile.getProject().getName());
     }
@@ -58,16 +58,16 @@ public class ProjectFieldProfileTest {
     @Test
     @Order(3)
     public void testFindProjectFieldProfile() {
-        ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+        ProjectProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
-        ProjectLabelProfile assertProfile = projectFieldProfileRepo.findByProjectAndGlossAndRepeatableAndReadOnlyAndHiddenAndRequiredAndInputTypeAndDefaultValue(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+        ProjectProfile assertProfile = projectFieldProfileRepo.findByProjectAndGlossAndRepeatableAndReadOnlyAndHiddenAndRequiredAndInputTypeAndDefaultValue(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         Assert.assertEquals("Test ProjectFieldProfile with expected project was not found.", testProfile.getProject().getName(), assertProfile.getProject().getName());
     }
 
     @Test
     @Order(4)
     public void testDeleteProjectFieldProfile() {
-        ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+        ProjectProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
         projectFieldProfileRepo.delete(testProfile);
         Assert.assertEquals("Test ProjectFieldProfile was not deleted.", 0, projectFieldProfileRepo.count());

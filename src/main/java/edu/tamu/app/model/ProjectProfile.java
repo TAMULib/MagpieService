@@ -32,7 +32,7 @@ import edu.tamu.framework.model.BaseEntity;
  *
  */
 @Entity
-public class ProjectLabelProfile extends BaseEntity {
+public class ProjectProfile extends BaseEntity {
 	
 	@Column(nullable = false)
 	private String gloss;
@@ -64,7 +64,7 @@ public class ProjectLabelProfile extends BaseEntity {
 	@JsonIdentityReference(alwaysAsId = true)
 	private Set<MetadataFieldLabel> labels;
 	
-	public ProjectLabelProfile() {
+	public ProjectProfile() {
 	    labels = new HashSet<MetadataFieldLabel>();
 	    repeatable = false;
         readOnly = false;
@@ -72,7 +72,7 @@ public class ProjectLabelProfile extends BaseEntity {
         required = false;
 	}
 
-	public ProjectLabelProfile(Project project, String gloss, Boolean repeatable, Boolean readOnly, Boolean hidden, Boolean required, InputType inputType, String defaultValue) {		
+	public ProjectProfile(Project project, String gloss, Boolean repeatable, Boolean readOnly, Boolean hidden, Boolean required, InputType inputType, String defaultValue) {		
 		this();
 	    this.project = project;
 		this.gloss = gloss;

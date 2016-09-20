@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.MetadataFieldLabel;
-import edu.tamu.app.model.ProjectLabelProfile;
+import edu.tamu.app.model.ProjectProfile;
 import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
 
 /**
@@ -25,7 +25,7 @@ import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
 @Repository
 public interface MetadataFieldLabelRepo extends JpaRepository <MetadataFieldLabel, Long>, MetadataFieldLabelRepoCustom {
 	
-	public MetadataFieldLabel create(String name, ProjectLabelProfile profile);
+	public MetadataFieldLabel create(String name, ProjectProfile profile);
 	
 	public MetadataFieldLabel findByName(String name);
 	

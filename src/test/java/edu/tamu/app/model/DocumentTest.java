@@ -18,12 +18,12 @@ import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectLabelProfile;
+import edu.tamu.app.model.ProjectProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
+import edu.tamu.app.model.repo.ProjectProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 @WebAppConfiguration
@@ -48,7 +48,7 @@ public class DocumentTest {
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Autowired
-    private ProjectLabelProfileRepo projectFieldProfileRepo;
+    private ProjectProfileRepo projectProfileRepo;
 
     private Project testProject;
 
@@ -93,9 +93,9 @@ public class DocumentTest {
         Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
         Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 
-        Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
-        ProjectLabelProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-        Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
+        Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectProfileRepo.count());
+        ProjectProfile testProfile = projectProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+        Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectProfileRepo.count());
 
         Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
         MetadataFieldLabel testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
@@ -119,7 +119,7 @@ public class DocumentTest {
 
         Assert.assertEquals("Test MetadataFieldLabel was deleted.", 1, metadataFieldLabelRepo.count());
 
-        Assert.assertEquals("Test ProjectFieldProfile was deleted.", 1, projectFieldProfileRepo.count());
+        Assert.assertEquals("Test ProjectFieldProfile was deleted.", 1, projectProfileRepo.count());
 
         Assert.assertEquals("Test MetadataField was not deleted.", 0, metadataFieldGroupRepo.count());
 
@@ -128,7 +128,7 @@ public class DocumentTest {
 
     @After
     public void cleanUp() {
-        projectFieldProfileRepo.deleteAll();
+        projectProfileRepo.deleteAll();
         metadataFieldValueRepo.deleteAll();
         metadataFieldLabelRepo.deleteAll();
         metadataFieldGroupRepo.deleteAll();

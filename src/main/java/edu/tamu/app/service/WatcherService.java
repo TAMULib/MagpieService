@@ -47,12 +47,12 @@ import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectLabelProfile;
+import edu.tamu.app.model.ProjectProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.ProjectLabelProfileRepo;
+import edu.tamu.app.model.repo.ProjectProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.framework.model.ApiResponse;
@@ -101,7 +101,7 @@ public class WatcherService implements Runnable {
 	private MetadataFieldValueRepo metadataFieldValueRepo;
 	
 	@Autowired
-	private ProjectLabelProfileRepo projectLabelProfileRepo;
+	private ProjectProfileRepo projectLabelProfileRepo;
 	
 	@Value("${app.host}") 
    	private String host;
@@ -200,7 +200,7 @@ public class WatcherService implements Runnable {
 				
 				Map<String, Object> mMap = (Map<String, Object>) metadata;
 				
-				ProjectLabelProfile profile = projectLabelProfileRepo.create(projectRepo.findByName(folder),
+				ProjectProfile profile = projectLabelProfileRepo.create(projectRepo.findByName(folder),
 																			 mMap.get("gloss") == null ? "" : (String) mMap.get("gloss"), 
 																			 mMap.get("repeatable") == null ? false : (Boolean) mMap.get("repeatable"), 
 																			 mMap.get("readOnly") == null ? false : (Boolean) mMap.get("readOnly"),

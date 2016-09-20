@@ -53,7 +53,7 @@ public class ControlledVocabularyRepoImpl implements ControlledVocabularyRepoCus
 	@Transactional
 	public void delete(ControlledVocabulary cv) {
 		 Set<MetadataFieldValue> values = cv.getValues();
-		 if(values != null && values.size() > 0) {	
+		 if(values.size() > 0) {	
 			 values.parallelStream().forEach(value -> {
 				 value.setCv(null);
 				 metadataFieldValueRepo.save(value);
