@@ -21,8 +21,6 @@ public class CsvUtility {
 
     private static final Logger logger = Logger.getLogger(CsvUtility.class);
 
-    public CsvUtility() { }
-
     public void generateCsvFile(List<List<String>> csvContents, String csvFileName) throws IOException {
         if (csvContents.size() > 0) {
             FileWriter fileWriter = new FileWriter(csvFileName);
@@ -48,7 +46,7 @@ public class CsvUtility {
         return csv;
     }
 
-    public List<List<String>> generateOneArchiveMaticaCSV(Document document, String itemDirectoryName) throws IOException {
+    public List<List<String>> documentToList(Document document) throws IOException {
 
         List<List<String>> csvContents = new ArrayList<List<String>>();
 
@@ -60,10 +58,6 @@ public class CsvUtility {
         // map.put("dc.relation","");
         // map.put("dc.coverage","");
 
-        File itemDirectory = new File(itemDirectoryName);
-        if (itemDirectory.isDirectory() == false) {
-            itemDirectory.mkdir();
-        }
         Set<MetadataFieldGroup> metadataFields = document.getFields();
 
         metadataFields.forEach(field -> {
@@ -90,11 +84,11 @@ public class CsvUtility {
                 }
             }
         }
-        
+
         csvContents.add(new ArrayList<String>(csvRow));
         csvRow.clear();
         csvRow.add("objects/" + document.getName());
-        
+
         // writing the data values
         for (int i = 0; i < elements.length; i++) {
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -110,9 +104,21 @@ public class CsvUtility {
         csvContents.add(new ArrayList<String>(csvRow));
         csvRow.clear();
 
-        generateCsvFile(csvContents, itemDirectory + "/metadata_" + System.currentTimeMillis() + ".csv");
-        
-        return csvContents;        
+        return csvContents;
     }
-    
+
+    public List<List<String>> generateOneArchiveMaticaCSV(Document document, String itemDirectoryName) throws IOException {
+
+        List<List<String>> csvContents = documentToList(document);
+
+        File itemDirectory = new File(itemDirectoryName);
+        if (itemDirectory.isDirectory() == false) {
+            itemDirectory.mkdir();
+        }
+
+        generateCsvFile(csvContents, itemDirectory + "/metadata_" + System.currentTimeMillis() + ".csv");
+
+        return csvContents;
+    }
+
 }

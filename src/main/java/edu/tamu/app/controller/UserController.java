@@ -13,7 +13,7 @@ import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
@@ -30,7 +30,7 @@ import edu.tamu.framework.model.Credentials;
  * @author
  *
  */
-@Controller
+@RestController
 @ApiMapping("/user")
 public class UserController {
 
@@ -85,9 +85,10 @@ public class UserController {
      * @throws Exception
      * 
      */
-    @ApiMapping("/update-role")
+    @ApiMapping("/update")
     @Auth(role = "ROLE_USER")
     public ApiResponse updateRole(@ApiModel AppUser user) throws Exception {
+        System.out.println(user.getRole().toString());
         user = userRepo.save(user);
         simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
         return new ApiResponse(SUCCESS, user);

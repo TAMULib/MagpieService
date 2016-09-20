@@ -11,6 +11,7 @@ package edu.tamu.app.model;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -63,7 +64,7 @@ public class Document extends BaseEntity {
 
     public Document() {
         publishedUriString = null;
-        fields = new HashSet<MetadataFieldGroup>();
+        fields = new TreeSet<MetadataFieldGroup>();
     }
 
     public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {

@@ -13,9 +13,7 @@ import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +25,9 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.PartialDocument;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
@@ -48,7 +45,7 @@ import edu.tamu.framework.model.ApiResponse;
  * @author
  *
  */
-@Controller
+@RestController
 @ApiMapping("/document")
 public class DocumentController {
 
@@ -98,9 +95,7 @@ public class DocumentController {
     @Auth(role = "ROLE_USER")
     @SendToUser
     public ApiResponse allDocuments() throws Exception {
-        Map<String, List<Document>> map = new HashMap<String, List<Document>>();
-        map.put("list", documentRepo.findAll());
-        return new ApiResponse(SUCCESS, map);
+        return new ApiResponse(SUCCESS, documentRepo.findAll());
     }
 
     /**
@@ -114,15 +109,10 @@ public class DocumentController {
      * @throws Exception
      * 
      */
-    @ApiMapping("/get")
+    @ApiMapping("/get/{name}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse documentByName(@ApiData Map<String, String> headers) throws Exception {
-
-        Document document = documentRepo.findByName(headers.get("name"));
-
-        document.setFields(new TreeSet<MetadataFieldGroup>(document.getFields()));
-
-        return new ApiResponse(SUCCESS, document);
+    public ApiResponse documentByName(@ApiVariable String name) throws Exception {
+        return new ApiResponse(SUCCESS, documentRepo.findByName(name));
     }
 
     /**
@@ -138,21 +128,21 @@ public class DocumentController {
      */
     @ApiMapping("/page")
     @Auth(role = "ROLE_USER")
-    public ApiResponse pageDocuments(@ApiData Map<String, String> headers) throws Exception {
+    public ApiResponse pageDocuments(@ApiData Map<String, String> data) throws Exception {
 
         Direction sortDirection;
-
-        if (headers.get("direction").equals("asc")) {
+        
+        if (data.get("direction").equals("asc")) {
             sortDirection = Sort.Direction.ASC;
         } else {
             sortDirection = Sort.Direction.DESC;
         }
 
-        String name = headers.get("name");
-        String annotator = headers.get("annotator");
+        String name = data.get("name");
+        String annotator = data.get("annotator");
         String[] status = new String[2];
 
-        status[0] = headers.get("status");
+        status[0] = data.get("status");
 
         if (status[0].equals("Assigned")) {
             status[1] = "Rejected";
@@ -160,7 +150,7 @@ public class DocumentController {
             status[1] = "";
         }
 
-        Pageable request = new PageRequest(Integer.parseInt(headers.get("page")) - 1, Integer.parseInt(headers.get("size")), sortDirection, headers.get("field"));
+        Pageable request = new PageRequest(Integer.parseInt(data.get("page")) - 1, Integer.parseInt(data.get("size")), sortDirection, data.get("field"));
 
         Page<PartialDocument> partialDocuments = null;
 
@@ -216,9 +206,9 @@ public class DocumentController {
      */
     @ApiMapping("/update")
     @Auth(role = "ROLE_USER")
-    public ApiResponse update(@ApiData Map<String, String> headers) throws Exception {
+    public ApiResponse update(@ApiData Map<String, String> data) throws Exception {
 
-        int results = documentRepo.quickSave(headers.get("name"), (headers.get("status").equals("Open")) ? "" : headers.get("user"), headers.get("status"), headers.get("notes"));
+        int results = documentRepo.quickSave(data.get("name"), (data.get("status").equals("Open")) ? "" : data.get("user"), data.get("status"), data.get("notes"));
 
         if (results < 1) {
             return new ApiResponse(ERROR, "Document not updated");
@@ -226,7 +216,7 @@ public class DocumentController {
 
         Map<String, Object> documentMap = new HashMap<String, Object>();
 
-        documentMap.put("document", documentRepo.findByName(headers.get("name")));
+        documentMap.put("document", documentRepo.findByName(data.get("name")));
         documentMap.put("isNew", "false");
 
         simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
@@ -270,21 +260,22 @@ public class DocumentController {
      * @throws Exception
      * 
      */
-    @ApiMapping("/push")
+    @ApiMapping("/push/{name}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse push(@ApiData Document document) {
+    public ApiResponse push(@ApiVariable String name) {
 
+        Document document = documentRepo.findByName(name);
+        
         Map<String, Object> documentMap = new HashMap<String, Object>();
-
-        Document res;
+        
         try {
-            res = documentPushService.push(document);
+            document = documentPushService.push(document);
         } catch (Exception e) {
             logger.error("The documentPushService threw an exception", e);
             return new ApiResponse(ERROR, e.getMessage());
         }
 
-        documentMap.put("document", res);
+        documentMap.put("document", document);
         documentMap.put("isNew", "false");
 
         simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));

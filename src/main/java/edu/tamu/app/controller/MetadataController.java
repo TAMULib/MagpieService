@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -45,7 +44,6 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectMinimal;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
@@ -60,10 +58,9 @@ import edu.tamu.framework.model.ApiResponse;
  * @author
  *
  */
-@Component
 @RestController
 @ApiMapping("/metadata")
-public class MetadataFieldController {
+public class MetadataController {
     
     @Value("${app.mount}") 
     private String mount;
@@ -86,27 +83,8 @@ public class MetadataFieldController {
     @Autowired 
     private SimpMessagingTemplate simpMessagingTemplate; 
     
-    private static final Logger logger = Logger.getLogger(MetadataFieldController.class);
+    private static final Logger logger = Logger.getLogger(MetadataController.class);
 
-    
-    /**
-     * Endpoint to return list of projects.
-     * 
-     * @param       message         Message<?>
-     * 
-     * @return      ApiResponse
-     * 
-     * @throws      Exception
-     * 
-     */
-    @ApiMapping("/projects")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse getProjects() throws Exception {
-        List<ProjectMinimal> projects = new ArrayList<>();
-        projects = projectRepo.findAllAsObject();
-        return new ApiResponse(SUCCESS, projects);
-    }
-    
     /**
      * Endpoint to unlock a given project
      * 

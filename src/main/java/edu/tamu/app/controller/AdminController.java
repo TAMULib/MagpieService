@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.service.SyncService;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
@@ -28,7 +28,7 @@ import edu.tamu.framework.model.ApiResponse;
  * @author
  *
  */
-@Controller
+@RestController
 @ApiMapping("/admin")
 public class AdminController {
 	

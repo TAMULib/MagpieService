@@ -9,6 +9,8 @@
  */
 package edu.tamu.app.controller.interceptor;
 
+import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Component;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.framework.interceptor.CoreStompInterceptor;
+import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.Credentials;
 
 /**
@@ -101,6 +104,8 @@ public class AppStompInterceptor extends CoreStompInterceptor {
             }
             
             logger.info(Long.parseLong(credentials.getUin()));
+            
+            simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
 
         } else {
             credentials.setRole(user.getRole().toString());
