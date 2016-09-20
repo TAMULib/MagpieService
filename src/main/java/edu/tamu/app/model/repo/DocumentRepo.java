@@ -111,6 +111,20 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
     public int quickSave(@Param("name") String name, @Param("annotator") String annotator, @Param("status") String status, @Param("notes") String notes);
 
     /**
+     * Updates document.
+     * 
+     * @param name
+     * @param annotator
+     * @param status
+     * @param notes
+     * @return Document
+     */
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE Document set status = :status WHERE name = :name")
+    public int quickUpdateStatus(@Param("name") String name, @Param("status") String status);
+
+    /**
      * Retrieve all documents.
      * 
      * @param page

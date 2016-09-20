@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.repository.query.Param;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -114,8 +115,8 @@ public class DocumentController {
     @ApiMapping("/get/{name}")
     @Auth(role = "ROLE_USER")
     public ApiResponse documentByName(@ApiVariable String name) throws Exception {
-        Document document = documentRepo.findByName(name);        
-        document.setFields(new TreeSet<MetadataFieldGroup>(document.getFields()));        
+        Document document = documentRepo.findByName(name);
+        document.setFields(new TreeSet<MetadataFieldGroup>(document.getFields()));
         return new ApiResponse(SUCCESS, document);
     }
 
@@ -212,7 +213,13 @@ public class DocumentController {
     @Auth(role = "ROLE_USER")
     public ApiResponse update(@ApiData Map<String, String> data) throws Exception {
 
-        int results = documentRepo.quickSave(data.get("name"), (data.get("status").equals("Open")) ? "" : data.get("user"), data.get("status"), data.get("notes"));
+        int results;
+
+        if (data.get("user") != null) {
+            results = documentRepo.quickSave(data.get("name"), (data.get("status").equals("Open")) ? "" : data.get("user"), data.get("status"), data.get("notes"));
+        } else {
+            results = documentRepo.quickUpdateStatus(data.get("name"), data.get("status"));
+        }
 
         if (results < 1) {
             return new ApiResponse(ERROR, "Document not updated");
