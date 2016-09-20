@@ -216,15 +216,19 @@ public class WatcherService implements Runnable {
 
             logger.info("Watch Service registered for dir: " + dir.getFileName());
 
+            WatchKey key;
+            
             while (true) {
-                WatchKey key;
+                
                 try {
                     key = watcher.take();
                 } catch (InterruptedException ex) {
+                    ex.printStackTrace();
                     return;
                 }
 
                 for (WatchEvent<?> event : key.pollEvents()) {
+                    
                     WatchEvent.Kind<?> kind = event.kind();
                     WatchEvent<Path> ev = (WatchEvent<Path>) event;
                     Path fileName = ev.context();
@@ -234,8 +238,9 @@ public class WatcherService implements Runnable {
                     logger.info(kind.name() + ": " + fileName);
 
                     if (kind == ENTRY_CREATE) {
+                        
                         if (folder.equals("projects")) {
-
+                            
                             if (!watcherManagerService.isWatcherServiceActive(docString)) {
 
                                 WatcherService watcherService = new WatcherService(docString);
@@ -249,12 +254,14 @@ public class WatcherService implements Runnable {
 
                                 watcherManagerService.addActiveWatcherService(docString);
                             }
+                            else {
+                                logger.info("Watcher service for directory: " + docString + " already started!");
+                            }
                         } else {
-
+                            
                             if ((documentRepo.findByName(docString) == null)) {
 
-                                // TODO: note these are hard-coded for the
-                                // dissertation project :(
+                                // TODO: note these are hard-coded for the dissertation project :(
                                 String pdfPath = mount + "/projects/" + folder + "/" + docString + "/" + docString + ".pdf";
                                 String txtPath = mount + "/projects/" + folder + "/" + docString + "/" + docString + ".txt";
 
@@ -310,8 +317,8 @@ public class WatcherService implements Runnable {
                                         }
                                     });
 
-                                } catch (Exception e1) {
-                                    logger.error("ERROR WHILE TRYING TO RETRIEVE MARC RECORD!!!", e1);
+                                } catch (Exception e) {
+                                    logger.error("EXCEPTION WHILE TRYING TO RETRIEVE MARC RECORD!!!", e);
                                 }
 
                                 project.addDocument(documentRepo.save(document));
@@ -323,8 +330,7 @@ public class WatcherService implements Runnable {
                                 try {
                                     simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, docMap));
                                 } catch (Exception e) {
-                                    logger.error("CRASHED WHILE TRYING TO SEND DOCUMENT!!!", e);
-                                    System.exit(-1);
+                                    logger.error("EXCEPTION WHILE TRYING TO SEND DOCUMENT!!!", e);
                                 }
 
                                 projectRepo.save(project);
@@ -342,9 +348,8 @@ public class WatcherService implements Runnable {
 
                 }
 
-                boolean valid = key.reset();
-
-                if (!valid) {
+                if (! key.reset()) {
+                    logger.info("Key reset invalid!");
                     break;
                 }
             }

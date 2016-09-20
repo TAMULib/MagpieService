@@ -210,8 +210,7 @@ public class SyncService implements Runnable {
 
                 String documentName = documentPath.getFileName().toString();
 
-                // TODO: note these are hard-coded for the dissertation project
-                // :(
+                // TODO: note these are hard-coded for the dissertation project :(
                 String pdfPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf";
                 String txtPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf.txt";
 
@@ -272,7 +271,7 @@ public class SyncService implements Runnable {
                         });
 
                     } catch (Exception e1) {
-                        logger.error("ERROR WHILE TRYING TO RETRIEVE MARC RECORD!!!", e1);
+                        logger.error("EXCEPTION WHILE TRYING TO RETRIEVE MARC RECORD!!!", e1);
                     }
 
                     project.addDocument(documentRepo.save(document));
@@ -284,8 +283,7 @@ public class SyncService implements Runnable {
                     try {
                         simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, docMap));
                     } catch (Exception e) {
-                        logger.error("CRASHED WHILE TRYING TO SEND DOCUMENT!!!", e);
-                        System.exit(-1);
+                        logger.error("EXCEPTION WHILE TRYING TO SEND DOCUMENT!!!", e);
                     }
                 }
             });
@@ -293,8 +291,7 @@ public class SyncService implements Runnable {
             try {
                 projectRepo.save(project);
             } catch (Exception e) {
-                logger.error("CRASHED WHILE TRYING TO SAVE PROJECT!!!", e);
-                System.exit(-1);
+                logger.error("EXCEPTION WHILE TRYING TO SAVE PROJECT!!!", e);
             }
         }
         logger.info("Sync Service Finished");

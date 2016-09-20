@@ -141,8 +141,7 @@ public class MapWatcherService implements Runnable {
                             InputStream stream = new FileInputStream(mapFileName);
                             InputStreamReader sReader = new InputStreamReader(stream);
                             BufferedReader bReader = new BufferedReader(sReader);
-                            // the project to unlock, if all documents have been
-                            // published
+                            // the project to unlock, if all documents have been published
                             String unlockableProjectName = null;
                             logger.info("Reading mapfile: " + file);
 
@@ -175,8 +174,7 @@ public class MapWatcherService implements Runnable {
                             }
                             if (unlockableProjectName != null) {
                                 List<Document> unpublishedDocs = documentRepo.findByProjectNameAndStatus(unlockableProjectName, "Pending");
-                                // unlock project if there are no pending
-                                // documents
+                                // unlock project if there are no pending documents
                                 if (unpublishedDocs.size() == 0) {
                                     // get the project fresh so the documents we
                                     // modified above keep their changes
@@ -204,9 +202,8 @@ public class MapWatcherService implements Runnable {
 
                     }
                 }
-                boolean valid = key.reset();
-
-                if (!valid) {
+                if (!key.reset()) {
+                    logger.info("Key reset invalid!");
                     break;
                 }
             }

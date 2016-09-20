@@ -34,7 +34,7 @@ import edu.tamu.framework.model.BaseEntity;
 public class MetadataFieldGroup extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "name")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Document document;
 

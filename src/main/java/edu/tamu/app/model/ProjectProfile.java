@@ -55,12 +55,12 @@ public class ProjectProfile extends BaseEntity {
     private String defaultValue;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Project project;
 
     @OneToMany(mappedBy = "profile", fetch = FetchType.EAGER)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "name")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Set<MetadataFieldLabel> labels;
 

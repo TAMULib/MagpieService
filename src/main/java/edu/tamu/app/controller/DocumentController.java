@@ -14,6 +14,7 @@ import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.PartialDocument;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
@@ -112,7 +114,9 @@ public class DocumentController {
     @ApiMapping("/get/{name}")
     @Auth(role = "ROLE_USER")
     public ApiResponse documentByName(@ApiVariable String name) throws Exception {
-        return new ApiResponse(SUCCESS, documentRepo.findByName(name));
+        Document document = documentRepo.findByName(name);        
+        document.setFields(new TreeSet<MetadataFieldGroup>(document.getFields()));        
+        return new ApiResponse(SUCCESS, document);
     }
 
     /**
