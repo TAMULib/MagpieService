@@ -48,7 +48,7 @@ public class Project extends BaseEntity {
     @JsonIdentityReference(alwaysAsId = true)
     private Set<Document> documents;
 
-    public Project() { 
+    public Project() {
         profiles = new HashSet<ProjectProfile>();
         documents = new HashSet<Document>();
     }

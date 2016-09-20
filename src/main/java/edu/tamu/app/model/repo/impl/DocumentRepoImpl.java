@@ -27,86 +27,86 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
 
 /**
-*
-* 
-* @author
-*
-*/
+ *
+ * 
+ * @author
+ *
+ */
 public class DocumentRepoImpl implements DocumentRepoCustom {
-	
-	@PersistenceContext
-	private EntityManager entityManager;
-	
-	@Autowired
-	private DocumentRepo documentRepo;
-	
-	@Autowired
-	private ProjectRepo projectRepo;
-	
-	@Autowired
-	private MetadataFieldGroupRepo metadataFieldRepo;
-	
-	@Autowired
-	private MetadataFieldValueRepo metadataFieldValueRepo;
 
-	@Override
-	public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
-		Document document = documentRepo.findByName(name);	
-		if(document == null) {
-			return documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, status));
-		}		
-		return document;
-	}
-	
-	@Override
-	public Document update(Document newDocument) {
-		Document oldDocument = documentRepo.findByName(newDocument.getName());
-		
-		if(newDocument.getStatus().length() > 0) {
-			oldDocument.setStatus(newDocument.getStatus());
-		}
-		
-		oldDocument.setNotes(newDocument.getNotes());
-		
-		newDocument.getFields().parallelStream().forEach(field -> {
-			MetadataFieldGroup oldField = metadataFieldRepo.findByDocumentAndLabel(oldDocument, field.getLabel());
-			oldField.setValues(field.getValues());
-			field.getValues().parallelStream().forEach(value -> {
-				value.setField(oldField);
-				metadataFieldValueRepo.save(value);
-			});
-		});
-		
-		return documentRepo.save(oldDocument);
-	}
-	
-	@Override
-	@Transactional
-	public void delete(Document document) {				
-		Project project = document.getProject();
-		if(project != null) {
-			document.setProject(null);
-			project.removeDocument(document);
-			projectRepo.save(project);
-		}
-		
-		Set<MetadataFieldGroup> fields = document.getFields();
-		if(fields != null && fields.size() > 0) {
-			fields.parallelStream().forEach(field -> {
-				field.setDocument(null);
-				metadataFieldRepo.save(field);
-			});
-			document.clearFields();
-		}
-		
-		entityManager.remove(entityManager.contains(document) ? document : entityManager.merge(document));
-	}
-	
-	@Override
-	public void deleteAll() {
-		documentRepo.findAll().parallelStream().forEach(document -> {
-			documentRepo.delete(document);
-		});
-	}	
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Autowired
+    private DocumentRepo documentRepo;
+
+    @Autowired
+    private ProjectRepo projectRepo;
+
+    @Autowired
+    private MetadataFieldGroupRepo metadataFieldRepo;
+
+    @Autowired
+    private MetadataFieldValueRepo metadataFieldValueRepo;
+
+    @Override
+    public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
+        Document document = documentRepo.findByName(name);
+        if (document == null) {
+            return documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, status));
+        }
+        return document;
+    }
+
+    @Override
+    public Document update(Document newDocument) {
+        Document oldDocument = documentRepo.findByName(newDocument.getName());
+
+        if (newDocument.getStatus().length() > 0) {
+            oldDocument.setStatus(newDocument.getStatus());
+        }
+
+        oldDocument.setNotes(newDocument.getNotes());
+
+        newDocument.getFields().parallelStream().forEach(field -> {
+            MetadataFieldGroup oldField = metadataFieldRepo.findByDocumentAndLabel(oldDocument, field.getLabel());
+            oldField.setValues(field.getValues());
+            field.getValues().parallelStream().forEach(value -> {
+                value.setField(oldField);
+                metadataFieldValueRepo.save(value);
+            });
+        });
+
+        return documentRepo.save(oldDocument);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Document document) {
+        Project project = document.getProject();
+        if (project != null) {
+            document.setProject(null);
+            project.removeDocument(document);
+            projectRepo.save(project);
+        }
+
+        Set<MetadataFieldGroup> fields = document.getFields();
+        if (fields != null && fields.size() > 0) {
+            fields.parallelStream().forEach(field -> {
+                field.setDocument(null);
+                metadataFieldRepo.save(field);
+            });
+            document.clearFields();
+        }
+
+        entityManager.remove(entityManager.contains(document) ? document : entityManager.merge(document));
+    }
+
+    @Override
+    public void deleteAll() {
+        documentRepo.findAll().parallelStream().forEach(document -> {
+            documentRepo.delete(document);
+        });
+    }
 
 }

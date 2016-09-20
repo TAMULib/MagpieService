@@ -20,11 +20,11 @@ import edu.tamu.app.model.ProjectProfile;
  *
  */
 public interface ProjectProfileRepoCustom {
-	
-	public ProjectProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
-	
-	public void delete(ProjectProfile profile);
-	
-	public void deleteAll();
-	
+
+    public ProjectProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
+
+    public void delete(ProjectProfile profile);
+
+    public void deleteAll();
+
 }

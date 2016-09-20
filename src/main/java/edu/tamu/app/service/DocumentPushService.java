@@ -51,7 +51,7 @@ public class DocumentPushService {
 
     @Autowired
     private DocumentRepo documentRepo;
-    
+
     @Autowired
     private CsvUtility csvUtility;
 
@@ -87,14 +87,10 @@ public class DocumentPushService {
             throw serviceEx;
         }
 
-        // System.out.println("And here is your response:\n\n" +
-        // createItemResponseNode.toString() +"\n");
-
         String handleString = createItemResponseNode.get("handle").asText();
         String newItemIdString = createItemResponseNode.get("id").asText();
 
-        // POST each of the bitstreams in this document to the newly created
-        // item
+        // POST each of the bitstreams in this document to the newly created item
         addBitstreams(newItemIdString, document);
 
         // write the ArchiveMatica CSV for this document
@@ -137,8 +133,7 @@ public class DocumentPushService {
             throw murle;
         }
 
-        // produce the XML data from the document that we will post to the REST
-        // API
+        // produce the XML data from the document that we will post to the REST API
         String xmlDataToPost;
         try {
             xmlDataToPost = generateItemPostXMLFromDocument(document);
@@ -191,8 +186,7 @@ public class DocumentPushService {
 
         connection.setDoOutput(true);
 
-        // Write post data by opening an output stream on the connection and
-        // writing to it
+        // Write post data by opening an output stream on the connection and writing to it
         OutputStream os;
         try {
             os = connection.getOutputStream();
@@ -211,8 +205,7 @@ public class DocumentPushService {
         }
 
         System.out.println("REST request to " + taskDescription + " got response code " + connection.getResponseCode());
-        // System.out.println("Got error stream " + connection.getErrorStream())
-
+        
         // Read response from item post
         StringBuilder response = new StringBuilder();
         BufferedReader br = null;
@@ -295,9 +288,6 @@ public class DocumentPushService {
             throw e;
         }
 
-        // System.out.println("*** Here is response from posting the PDF file "
-        // + pdfBitstreamJson.toString());
-
         String pdfBitstreamId = pdfBitstreamJson.get("id").asText();
 
         // *************************************
@@ -360,8 +350,7 @@ public class DocumentPushService {
         // **************************************
         // PUT txt bitstream metadata
         // **************************************
-        // put the txt bitstream into the TEXT bundle and set the READ policy to
-        // the groupId.
+        // put the txt bitstream into the TEXT bundle and set the READ policy to the groupId.
         // REST endpoint is PUT /bitstreams/{bitstream id} - Update metadata of
         // bitstream. You must put a Bitstream, does not alter the file/data
         String txtBitstreamId = txtBitstreamJson.get("id").asText();
@@ -471,8 +460,7 @@ public class DocumentPushService {
     }
 
     private void cleanUpFailedPublish(String id) throws IOException {
-        // delete the item in case there was an error along the way with all the
-        // requests.
+        // delete the item in case there was an error along the way with all the requests.
         // REST endpoint is DELETE /items/{item id} - Delete item.
 
         URL deleteItemUrl;

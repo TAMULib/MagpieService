@@ -13,11 +13,7 @@ import edu.tamu.framework.model.IRole;
 
 public enum AppRole implements IRole {
 
-    ROLE_ANONYMOUS(0), 
-    ROLE_USER(1), 
-    ROLE_ANNOTATOR(2), 
-    ROLE_MANAGER(3), 
-    ROLE_ADMIN(4);
+    ROLE_ANONYMOUS(0), ROLE_USER(1), ROLE_ANNOTATOR(2), ROLE_MANAGER(3), ROLE_ADMIN(4);
 
     private int value;
 

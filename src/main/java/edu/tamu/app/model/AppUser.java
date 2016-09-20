@@ -19,7 +19,7 @@ import edu.tamu.app.enums.AppRole;
 import edu.tamu.framework.model.AbstractCoreUserImpl;
 import edu.tamu.framework.model.IRole;
 
-/** 
+/**
  * Application User entity.
  * 
  * @author
@@ -27,24 +27,24 @@ import edu.tamu.framework.model.IRole;
  */
 @Entity
 public class AppUser extends AbstractCoreUserImpl {
-    
+
     @Column(name = "role")
     private AppRole role;
-	
-	@Column(name="first_name")
-	private String firstName;
-	
-	@Column(name="last_name")
-	private String lastName;
-	
-	/**
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    /**
      * Constructor for the application user
      * 
      */
     public AppUser() {
         super();
     }
-    
+
     /**
      * Constructor for the application user
      * 
@@ -52,7 +52,7 @@ public class AppUser extends AbstractCoreUserImpl {
     public AppUser(Long uin) {
         super(uin);
     }
-    
+
     /**
      * Constructor for application user with uin passed.
      * 
@@ -66,7 +66,7 @@ public class AppUser extends AbstractCoreUserImpl {
         setLastName(lastName);
         setRole(AppRole.valueOf(role));
     }
-    
+
     /**
      * @return the role
      */
@@ -76,13 +76,14 @@ public class AppUser extends AbstractCoreUserImpl {
     }
 
     /**
-     * @param role the role to set
+     * @param role
+     *            the role to set
      */
     @JsonSerialize(as = AppRole.class)
     public void setRole(IRole role) {
         this.role = (AppRole) role;
     }
-    
+
     /**
      * 
      * @return firstName

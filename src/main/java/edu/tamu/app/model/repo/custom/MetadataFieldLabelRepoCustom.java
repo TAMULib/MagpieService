@@ -20,10 +20,10 @@ import edu.tamu.app.model.ProjectProfile;
  */
 public interface MetadataFieldLabelRepoCustom {
 
-	public MetadataFieldLabel create(String name, ProjectProfile profile);
-	
-	public void delete(MetadataFieldLabel label);
-	
-	public void deleteAll();
-	
+    public MetadataFieldLabel create(String name, ProjectProfile profile);
+
+    public void delete(MetadataFieldLabel label);
+
+    public void deleteAll();
+
 }

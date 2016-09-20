@@ -25,13 +25,13 @@ import edu.tamu.framework.model.Credentials;
 
 public class AppRestInterceptor extends CoreRestInterceptor {
 
-	@Autowired
-	private AppUserRepo userRepo;
-	
-	@Value("${app.authority.admins}")
-	private String[] admins;
-	
-	@Autowired
+    @Autowired
+    private AppUserRepo userRepo;
+
+    @Value("${app.authority.admins}")
+    private String[] admins;
+
+    @Autowired
     @Lazy
     private SimpMessagingTemplate simpMessagingTemplate;
 
@@ -51,39 +51,38 @@ public class AppRestInterceptor extends CoreRestInterceptor {
         anonymousCredentials.setRole("ROLE_ANONYMOUS");
         return anonymousCredentials;
     }
-	
-	@Override
-	public Credentials confirmCreateUser(Credentials credentials) {
-		AppUser user = userRepo.findByUin(Long.parseLong(credentials.getUin()));
-		
-		if(user == null) {
-    		
-    		if(credentials.getRole() == null) {
-    			credentials.setRole("ROLE_USER");
-    		}
-        	String shibUin = credentials.getUin();
-    		for(String uin : admins) {
-    			if(uin.equals(shibUin)) {
-    				credentials.setRole("ROLE_ADMIN");					
-    			}
-    		}
-    		
-    		user = userRepo.create(Long.valueOf(shibUin), credentials.getFirstName(), credentials.getLastName(), credentials.getRole().toString());
+
+    @Override
+    public Credentials confirmCreateUser(Credentials credentials) {
+        AppUser user = userRepo.findByUin(Long.parseLong(credentials.getUin()));
+
+        if (user == null) {
+
+            if (credentials.getRole() == null) {
+                credentials.setRole("ROLE_USER");
+            }
+            String shibUin = credentials.getUin();
+            for (String uin : admins) {
+                if (uin.equals(shibUin)) {
+                    credentials.setRole("ROLE_ADMIN");
+                }
+            }
+
+            user = userRepo.create(Long.valueOf(shibUin), credentials.getFirstName(), credentials.getLastName(), credentials.getRole().toString());
 
             if (!credentials.getUin().equals("null")) {
                 user.setUin(Long.parseLong(credentials.getUin()));
                 user = userRepo.save(user);
             }
-            
+
             logger.info(Long.parseLong(credentials.getUin()));
-            
+
             simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
-    	}
-    	else {
-    		credentials.setRole(user.getRole().toString());
-    	}
-		
-		return credentials;
-	}
+        } else {
+            credentials.setRole(user.getRole().toString());
+        }
+
+        return credentials;
+    }
 
 }

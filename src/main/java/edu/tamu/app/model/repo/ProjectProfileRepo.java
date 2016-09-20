@@ -26,18 +26,18 @@ import edu.tamu.app.model.repo.custom.ProjectProfileRepoCustom;
  *
  */
 @Repository
-public interface ProjectProfileRepo extends JpaRepository <ProjectProfile, Long>, ProjectProfileRepoCustom {
-	
-	public ProjectProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
-	
-	public ProjectProfile findByProjectAndGlossAndRepeatableAndReadOnlyAndHiddenAndRequiredAndInputTypeAndDefaultValue(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
-	
-	public List<ProjectProfile> findByProject(Project project);
-	
-	@Override
-	public void delete(ProjectProfile profile);
-	
-	@Override
-	public void deleteAll();
-	
+public interface ProjectProfileRepo extends JpaRepository<ProjectProfile, Long>, ProjectProfileRepoCustom {
+
+    public ProjectProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
+
+    public ProjectProfile findByProjectAndGlossAndRepeatableAndReadOnlyAndHiddenAndRequiredAndInputTypeAndDefaultValue(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
+
+    public List<ProjectProfile> findByProject(Project project);
+
+    @Override
+    public void delete(ProjectProfile profile);
+
+    @Override
+    public void deleteAll();
+
 }

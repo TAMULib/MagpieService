@@ -22,18 +22,18 @@ import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
  *
  */
 @Repository
-public interface ProjectRepo extends JpaRepository <Project, Long>, ProjectRepoCustom {
-	
-	public Project create(Project project);
-	
-	public Project create(String name);
+public interface ProjectRepo extends JpaRepository<Project, Long>, ProjectRepoCustom {
 
-	public Project findByName(String name);
+    public Project create(Project project);
 
-	@Override
-	public void delete(Project project);
-	
-	@Override
-	public void deleteAll();
-	
+    public Project create(String name);
+
+    public Project findByName(String name);
+
+    @Override
+    public void delete(Project project);
+
+    @Override
+    public void deleteAll();
+
 }

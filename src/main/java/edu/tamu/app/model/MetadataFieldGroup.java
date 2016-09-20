@@ -27,71 +27,71 @@ import edu.tamu.framework.model.BaseEntity;
 /**
  * 
  * 
- * @author 
+ * @author
  *
  */
 @Entity
 public class MetadataFieldGroup extends BaseEntity {
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "name") 
-	@JsonIdentityReference(alwaysAsId = true)
-	private Document document;
-	
-	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-	private MetadataFieldLabel label;
-	
-	@OneToMany(mappedBy = "field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	private Set<MetadataFieldValue> values;
-	
-	public MetadataFieldGroup() { 
-	    values = new HashSet<MetadataFieldValue>();
-	}
-	
-	public MetadataFieldGroup(MetadataFieldLabel label) {
-	    this();
-		this.label = label;
-	}
-	
-	public MetadataFieldGroup(Document document, MetadataFieldLabel label) {
-	    this(label);
-		this.document = document;
-	}
-	
-	public Document getDocument() {
-		return document;
-	}
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "name")
+    @JsonIdentityReference(alwaysAsId = true)
+    private Document document;
 
-	public void setDocument(Document document) {
-		this.document = document;
-	}
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH }, fetch = FetchType.EAGER)
+    private MetadataFieldLabel label;
 
-	public MetadataFieldLabel getLabel() {
-		return label;
-	}
+    @OneToMany(mappedBy = "field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private Set<MetadataFieldValue> values;
 
-	public void setLabel(MetadataFieldLabel label) {
-		this.label = label;
-	}
+    public MetadataFieldGroup() {
+        values = new HashSet<MetadataFieldValue>();
+    }
 
-	public Set<MetadataFieldValue> getValues() {
-		return values;
-	}
+    public MetadataFieldGroup(MetadataFieldLabel label) {
+        this();
+        this.label = label;
+    }
 
-	public void setValues(Set<MetadataFieldValue> values) {
-		this.values = values;
-	}
-	
-	public void addValue(MetadataFieldValue value) {
-		values.add(value);
-	}
-	
-	public void removeValue(MetadataFieldValue value) {
-		values.remove(value);
-	}
-	
-	public void clearValues() {
-		values = new HashSet<MetadataFieldValue>();
-	}
+    public MetadataFieldGroup(Document document, MetadataFieldLabel label) {
+        this(label);
+        this.document = document;
+    }
+
+    public Document getDocument() {
+        return document;
+    }
+
+    public void setDocument(Document document) {
+        this.document = document;
+    }
+
+    public MetadataFieldLabel getLabel() {
+        return label;
+    }
+
+    public void setLabel(MetadataFieldLabel label) {
+        this.label = label;
+    }
+
+    public Set<MetadataFieldValue> getValues() {
+        return values;
+    }
+
+    public void setValues(Set<MetadataFieldValue> values) {
+        this.values = values;
+    }
+
+    public void addValue(MetadataFieldValue value) {
+        values.add(value);
+    }
+
+    public void removeValue(MetadataFieldValue value) {
+        values.remove(value);
+    }
+
+    public void clearValues() {
+        values = new HashSet<MetadataFieldValue>();
+    }
 
 }

@@ -23,16 +23,16 @@ import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
  *
  */
 @Repository
-public interface MetadataFieldLabelRepo extends JpaRepository <MetadataFieldLabel, Long>, MetadataFieldLabelRepoCustom {
-	
-	public MetadataFieldLabel create(String name, ProjectProfile profile);
-	
-	public MetadataFieldLabel findByName(String name);
-	
-	@Override
-	public void delete(MetadataFieldLabel label);
-	
-	@Override
-	public void deleteAll();
+public interface MetadataFieldLabelRepo extends JpaRepository<MetadataFieldLabel, Long>, MetadataFieldLabelRepoCustom {
+
+    public MetadataFieldLabel create(String name, ProjectProfile profile);
+
+    public MetadataFieldLabel findByName(String name);
+
+    @Override
+    public void delete(MetadataFieldLabel label);
+
+    @Override
+    public void deleteAll();
 
 }

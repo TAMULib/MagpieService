@@ -13,24 +13,24 @@ import edu.tamu.framework.model.ApiResponse;
 @RestController
 @ApiMapping("/project")
 public class ProjectController {
-    
+
     @Autowired
     private ProjectRepo projectRepo;
-    
+
     /**
      * Endpoint to return list of projects.
      * 
-     * @param       message         Message<?>
+     * @param message
+     *            Message<?>
      * 
-     * @return      ApiResponse
+     * @return ApiResponse
      * 
-     * @throws      Exception
+     * @throws Exception
      * 
      */
     @ApiMapping("/all")
     @Auth(role = "ROLE_USER")
     public ApiResponse getProjects() throws Exception {
-        System.out.println(projectRepo.findAll().size());
         return new ApiResponse(SUCCESS, projectRepo.findAll());
     }
 

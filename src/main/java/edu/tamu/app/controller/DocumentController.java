@@ -67,7 +67,7 @@ public class DocumentController {
      * Endpoint to return marc record.
      * 
      * @param bibId
-     *            @DestinationVariable String bibId
+     * @DestinationVariable String bibId
      * 
      * @return ApiResponse
      * 
@@ -131,7 +131,7 @@ public class DocumentController {
     public ApiResponse pageDocuments(@ApiData Map<String, String> data) throws Exception {
 
         Direction sortDirection;
-        
+
         if (data.get("direction").equals("asc")) {
             sortDirection = Sort.Direction.ASC;
         } else {
@@ -265,9 +265,9 @@ public class DocumentController {
     public ApiResponse push(@ApiVariable String name) {
 
         Document document = documentRepo.findByName(name);
-        
+
         Map<String, Object> documentMap = new HashMap<String, Object>();
-        
+
         try {
             document = documentPushService.push(document);
         } catch (Exception e) {

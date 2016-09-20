@@ -95,16 +95,16 @@ public class AppStompInterceptor extends CoreStompInterceptor {
                     credentials.setRole("ROLE_ADMIN");
                 }
             }
-            
+
             user = userRepo.create(Long.valueOf(shibUin), credentials.getFirstName(), credentials.getLastName(), credentials.getRole().toString());
 
             if (!credentials.getUin().equals("null")) {
                 user.setUin(Long.parseLong(credentials.getUin()));
                 user = userRepo.save(user);
             }
-            
+
             logger.info(Long.parseLong(credentials.getUin()));
-            
+
             simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
 
         } else {
