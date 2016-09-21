@@ -63,4 +63,9 @@ public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRep
     @Query(value = "UPDATE Document set annotator = :annotator, status = :status, notes = :notes WHERE name = :name")
     public int quickSave(@Param("name") String name, @Param("annotator") String annotator, @Param("status") String status, @Param("notes") String notes);
 
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE Document set status = :status WHERE name = :name")
+    public int quickUpdateStatus(@Param("name") String name, @Param("status") String status);
+
 }

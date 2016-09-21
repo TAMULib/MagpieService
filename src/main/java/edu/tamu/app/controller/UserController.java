@@ -83,5 +83,13 @@ public class UserController {
         simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
         return new ApiResponse(SUCCESS, user);
     }
+    
+    @ApiMapping("/delete")
+    @Auth(role = "ROLE_MANAGER")
+    public ApiResponse delete(@ApiModel AppUser user) throws Exception {
+        userRepo.delete(user);
+        simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
+        return new ApiResponse(SUCCESS);
+    }
 
 }

@@ -169,7 +169,13 @@ public class DocumentController {
     @Auth(role = "ROLE_USER")
     public ApiResponse update(@ApiData Map<String, String> data) {
 
-        int results = documentRepo.quickSave(data.get("name"), (data.get("status").equals("Open")) ? "" : data.get("user"), data.get("status"), data.get("notes"));
+        int results;
+
+        if (data.get("user") != null) {
+            results = documentRepo.quickSave(data.get("name"), (data.get("status").equals("Open")) ? "" : data.get("user"), data.get("status"), data.get("notes"));
+        } else {
+            results = documentRepo.quickUpdateStatus(data.get("name"), data.get("status"));
+        }
 
         if (results < 1) {
             return new ApiResponse(ERROR, "Document not updated");
