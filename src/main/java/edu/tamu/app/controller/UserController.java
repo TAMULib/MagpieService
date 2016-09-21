@@ -87,11 +87,18 @@ public class UserController {
      */
     @ApiMapping("/update")
     @Auth(role = "ROLE_USER")
-    public ApiResponse updateRole(@ApiModel AppUser user) throws Exception {
-        System.out.println(user.getRole().toString());
+    public ApiResponse update(@ApiModel AppUser user) throws Exception {
         user = userRepo.save(user);
         simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
         return new ApiResponse(SUCCESS, user);
+    }
+    
+    @ApiMapping("/delete")
+    @Auth(role = "ROLE_MANAGER")
+    public ApiResponse delete(@ApiModel AppUser user) throws Exception {
+        userRepo.delete(user);
+        simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
+        return new ApiResponse(SUCCESS);
     }
 
 }
