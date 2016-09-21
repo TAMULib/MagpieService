@@ -16,7 +16,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 
-/** 
+/**
  * Handler for when the servlet context closes.
  * 
  * @author
@@ -24,18 +24,19 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ContextClosedHandler implements ApplicationListener<ContextClosedEvent> {
-    
-	@Autowired 
+
+    @Autowired
     private ExecutorService executorService;
 
     /**
      * Method for event context close.
      * 
-     * @param		event		ContextClosedEvent
+     * @param event
+     *            ContextClosedEvent
      * 
      */
     public void onApplicationEvent(ContextClosedEvent event) {
-    	executorService.shutdownNow();
-    }  
-    
+        executorService.shutdownNow();
+    }
+
 }
