@@ -45,12 +45,10 @@ public class AdminController {
      * 
      * @return ApiResponse
      * 
-     * @throws Exception
-     * 
      */
     @ApiMapping("/sync")
     @Auth(role = "ROLE_ADMIN")
-    public ApiResponse syncDocuments() throws Exception {
+    public ApiResponse syncDocuments() {
 
         logger.info("Syncronizing projects with database.");
 

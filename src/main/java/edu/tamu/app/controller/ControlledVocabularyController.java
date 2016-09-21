@@ -50,12 +50,10 @@ public class ControlledVocabularyController {
      * 
      * @return ApiResponse
      * 
-     * @throws Exception
-     * 
      */
     @ApiMapping("/all")
     @Auth(role = "ROLE_USER")
-    public ApiResponse getAllControlledVocabulary() throws Exception {
+    public ApiResponse getAllControlledVocabulary() {
         URL location = this.getClass().getResource("/config");
         String fullPath = location.getPath();
 
@@ -84,16 +82,14 @@ public class ControlledVocabularyController {
      * Get controlled vocabulary by label.
      * 
      * @param label
-     *            @DestinationVariable String
+     *          @ApiVariable String
      * 
      * @return ApiResponse
-     * 
-     * @throws Exception
      * 
      */
     @ApiMapping("/{label}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse getControlledVocabularyByField(@ApiVariable String label) throws Exception {
+    public ApiResponse getControlledVocabularyByField(@ApiVariable String label) {
         URL location = this.getClass().getResource("/config");
         String fullPath = location.getPath();
 

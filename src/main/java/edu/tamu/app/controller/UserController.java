@@ -43,51 +43,42 @@ public class UserController {
     /**
      * Websocket endpoint to request credentials.
      * 
-     * @param shibObj
-     * @Shib Object
+     * @param credentials
+     *          @ApiCredentials Credentials
      * 
      * @return ApiResponse
-     * 
-     * @throws Exception
      * 
      */
     @ApiMapping("/credentials")
     @Auth(role = "ROLE_USER")
-    public ApiResponse credentials(@ApiCredentials Credentials credentials) throws Exception {
+    public ApiResponse credentials(@ApiCredentials Credentials credentials) {
         return new ApiResponse(SUCCESS, credentials);
     }
 
     /**
      * Endpoint to return all users.
      * 
-     * @param message
-     *            Message<?>
-     * 
      * @return ApiResponse
-     * 
-     * @throws Exception
      * 
      */
     @ApiMapping("/all")
     @Auth(role = "ROLE_USER")
-    public ApiResponse allUsers() throws Exception {
+    public ApiResponse allUsers() {
         return new ApiResponse(SUCCESS, userRepo.findAll());
     }
 
     /**
      * Endpoint to update users role.
      * 
-     * @param message
-     *            Message<?>
+     * @param user
+     *          @ApiModel AppUser
      * 
      * @return ApiResponse
-     * 
-     * @throws Exception
      * 
      */
     @ApiMapping("/update")
     @Auth(role = "ROLE_USER")
-    public ApiResponse update(@ApiModel AppUser user) throws Exception {
+    public ApiResponse updateRole(@ApiModel AppUser user) {
         user = userRepo.save(user);
         simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
         return new ApiResponse(SUCCESS, user);
