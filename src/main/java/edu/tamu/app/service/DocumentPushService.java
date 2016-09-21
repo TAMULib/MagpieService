@@ -204,8 +204,6 @@ public class DocumentPushService {
             throw ioe;
         }
 
-        System.out.println("REST request to " + taskDescription + " got response code " + connection.getResponseCode());
-        
         // Read response from item post
         StringBuilder response = new StringBuilder();
         BufferedReader br = null;

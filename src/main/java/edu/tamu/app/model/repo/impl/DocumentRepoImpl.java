@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.model.repo.impl;
 
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -16,6 +17,8 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
@@ -25,6 +28,7 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
+import edu.tamu.app.model.repo.specification.DocumentSpecification;
 
 /**
  *
@@ -107,6 +111,11 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
         documentRepo.findAll().parallelStream().forEach(document -> {
             documentRepo.delete(document);
         });
+    }
+
+    @Override
+    public Page<Document> pageableDynamicDocumentQuery(Map<String, String[]> filters, Pageable pageable) {
+        return documentRepo.findAll(new DocumentSpecification<Document>(filters), pageable);
     }
 
 }

@@ -15,6 +15,7 @@ import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
@@ -88,19 +89,15 @@ public class MetadataController {
     /**
      * Endpoint to unlock a given project
      * 
-     * @param message
-     *            Message<?>
      * @param projectToUnlock
-     *            @DestinationVariable String
+     *          @ApiVariable String
      * 
      * @return ApiResponse
-     * 
-     * @throws Exception
      * 
      */
     @ApiMapping("/unlock/{projectToUnlock}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse unlockProject(@ApiVariable String projectToUnlock) throws Exception {
+    public ApiResponse unlockProject(@ApiVariable String projectToUnlock) {
         Project project = projectRepo.findByName(projectToUnlock);
         project.setIsLocked(false);
         ;
@@ -111,19 +108,15 @@ public class MetadataController {
     /**
      * Endpoint to return metadata headers for given project.
      * 
-     * @param message
-     *            Message<?>
      * @param project
-     *            @DestinationVariable String
+     *          @ApiVariable String
      * 
      * @return ApiResponse
-     * 
-     * @throws Exception
      * 
      */
     @ApiMapping("/headers/{project}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse getMetadataHeaders(@ApiVariable String project) throws Exception {
+    public ApiResponse getMetadataHeaders(@ApiVariable String project) {
 
         URL location = this.getClass().getResource("/config");
         String fullPath = location.getPath();
@@ -182,19 +175,15 @@ public class MetadataController {
      * Endpoint to return all published metadata fields as dspace csv by
      * project.
      * 
-     * @param message
-     *            Message<?>
      * @param project
-     *            @DestinationVariable String
+     *          @ApiVariable String
      * 
      * @return ApiResponse
-     * 
-     * @throws Exception
      * 
      */
     @ApiMapping("/csv/{project}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse getCSVByroject(@ApiVariable String project) throws Exception {
+    public ApiResponse getCSVByroject(@ApiVariable String project) {
 
         List<List<String>> metadata = new ArrayList<List<String>>();
 
@@ -237,16 +226,16 @@ public class MetadataController {
      * Websocket endpoint to export saf.
      * 
      * @param project
-     *            @ApiVariable String
+     *          @ApiVariable String
      * 
      * @return ApiResponse
      * 
-     * @throws Exception
+     * @throws FileNotFoundException
      * 
      */
     @ApiMapping("/saf/{project}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse saf(@ApiVariable String project) throws Exception {
+    public ApiResponse saf(@ApiVariable String project) throws FileNotFoundException {
 
         System.out.println("Generating SAF for project " + project);
 
@@ -381,17 +370,15 @@ public class MetadataController {
     /**
      * Endpoint to return all by status metadata fields.
      * 
-     * @param message
-     *            Message<?>
+     * @param status
+     *          @ApiVariable String
      * 
      * @return ApiResponse
-     * 
-     * @throws Exception
      * 
      */
     @ApiMapping("/status/{status}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse published(@ApiVariable String status) throws Exception {
+    public ApiResponse published(@ApiVariable String status) {
 
         List<List<String>> metadata = new ArrayList<List<String>>();
 
@@ -420,17 +407,12 @@ public class MetadataController {
     /**
      * Endpoint to return all metadata fields.
      * 
-     * @param message
-     *            Message<?>
-     * 
      * @return ApiResponse
-     * 
-     * @throws Exception
      * 
      */
     @ApiMapping("/all")
     @Auth(role = "ROLE_USER")
-    public ApiResponse all() throws Exception {
+    public ApiResponse all() {
         Map<String, List<MetadataFieldGroup>> metadataMap = new HashMap<String, List<MetadataFieldGroup>>();
         metadataMap.put("list", metadataFieldGroupRepo.findAll());
         return new ApiResponse(SUCCESS, metadataMap);

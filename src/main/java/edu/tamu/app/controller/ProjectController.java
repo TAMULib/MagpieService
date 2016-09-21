@@ -20,17 +20,12 @@ public class ProjectController {
     /**
      * Endpoint to return list of projects.
      * 
-     * @param message
-     *            Message<?>
-     * 
      * @return ApiResponse
-     * 
-     * @throws Exception
      * 
      */
     @ApiMapping("/all")
     @Auth(role = "ROLE_USER")
-    public ApiResponse getProjects() throws Exception {
+    public ApiResponse getProjects() {
         return new ApiResponse(SUCCESS, projectRepo.findAll());
     }
 
