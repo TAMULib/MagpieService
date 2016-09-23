@@ -109,7 +109,7 @@ public class ProjectsService {
         if (project == null) {
             project = projectRepo.create(projectName);
             try {
-                simpMessagingTemplate.convertAndSend("/channel/projects", new ApiResponse(SUCCESS, projectRepo.findAll()));
+                simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
             } catch (Exception e) {
                 logger.error("Error broadcasting new project", e);
             }

@@ -9,6 +9,8 @@
  */
 package edu.tamu.app.model;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -45,9 +47,10 @@ public class MetadataFieldValue extends BaseEntity {
 
     @PrePersist
     @PreUpdate
-    protected void sanitize() {
+    protected void sanitize() throws UnsupportedEncodingException {
         if (value != null) {
             value = value.replaceAll("[\u0000-\u001f]", "");
+            value = new String(value.getBytes(), "UTF-8");
         }
     }
 
