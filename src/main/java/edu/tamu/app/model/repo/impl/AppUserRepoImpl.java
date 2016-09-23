@@ -35,10 +35,10 @@ public class AppUserRepoImpl implements AppUserRepoCustom {
      * @see edu.tamu.app.model.repo.custom.AppUserRepoCustom#create(java.lang.Long)
      */
     @Override
-    public AppUser create(Long uin) {
+    public synchronized AppUser create(Long uin) {
         AppUser user = userRepo.findByUin(uin);
         if (user == null) {
-            return userRepo.save(new AppUser(uin));
+            user = userRepo.save(new AppUser(uin));
         }
         return user;
     }
@@ -47,10 +47,10 @@ public class AppUserRepoImpl implements AppUserRepoCustom {
      * {@inheritDoc}
      */
     @Override
-    public AppUser create(Long uin, String firstName, String lastName, String role) {
+    public synchronized AppUser create(Long uin, String firstName, String lastName, String role) {
         AppUser user = userRepo.findByUin(uin);
         if (user == null) {
-            return userRepo.save(new AppUser(uin, firstName, lastName, role));
+            user = userRepo.save(new AppUser(uin, firstName, lastName, role));
         }
         return user;
     }

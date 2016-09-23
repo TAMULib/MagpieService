@@ -43,11 +43,11 @@ public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom 
 
     @Override
     public synchronized MetadataFieldLabel create(String name, FieldProfile profile) {
-        MetadataFieldLabel label = metadataFieldLabelRepo.findByName(name);
-        if (label == null) {
-            return metadataFieldLabelRepo.save(new MetadataFieldLabel(name, profile));
+        MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByName(name);
+        if (metadataFieldLabel == null) {
+            metadataFieldLabel = metadataFieldLabelRepo.save(new MetadataFieldLabel(name, profile));
         }
-        return label;
+        return metadataFieldLabel;
     }
 
     @Override

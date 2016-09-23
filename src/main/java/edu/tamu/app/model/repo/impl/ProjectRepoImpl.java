@@ -53,19 +53,13 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
     private String defaultRepoUIPath;
 
     @Override
-    public Project create(Project project) {
-        // TODO: just using one url for all projects - make it per-project
-        project.setRepositoryUIUrlString(defaultRepoUrl + "/" + defaultRepoUIPath);
-        return projectRepo.save(project);
-    }
-
-    @Override
-    public Project create(String name) {
+    public synchronized Project create(String name) {
         Project project = projectRepo.findByName(name);
         if (project == null) {
-            return create(new Project(name));
+            project = new Project(name);
         }
-        return project;
+        project.setRepositoryUIUrlString(defaultRepoUrl + "/" + defaultRepoUIPath);
+        return projectRepo.save(project);
     }
 
     @Override

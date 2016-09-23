@@ -54,10 +54,10 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Override
-    public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
+    public synchronized Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
         Document document = documentRepo.findByName(name);
         if (document == null) {
-            return documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, status));
+            document = documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, status));
         }
         return document;
     }

@@ -48,11 +48,11 @@ public class FieldProfileRepoImpl implements FieldProfileRepoCustom {
 
     @Override
     public synchronized FieldProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
-        FieldProfile profile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
-        if (profile == null) {
-            return fieldProfileRepo.save(new FieldProfile(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
+        FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
+        if (fieldProfile == null) {
+            fieldProfile = fieldProfileRepo.save(new FieldProfile(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
         }
-        return profile;
+        return fieldProfile;
     }
 
     @Override

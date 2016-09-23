@@ -44,19 +44,19 @@ public class MetadataFieldValueRepoImpl implements MetadataFieldValueRepoCustom 
     private ControlledVocabularyRepo controlledVocabularyRepo;
 
     @Override
-    public MetadataFieldValue create(ControlledVocabulary cv, MetadataFieldGroup field) {
-        MetadataFieldValue value = metadataFieldValueRepo.findByCvAndField(cv, field);
-        if (value == null) {
-            return metadataFieldValueRepo.save(new MetadataFieldValue(cv, field));
+    public synchronized MetadataFieldValue create(ControlledVocabulary cv, MetadataFieldGroup field) {
+        MetadataFieldValue metadataFieldValue = metadataFieldValueRepo.findByCvAndField(cv, field);
+        if (metadataFieldValue == null) {
+            metadataFieldValue = metadataFieldValueRepo.save(new MetadataFieldValue(cv, field));
         }
-        return value;
+        return metadataFieldValue;
     }
 
     @Override
-    public MetadataFieldValue create(String value, MetadataFieldGroup field) {
+    public synchronized MetadataFieldValue create(String value, MetadataFieldGroup field) {
         MetadataFieldValue metadataFieldValue = metadataFieldValueRepo.findByValueAndField(value, field);
         if (metadataFieldValue == null) {
-            return metadataFieldValueRepo.save(new MetadataFieldValue(value, field));
+            metadataFieldValue = metadataFieldValueRepo.save(new MetadataFieldValue(value, field));
         }
         return metadataFieldValue;
     }

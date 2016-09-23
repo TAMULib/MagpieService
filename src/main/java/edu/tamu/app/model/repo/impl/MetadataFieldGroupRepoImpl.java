@@ -52,12 +52,12 @@ public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom 
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Override
-    public MetadataFieldGroup create(Document document, MetadataFieldLabel label) {
-        MetadataFieldGroup field = metadataFieldGroupRepo.findByDocumentAndLabel(document, label);
-        if (field == null) {
-            return metadataFieldGroupRepo.save(new MetadataFieldGroup(document, label));
+    public synchronized MetadataFieldGroup create(Document document, MetadataFieldLabel label) {
+        MetadataFieldGroup metadataFieldGroup = metadataFieldGroupRepo.findByDocumentAndLabel(document, label);
+        if (metadataFieldGroup == null) {
+            metadataFieldGroup = metadataFieldGroupRepo.save(new MetadataFieldGroup(document, label));
         }
-        return field;
+        return metadataFieldGroup;
     }
 
     @Override

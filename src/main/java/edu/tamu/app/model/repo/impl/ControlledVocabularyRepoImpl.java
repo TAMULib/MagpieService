@@ -44,7 +44,7 @@ public class ControlledVocabularyRepoImpl implements ControlledVocabularyRepoCus
     public synchronized ControlledVocabulary create(String value) {
         ControlledVocabulary cv = controlledVocabularyRepo.findByValue(value);
         if (cv == null) {
-            return controlledVocabularyRepo.save(new ControlledVocabulary(value));
+            cv = controlledVocabularyRepo.save(new ControlledVocabulary(value));
         }
         return cv;
     }
