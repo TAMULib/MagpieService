@@ -15,7 +15,7 @@ else
 	do
     	mkdir "projects/"$1"/"$1"_"$COUNT
     	
-    	echo "Hello, World! This is test "$1" "$COUNT"." > "projects/"$1"/"$1"_"$COUNT"/"$1"_"$COUNT".txt"
+    	echo "Hello, World! This is test "$1" "$COUNT"." > "projects/"$1"/"$1"_"$COUNT"/"$1"_"$COUNT".pdf.txt"
     	cp ./sample.pdf "projects/"$1"/"$1"_"$COUNT"/"$1"_"$COUNT".pdf"
     	let COUNT=COUNT+1
 		

@@ -20,13 +20,13 @@ import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectProfile;
+import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.repo.ControlledVocabularyRepo;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.ProjectProfileRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 @WebAppConfiguration
@@ -51,7 +51,7 @@ public class MetadataFieldValueTest {
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Autowired
-    private ProjectProfileRepo projectFieldProfileRepo;
+    private FieldProfileRepo projectFieldProfileRepo;
 
     @Autowired
     private ControlledVocabularyRepo controlledVocabularyRepo;
@@ -62,7 +62,7 @@ public class MetadataFieldValueTest {
 
     private MetadataFieldLabel testLabel;
 
-    private ProjectProfile testProfile;
+    private FieldProfile testProfile;
 
     private MetadataFieldGroup testField;
 

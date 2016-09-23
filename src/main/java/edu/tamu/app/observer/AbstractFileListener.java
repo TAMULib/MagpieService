@@ -1,4 +1,4 @@
-package edu.tamu.app.service;
+package edu.tamu.app.observer;
 
 public abstract class AbstractFileListener implements FileListener {
 

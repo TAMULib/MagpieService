@@ -34,38 +34,39 @@ public class DocumentSpecification<E> implements Specification<E> {
 
             switch (key) {
 
-                case "status":
-                    for (String value : values) {
-                        switch (value) {
-                            case "!Published":
-                                notStatusPredicates.add(cb.notLike(cb.lower(root.get(key).as(String.class)), "%" + value.substring(1, value.length()).toLowerCase() + "%"));
-                                break;
-                            case "!Accepted":
-                                notStatusPredicates.add(cb.notLike(cb.lower(root.get(key).as(String.class)), "%" + value.substring(1, value.length()).toLowerCase() + "%"));
-                                break;
-                            case "Assigned":
-                                orStatusPredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
-                                break;
-                            case "Rejected":
-                                orStatusPredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
-                                break;
-                            default:
-                                statusPredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
-                                break;
-                        }
+            case "status":
+                for (String value : values) {
+                    switch (value) {
+                    case "!Published":
+                        notStatusPredicates.add(cb.notLike(cb.lower(root.get(key).as(String.class)), "%" + value.substring(1, value.length()).toLowerCase() + "%"));
+                        break;
+                    case "!Accepted":
+                        notStatusPredicates.add(cb.notLike(cb.lower(root.get(key).as(String.class)), "%" + value.substring(1, value.length()).toLowerCase() + "%"));
+                        break;
+                    case "Assigned":
+                        orStatusPredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
+                        break;
+                    case "Rejected":
+                        orStatusPredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
+                        break;
+                    default:
+                        statusPredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
+                        break;
                     }
-                    break;
-                case "name":
-                    for (String value : values) {
-                        namePredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
-                    }
-                    break;
-                case "annotator":
-                    for (String value : values) {
-                        annotatorPredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
-                    }
-                    break;
-                default: break;
+                }
+                break;
+            case "name":
+                for (String value : values) {
+                    namePredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
+                }
+                break;
+            case "annotator":
+                for (String value : values) {
+                    annotatorPredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
+                }
+                break;
+            default:
+                break;
             }
 
         }
@@ -73,20 +74,9 @@ public class DocumentSpecification<E> implements Specification<E> {
         Predicate predicate = null;
 
         if (orStatusPredicates.size() > 0) {
-            predicate = cb.and(
-                    cb.and(namePredicates.toArray(new Predicate[namePredicates.size()])),
-                    cb.and(statusPredicates.toArray(new Predicate[statusPredicates.size()])),
-                    cb.or(orStatusPredicates.toArray(new Predicate[orStatusPredicates.size()])),
-                    cb.and(notStatusPredicates.toArray(new Predicate[notStatusPredicates.size()])),
-                    cb.and(annotatorPredicates.toArray(new Predicate[annotatorPredicates.size()]))
-            );
+            predicate = cb.and(cb.and(namePredicates.toArray(new Predicate[namePredicates.size()])), cb.and(statusPredicates.toArray(new Predicate[statusPredicates.size()])), cb.or(orStatusPredicates.toArray(new Predicate[orStatusPredicates.size()])), cb.and(notStatusPredicates.toArray(new Predicate[notStatusPredicates.size()])), cb.and(annotatorPredicates.toArray(new Predicate[annotatorPredicates.size()])));
         } else {
-            predicate = cb.and(
-                    cb.and(namePredicates.toArray(new Predicate[namePredicates.size()])),
-                    cb.and(statusPredicates.toArray(new Predicate[statusPredicates.size()])),
-                    cb.and(notStatusPredicates.toArray(new Predicate[notStatusPredicates.size()])),
-                    cb.and(annotatorPredicates.toArray(new Predicate[annotatorPredicates.size()]))
-            );
+            predicate = cb.and(cb.and(namePredicates.toArray(new Predicate[namePredicates.size()])), cb.and(statusPredicates.toArray(new Predicate[statusPredicates.size()])), cb.and(notStatusPredicates.toArray(new Predicate[notStatusPredicates.size()])), cb.and(annotatorPredicates.toArray(new Predicate[annotatorPredicates.size()])));
         }
 
         return predicate;

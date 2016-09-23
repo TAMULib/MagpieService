@@ -18,13 +18,13 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.enums.InputType;
+import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectProfile;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.ProjectProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.repo.custom.ProjectProfileRepoCustom;
+import edu.tamu.app.model.repo.custom.FieldProfileRepoCustom;
 
 /**
  *
@@ -32,13 +32,13 @@ import edu.tamu.app.model.repo.custom.ProjectProfileRepoCustom;
  * @author
  *
  */
-public class ProjectProfileRepoImpl implements ProjectProfileRepoCustom {
+public class FieldProfileRepoImpl implements FieldProfileRepoCustom {
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
-    private ProjectProfileRepo projectProfileRepo;
+    private FieldProfileRepo fieldProfileRepo;
 
     @Autowired
     private MetadataFieldLabelRepo metadataFieldLabelRepo;
@@ -47,17 +47,18 @@ public class ProjectProfileRepoImpl implements ProjectProfileRepoCustom {
     private ProjectRepo projectRepo;
 
     @Override
-    public synchronized ProjectProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
-        ProjectProfile profile = projectProfileRepo.findByProjectAndGlossAndRepeatableAndReadOnlyAndHiddenAndRequiredAndInputTypeAndDefaultValue(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
+    public synchronized FieldProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
+        FieldProfile profile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
         if (profile == null) {
-            return projectProfileRepo.save(new ProjectProfile(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
+            return fieldProfileRepo.save(new FieldProfile(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
         }
         return profile;
     }
 
     @Override
     @Transactional
-    public void delete(ProjectProfile profile) {
+    public void delete(FieldProfile profile) {
+
         Set<MetadataFieldLabel> labels = profile.getLabels();
         if (labels.size() > 0) {
             labels.parallelStream().forEach(l -> {
@@ -79,8 +80,8 @@ public class ProjectProfileRepoImpl implements ProjectProfileRepoCustom {
 
     @Override
     public void deleteAll() {
-        projectProfileRepo.findAll().parallelStream().forEach(profile -> {
-            projectProfileRepo.delete(profile);
+        fieldProfileRepo.findAll().parallelStream().forEach(profile -> {
+            fieldProfileRepo.delete(profile);
         });
     }
 

@@ -38,7 +38,7 @@ public class MetadataFieldValueRepoImpl implements MetadataFieldValueRepoCustom 
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Autowired
-    private MetadataFieldGroupRepo metadataFieldRepo;
+    private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
     @Autowired
     private ControlledVocabularyRepo controlledVocabularyRepo;
@@ -68,7 +68,7 @@ public class MetadataFieldValueRepoImpl implements MetadataFieldValueRepoCustom 
         if (field != null) {
             value.setField(null);
             field.removeValue(value);
-            metadataFieldRepo.save(field);
+            metadataFieldGroupRepo.save(field);
         }
 
         ControlledVocabulary cv = value.getCv();

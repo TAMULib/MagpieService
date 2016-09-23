@@ -17,6 +17,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -33,7 +35,8 @@ import edu.tamu.framework.model.BaseEntity;
  *
  */
 @Entity
-public class ProjectProfile extends BaseEntity {
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "gloss", "project_id" }) })
+public class FieldProfile extends BaseEntity {
 
     @Column(nullable = false)
     private String gloss;
@@ -63,17 +66,16 @@ public class ProjectProfile extends BaseEntity {
     @OneToMany(mappedBy = "profile", fetch = FetchType.EAGER)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    private Set<MetadataFieldLabel> labels;
+    private Set<MetadataFieldLabel> labels = new HashSet<MetadataFieldLabel>();
 
-    public ProjectProfile() {
-        labels = new HashSet<MetadataFieldLabel>();
+    public FieldProfile() {
         repeatable = false;
         readOnly = false;
         hidden = false;
         required = false;
     }
 
-    public ProjectProfile(Project project, String gloss, Boolean repeatable, Boolean readOnly, Boolean hidden, Boolean required, InputType inputType, String defaultValue) {
+    public FieldProfile(Project project, String gloss, Boolean repeatable, Boolean readOnly, Boolean hidden, Boolean required, InputType inputType, String defaultValue) {
         this();
         this.project = project;
         this.gloss = gloss;

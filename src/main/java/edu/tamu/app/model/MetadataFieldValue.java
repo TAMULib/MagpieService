@@ -86,8 +86,9 @@ public class MetadataFieldValue extends BaseEntity {
     }
 
     public String getValue() {
-        if (value == null)
+        if (value == null) {
             return cv.getValue();
+        }
         return value;
     }
 

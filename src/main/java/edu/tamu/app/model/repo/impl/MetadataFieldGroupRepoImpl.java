@@ -40,7 +40,7 @@ public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom 
     private EntityManager entityManager;
 
     @Autowired
-    private MetadataFieldGroupRepo metadataFieldRepo;
+    private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
     @Autowired
     private DocumentRepo documentRepo;
@@ -53,9 +53,9 @@ public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom 
 
     @Override
     public MetadataFieldGroup create(Document document, MetadataFieldLabel label) {
-        MetadataFieldGroup field = metadataFieldRepo.findByDocumentAndLabel(document, label);
+        MetadataFieldGroup field = metadataFieldGroupRepo.findByDocumentAndLabel(document, label);
         if (field == null) {
-            return metadataFieldRepo.save(new MetadataFieldGroup(document, label));
+            return metadataFieldGroupRepo.save(new MetadataFieldGroup(document, label));
         }
         return field;
     }
@@ -78,7 +78,7 @@ public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom 
         }
 
         Set<MetadataFieldValue> values = field.getValues();
-        if (values != null && values.size() > 0) {
+        if (values.size() > 0) {
             values.parallelStream().forEach(value -> {
                 ControlledVocabulary cv = value.getCv();
                 if (cv != null) {
@@ -95,8 +95,8 @@ public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom 
 
     @Override
     public void deleteAll() {
-        metadataFieldRepo.findAll().parallelStream().forEach(field -> {
-            metadataFieldRepo.delete(field);
+        metadataFieldGroupRepo.findAll().parallelStream().forEach(field -> {
+            metadataFieldGroupRepo.delete(field);
         });
     }
 }

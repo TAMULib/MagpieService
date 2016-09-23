@@ -19,10 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.ProjectProfileRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
 
@@ -41,7 +41,7 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
     private ProjectRepo projectRepo;
 
     @Autowired
-    private ProjectProfileRepo projectFieldProfileRepo;
+    private FieldProfileRepo fieldProfileRepo;
 
     @Autowired
     private DocumentRepo documentRepo;
@@ -71,11 +71,11 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
     @Override
     @Transactional
     public void delete(Project project) {
-        Set<ProjectProfile> profiles = project.getProfiles();
+        Set<FieldProfile> profiles = project.getProfiles();
         if (profiles.size() > 0) {
             profiles.parallelStream().forEach(profile -> {
                 profile.setProject(null);
-                projectFieldProfileRepo.save(profile);
+                fieldProfileRepo.save(profile);
             });
             project.clearProfiles();
         }

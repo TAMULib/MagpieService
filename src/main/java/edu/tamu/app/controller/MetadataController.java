@@ -100,7 +100,6 @@ public class MetadataController {
     public ApiResponse unlockProject(@ApiVariable String projectToUnlock) {
         Project project = projectRepo.findByName(projectToUnlock);
         project.setIsLocked(false);
-        ;
         projectRepo.save(project);
         return new ApiResponse(SUCCESS);
     }

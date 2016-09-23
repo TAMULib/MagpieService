@@ -1,4 +1,4 @@
-package edu.tamu.app.service;
+package edu.tamu.app.observer;
 
 import java.io.File;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public class FileObserverRegistry {
 
     @Autowired
     private FileMonitorManager fileMonitorManager;
-    
+
     @Autowired
     private AutowireCapableBeanFactory beanFactory;
 

@@ -15,10 +15,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import edu.tamu.app.service.FileMonitorManager;
-import edu.tamu.app.service.FileObserverRegistry;
-import edu.tamu.app.service.MapFileListener;
-import edu.tamu.app.service.ProjectFileListener;
+import edu.tamu.app.observer.FileMonitorManager;
+import edu.tamu.app.observer.FileObserverRegistry;
+import edu.tamu.app.observer.MapFileListener;
+import edu.tamu.app.observer.ProjectFileListener;
 import edu.tamu.app.service.SyncService;
 
 @Component
@@ -56,7 +56,6 @@ public class Initialization implements CommandLineRunner {
         }
 
         if (appContext != null && link.equals("true")) {
-
             try {
                 FileUtils.deleteDirectory(new File(appContext.getResource("classpath:static").getFile().getAbsolutePath() + mount));
             } catch (IOException e) {

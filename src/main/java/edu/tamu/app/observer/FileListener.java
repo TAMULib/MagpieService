@@ -1,4 +1,4 @@
-package edu.tamu.app.service;
+package edu.tamu.app.observer;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 
@@ -11,7 +11,7 @@ public interface FileListener extends FileAlterationListener {
     public String getFolder();
 
     public void setFolder(String folder);
-    
+
     public String getPath();
 
 }

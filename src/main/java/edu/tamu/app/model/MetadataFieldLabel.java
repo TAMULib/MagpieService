@@ -21,6 +21,7 @@ import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import edu.tamu.framework.model.BaseEntity;
@@ -38,18 +39,18 @@ public class MetadataFieldLabel extends BaseEntity {
     private String name;
 
     @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH }, fetch = FetchType.EAGER)
-    private ProjectProfile profile;
+    private FieldProfile profile;
 
     @OneToMany(mappedBy = "label", fetch = FetchType.EAGER)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    private Set<MetadataFieldGroup> fields;
+    private Set<MetadataFieldGroup> fields = new HashSet<MetadataFieldGroup>();
 
     public MetadataFieldLabel() {
-        fields = new HashSet<MetadataFieldGroup>();
+
     }
 
-    public MetadataFieldLabel(String name, ProjectProfile profile) {
+    public MetadataFieldLabel(String name, FieldProfile profile) {
         this();
         this.name = name;
         this.profile = profile;
@@ -63,14 +64,15 @@ public class MetadataFieldLabel extends BaseEntity {
         this.name = name;
     }
 
-    public ProjectProfile getProfile() {
+    public FieldProfile getProfile() {
         return profile;
     }
 
-    public void setProfile(ProjectProfile profile) {
+    public void setProfile(FieldProfile profile) {
         this.profile = profile;
     }
 
+    @JsonIgnore
     public Set<MetadataFieldGroup> getFields() {
         return fields;
     }
