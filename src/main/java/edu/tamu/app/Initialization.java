@@ -27,9 +27,6 @@ public class Initialization implements CommandLineRunner {
 
     private static final Logger logger = Logger.getLogger(Initialization.class);
 
-    @Value("${app.host}")
-    private String host;
-
     @Value("${app.mount}")
     private String mount;
 
