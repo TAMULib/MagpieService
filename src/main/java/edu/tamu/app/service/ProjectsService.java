@@ -82,6 +82,8 @@ public class ProjectsService {
 
     private Map<String, Project> projects = new HashMap<String, Project>();
 
+    private Map<String, List<MetadataFieldGroup>> fields = new HashMap<String, List<MetadataFieldGroup>>();
+
     private JsonNode projectsNode;
 
     public JsonNode readProjectNode() {
@@ -131,37 +133,40 @@ public class ProjectsService {
     }
 
     public List<MetadataFieldGroup> getProjectFields(String projectName) {
-        List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
-        final Project project = createProject(projectName);
-        final Iterable<JsonNode> iterable = () -> getProfileNode(projectName).elements();
-        iterable.forEach(metadata -> {
+        List<MetadataFieldGroup> projectFields = fields.get(projectName);
+        if (projectFields == null) {
+            projectFields = new ArrayList<MetadataFieldGroup>();
+            final Project project = createProject(projectName);
+            final Iterable<JsonNode> iterable = () -> getProfileNode(projectName).elements();
+            for (JsonNode metadata : iterable) {
+                String gloss = metadata.get("gloss") == null ? "" : metadata.get("gloss").asText();
+                Boolean isRepeatable = metadata.get("repeatable") == null ? false : metadata.get("repeatable").asBoolean();
+                Boolean isReadOnly = metadata.get("readOnly") == null ? false : metadata.get("readOnly").asBoolean();
+                Boolean isHidden = metadata.get("hidden") == null ? false : metadata.get("hidden").asBoolean();
+                Boolean isRequired = metadata.get("required") == null ? false : metadata.get("required").asBoolean();
+                InputType inputType = InputType.valueOf(metadata.get("inputType") == null ? "TEXT" : metadata.get("inputType").asText());
+                String defaultValue = metadata.get("default") == null ? "" : metadata.get("default").asText();
 
-            String gloss = metadata.get("gloss") == null ? "" : metadata.get("gloss").asText();
-            Boolean isRepeatable = metadata.get("repeatable") == null ? false : metadata.get("repeatable").asBoolean();
-            Boolean isReadOnly = metadata.get("readOnly") == null ? false : metadata.get("readOnly").asBoolean();
-            Boolean isHidden = metadata.get("hidden") == null ? false : metadata.get("hidden").asBoolean();
-            Boolean isRequired = metadata.get("required") == null ? false : metadata.get("required").asBoolean();
-            InputType inputType = InputType.valueOf(metadata.get("inputType") == null ? "TEXT" : metadata.get("inputType").asText());
-            String defaultValue = metadata.get("default") == null ? "" : metadata.get("default").asText();
+                FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
+                if (fieldProfile == null) {
+                    fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
+                }
 
-            FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
-            if (fieldProfile == null) {
-                fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
+                String label = metadata.get("label").asText();
+
+                MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByName(label);
+                if (metadataFieldLabel == null) {
+                    metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
+                }
+
+                projectFields.add(new MetadataFieldGroup(metadataFieldLabel));
+
+                project.addProfile(fieldProfile);
             }
-
-            String label = metadata.get("label").asText();
-
-            MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByName(label);
-            if (metadataFieldLabel == null) {
-                metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
-            }
-
-            fields.add(new MetadataFieldGroup(metadataFieldLabel));
-
-            project.addProfile(fieldProfile);
-        });
-        projects.put(projectName, projectRepo.save(project));
-        return fields;
+            fields.put(projectName, projectFields);
+            projects.put(projectName, projectRepo.save(project));
+        }
+        return projectFields;
     }
 
     public void createDocument(String projectName, String documentName) {

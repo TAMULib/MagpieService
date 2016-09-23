@@ -15,7 +15,6 @@ import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.DocumentPushService;
@@ -71,7 +69,7 @@ public class DocumentController {
      * Endpoint to return marc record.
      * 
      * @param bibId
-     *          @ApiVariable String
+     * @ApiVariable String
      * 
      * @return ApiResponse
      * 
@@ -101,7 +99,7 @@ public class DocumentController {
      * Endpoint to return document by filename.
      * 
      * @param name
-     *          @ApiVariable String
+     * @ApiVariable String
      * 
      * @return ApiResponse
      * 
@@ -109,16 +107,14 @@ public class DocumentController {
     @ApiMapping("/get/{name}")
     @Auth(role = "ROLE_USER")
     public ApiResponse documentByName(@ApiVariable String name) {
-        Document document = documentRepo.findByName(name);
-        document.setFields(new TreeSet<MetadataFieldGroup>(document.getFields()));
-        return new ApiResponse(SUCCESS, document);
+        return new ApiResponse(SUCCESS, documentRepo.findByName(name));
     }
 
     /**
      * Endpoint to return a page of documents.
      * 
      * @param dataNode
-     *          @ApiData JsonNode
+     * @ApiData JsonNode
      * 
      * @return ApiResponse
      * 
@@ -160,7 +156,7 @@ public class DocumentController {
      * Endpoint to update document status or annotator.
      * 
      * @param data
-     *          @ApiData Map<String, String>
+     * @ApiData Map<String, String>
      * 
      * @return ApiResponse
      * 
@@ -190,7 +186,7 @@ public class DocumentController {
      * Endpoint to save document.
      * 
      * @param document
-     *          @ApiData Document
+     * @ApiData Document
      * 
      * @return ApiResponse
      * 
@@ -210,7 +206,7 @@ public class DocumentController {
      * Endpoint to save document.
      * 
      * @param name
-     *          @ApiVariable String
+     * @ApiVariable String
      * 
      * @return ApiResponse
      * 

@@ -49,8 +49,7 @@ public class MetadataFieldValue extends BaseEntity {
     @PreUpdate
     protected void sanitize() throws UnsupportedEncodingException {
         if (value != null) {
-            value = value.replaceAll("[\u0000-\u001f]", "");
-            value = new String(value.getBytes(), "UTF-8");
+            value = new String(value.replaceAll("[\u0000-\u001f]", "").getBytes(), "UTF-8");
         }
     }
 

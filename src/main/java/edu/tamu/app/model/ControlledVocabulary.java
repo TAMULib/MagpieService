@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.model;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,8 +46,8 @@ public class ControlledVocabulary extends BaseEntity {
 
     @PrePersist
     @PreUpdate
-    protected void sanitize() {
-        value = value.replaceAll("[\u0000-\u001f]", "");
+    protected void sanitize() throws UnsupportedEncodingException {
+        value = new String(value.replaceAll("[\u0000-\u001f]", "").getBytes(), "UTF-8");
     }
 
     public ControlledVocabulary() {
