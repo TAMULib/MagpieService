@@ -7,7 +7,7 @@
  * Revisions: 
  *     $Log$ 
  */
-package edu.tamu.app.model;
+package edu.tamu.app.enums;
 
 /**
  * enum for input type

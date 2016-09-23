@@ -21,18 +21,18 @@ import org.tdl.vireo.annotations.Order;
 import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectProfile;
+import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.ProjectProfileRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 @WebAppConfiguration
@@ -60,7 +60,7 @@ public class CsvUtilityTest {
 	private MetadataFieldValueRepo metadataFieldValueRepo;
 	
 	@Autowired
-	private ProjectProfileRepo projectFieldProfileRepo;
+	private FieldProfileRepo projectFieldProfileRepo;
 	
 	private Project testProject;
 	
@@ -72,7 +72,7 @@ public class CsvUtilityTest {
 		testProject = projectRepo.create("testProject");
 		mockDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");
 		
-		ProjectProfile profile = projectFieldProfileRepo.create(testProject, "Date Created", false, false, false, false, InputType.TEXT, null);
+		FieldProfile profile = projectFieldProfileRepo.create(testProject, "Date Created", false, false, false, false, InputType.TEXT, null);
 		MetadataFieldLabel dateCreatedLabel = metadataFieldLabelRepo.create("dc.date.created", profile);
 		MetadataFieldGroup dateCreatedFields = metadataFieldGroupRepo.create(mockDocument, dateCreatedLabel);
 		MetadataFieldValue dateCreatedValue = metadataFieldValueRepo.create("1962", dateCreatedFields);

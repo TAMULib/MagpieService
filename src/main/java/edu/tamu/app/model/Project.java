@@ -41,7 +41,7 @@ public class Project extends BaseEntity {
     private Boolean isLocked = false;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    private Set<ProjectProfile> profiles;
+    private Set<FieldProfile> profiles;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = false)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
@@ -49,7 +49,7 @@ public class Project extends BaseEntity {
     private Set<Document> documents;
 
     public Project() {
-        profiles = new HashSet<ProjectProfile>();
+        profiles = new HashSet<FieldProfile>();
         documents = new HashSet<Document>();
     }
 
@@ -82,24 +82,24 @@ public class Project extends BaseEntity {
         this.repositoryUIUrlString = repositoryUIUrlString;
     }
 
-    public Set<ProjectProfile> getProfiles() {
+    public Set<FieldProfile> getProfiles() {
         return profiles;
     }
 
-    public void setProfiles(Set<ProjectProfile> profiles) {
+    public void setProfiles(Set<FieldProfile> profiles) {
         this.profiles = profiles;
     }
 
-    public void addProfile(ProjectProfile profile) {
+    public void addProfile(FieldProfile profile) {
         profiles.add(profile);
     }
 
-    public void removeProfile(ProjectProfile profile) {
+    public void removeProfile(FieldProfile profile) {
         profiles.remove(profile);
     }
 
     public void clearProfiles() {
-        profiles = new HashSet<ProjectProfile>();
+        profiles = new HashSet<FieldProfile>();
     }
 
     public Set<Document> getDocuments() {

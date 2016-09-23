@@ -13,17 +13,17 @@ import org.tdl.vireo.annotations.Order;
 import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectProfile;
+import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.ProjectProfileRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 
 @WebAppConfiguration
@@ -48,7 +48,7 @@ public class DocumentTest {
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Autowired
-    private ProjectProfileRepo projectProfileRepo;
+    private FieldProfileRepo projectProfileRepo;
 
     private Project testProject;
 
@@ -94,7 +94,7 @@ public class DocumentTest {
         Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 
         Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectProfileRepo.count());
-        ProjectProfile testProfile = projectProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+        FieldProfile testProfile = projectProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         Assert.assertEquals("Test ProjectFieldProfile was not created.", 1, projectProfileRepo.count());
 
         Assert.assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());

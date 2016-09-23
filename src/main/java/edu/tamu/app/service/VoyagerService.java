@@ -60,8 +60,6 @@ public class VoyagerService {
         xmlResponse = xmlResponse.replace("mfhd:", "");
         xmlResponse = xmlResponse.replace("xsi:", "");
 
-        // System.out.println("\n" + xmlResponse + "\n");
-
         InputStream xmlInputStream = new ByteArrayInputStream(xmlResponse.getBytes());
 
         JAXBContext jaxbContext = JAXBContext.newInstance(VoyagerServiceData.class);

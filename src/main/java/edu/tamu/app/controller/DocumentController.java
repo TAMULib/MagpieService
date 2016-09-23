@@ -125,7 +125,7 @@ public class DocumentController {
      */
     @ApiMapping("/page")
     @Auth(role = "ROLE_USER")
-    public ApiResponse pageDocuments1(@ApiData JsonNode dataNode) {
+    public ApiResponse pageDocuments(@ApiData JsonNode dataNode) {
 
         Direction sortDirection;
 
@@ -181,14 +181,9 @@ public class DocumentController {
             return new ApiResponse(ERROR, "Document not updated");
         }
 
-        Map<String, Object> documentMap = new HashMap<String, Object>();
+        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
 
-        documentMap.put("document", documentRepo.findByName(data.get("name")));
-        documentMap.put("isNew", "false");
-
-        simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
-
-        return new ApiResponse(SUCCESS, "ok");
+        return new ApiResponse(SUCCESS);
     }
 
     /**
@@ -204,14 +199,11 @@ public class DocumentController {
     @Auth(role = "ROLE_USER")
     public ApiResponse save(@ApiData Document document) {
 
-        Map<String, Object> documentMap = new HashMap<String, Object>();
+        documentRepo.update(document);
 
-        documentMap.put("document", documentRepo.update(document));
-        documentMap.put("isNew", "false");
+        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
 
-        simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
-
-        return new ApiResponse(SUCCESS, "ok");
+        return new ApiResponse(SUCCESS);
     }
 
     /**
@@ -229,8 +221,6 @@ public class DocumentController {
 
         Document document = documentRepo.findByName(name);
 
-        Map<String, Object> documentMap = new HashMap<String, Object>();
-
         try {
             document = documentPushService.push(document);
         } catch (Exception e) {
@@ -238,10 +228,7 @@ public class DocumentController {
             return new ApiResponse(ERROR, e.getMessage());
         }
 
-        documentMap.put("document", document);
-        documentMap.put("isNew", "false");
-
-        simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
+        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
 
         return new ApiResponse(SUCCESS, "Your item has been successfully published", document);
     }

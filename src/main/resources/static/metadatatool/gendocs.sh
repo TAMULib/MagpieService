@@ -9,7 +9,7 @@ else
 	COUNT=0
 	
 	mkdir "projects/"$1
-	sleep 30
+	sleep 15
 
 	while [ $COUNT -lt $TILL ]; 
 	do
@@ -20,7 +20,7 @@ else
     	let COUNT=COUNT+1
 		
 		if [ $(($COUNT%50)) == 0 ]; then
-			sleep 10
+			sleep 15
 		fi 
 	done
 fi

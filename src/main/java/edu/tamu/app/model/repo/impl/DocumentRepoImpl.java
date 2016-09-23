@@ -48,16 +48,16 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
     private ProjectRepo projectRepo;
 
     @Autowired
-    private MetadataFieldGroupRepo metadataFieldRepo;
+    private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Override
-    public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
+    public synchronized Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
         Document document = documentRepo.findByName(name);
         if (document == null) {
-            return documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, status));
+            document = documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, status));
         }
         return document;
     }
@@ -73,7 +73,7 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
         oldDocument.setNotes(newDocument.getNotes());
 
         newDocument.getFields().parallelStream().forEach(field -> {
-            MetadataFieldGroup oldField = metadataFieldRepo.findByDocumentAndLabel(oldDocument, field.getLabel());
+            MetadataFieldGroup oldField = metadataFieldGroupRepo.findByDocumentAndLabel(oldDocument, field.getLabel());
             oldField.setValues(field.getValues());
             field.getValues().parallelStream().forEach(value -> {
                 value.setField(oldField);
@@ -98,7 +98,7 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
         if (fields != null && fields.size() > 0) {
             fields.parallelStream().forEach(field -> {
                 field.setDocument(null);
-                metadataFieldRepo.save(field);
+                metadataFieldGroupRepo.save(field);
             });
             document.clearFields();
         }

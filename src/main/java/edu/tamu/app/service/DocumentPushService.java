@@ -26,7 +26,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
 
@@ -43,8 +43,9 @@ import edu.tamu.app.utilities.CsvUtility;
 
 @Service
 public class DocumentPushService {
+
     @Autowired
-    private ApplicationContext appContext;
+    private ResourceLoader resourceLoader;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -96,7 +97,7 @@ public class DocumentPushService {
         // write the ArchiveMatica CSV for this document
         String directory = "";
         try {
-            directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/archivematica/";
+            directory = resourceLoader.getResource("classpath:static" + mount + "/archivematica").getURL().getPath();
         } catch (IOException e) {
             IOException ioe = new IOException("Failed to create items; Could not get Spring resource for the archivematica output directory on the mount. {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
@@ -274,7 +275,7 @@ public class DocumentPushService {
             throw murle;
         }
 
-        File pdfFile = appContext.getResource("classpath:static" + document.getPdfPath()).getFile();
+        File pdfFile = resourceLoader.getResource("classpath:static" + document.getPdfPath()).getFile();
         FileInputStream pdfFileStrm = new FileInputStream(pdfFile);
         byte[] pdfBytes = IOUtils.toByteArray(pdfFileStrm);
 
@@ -294,7 +295,6 @@ public class DocumentPushService {
         // put a resource policy for member group access on the pdf bitstream
         // REST endpoint is PUT /bitstreams/{bitstream id} - Update metadata of
         // bitstream. You must put a Bitstream, does not alter the file/data
-
         // Fix up the PDF bitstream metadata to have new policy, etc.
         ArrayNode policiesNode = pdfBitstreamJson.putArray("policies");
         ObjectNode policyNode = objectMapper.createObjectNode();
@@ -333,7 +333,7 @@ public class DocumentPushService {
             throw murle;
         }
 
-        File txtFile = appContext.getResource("classpath:static" + document.getTxtPath()).getFile();
+        File txtFile = resourceLoader.getResource("classpath:static" + document.getTxtPath()).getFile();
         FileInputStream txtFileStrm = new FileInputStream(txtFile);
         byte[] txtBytes = IOUtils.toByteArray(txtFileStrm);
 
