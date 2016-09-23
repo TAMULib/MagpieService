@@ -44,10 +44,10 @@ public class MetadataFieldLabel extends BaseEntity {
     @OneToMany(mappedBy = "label", fetch = FetchType.EAGER)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    private Set<MetadataFieldGroup> fields = new HashSet<MetadataFieldGroup>();
+    private Set<MetadataFieldGroup> fields;
 
     public MetadataFieldLabel() {
-
+        fields = new HashSet<MetadataFieldGroup>();
     }
 
     public MetadataFieldLabel(String name, FieldProfile profile) {
