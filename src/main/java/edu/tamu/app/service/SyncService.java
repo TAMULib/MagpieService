@@ -16,7 +16,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.utilities.FileSystemUtility;
@@ -32,7 +32,7 @@ public class SyncService {
     private static final Logger logger = Logger.getLogger(SyncService.class);
 
     @Autowired
-    private ApplicationContext appContext;
+    private ResourceLoader resourceLoader;
 
     @Autowired
     private ProjectsService projectsService;
@@ -51,7 +51,7 @@ public class SyncService {
 
         String directory = null;
         try {
-            directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/projects/";
+            directory = resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/projects/";
         } catch (IOException e) {
             e.printStackTrace();
         }

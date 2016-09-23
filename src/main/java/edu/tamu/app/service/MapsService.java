@@ -11,7 +11,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.Document;
@@ -28,7 +28,7 @@ public class MapsService {
     private static final String CHANGE_STATUS = "Published";
 
     @Autowired
-    private ApplicationContext appContext;
+    private ResourceLoader resourceLoader;
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -113,7 +113,7 @@ public class MapsService {
 
     private void generateArchiveMaticaCSV(String projectName) throws IOException {
         logger.info("Writing Archivematica CSV for: " + projectName);
-        String directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/archivematica/";
+        String directory = resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/archivematica/";
 
         String archiveDirectoryName = directory + projectName;
 

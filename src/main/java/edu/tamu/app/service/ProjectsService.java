@@ -14,7 +14,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +45,7 @@ public class ProjectsService {
     private static final String DEFAULT = "default";
 
     @Autowired
-    private ApplicationContext appContext;
+    private ResourceLoader resourceLoader;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -87,7 +87,7 @@ public class ProjectsService {
     public JsonNode readProjectNode() {
         String json = null;
         try {
-            json = new String(Files.readAllBytes(Paths.get(appContext.getResource("classpath:config").getFile().getAbsolutePath() + "/metadata.json")));
+            json = new String(Files.readAllBytes(Paths.get(resourceLoader.getResource("classpath:config").getURL().getPath() + "/metadata.json")));
         } catch (IOException e) {
             logger.error("Error reading metadata json file", e);
         }

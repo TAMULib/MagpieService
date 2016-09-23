@@ -11,8 +11,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 import edu.tamu.app.observer.FileMonitorManager;
@@ -34,7 +34,7 @@ public class Initialization implements CommandLineRunner {
     private String link;
 
     @Autowired
-    private ApplicationContext appContext;
+    private ResourceLoader resourceLoader;
 
     @Autowired
     private SyncService syncService;
@@ -48,19 +48,15 @@ public class Initialization implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        if (appContext == null) {
-            logger.warn("APP CONTEXT IS NULL");
-        }
-
-        if (appContext != null && link.equals("true")) {
+        if (link.equals("true")) {
             try {
-                FileUtils.deleteDirectory(new File(appContext.getResource("classpath:static").getFile().getAbsolutePath() + mount));
+                FileUtils.deleteDirectory(new File(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()));
             } catch (IOException e) {
                 logger.error("\nDIRECTORY DOES NOT EXIST\n", e);
             }
 
             try {
-                Files.createSymbolicLink(Paths.get(appContext.getResource("classpath:static").getFile().getAbsolutePath() + mount), Paths.get("/mnt" + mount));
+                Files.createSymbolicLink(Paths.get(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()), Paths.get("/mnt" + mount));
             } catch (FileAlreadyExistsException e) {
                 logger.error("\nSYMLINK ALREADY EXISTS\n", e);
             } catch (IOException e) {
@@ -70,7 +66,7 @@ public class Initialization implements CommandLineRunner {
 
         syncService.sync();
 
-        String root = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath();
+        String root = resourceLoader.getResource("classpath:static" + mount).getURL().getPath();
 
         fileObserverRegistry.register(new ProjectFileListener(root, "projects"));
         fileObserverRegistry.register(new MapFileListener(root, "maps"));
