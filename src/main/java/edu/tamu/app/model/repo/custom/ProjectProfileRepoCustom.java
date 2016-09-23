@@ -9,7 +9,7 @@
  */
 package edu.tamu.app.model.repo.custom;
 
-import edu.tamu.app.model.InputType;
+import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectProfile;
 

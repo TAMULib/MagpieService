@@ -17,7 +17,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.tamu.app.model.InputType;
+import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectProfile;

@@ -14,7 +14,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import edu.tamu.app.model.InputType;
+import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectProfile;
 import edu.tamu.app.model.repo.custom.ProjectProfileRepoCustom;

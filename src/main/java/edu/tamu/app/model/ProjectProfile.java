@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import edu.tamu.app.enums.InputType;
 import edu.tamu.framework.model.BaseEntity;
 
 /**

@@ -13,7 +13,7 @@ import org.tdl.vireo.annotations.Order;
 import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
-import edu.tamu.app.model.InputType;
+import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectProfile;
 import edu.tamu.app.model.repo.ProjectProfileRepo;

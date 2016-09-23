@@ -16,20 +16,15 @@ import static java.nio.file.Paths.get;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -37,8 +32,8 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
@@ -50,6 +45,7 @@ import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
+import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.framework.model.ApiResponse;
 
 /**
@@ -60,7 +56,7 @@ import edu.tamu.framework.model.ApiResponse;
  *
  */
 @Service
-public class SyncService implements Runnable {
+public class SyncService {
 
     @Autowired
     private ApplicationContext appContext;
@@ -70,12 +66,6 @@ public class SyncService implements Runnable {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private ExecutorService executorService;
-
-    @Autowired
-    private WatcherManagerService watcherManagerService;
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
@@ -122,13 +112,13 @@ public class SyncService implements Runnable {
      * 
      */
     @SuppressWarnings("unchecked")
-    @Override
-    public void run() {
+    public void sync() {
         if (logger.isDebugEnabled()) {
             logger.debug("Running Sync Service");
         }
 
         URL location = this.getClass().getResource("/config");
+
         String fullPath = location.getPath();
 
         String json = null;
@@ -158,7 +148,7 @@ public class SyncService implements Runnable {
             e.printStackTrace();
         }
 
-        List<Path> projects = directoryList(directory);
+        List<Path> projects = FileSystemUtility.directoryList(directory);
 
         for (Path projectPath : projects) {
 
@@ -166,27 +156,11 @@ public class SyncService implements Runnable {
 
             Project project = projectRepo.create(projectName);
 
-            List<Path> documents = fileList(projectPath.toString());
+            List<Path> documents = FileSystemUtility.fileList(projectPath.toString());
 
             List<Object> profileObjList = (List<Object>) projectMap.get(projectName);
 
             List<MetadataFieldGroup> fields = new ArrayList<MetadataFieldGroup>();
-
-            if (!watcherManagerService.isWatcherServiceActive(projectName)) {
-
-                logger.info("Watching: " + projectName);
-
-                WatcherService watcherService = new WatcherService(projectName);
-
-                AutowireCapableBeanFactory factory = appContext.getAutowireCapableBeanFactory();
-
-                factory.autowireBean(watcherService);
-                factory.initializeBean(watcherService, "bean");
-
-                executorService.submit(watcherService);
-
-                watcherManagerService.addActiveWatcherService(projectName);
-            }
 
             if (profileObjList == null) {
                 profileObjList = (List<Object>) projectMap.get("default");
@@ -295,53 +269,6 @@ public class SyncService implements Runnable {
             }
         }
         logger.info("Sync Service Finished");
-    }
-
-    /**
-     * Retrieves a list of directories in a directory.
-     * 
-     * @param directory
-     *            String
-     * 
-     * @return List<Path>
-     * 
-     */
-    public static List<Path> directoryList(String directory) {
-        List<Path> fileNames = new ArrayList<>();
-
-        DirectoryStream.Filter<Path> filter = new DirectoryStream.Filter<Path>() {
-            public boolean accept(Path path) throws IOException {
-                return (Files.isDirectory(path));
-            }
-        };
-
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory), filter)) {
-            for (Path path : directoryStream) {
-                fileNames.add(path);
-            }
-        } catch (IOException ex) {
-        }
-        return fileNames;
-    }
-
-    /**
-     * Retrieves a list of files in a directory.
-     * 
-     * @param directory
-     *            String
-     * 
-     * @return List<Path>
-     * 
-     */
-    public static List<Path> fileList(String directory) {
-        List<Path> fileNames = new ArrayList<>();
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory))) {
-            for (Path path : directoryStream) {
-                fileNames.add(path);
-            }
-        } catch (IOException ex) {
-        }
-        return fileNames;
     }
 
 }

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -16,44 +15,38 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import edu.tamu.app.service.MapWatcherManagerService;
-import edu.tamu.app.service.MapWatcherService;
+import edu.tamu.app.service.FileMonitorManager;
+import edu.tamu.app.service.FileObserverRegistry;
+import edu.tamu.app.service.MapFileListener;
+import edu.tamu.app.service.ProjectFileListener;
 import edu.tamu.app.service.SyncService;
-import edu.tamu.app.service.WatcherManagerService;
-import edu.tamu.app.service.WatcherService;
 
 @Component
 @Profile(value = { "!test" })
 public class Initialization implements CommandLineRunner {
 
-    @Autowired
-    private ApplicationContext appContext;
+    private static final Logger logger = Logger.getLogger(Initialization.class);
 
-    @Autowired
-    private ExecutorService executorService;
-
-    @Autowired
-    private WatcherManagerService watcherManagerService;
-
-    @Autowired
-    private MapWatcherManagerService mapWatcherManagerService;
-
-    @Autowired
-    private SyncService syncService;
-
-    @Autowired
-    private WatcherService watcherService;
-
-    @Autowired
-    private MapWatcherService mapWatcherService;
+    @Value("${app.host}")
+    private String host;
 
     @Value("${app.mount}")
     private String mount;
 
     @Value("${app.symlink.create}")
-    private String createSymlink;
+    private String link;
 
-    private static final Logger logger = Logger.getLogger(AppContextInitializedHandler.class);
+    @Autowired
+    private ApplicationContext appContext;
+
+    @Autowired
+    private SyncService syncService;
+
+    @Autowired
+    private FileMonitorManager fileMonitorManager;
+
+    @Autowired
+    private FileObserverRegistry fileObserverRegistry;
 
     @Override
     public void run(String... args) throws Exception {
@@ -62,7 +55,7 @@ public class Initialization implements CommandLineRunner {
             logger.warn("APP CONTEXT IS NULL");
         }
 
-        if (appContext != null && createSymlink.equals("true")) {
+        if (appContext != null && link.equals("true")) {
 
             try {
                 FileUtils.deleteDirectory(new File(appContext.getResource("classpath:static").getFile().getAbsolutePath() + mount));
@@ -79,27 +72,14 @@ public class Initialization implements CommandLineRunner {
             }
         }
 
-        executorService.submit(syncService);
+        syncService.sync();
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Watching: projects");
-        }
+        String root = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath();
 
-        watcherService.setFolder("projects");
+        fileObserverRegistry.register(new ProjectFileListener(root, "projects"));
+        fileObserverRegistry.register(new MapFileListener(root, "maps"));
 
-        executorService.submit(watcherService);
-
-        watcherManagerService.addActiveWatcherService("projects");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Watching: maps");
-        }
-
-        mapWatcherService.setFolder("maps");
-
-        executorService.submit(mapWatcherService);
-
-        mapWatcherManagerService.addActiveWatcherService("maps");
+        fileMonitorManager.start();
 
     }
 

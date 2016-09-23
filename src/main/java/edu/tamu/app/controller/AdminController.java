@@ -11,8 +11,6 @@ package edu.tamu.app.controller;
 
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
-import java.util.concurrent.ExecutorService;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,13 +30,10 @@ import edu.tamu.framework.model.ApiResponse;
 @ApiMapping("/admin")
 public class AdminController {
 
+    private static final Logger logger = Logger.getLogger(AdminController.class);
+
     @Autowired
     private SyncService syncService;
-
-    @Autowired
-    private ExecutorService executorService;
-
-    private static final Logger logger = Logger.getLogger(AdminController.class);
 
     /**
      * Synchronizes the project directory with the database.
@@ -49,11 +44,8 @@ public class AdminController {
     @ApiMapping("/sync")
     @Auth(role = "ROLE_ADMIN")
     public ApiResponse syncDocuments() {
-
         logger.info("Syncronizing projects with database.");
-
-        executorService.submit(syncService);
-
+        syncService.sync();
         return new ApiResponse(SUCCESS);
     }
 

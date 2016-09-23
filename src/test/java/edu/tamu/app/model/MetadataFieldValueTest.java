@@ -13,9 +13,9 @@ import org.tdl.vireo.annotations.Order;
 import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
