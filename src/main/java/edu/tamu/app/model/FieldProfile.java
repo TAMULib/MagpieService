@@ -66,9 +66,10 @@ public class FieldProfile extends BaseEntity {
     @OneToMany(mappedBy = "profile", fetch = FetchType.EAGER)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldLabel.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    private Set<MetadataFieldLabel> labels = new HashSet<MetadataFieldLabel>();
+    private Set<MetadataFieldLabel> labels;
 
     public FieldProfile() {
+        labels = new HashSet<MetadataFieldLabel>();
         repeatable = false;
         readOnly = false;
         hidden = false;
