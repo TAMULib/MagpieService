@@ -236,7 +236,7 @@ public class MetadataController {
     @Auth(role = "ROLE_USER")
     public ApiResponse saf(@ApiVariable String project) throws FileNotFoundException {
 
-        System.out.println("Generating SAF for project " + project);
+        logger.info("Generating SAF for project " + project);
 
         // for each published document
 
