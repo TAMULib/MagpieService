@@ -84,7 +84,7 @@ public class ProjectsService {
 
     private Map<String, List<MetadataFieldGroup>> fields = new HashMap<String, List<MetadataFieldGroup>>();
 
-    private JsonNode projectsNode;
+    private JsonNode projectsNode = null;
 
     public JsonNode readProjectNode() {
         String json = null;
@@ -249,6 +249,12 @@ public class ProjectsService {
         }
 
         return metadataMap;
+    }
+    
+    public void clear() {
+        projects = new HashMap<String, Project>();
+        fields = new HashMap<String, List<MetadataFieldGroup>>();
+        projectsNode = null;
     }
 
 }

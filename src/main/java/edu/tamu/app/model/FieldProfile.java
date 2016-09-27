@@ -56,6 +56,7 @@ public class FieldProfile extends BaseEntity {
     @Column(nullable = false)
     private InputType inputType;
 
+    @Column(nullable = true)
     private String defaultValue;
 
     @ManyToOne(fetch = FetchType.EAGER)
