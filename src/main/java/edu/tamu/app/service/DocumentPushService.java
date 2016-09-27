@@ -114,7 +114,16 @@ public class DocumentPushService {
         csvUtility.generateOneArchiveMaticaCSV(document, itemDirectoryName);
 
         // add new handle to document, change it's status to published, save it
-        String publishedUriString = repoUrl + "/" + defaultRepoUIPath + "/" + handleString;
+        String publishedUriString;
+        
+        if(defaultRepoUIPath.length() > 0) {
+            publishedUriString = repoUrl + "/" + defaultRepoUIPath + "/" + handleString;
+        }
+        else {
+            publishedUriString = repoUrl + "/" + handleString;
+        }
+        
+        
         document.setPublishedUriString(publishedUriString);
 
         document.setStatus("Published");
