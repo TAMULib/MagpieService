@@ -56,5 +56,19 @@ public class FileSystemUtility {
         }
         return fileNames;
     }
+    
+    public static void createDirectory(String path) throws IOException {
+        Path newDirectoryPath = Paths.get(path);
+        if (!Files.exists(newDirectoryPath)) {
+            Files.createDirectory(newDirectoryPath);
+        }
+    }
+    
+    public static void createFile(String path, String name) throws IOException {
+        Path newFilePath = Paths.get(path, name);
+        if (!Files.exists(newFilePath)) {
+            Files.createFile(newFilePath);
+        }
+    }
 
 }

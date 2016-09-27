@@ -61,7 +61,7 @@ public class FieldProfileRepoImpl implements FieldProfileRepoCustom {
 
         Set<MetadataFieldLabel> labels = profile.getLabels();
         if (labels.size() > 0) {
-            labels.parallelStream().forEach(l -> {
+            labels.forEach(l -> {
                 l.setProfile(null);
                 metadataFieldLabelRepo.save(l);
             });
@@ -80,7 +80,7 @@ public class FieldProfileRepoImpl implements FieldProfileRepoCustom {
 
     @Override
     public void deleteAll() {
-        fieldProfileRepo.findAll().parallelStream().forEach(profile -> {
+        fieldProfileRepo.findAll().forEach(profile -> {
             fieldProfileRepo.delete(profile);
         });
     }
