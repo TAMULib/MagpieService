@@ -1,12 +1,12 @@
-package edu.tamu.app.service;
+package edu.tamu.app.observer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,30 +18,33 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.tdl.vireo.annotations.Order;
 import org.tdl.vireo.runner.OrderedRunner;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import edu.tamu.app.WebServerInit;
-import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.service.ProjectsService;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 @WebAppConfiguration
 @ActiveProfiles({ "test" })
 @RunWith(OrderedRunner.class)
 @SpringApplicationConfiguration(classes = WebServerInit.class)
-public class ProjectsServiceTest {
+public class ProjectFileListenerTest {
 
     @Value("${app.mount}")
     private String mount;
 
     @Autowired
     private ResourceLoader resourceLoader;
+
+    @Autowired
+    private FileMonitorManager fileMonitorManager;
+
+    @Autowired
+    private FileObserverRegistry fileObserverRegistry;
 
     @Autowired
     private ProjectsService projectsService;
@@ -64,58 +67,56 @@ public class ProjectsServiceTest {
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
-    @Test
-    @Order(1)
-    public void testReadProjectNode() {
-        JsonNode projectsNode = projectsService.readProjectNode();
-        assertNotNull("The projects node was not read!", projectsNode);
+    private ProjectFileListener dissertationFileListener;
+
+    private String projectsPath;
+
+    @Before
+    public void setup() throws Exception {
+        String mountPath = resourceLoader.getResource("classpath:static" + mount).getURL().getPath();
+        projectsPath = mountPath + "/projects";
+        FileSystemUtility.createDirectory(projectsPath);
+        dissertationFileListener = new ProjectFileListener(mountPath, "projects");
+        fileObserverRegistry.register(dissertationFileListener);
+        fileMonitorManager.start();
     }
 
     @Test
-    @Order(2)
-    public void testCreateProject() {
-        Project project = projectsService.createProject("dissertation");
-        assertNotNull("The project was not created!", project);
+    @Order(1)
+    public void testNewProject() throws IOException, InterruptedException {
+        String disseratationsPath = projectsPath + "/dissertation";
+        FileSystemUtility.createDirectory(disseratationsPath);
+
+        // wait for the file monitor to pick up the newly created directory
+        Thread.sleep(2000);
+
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
     }
 
     @Test
-    @Order(3)
-    public void testGetProfileNode() {
-        JsonNode profileNode = projectsService.getProfileNode("dissertation");
-        assertNotNull("The profile node was not retrieved!", profileNode);
-    }
-
-    @Test
-    @Order(4)
-    public void testGetProjectFields() {
-        List<MetadataFieldGroup> projectFields = projectsService.getProjectFields("dissertation");
-        assertEquals("The project fields did not have the correct number of MetadataFieldFroups!", projectFields.size(), 21);
-    }
-
-    @Test
-    @Order(5)
-    public void testCreateDocument() throws IOException {
-        String projectsPath = resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/projects";
+    @Order(2)
+    public void testNewDocument() throws IOException, InterruptedException {
         String disseratationsPath = projectsPath + "/dissertation";
         String documentPath = disseratationsPath + "/dissertation_0";
-        FileSystemUtility.createDirectory(projectsPath);
         FileSystemUtility.createDirectory(disseratationsPath);
         FileSystemUtility.createDirectory(documentPath);
         FileSystemUtility.createFile(documentPath, "dissertation.pdf");
         FileSystemUtility.createFile(documentPath, "dissertation.pdf.txt");
 
-        projectsService.createDocument("dissertation", "dissertation_0");
+        // wait for the file monitor to pick up the newly created directory and files
+        Thread.sleep(2500);
 
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
         assertNotNull("The dissertation project was not created!", projectRepo.findByName("dissertation"));
 
         assertEquals("The document repo has the incorrect number of documents!", 1, documentRepo.count());
         assertNotNull("The dissertation_0 document was not created!", documentRepo.findByName("dissertation_0"));
+
+        FileSystemUtility.deleteDirectory(projectsPath);
     }
 
     @After
-    public void cleanUp() {
+    public void cleanUp() throws Exception {
         fieldProfileRepo.deleteAll();
         metadataFieldValueRepo.deleteAll();
         metadataFieldLabelRepo.deleteAll();
@@ -123,5 +124,7 @@ public class ProjectsServiceTest {
         documentRepo.deleteAll();
         projectRepo.deleteAll();
         projectsService.clear();
+        fileObserverRegistry.dismiss(dissertationFileListener);
+        fileMonitorManager.stop();
     }
 }
