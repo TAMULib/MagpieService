@@ -25,52 +25,50 @@ import edu.tamu.app.model.response.marc.VoyagerServiceData;
 import edu.tamu.framework.util.HttpUtility;
 
 /**
- * Voyager service. Performs requests with ExLibris Voyager API. 
- * All Voyager API responses are xml. The xml is mapped to objects using JAXB.
+ * Voyager service. Performs requests with ExLibris Voyager API. All Voyager API
+ * responses are xml. The xml is mapped to objects using JAXB.
  * 
- * @author 
+ * @author
  *
  */
 @Component
 @Service
-@ConfigurationProperties(prefix="app.service.voyager")
+@ConfigurationProperties(prefix = "app.service.voyager")
 public class VoyagerService {
-	
-	@Value("${app.service.voyager.host}")
-	private String host;
-	
-	@Value("${app.service.voyager.port}")
-	private String port;
-	
-	@Value("${app.service.voyager.app}")
-	private String app;
-	
-	@Autowired
-	private HttpUtility httpUtility;
-	
-	public VoyagerServiceData getMARC(String bibId) throws Exception {				
-		String urlString = "http://"+host+":"+port+"/"+app+"/GetHoldingsService?bibId=" + bibId;		
-		String xmlResponse = httpUtility.makeHttpRequest(urlString, "GET");
-       
-		xmlResponse = xmlResponse.replace("ser:", "");
-		xmlResponse = xmlResponse.replace("hol:", "");
-		xmlResponse = xmlResponse.replace("slim:", "");
-		xmlResponse = xmlResponse.replace("xmlns:", "");
-		xmlResponse = xmlResponse.replace("item:", "");
-		xmlResponse = xmlResponse.replace("mfhd:", "");
-		xmlResponse = xmlResponse.replace("xsi:", "");		
-		
-		//System.out.println("\n" + xmlResponse + "\n");		
-		
-		InputStream xmlInputStream = new ByteArrayInputStream(xmlResponse.getBytes());
-		
-		JAXBContext jaxbContext = JAXBContext.newInstance(VoyagerServiceData.class);
-		
-		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-		
-		VoyagerServiceData response = (VoyagerServiceData) unmarshaller.unmarshal(xmlInputStream);
-		
-		return response;
-	}
+
+    @Value("${app.service.voyager.host}")
+    private String host;
+
+    @Value("${app.service.voyager.port}")
+    private String port;
+
+    @Value("${app.service.voyager.app}")
+    private String app;
+
+    @Autowired
+    private HttpUtility httpUtility;
+
+    public VoyagerServiceData getMARC(String bibId) throws Exception {
+        String urlString = "http://" + host + ":" + port + "/" + app + "/GetHoldingsService?bibId=" + bibId;
+        String xmlResponse = httpUtility.makeHttpRequest(urlString, "GET");
+
+        xmlResponse = xmlResponse.replace("ser:", "");
+        xmlResponse = xmlResponse.replace("hol:", "");
+        xmlResponse = xmlResponse.replace("slim:", "");
+        xmlResponse = xmlResponse.replace("xmlns:", "");
+        xmlResponse = xmlResponse.replace("item:", "");
+        xmlResponse = xmlResponse.replace("mfhd:", "");
+        xmlResponse = xmlResponse.replace("xsi:", "");
+
+        InputStream xmlInputStream = new ByteArrayInputStream(xmlResponse.getBytes());
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(VoyagerServiceData.class);
+
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+        VoyagerServiceData response = (VoyagerServiceData) unmarshaller.unmarshal(xmlInputStream);
+
+        return response;
+    }
 
 }

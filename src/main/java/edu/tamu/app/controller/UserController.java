@@ -9,122 +9,87 @@
  */
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.stereotype.Controller;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
+import edu.tamu.framework.aspect.annotation.ApiCredentials;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
+import edu.tamu.framework.aspect.annotation.ApiModel;
 import edu.tamu.framework.aspect.annotation.Auth;
-import edu.tamu.framework.aspect.annotation.Shib;
 import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.Credentials;
 
-/** 
+/**
  * User Controller
  * 
  * @author
  *
  */
-@Controller
+@RestController
 @ApiMapping("/user")
 public class UserController {
 
-	@Autowired
-	private AppUserRepo userRepo;
-	
-	@Autowired
-	private ObjectMapper objectMapper;
-	
-	@Autowired 
-	private SimpMessagingTemplate simpMessagingTemplate; 
-	
-	private static final Logger logger = Logger.getLogger(UserController.class);
-	
-	/**
-	 * Websocket endpoint to request credentials.
-	 * 
-	 * @param 		shibObj			@Shib Object
-	 * 
-	 * @return		ApiResponse
-	 * 
-	 * @throws 		Exception
-	 * 
-	 */
-	@ApiMapping("/credentials")
-	@Auth
-	public ApiResponse credentials(@Shib Object shibObj) throws Exception {
-		return new ApiResponse(SUCCESS, (Credentials) shibObj);
-	}
-	
-	
-	/**
-	 * Endpoint to return all users.
-	 * 
-	 * @param 		message			Message<?>
-	 *  
-	 * @return		ApiResponse
-	 * 
-	 * @throws 		Exception
-	 * 
-	 */
-	@ApiMapping("/all")
-	@Auth
-	public ApiResponse allUsers(Message<?> message) throws Exception {
-		Map<String,List<AppUser>> map = new HashMap<String,List<AppUser>>();
-		map.put("list", userRepo.findAll());		
-		return new ApiResponse(SUCCESS, map);
-	}
-	
-	/**
-	 * Endpoint to update users role.
-	 * 
-	 * @param 		message			Message<?>
-	 * 
-	 * @return		ApiResponse
-	 * 
-	 * @throws 		Exception
-	 * 
-	 */
-	@ApiMapping("/update-role")
-	@Auth
-	public ApiResponse updateRole(Message<?> message) throws Exception {		
-		
-		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		String data = accessor.getNativeHeader("data").get(0).toString();		
+    @Autowired
+    private AppUserRepo userRepo;
 
-		Map<String,String> map = new HashMap<String,String>();		
-		try {
-			map = objectMapper.readValue(data, new TypeReference<HashMap<String,String>>(){});
-		} catch (Exception e) {
-			logger.error("Error reading data header",e);
-			return new ApiResponse(ERROR, "Error reading data header");
-		}		
-		AppUser user = userRepo.getUserByUin(Long.decode(map.get("uin")));		
-		user.setRole(map.get("role"));		
-		userRepo.save(user);
-		
-		Map<String, Object> userMap = new HashMap<String, Object>();
-		userMap.put("list", userRepo.findAll());
-		userMap.put("changedUserUin", map.get("uin"));
-		
-		this.simpMessagingTemplate.convertAndSend("/channel/users", new ApiResponse(SUCCESS, userMap));
-		
-		return new ApiResponse(SUCCESS, "ok");
-	}
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    /**
+     * Websocket endpoint to request credentials.
+     * 
+     * @param credentials
+     *          @ApiCredentials Credentials
+     * 
+     * @return ApiResponse
+     * 
+     */
+    @ApiMapping("/credentials")
+    @Auth(role = "ROLE_USER")
+    public ApiResponse credentials(@ApiCredentials Credentials credentials) {
+        return new ApiResponse(SUCCESS, credentials);
+    }
+
+    /**
+     * Endpoint to return all users.
+     * 
+     * @return ApiResponse
+     * 
+     */
+    @ApiMapping("/all")
+    @Auth(role = "ROLE_USER")
+    public ApiResponse allUsers() {
+        return new ApiResponse(SUCCESS, userRepo.findAll());
+    }
+
+    /**
+     * Endpoint to update users role.
+     * 
+     * @param user
+     *          @ApiModel AppUser
+     * 
+     * @return ApiResponse
+     * 
+     */
+    @ApiMapping("/update")
+    @Auth(role = "ROLE_USER")
+    public ApiResponse updateRole(@ApiModel AppUser user) {
+        user = userRepo.save(user);
+        simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
+        return new ApiResponse(SUCCESS, user);
+    }
+    
+    @ApiMapping("/delete")
+    @Auth(role = "ROLE_MANAGER")
+    public ApiResponse delete(@ApiModel AppUser user) throws Exception {
+        userRepo.delete(user);
+        simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
+        return new ApiResponse(SUCCESS);
+    }
 
 }

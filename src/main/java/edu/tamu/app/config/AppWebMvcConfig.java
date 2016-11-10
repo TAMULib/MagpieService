@@ -17,26 +17,21 @@ import edu.tamu.framework.config.CoreWebMvcConfig;
 @AutoConfigureAfter(DispatcherServletAutoConfiguration.class)
 public class AppWebMvcConfig extends CoreWebMvcConfig {
 
-	@Autowired
+    @Autowired
     private Environment env;
 
     @Bean
     public ResourceUrlEncodingFilter resourceUrlEncodingFilter() {
-       return new ResourceUrlEncodingFilter();
+        return new ResourceUrlEncodingFilter();
     }
-    
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-       boolean devMode = this.env.acceptsProfiles("dev");
-       boolean useResourceCache = !devMode;
-       Integer cachePeriod = devMode ? 0 : null;
+        boolean devMode = this.env.acceptsProfiles("dev");
+        boolean useResourceCache = !devMode;
+        Integer cachePeriod = devMode ? 0 : null;
 
-       registry.addResourceHandler("/**")
-          .addResourceLocations("classpath:/static/")
-          .setCachePeriod(cachePeriod)
-          .resourceChain(useResourceCache)
-          .addResolver(new VersionResourceResolver().addContentVersionStrategy("/**"))
-          .addTransformer(new AppCacheManifestTransformer());
+        registry.addResourceHandler("/**").addResourceLocations("classpath:/static/").setCachePeriod(cachePeriod).resourceChain(useResourceCache).addResolver(new VersionResourceResolver().addContentVersionStrategy("/**")).addTransformer(new AppCacheManifestTransformer());
     }
-    
+
 }
