@@ -34,7 +34,7 @@ public class FileObserverRegistry {
         if (directory.exists()) {
             FileAlterationObserver observer = new FileAlterationObserver(directory);
             observer.addListener(listener);
-            observers.put(observer.getDirectory().getAbsolutePath(), observer);
+            observers.put(listener.getPath(), observer);
             fileMonitorManager.addObserver(observer);
             logger.info("Listening: " + listener.getPath());
         } else {

@@ -5,7 +5,6 @@ import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +34,7 @@ import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.observer.ProjectFileListener;
+import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.framework.model.ApiResponse;
 
 @Service
@@ -89,7 +89,7 @@ public class ProjectsService {
     public JsonNode readProjectNode() {
         String json = null;
         try {
-            json = new String(Files.readAllBytes(Paths.get(resourceLoader.getResource("classpath:config").getURL().getPath() + "/metadata.json")));
+            json = new String(Files.readAllBytes(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:config").getURL().getPath() + "/metadata.json")));
         } catch (IOException e) {
             logger.error("Error reading metadata json file", e);
         }
