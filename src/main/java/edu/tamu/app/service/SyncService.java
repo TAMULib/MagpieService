@@ -51,7 +51,7 @@ public class SyncService {
 
         String directory = null;
         try {
-            directory = resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/projects/";
+            directory = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()) + "/projects/";
         } catch (IOException e) {
             e.printStackTrace();
         }
