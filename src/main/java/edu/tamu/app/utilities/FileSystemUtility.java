@@ -101,6 +101,7 @@ public class FileSystemUtility {
     }
 
     public static String getWindowsSafePathString(String path) {
+	//note that a Windows path will contain one and only one colon character
     	if (path.contains(":") && path.charAt(0) == '/') {
 			path = path.substring(1, path.length());
 		}
