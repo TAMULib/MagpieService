@@ -31,7 +31,7 @@ public class FileSystemUtility {
             }
         };
 
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory), filter)) {
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(getWindowsSafePath(directory), filter)) {
             for (Path path : directoryStream) {
                 fileNames.add(path);
             }
@@ -51,7 +51,7 @@ public class FileSystemUtility {
      */
     public static List<Path> fileList(String directory) {
         List<Path> fileNames = new ArrayList<>();
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory))) {
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(getWindowsSafePath(directory))) {
             for (Path path : directoryStream) {
                 fileNames.add(path);
             }
@@ -61,21 +61,21 @@ public class FileSystemUtility {
     }
     
     public static void createDirectory(String path) throws IOException {
-        Path newDirectoryPath = Paths.get(path);
+        Path newDirectoryPath = getWindowsSafePath(path);
         if (!Files.exists(newDirectoryPath)) {
             Files.createDirectory(newDirectoryPath);
         }
     }
     
     public static void createFile(String path, String name) throws IOException {
-        Path newFilePath = Paths.get(path, name);
+        Path newFilePath = getWindowsSafePath(path, name);
         if (!Files.exists(newFilePath)) {
             Files.createFile(newFilePath);
         }
     }
     
     public static void deleteDirectory(String path) throws IOException {
-        Path directory = Paths.get(path);
+        Path directory = getWindowsSafePath(path);
         Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -90,6 +90,22 @@ public class FileSystemUtility {
             }
 
         });
+    }
+
+    public static Path getWindowsSafePath(String path) {
+    	return Paths.get(getWindowsSafePathString(path));
+    }
+
+    public static Path getWindowsSafePath(String path, String name) {
+    	return Paths.get(getWindowsSafePathString(path), name);
+    }
+
+    public static String getWindowsSafePathString(String path) {
+	//note that a Windows path will contain one and only one colon character
+    	if (path.contains(":") && path.charAt(0) == '/') {
+			path = path.substring(1, path.length());
+		}
+    	return path;
     }
 
 }
