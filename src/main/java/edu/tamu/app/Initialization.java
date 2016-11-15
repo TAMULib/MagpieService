@@ -1,12 +1,9 @@
 package edu.tamu.app;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +17,7 @@ import edu.tamu.app.observer.FileObserverRegistry;
 import edu.tamu.app.observer.MapFileListener;
 import edu.tamu.app.observer.ProjectFileListener;
 import edu.tamu.app.service.SyncService;
+import edu.tamu.app.utilities.FileSystemUtility;
 
 @Component
 @Profile(value = { "!test" })
@@ -50,13 +48,13 @@ public class Initialization implements CommandLineRunner {
 
         if (link.equals("true")) {
             try {
-                FileUtils.deleteDirectory(new File(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()));
+            	Files.delete(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()));
             } catch (IOException e) {
                 logger.error("\nDIRECTORY DOES NOT EXIST\n", e);
             }
 
             try {
-                Files.createSymbolicLink(Paths.get(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()), Paths.get("/mnt" + mount));
+                Files.createSymbolicLink(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()), FileSystemUtility.getWindowsSafePath("/mnt" + mount));
             } catch (FileAlreadyExistsException e) {
                 logger.error("\nSYMLINK ALREADY EXISTS\n", e);
             } catch (IOException e) {
@@ -66,7 +64,7 @@ public class Initialization implements CommandLineRunner {
 
         syncService.sync();
 
-        String root = resourceLoader.getResource("classpath:static" + mount).getURL().getPath();
+        String root = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath());
 
         fileObserverRegistry.register(new ProjectFileListener(root, "projects"));
         fileObserverRegistry.register(new MapFileListener(root, "maps"));

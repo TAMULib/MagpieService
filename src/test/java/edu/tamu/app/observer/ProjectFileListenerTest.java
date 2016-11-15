@@ -1,32 +1,32 @@
     package edu.tamu.app.observer;
     
     import static org.junit.Assert.assertEquals;
-    import static org.junit.Assert.assertNotNull;
-    
-    import java.io.IOException;
-    
-    import org.junit.After;
-    import org.junit.Before;
-    import org.junit.Test;
-    import org.junit.runner.RunWith;
-    import org.springframework.beans.factory.annotation.Autowired;
-    import org.springframework.beans.factory.annotation.Value;
-    import org.springframework.boot.test.SpringApplicationConfiguration;
-    import org.springframework.core.io.ResourceLoader;
-    import org.springframework.test.context.ActiveProfiles;
-    import org.springframework.test.context.web.WebAppConfiguration;
-    import org.tdl.vireo.annotations.Order;
-    import org.tdl.vireo.runner.OrderedRunner;
-    
-    import edu.tamu.app.WebServerInit;
-    import edu.tamu.app.model.repo.DocumentRepo;
-    import edu.tamu.app.model.repo.FieldProfileRepo;
-    import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
-    import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-    import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-    import edu.tamu.app.model.repo.ProjectRepo;
-    import edu.tamu.app.service.ProjectsService;
-    import edu.tamu.app.utilities.FileSystemUtility;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.IOException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.tdl.vireo.annotations.Order;
+import org.tdl.vireo.runner.OrderedRunner;
+
+import edu.tamu.app.WebServerInit;
+import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
+import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
+import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.MetadataFieldValueRepo;
+import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.service.ProjectsService;
+import edu.tamu.app.utilities.FileSystemUtility;
     
     @WebAppConfiguration
     @ActiveProfiles({ "test" })
@@ -73,12 +73,14 @@
     
         @Before
         public void setup() throws Exception {
-            String mountPath = resourceLoader.getResource("classpath:static" + mount).getURL().getPath();
+            String mountPath = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath());
             projectsPath = mountPath + "/projects";
             FileSystemUtility.createDirectory(projectsPath);
             dissertationFileListener = new ProjectFileListener(mountPath, "projects");
             fileObserverRegistry.register(dissertationFileListener);
             fileMonitorManager.start();
+
+            assertEquals("The project repo has the incorrect number of projects!", 0, projectRepo.count());
         }
     
         @Test
@@ -88,7 +90,7 @@
             FileSystemUtility.createDirectory(disseratationsPath);
     
             // wait for the file monitor to pick up the newly created directory
-            Thread.sleep(2000);
+            Thread.sleep(2500);
     
             assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
         }
@@ -98,6 +100,7 @@
         public void testNewDocument() throws IOException, InterruptedException {
             String disseratationsPath = projectsPath + "/dissertation";
             String documentPath = disseratationsPath + "/dissertation_0";
+
             FileSystemUtility.createDirectory(disseratationsPath);
             FileSystemUtility.createDirectory(documentPath);
             FileSystemUtility.createFile(documentPath, "dissertation.pdf");
