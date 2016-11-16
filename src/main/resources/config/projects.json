@@ -116,11 +116,62 @@
 		}]
 	},
 
+	"TAES-Misc-Pub": {
+		"repositories": {},
+		"authorities": [],
+		"suggestors": [],
+		"metadata": [{
+			"label": "dc.coverage.spatial",
+			"gloss": "Spatial Coverage",
+			"repeatable": true,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.creator",
+			"gloss": "Author",
+			"repeatable": true,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.date.issued",
+			"gloss": "Issue Date",
+			"repeatable": false,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.description",
+			"gloss": "Description (Number of Pages)",
+			"repeatable": false,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.publisher",
+			"gloss": "Publisher",
+			"repeatable": false,
+			"inputType": "TEXT",
+			"default": "Texas Agricultural Experiment Station"
+		}, {
+			"label": "dc.relation.ispartof",
+			"gloss": "Is Part Of",
+			"repeatable": false,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.subject",
+			"gloss": "Subject",
+			"repeatable": true,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.subject.nalt",
+			"gloss": "NALT Term",
+			"repeatable": true,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.title",
+			"gloss": "Title",
+			"repeatable": false,
+			"inputType": "TEXT"
+		}]
+	},
+
 	"thesis": {
 		"repositories": {},
-		"authorities": [
-			"Voyager"
-		],
+		"authorities": [],
 		"suggestors": [],
 		"metadata": [{
 			"label": "dc.author",
