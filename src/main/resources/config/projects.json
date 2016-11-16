@@ -162,7 +162,7 @@
 			"label": "dc.subject.nalt",
 			"gloss": "NALT Term",
 			"repeatable": true,
-			"inputType": "TEXT"
+			"inputType": "SUGGESTION"
 		}, {
 			"label": "dc.title",
 			"gloss": "Title",
