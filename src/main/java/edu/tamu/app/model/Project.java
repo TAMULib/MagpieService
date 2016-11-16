@@ -14,6 +14,7 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
@@ -35,7 +36,7 @@ public class Project extends BaseEntity {
 
     @Column(unique = true)
     private String name;
-
+    
     private String repositoryUIUrlString;
 
     private Boolean isLocked = false;
@@ -47,10 +48,14 @@ public class Project extends BaseEntity {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Set<Document> documents;
+    
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> authorities;
 
     public Project() {
         profiles = new HashSet<FieldProfile>();
         documents = new HashSet<Document>();
+        authorities = new HashSet<String>();
     }
 
     public Project(String name) {
@@ -121,5 +126,13 @@ public class Project extends BaseEntity {
     public void clearDocuments() {
         documents = new HashSet<Document>();
     }
+
+	public Set<String> getAuthorities() {
+		return authorities;
+	}
+
+	public void setAuthorities(Set<String> authorities) {
+		this.authorities = authorities;
+	}
 
 }

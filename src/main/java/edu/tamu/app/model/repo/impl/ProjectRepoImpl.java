@@ -61,6 +61,13 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
         project.setRepositoryUIUrlString(defaultRepoUrl + "/" + defaultRepoUIPath);
         return projectRepo.save(project);
     }
+    
+    @Override
+    public synchronized Project create(String name, Set<String> authorities) {
+        Project project = create(name);
+        project.setAuthorities(authorities);
+        return projectRepo.save(project);
+    }
 
     @Override
     @Transactional

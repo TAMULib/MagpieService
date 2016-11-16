@@ -1,161 +1,152 @@
 {
-	"dissertation":  [
-		{
+	"dissertation": {
+		"repositories": {},
+		"authorities": [
+			"Voyager"
+		],
+		"suggestors": [],
+		"metadata": [{
 			"label": "dc.title",
 			"gloss": "Title",
 			"repeatable": false,
 			"readOnly": false,
 			"required": true,
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "dc.creator",
 			"gloss": "Creator",
 			"repeatable": false,
 			"readOnly": false,
 			"required": true,
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "dc.contributor.advisor",
 			"gloss": "Committee Chair",
 			"repeatable": true,
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "dc.contributor.committeeMember",
 			"gloss": "Committee Member",
 			"repeatable": true,
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "dc.date.created",
 			"gloss": "Date Created",
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "dc.date.issued",
 			"gloss": "Date Issued",
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "dc.subject.lcsh",
 			"gloss": "LoC Subject Terms",
 			"repeatable": true,
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "dc.subject",
 			"gloss": "Subject",
 			"repeatable": true,
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "dc.description",
 			"gloss": "Description",
 			"repeatable": false,
 			"readOnly": false,
 			"required": true,
 			"inputType": "TEXTAREA"
-		},
-		{
+		}, {
 			"label": "dc.description.abstract",
 			"gloss": "Abstract",
 			"inputType": "TEXTAREA"
-		},
-		{
+		}, {
 			"label": "thesis.degree.grantor",
 			"gloss": "Grantor",
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "dc.language.iso",
 			"gloss": "Language",
 			"hidden": true,
 			"inputType": "TEXT",
 			"default": "en_US"
-		},
-		{
+		}, {
 			"label": "thesis.degree.name",
 			"gloss": "Degree Name",
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "thesis.degree.level",
 			"gloss": "Degree Level",
 			"inputType": "TEXT",
 			"default": "Doctoral"
-		},
-		{
+		}, {
 			"label": "dc.publisher",
 			"gloss": "Publisher",
 			"inputType": "TEXT",
 			"default": "Texas A&M University"
-		},
-		{
+		}, {
 			"label": "dc.type.material",
 			"gloss": "Material",
 			"inputType": "TEXT",
 			"default": "text"
-		},
-		{
+		}, {
 			"label": "dc.type.genre",
 			"gloss": "Genre",
 			"inputType": "TEXT",
 			"default": "Dissertation"
-		},
-		{
+		}, {
 			"label": "dc.type",
 			"gloss": "Type",
 			"inputType": "TEXT",
 			"default": "Thesis"
-		},
-		{
+		}, {
 			"label": "dc.format.digitalOrigin",
 			"gloss": "Digital Origin",
 			"inputType": "TEXT",
 			"default": "reformatted digital"
-		},
-		{
+		}, {
 			"label": "dc.format.medium",
 			"gloss": "Medium",
 			"readOnly": true,
 			"inputType": "TEXT",
 			"default": "electronic"
-		},
-		{
+		}, {
 			"label": "dc.rights",
 			"gloss": "Rights",
 			"inputType": "TEXTAREA",
 			"default": "This student work was part of a retrospective digitization project authorized by the Texas A&M University Libraries. This item is in the public domain."
-		}
-	],
-	
-	"thesis":  [
-		{
+		}]
+	},
+
+	"thesis": {
+		"repositories": {},
+		"authorities": [
+			"Voyager"
+		],
+		"suggestors": [],
+		"metadata": [{
 			"label": "dc.author",
 			"gloss": "Author",
 			"repeatable": true,
 			"inputType": "TEXT"
-		},
-		{
+		}, {
 			"label": "dc.advisor",
 			"gloss": "Advisor",
 			"repeatable": true,
 			"inputType": "TEXT"
-		}
-	],
+		}]
+	},
 
-	"default":  [
-		{
+	"default": {
+		"repositories": {},
+		"authorities": [],
+		"suggestors": [],
+		"metadata": [{
 			"label": "dc.title",
 			"gloss": "Title",
 			"inputType": "TEXTAREA"
-		},
-		{
+		}, {
 			"label": "dc.description",
 			"gloss": "Description",
 			"inputType": "TEXTAREA"
-		}
-	]
+		}]
+	}
 }

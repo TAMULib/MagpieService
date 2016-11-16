@@ -67,22 +67,23 @@ public class ProjectsServiceTest {
     @Test
     @Order(1)
     public void testReadProjectNode() {
-        JsonNode projectsNode = projectsService.readProjectNode();
+        JsonNode projectsNode = projectsService.readProjectsNode();
         assertNotNull("The projects node was not read!", projectsNode);
     }
 
     @Test
     @Order(2)
-    public void testCreateProject() {
-        Project project = projectsService.createProject("dissertation");
+    public void testGetProject() {
+        Project project = projectsService.getProject("dissertation");
         assertNotNull("The project was not created!", project);
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
+        assertEquals("The project has the incorrect number of authorities!", 1, project.getAuthorities().size());
     }
 
     @Test
     @Order(3)
-    public void testGetProfileNode() {
-        JsonNode profileNode = projectsService.getProfileNode("dissertation");
+    public void testGetProjectNode() {
+        JsonNode profileNode = projectsService.getProjectNode("dissertation");
         assertNotNull("The profile node was not retrieved!", profileNode);
     }
 

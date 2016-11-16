@@ -9,6 +9,8 @@
  */
 package edu.tamu.app.model.repo.custom;
 
+import java.util.Set;
+
 import edu.tamu.app.model.Project;
 
 /**
@@ -19,7 +21,9 @@ import edu.tamu.app.model.Project;
  */
 public interface ProjectRepoCustom {
 
-    public Project create(String name);
+	public Project create(String name);
+    
+    public Project create(String name, Set<String> authorities);
 
     public void delete(Project project);
 

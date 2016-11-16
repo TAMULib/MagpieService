@@ -30,11 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import edu.tamu.app.authority.VoyagerAuthority;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.service.DocumentPushService;
-import edu.tamu.app.service.VoyagerService;
 import edu.tamu.framework.aspect.annotation.ApiData;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.ApiVariable;
@@ -52,7 +52,7 @@ import edu.tamu.framework.model.ApiResponse;
 public class DocumentController {
 
     @Autowired
-    private VoyagerService voyagerService;
+    private VoyagerAuthority voyagerAuthority;
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
@@ -79,7 +79,7 @@ public class DocumentController {
     @ApiMapping("/marc/{bibId}")
     @Auth(role = "ROLE_USER")
     public ApiResponse getMARC(@ApiVariable String bibId) throws Exception {
-        return new ApiResponse(SUCCESS, new FlatMARC(voyagerService.getMARC(bibId)));
+        return new ApiResponse(SUCCESS, new FlatMARC(voyagerAuthority.fetchMARC(bibId)));
     }
 
     /**
