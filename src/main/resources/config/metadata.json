@@ -182,25 +182,25 @@
 			"label": "dc.relation.ispartof",
 			"gloss": "Is Part Of",
 			"repeatable": false,
-			"inputType": "TEXT",
+			"inputType": "TEXT"
 		},
 		{
 			"label": "dc.subject",
 			"gloss": "Subject",
 			"repeatable": true,
-			"inputType": "TEXT",
+			"inputType": "TEXT"
 		},
 		{
 			"label": "dc.subject.nalt",
 			"gloss": "NALT Term",
 			"repeatable": true,
-			"inputType": "TEXT",
+			"inputType": "TEXT"
 		},
 		{
 			"label": "dc.title",
 			"gloss": "Title",
 			"repeatable": false,
-			"inputType": "TEXT",
+			"inputType": "TEXT"
 		}
 	],
 
