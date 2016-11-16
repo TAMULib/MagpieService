@@ -116,10 +116,12 @@
 		}]
 	},
 
-	"TAES-Misc-Pub": {
+	"nalt": {
 		"repositories": {},
 		"authorities": [],
-		"suggestors": [],
+		"suggestors": [
+			"NALT"
+		],
 		"metadata": [{
 			"label": "dc.coverage.spatial",
 			"gloss": "Spatial Coverage",

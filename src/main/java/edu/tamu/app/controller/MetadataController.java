@@ -48,6 +48,7 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.ApiVariable;
 import edu.tamu.framework.aspect.annotation.Auth;
@@ -118,7 +119,7 @@ public class MetadataController {
     public ApiResponse getMetadataHeaders(@ApiVariable String project) {
 
         URL location = this.getClass().getResource("/config");
-        String fullPath = location.getPath();
+        String fullPath = FileSystemUtility.getWindowsSafePathString(location.getPath());
 
         String json = null;
 

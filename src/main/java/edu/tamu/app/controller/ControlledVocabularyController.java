@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.ApiVariable;
 import edu.tamu.framework.aspect.annotation.Auth;
@@ -55,7 +56,7 @@ public class ControlledVocabularyController {
     @Auth(role = "ROLE_USER")
     public ApiResponse getAllControlledVocabulary() {
         URL location = this.getClass().getResource("/config");
-        String fullPath = location.getPath();
+        String fullPath = FileSystemUtility.getWindowsSafePathString(location.getPath());
 
         String json = null;
 
@@ -91,7 +92,7 @@ public class ControlledVocabularyController {
     @Auth(role = "ROLE_USER")
     public ApiResponse getControlledVocabularyByField(@ApiVariable String label) {
         URL location = this.getClass().getResource("/config");
-        String fullPath = location.getPath();
+        String fullPath = FileSystemUtility.getWindowsSafePathString(location.getPath());
 
         String json = null;
 

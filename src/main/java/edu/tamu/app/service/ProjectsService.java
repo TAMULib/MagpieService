@@ -43,196 +43,217 @@ import edu.tamu.framework.model.ApiResponse;
 @Service
 public class ProjectsService {
 
-    private static final Logger logger = Logger.getLogger(ProjectsService.class);
+	private static final Logger logger = Logger.getLogger(ProjectsService.class);
 
-    private static final String DEFAULT_PROJECT_KEY = "default";
-    private static final String METADATA_KEY = "metadata";
-    private static final String AUTHORITIES_KEY = "authorities";
-    
-    private static final String GLOSS_KEY = "gloss";
-    private static final String REPEATABLE_KEY = "repeatable";
-    private static final String READ_ONLY_KEY = "readOnly";
-    private static final String HIDDEN_KEY = "hidden";
-    private static final String REQUIRED_KEY = "required";
-    private static final String INPUT_TYPE_KEY = "inputType";
-    private static final String DEFAULT_KEY = "default";
-    private static final String LABEL_KEY = "label";
-    
-    @Autowired
-    private ResourceLoader resourceLoader;
+	private static final String DEFAULT_PROJECT_KEY = "default";
+	private static final String METADATA_KEY = "metadata";
+	private static final String AUTHORITIES_KEY = "authorities";
+	private static final String SUGGESTORS_KEY = "suggestors";
 
-    @Autowired
-    private ObjectMapper objectMapper;
+	private static final String GLOSS_KEY = "gloss";
+	private static final String REPEATABLE_KEY = "repeatable";
+	private static final String READ_ONLY_KEY = "readOnly";
+	private static final String HIDDEN_KEY = "hidden";
+	private static final String REQUIRED_KEY = "required";
+	private static final String INPUT_TYPE_KEY = "inputType";
+	private static final String DEFAULT_KEY = "default";
+	private static final String LABEL_KEY = "label";
 
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+	@Autowired
+	private ResourceLoader resourceLoader;
 
-    @Autowired
-    private ProjectRepo projectRepo;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    @Autowired
-    private DocumentRepo documentRepo;
+	@Autowired
+	private SimpMessagingTemplate simpMessagingTemplate;
 
-    @Autowired
-    private FieldProfileRepo fieldProfileRepo;
+	@Autowired
+	private ProjectRepo projectRepo;
 
-    @Autowired
-    private MetadataFieldLabelRepo metadataFieldLabelRepo;
+	@Autowired
+	private DocumentRepo documentRepo;
 
-    @Autowired
-    private MetadataFieldGroupRepo metadataFieldGroupRepo;
+	@Autowired
+	private FieldProfileRepo fieldProfileRepo;
 
-    @Value("${app.host}")
-    private String host;
+	@Autowired
+	private MetadataFieldLabelRepo metadataFieldLabelRepo;
 
-    @Value("${app.mount}")
-    private String mount;
+	@Autowired
+	private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
-    private Map<String, Project> projects = new HashMap<String, Project>();
+	@Value("${app.host}")
+	private String host;
 
-    private Map<String, List<MetadataFieldGroup>> fields = new HashMap<String, List<MetadataFieldGroup>>();
+	@Value("${app.mount}")
+	private String mount;
 
-    private JsonNode projectsNode = null;
+	private Map<String, Project> projects = new HashMap<String, Project>();
 
-    public JsonNode readProjectsNode() {
-        String json = null;
-        try {
-            json = new String(Files.readAllBytes(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:config").getURL().getPath() + "/projects.json")));
-        } catch (IOException e) {
-            logger.error("Error reading metadata json file", e);
-        }
-        if (json != null) {
-            try {
-                projectsNode = objectMapper.readTree(json);
-            } catch (Exception e) {
-                logger.error("Error reading the metadata json with the Object Mapper", e);
-            }
-        }
-        return projectsNode;
-    }
+	private Map<String, List<MetadataFieldGroup>> fields = new HashMap<String, List<MetadataFieldGroup>>();
 
-    public Project getProject(String projectName) {
-        Project project = projects.get(projectName);
-        if (project == null) {
-            project = projectRepo.findByName(projectName);
-        }
-        if (project == null) {
-        	
-        	JsonNode projectNode = getProjectNode(projectName);
+	private JsonNode projectsNode = null;
 
-        	Set<String> authorities = new HashSet<String>();
-        	
-        	try {
-				authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<Set<String>>(){});
-			} catch (JsonParseException e1) {
-				e1.printStackTrace();
-			} catch (JsonMappingException e1) {
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+	public JsonNode readProjectsNode() {
+		String json = null;
+		try {
+			json = new String(Files.readAllBytes(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:config").getURL().getPath() + "/projects.json")));
+		} catch (IOException e) {
+			logger.error("Error reading metadata json file", e);
+		}
+		if (json != null) {
+			try {
+				projectsNode = objectMapper.readTree(json);
+			} catch (Exception e) {
+				logger.error("Error reading the metadata json with the Object Mapper", e);
 			}
-        	
-            project = projectRepo.create(projectName, authorities);
-            try {
-                simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
-            } catch (Exception e) {
-                logger.error("Error broadcasting new project", e);
-            }
-        }
-        projects.put(projectName, project);
-        return project;
-    }
+		}
+		return projectsNode;
+	}
 
-    public JsonNode getProjectNode(String projectName) {
-        JsonNode profileNode = null;
-        if (projectsNode == null) {
-            projectsNode = readProjectsNode();
-        }
-        profileNode = projectsNode.get(projectName);
-        if (profileNode == null) {
-            profileNode = projectsNode.get(DEFAULT_PROJECT_KEY);
-        }
-        return profileNode;
-    }
+	public Project getProject(String projectName) {
+		Project project = projects.get(projectName);
+		if (project == null) {
+			project = projectRepo.findByName(projectName);
+		}
+		if (project == null) {
 
-    public List<MetadataFieldGroup> getProjectFields(String projectName) {
-        List<MetadataFieldGroup> projectFields = fields.get(projectName);
-        if (projectFields == null) {
-            projectFields = new ArrayList<MetadataFieldGroup>();
-            
-            final Project project = getProject(projectName);
-            
-            final Iterable<JsonNode> iterable = () -> getProjectNode(projectName).get(METADATA_KEY).elements();
-            
-            for (JsonNode metadata : iterable) {
-                String gloss = metadata.get(GLOSS_KEY) == null ? "" : metadata.get(GLOSS_KEY).asText();
-                Boolean isRepeatable = metadata.get(REPEATABLE_KEY) == null ? false : metadata.get(REPEATABLE_KEY).asBoolean();
-                Boolean isReadOnly = metadata.get(READ_ONLY_KEY) == null ? false : metadata.get(READ_ONLY_KEY).asBoolean();
-                Boolean isHidden = metadata.get(HIDDEN_KEY) == null ? false : metadata.get(HIDDEN_KEY).asBoolean();
-                Boolean isRequired = metadata.get(REQUIRED_KEY) == null ? false : metadata.get(REQUIRED_KEY).asBoolean();
-                InputType inputType = InputType.valueOf(metadata.get(INPUT_TYPE_KEY) == null ? "TEXT" : metadata.get(INPUT_TYPE_KEY).asText());
-                String defaultValue = metadata.get(DEFAULT_KEY) == null ? "" : metadata.get(DEFAULT_KEY).asText();
+			JsonNode projectNode = getProjectNode(projectName);
 
-                FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
-                if (fieldProfile == null) {
-                    fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
-                }
+			Set<String> authorities = new HashSet<String>();
 
-                String label = metadata.get(LABEL_KEY).asText();
+			try {
+				authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<Set<String>>() {
+				});
+			} catch (JsonParseException e) {
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
-                MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByName(label);
-                if (metadataFieldLabel == null) {
-                    metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
-                }
+			Set<String> suggestors = new HashSet<String>();
 
-                projectFields.add(new MetadataFieldGroup(metadataFieldLabel));
+			try {
+				suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<Set<String>>() {
+				});
+			} catch (JsonParseException e) {
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
-                project.addProfile(fieldProfile);
-            }
-            fields.put(projectName, projectFields);
-            projects.put(projectName, projectRepo.save(project));
-        }
-        return projectFields;
-    }
+			project = projectRepo.create(projectName);
 
-    public void createDocument(String projectName, String documentName) {
+			project.setAuthorities(authorities);
+			project.setSuggestors(suggestors);
 
-        if ((documentRepo.findByName(documentName) == null)) {
-            final Project project = getProject(projectName);
+			project = projectRepo.save(project);
 
-            String pdfPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf";
-            String txtPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf.txt";
+			try {
+				simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
+			} catch (Exception e) {
+				logger.error("Error broadcasting new project", e);
+			}
+		}
+		projects.put(projectName, project);
+		return project;
+	}
 
-            String pdfUri = host + pdfPath;
-            String txtUri = host + txtPath;
+	public JsonNode getProjectNode(String projectName) {
+		JsonNode profileNode = null;
+		if (projectsNode == null) {
+			projectsNode = readProjectsNode();
+		}
+		profileNode = projectsNode.get(projectName);
+		if (profileNode == null) {
+			profileNode = projectsNode.get(DEFAULT_PROJECT_KEY);
+		}
+		return profileNode;
+	}
 
-            Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, "Open");
+	public List<MetadataFieldGroup> getProjectFields(String projectName) {
+		List<MetadataFieldGroup> projectFields = fields.get(projectName);
+		if (projectFields == null) {
+			projectFields = new ArrayList<MetadataFieldGroup>();
 
-            for(MetadataFieldGroup field : getProjectFields(projectName)) {
-                document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
-            }
-            
-            // get the Authority Beans and populate document with each Authority
-            for(String authority : project.getAuthorities()) {
-            	document = ((Authority) SpringContext.bean(authority)).populate(document);
-            }
+			final Project project = getProject(projectName);
 
-            project.addDocument(documentRepo.save(document));
+			final Iterable<JsonNode> iterable = () -> getProjectNode(projectName).get(METADATA_KEY).elements();
 
-            try {
-                simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
-            } catch (Exception e) {
-                logger.error("Error broadcasting new document", e);
-            }
+			for (JsonNode metadata : iterable) {
+				String gloss = metadata.get(GLOSS_KEY) == null ? "" : metadata.get(GLOSS_KEY).asText();
+				Boolean isRepeatable = metadata.get(REPEATABLE_KEY) == null ? false : metadata.get(REPEATABLE_KEY).asBoolean();
+				Boolean isReadOnly = metadata.get(READ_ONLY_KEY) == null ? false : metadata.get(READ_ONLY_KEY).asBoolean();
+				Boolean isHidden = metadata.get(HIDDEN_KEY) == null ? false : metadata.get(HIDDEN_KEY).asBoolean();
+				Boolean isRequired = metadata.get(REQUIRED_KEY) == null ? false : metadata.get(REQUIRED_KEY).asBoolean();
+				InputType inputType = InputType.valueOf(metadata.get(INPUT_TYPE_KEY) == null ? "TEXT" : metadata.get(INPUT_TYPE_KEY).asText());
+				String defaultValue = metadata.get(DEFAULT_KEY) == null ? "" : metadata.get(DEFAULT_KEY).asText();
 
-            projects.put(projectName, projectRepo.save(project));
-        }
-    }
-    
-    public void clear() {
-        projects = new HashMap<String, Project>();
-        fields = new HashMap<String, List<MetadataFieldGroup>>();
-        projectsNode = null;
-    }
+				FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
+				if (fieldProfile == null) {
+					fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
+				}
+
+				String label = metadata.get(LABEL_KEY).asText();
+
+				MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByName(label);
+				if (metadataFieldLabel == null) {
+					metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
+				}
+
+				projectFields.add(new MetadataFieldGroup(metadataFieldLabel));
+
+				project.addProfile(fieldProfile);
+			}
+			fields.put(projectName, projectFields);
+			projects.put(projectName, projectRepo.save(project));
+		}
+		return projectFields;
+	}
+
+	public void createDocument(String projectName, String documentName) {
+
+		if ((documentRepo.findByName(documentName) == null)) {
+			final Project project = getProject(projectName);
+
+			String pdfPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf";
+			String txtPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf.txt";
+
+			String pdfUri = host + pdfPath;
+			String txtUri = host + txtPath;
+
+			Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, "Open");
+
+			for (MetadataFieldGroup field : getProjectFields(projectName)) {
+				document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
+			}
+
+			// get the Authority Beans and populate document with each Authority
+			for (String authority : project.getAuthorities()) {
+				document = ((Authority) SpringContext.bean(authority)).populate(document);
+			}
+
+			project.addDocument(documentRepo.save(document));
+
+			try {
+				simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
+			} catch (Exception e) {
+				logger.error("Error broadcasting new document", e);
+			}
+
+			projects.put(projectName, projectRepo.save(project));
+		}
+	}
+
+	public void clear() {
+		projects = new HashMap<String, Project>();
+		fields = new HashMap<String, List<MetadataFieldGroup>>();
+		projectsNode = null;
+	}
 
 }
