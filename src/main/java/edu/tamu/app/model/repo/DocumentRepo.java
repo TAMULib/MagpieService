@@ -36,36 +36,26 @@ import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
 @Repository
 public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRepoCustom, JpaSpecificationExecutor<Document> {
 
-    public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
+	public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
 
-    public Document update(Document document);
+	public Page<Document> findAll(Specification<Document> specification, Pageable pageable);
 
-    @Override
-    public void delete(Document document);
+	public Page<Document> findAll(Pageable pageable);
 
-    @Override
-    public void deleteAll();
+	public Document findByProjectNameAndName(String projectName, String name);
 
-    public Page<Document> findAll(Specification<Document> specification, Pageable pageable);
+	public List<Document> findByStatus(String status);
 
-    public Page<Document> findAll(Pageable pageable);
+	public List<Document> findByProjectNameAndStatus(String projectName, String status);
 
-    public Document findByName(String name);
+	@Modifying
+	@Transactional
+	@Query(value = "UPDATE Document set annotator = :annotator, status = :status, notes = :notes WHERE name = :name")
+	public int quickSave(@Param("name") String name, @Param("annotator") String annotator, @Param("status") String status, @Param("notes") String notes);
 
-    public List<Document> findByStatus(String status);
-
-    public List<Document> findByProjectNameAndStatus(String projectName, String status);
-
-    public List<Document> findByProjectNameAndStatusNot(String projectName, String status);
-
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE Document set annotator = :annotator, status = :status, notes = :notes WHERE name = :name")
-    public int quickSave(@Param("name") String name, @Param("annotator") String annotator, @Param("status") String status, @Param("notes") String notes);
-
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE Document set status = :status WHERE name = :name")
-    public int quickUpdateStatus(@Param("name") String name, @Param("status") String status);
+	@Modifying
+	@Transactional
+	@Query(value = "UPDATE Document set status = :status WHERE name = :name")
+	public int quickUpdateStatus(@Param("name") String name, @Param("status") String status);
 
 }

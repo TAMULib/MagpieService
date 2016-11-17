@@ -1,5 +1,5 @@
 /* 
- * MetadataFieldRepo.java 
+ * MetadataFieldGroupRepo.java 
  * 
  * Version: 
  *     $Id$ 
@@ -28,18 +28,12 @@ import edu.tamu.app.model.repo.custom.MetadataFieldGroupRepoCustom;
 @Repository
 public interface MetadataFieldGroupRepo extends JpaRepository<MetadataFieldGroup, Long>, MetadataFieldGroupRepoCustom {
 
-    public MetadataFieldGroup create(Document document, MetadataFieldLabel label);
+	public MetadataFieldGroup create(Document document, MetadataFieldLabel label);
 
-    public List<MetadataFieldGroup> findByDocument(Document document);
+	public List<MetadataFieldGroup> findByDocument(Document document);
 
-    public List<MetadataFieldGroup> findByLabel(MetadataFieldLabel label);
+	public List<MetadataFieldGroup> findByLabel(MetadataFieldLabel label);
 
-    public MetadataFieldGroup findByDocumentAndLabel(Document document, MetadataFieldLabel label);
-
-    @Override
-    public void delete(MetadataFieldGroup field);
-
-    @Override
-    public void deleteAll();
+	public MetadataFieldGroup findByDocumentAndLabel(Document document, MetadataFieldLabel label);
 
 }

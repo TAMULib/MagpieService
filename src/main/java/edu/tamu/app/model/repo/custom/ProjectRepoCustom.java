@@ -1,5 +1,5 @@
 /* 
- * CustomProjectRepo.java 
+ * ProjectRepoCustom.java 
  * 
  * Version: 
  *     $Id$ 
@@ -20,9 +20,5 @@ import edu.tamu.app.model.Project;
 public interface ProjectRepoCustom {
 
 	public Project create(String name);
-
-    public void delete(Project project);
-
-    public void deleteAll();
 
 }

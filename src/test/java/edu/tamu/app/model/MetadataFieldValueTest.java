@@ -9,25 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.tdl.vireo.annotations.Order;
-import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
-import edu.tamu.app.model.ControlledVocabulary;
-import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.MetadataFieldLabel;
-import edu.tamu.app.model.MetadataFieldValue;
-import edu.tamu.app.model.Project;
-import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.repo.ControlledVocabularyRepo;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.runner.OrderedRunner;
 
 @WebAppConfiguration
 @ActiveProfiles({ "test" })
@@ -55,7 +48,7 @@ public class MetadataFieldValueTest {
 
     @Autowired
     private ControlledVocabularyRepo controlledVocabularyRepo;
-
+    
     private Project testProject;
 
     private Document testDocument;
@@ -68,7 +61,7 @@ public class MetadataFieldValueTest {
 
     @Before
     public void setUp() {
-        testProject = projectRepo.create("testProject");
+    	testProject = projectRepo.create("testProject");
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
         testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");

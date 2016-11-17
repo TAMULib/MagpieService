@@ -28,11 +28,11 @@ public class SuggestionController {
 	private DocumentRepo documentRepo;
 
 	// TODO: handle exception gracefully
-	@ApiMapping("/{documentName}")
+	@ApiMapping("/{projectName}/{documentName}")
 	@Auth(role = "ROLE_USER")
-	public ApiResponse getSuggestions(@ApiVariable String documentName) throws IOException {
+	public ApiResponse getSuggestions(@ApiVariable String projectName, @ApiVariable String documentName) throws IOException {
 		
-		Document document = documentRepo.findByName(documentName);
+		Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 		
 		Project project = document.getProject();
 		

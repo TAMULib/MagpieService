@@ -84,6 +84,15 @@ public class UserController {
         return new ApiResponse(SUCCESS, user);
     }
     
+    /**
+     * Endpoint to delete user.
+     * 
+     * @param user
+     *          @ApiModel AppUser
+     * 
+     * @return ApiResponse
+     * 
+     */
     @ApiMapping("/delete")
     @Auth(role = "ROLE_MANAGER")
     public ApiResponse delete(@ApiModel AppUser user) throws Exception {

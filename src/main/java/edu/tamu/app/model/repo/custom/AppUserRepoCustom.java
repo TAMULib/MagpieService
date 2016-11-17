@@ -1,5 +1,5 @@
 /* 
- * UserRepoCustom.java 
+ * AppUserRepoCustom.java 
  * 
  * Version: 
  *     $Id$ 
@@ -19,14 +19,14 @@ import edu.tamu.app.model.AppUser;
  */
 public interface AppUserRepoCustom {
 
-    /**
-     * Creates application user based on uin in the repository
-     * 
-     * @param uin
-     *            Long
-     */
-    public AppUser create(Long uin);
+	/**
+	 * Creates application user based on uin in the repository
+	 * 
+	 * @param uin
+	 *            Long
+	 */
+	public AppUser create(Long uin);
 
-    public AppUser create(Long uin, String firstName, String lastName, String role);
+	public AppUser create(Long uin, String firstName, String lastName, String role);
 
 }

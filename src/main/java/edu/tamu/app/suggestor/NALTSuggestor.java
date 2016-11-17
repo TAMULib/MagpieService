@@ -45,8 +45,10 @@ public class NALTSuggestor implements Suggestor {
 			FileUtils.copyURLToFile(new URL(document.getTxtUri()), file);
 			
 			String text = FileUtils.readFileToString(file, StandardCharsets.UTF_8).toLowerCase();
+			
+			JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(text)).get("payload");
 
-			JsonNode termOccurrenceArrayNode = objectMapper.readTree(fetchNALTSuggestions(text)).get("payload").get("ArrayList<TermOccurrence>");
+			JsonNode termOccurrenceArrayNode = payloadNode.get("ArrayList<TermOccurrence>") != null ? payloadNode.get("ArrayList<TermOccurrence>") : payloadNode.get("ArrayList");
 
 			if (termOccurrenceArrayNode.isArray()) {
 			    for (final JsonNode termOccurrenceNode : termOccurrenceArrayNode) {

@@ -24,6 +24,9 @@ import edu.tamu.app.utilities.CsvUtility;
 public class MapsService {
 
     private static final Logger logger = Logger.getLogger(MapsService.class);
+    
+    // TODO: MapService needs to be scoped to a project
+    private static final String DISSERTATION_PROJECT_NAME = "dissertation";
 
     private static final String CHANGE_STATUS = "Published";
 
@@ -73,7 +76,7 @@ public class MapsService {
                 logger.debug("The document name is: " + documentName);
             }
 
-            Document updateDoc = documentRepo.findByName(documentName);
+            Document updateDoc = documentRepo.findByProjectNameAndName(DISSERTATION_PROJECT_NAME, documentName);
 
             if (updateDoc != null) {
                 if (unlockableProjectName == null) {

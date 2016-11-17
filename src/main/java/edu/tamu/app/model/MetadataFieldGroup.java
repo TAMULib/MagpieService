@@ -9,14 +9,19 @@
  */
 package edu.tamu.app.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -31,21 +36,23 @@ import edu.tamu.framework.model.BaseEntity;
  *
  */
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "label_id", "document_id" }))
 public class MetadataFieldGroup extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    private MetadataFieldLabel label;
+	
+    @ManyToOne(fetch = FetchType.EAGER, cascade =  CascadeType.MERGE)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Document document;
 
-    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH }, fetch = FetchType.EAGER)
-    private MetadataFieldLabel label;
-
-    @OneToMany(mappedBy = "field", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    private Set<MetadataFieldValue> values;
+    @OneToMany(mappedBy = "field", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
+    private List<MetadataFieldValue> values;
 
     public MetadataFieldGroup() {
-        values = new HashSet<MetadataFieldValue>();
+        values = new ArrayList<MetadataFieldValue>();
     }
 
     public MetadataFieldGroup(MetadataFieldLabel label) {
@@ -74,11 +81,11 @@ public class MetadataFieldGroup extends BaseEntity {
         this.label = label;
     }
 
-    public Set<MetadataFieldValue> getValues() {
+    public List<MetadataFieldValue> getValues() {
         return values;
     }
 
-    public void setValues(Set<MetadataFieldValue> values) {
+    public void setValues(List<MetadataFieldValue> values) {
         this.values = values;
     }
 
@@ -91,7 +98,7 @@ public class MetadataFieldGroup extends BaseEntity {
     }
 
     public void clearValues() {
-        values = new HashSet<MetadataFieldValue>();
+        values = new ArrayList<MetadataFieldValue>();
     }
 
 }

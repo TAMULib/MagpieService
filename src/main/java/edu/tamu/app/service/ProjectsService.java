@@ -199,11 +199,11 @@ public class ProjectsService {
 					fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
 				}
 
-				String label = metadata.get(LABEL_KEY).asText();
+				String labelName = metadata.get(LABEL_KEY).asText();
 
-				MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByName(label);
+				MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(labelName, fieldProfile);
 				if (metadataFieldLabel == null) {
-					metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
+					metadataFieldLabel = metadataFieldLabelRepo.create(labelName, fieldProfile);
 				}
 
 				projectFields.add(new MetadataFieldGroup(metadataFieldLabel));
@@ -218,7 +218,7 @@ public class ProjectsService {
 
 	public void createDocument(String projectName, String documentName) {
 
-		if ((documentRepo.findByName(documentName) == null)) {
+		if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
 			final Project project = getProject(projectName);
 
 			String pdfPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf";

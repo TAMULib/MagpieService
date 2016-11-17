@@ -9,10 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.tdl.vireo.annotations.Order;
-import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
@@ -26,12 +25,13 @@ import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.runner.OrderedRunner;
 
 @WebAppConfiguration
 @ActiveProfiles({ "test" })
 @RunWith(OrderedRunner.class)
 @SpringApplicationConfiguration(classes = WebServerInit.class)
-public class MetadataFieldTest {
+public class MetadataFieldGroupTest {
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -98,20 +98,20 @@ public class MetadataFieldTest {
     @Test
     @Order(4)
     public void testCascadeOnDeleteMetadataField() {
-        MetadataFieldGroup testField = metadataFieldGroupRepo.create(testDocument, testLabel);
+        MetadataFieldGroup testFieldGroup = metadataFieldGroupRepo.create(testDocument, testLabel);
         Assert.assertEquals("Test field was not created.", 1, metadataFieldGroupRepo.count());
 
         Assert.assertEquals("MetadataFieldValue repository is not empty.", 0, metadataFieldValueRepo.count());
-        MetadataFieldValue testValue = metadataFieldValueRepo.create("test", testField);
+        MetadataFieldValue testValue = metadataFieldValueRepo.create("test", testFieldGroup);
         Assert.assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
+        
+        testFieldGroup.addValue(testValue);
 
-        testField.addValue(testValue);
+        testFieldGroup = metadataFieldGroupRepo.save(testFieldGroup);
 
-        testField = metadataFieldGroupRepo.save(testField);
+        Assert.assertEquals("Test MetadataField with expected MetadataFieldValue was not save.", testValue.getValue(), ((MetadataFieldValue) testFieldGroup.getValues().toArray()[0]).getValue());
 
-        Assert.assertEquals("Test MetadataField with expected MetadataFieldValue was not save.", testValue.getValue(), ((MetadataFieldValue) testField.getValues().toArray()[0]).getValue());
-
-        metadataFieldGroupRepo.delete(testField);
+        metadataFieldGroupRepo.delete(testFieldGroup);
         Assert.assertEquals("Test field was not deleted.", 0, metadataFieldGroupRepo.count());
 
         Assert.assertEquals("Test MetadataFieldValue was not deleted.", 0, metadataFieldValueRepo.count());

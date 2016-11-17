@@ -64,11 +64,11 @@ public class VoyagerAuthority implements Authority {
 		try {
 			Map<String, List<String>> metadataMap = getMARCRecordMetadata(document.getName());
 
-			document.getFields().parallelStream().forEach(field -> {
-				List<String> values = metadataMap.get(field.getLabel().getName());
+			document.getFields().parallelStream().forEach(fieldGroup -> {
+				List<String> values = metadataMap.get(fieldGroup.getLabel().getName());
 				if (values != null) {
 					values.forEach(value -> {
-						field.addValue(metadataFieldValueRepo.create(value, field));
+						fieldGroup.addValue(metadataFieldValueRepo.create(value, fieldGroup));
 					});
 				}
 			});

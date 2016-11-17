@@ -1,5 +1,5 @@
 /* 
- * CustomControlledVocabularyRepo.java 
+ * ControlledVocabularyRepoCustom.java 
  * 
  * Version: 
  *     $Id$ 
@@ -19,10 +19,6 @@ import edu.tamu.app.model.ControlledVocabulary;
  */
 public interface ControlledVocabularyRepoCustom {
 
-    public ControlledVocabulary create(String name);
-
-    public void delete(ControlledVocabulary cv);
-
-    public void deleteAll();
+	public ControlledVocabulary create(String name);
 
 }
