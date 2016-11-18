@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -105,20 +106,7 @@ public class DocumentController {
 	@ApiMapping("/get/{projectName}/{documentName}")
 	@Auth(role = "ROLE_USER")
 	public ApiResponse documentByName(@ApiVariable String projectName, @ApiVariable String documentName) {
-		
-		System.out.println("\nPROJECT NAME: " + projectName);
-		System.out.println("\nDOCUMENT NAME: " + documentName);
-		Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
-		
-		System.out.println("\nGET " + document.getId() + "\n");
-		document.getFields().forEach(field -> {
-			System.out.println("\n" + field.getLabel().getName());
-			field.getValues().forEach(value -> {
-				System.out.println("  " + value.getValue());
-			});
-		});
-		
-		return new ApiResponse(SUCCESS, document);
+		return new ApiResponse(SUCCESS, documentRepo.findByProjectNameAndName(projectName, documentName));
 	}
 
 	/**
@@ -204,27 +192,10 @@ public class DocumentController {
 	 */
 	@ApiMapping("/save")
 	@Auth(role = "ROLE_USER")
+	@Transactional // without this a save with a field value removed results in it not being removed
 	public ApiResponse save(@ApiModel Document document) {
-		System.out.println("\nBEFORE\n");
-		document.getFields().forEach(field -> {
-			System.out.println("\n" + field.getLabel().getName());
-			field.getValues().forEach(value -> {
-				System.out.println("  " + value.getValue());
-			});
-		});
-
 		document = documentRepo.save(document);
-		
-		System.out.println("\nAFTER " + document.getId() + "\n");
-		document.getFields().forEach(field -> {
-			System.out.println("\n" + field.getLabel().getName());
-			field.getValues().forEach(value -> {
-				System.out.println("  " + value.getValue());
-			});
-		});
-
 		simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
-
 		return new ApiResponse(SUCCESS);
 	}
 
