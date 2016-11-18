@@ -52,7 +52,6 @@ public class NALTSuggestor implements Suggestor {
 
             if (termOccurrenceArrayNode.isArray()) {
                 for (final JsonNode termOccurrenceNode : termOccurrenceArrayNode) {
-                    System.out.println(termOccurrenceNode);
                     suggestions.add(new Suggestion(NALT_SUBJECT_LABEL, termOccurrenceNode.get("term").textValue(), termOccurrenceNode.get("count").asInt()));
                 }
             }
