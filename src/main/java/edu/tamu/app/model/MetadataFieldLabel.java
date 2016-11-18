@@ -35,7 +35,8 @@ public class MetadataFieldLabel extends BaseEntity {
     @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private FieldProfile profile;
 
-    public MetadataFieldLabel() {}
+    public MetadataFieldLabel() {
+    }
 
     public MetadataFieldLabel(String name, FieldProfile profile) {
         this();

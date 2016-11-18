@@ -34,29 +34,29 @@ import edu.tamu.framework.resolver.BaseEntityIdResolver;
  */
 @Entity
 public class MetadataFieldValue extends BaseEntity {
-	
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id", resolver = BaseEntityIdResolver.class)
     @JsonIdentityReference(alwaysAsId = true)
     private MetadataFieldGroup field;
 
-	@ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-	private ControlledVocabulary cv;
+    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    private ControlledVocabulary cv;
 
-	@Column(columnDefinition = "TEXT", nullable = true)
-	private String value;
+    @Column(columnDefinition = "TEXT", nullable = true)
+    private String value;
 
-	@PrePersist
-	@PreUpdate
-	protected void sanitize() throws UnsupportedEncodingException {
-		if (value != null) {
-			value = new String(value.replaceAll("[\u0000-\u001f]", "").getBytes(), "UTF-8");
-		}
-	}
+    @PrePersist
+    @PreUpdate
+    protected void sanitize() throws UnsupportedEncodingException {
+        if (value != null) {
+            value = new String(value.replaceAll("[\u0000-\u001f]", "").getBytes(), "UTF-8");
+        }
+    }
 
-	public MetadataFieldValue() {}
+    public MetadataFieldValue() {}
 
-	public MetadataFieldValue(MetadataFieldGroup field) {
+    public MetadataFieldValue(MetadataFieldGroup field) {
         this();
         this.field = field;
     }
@@ -70,7 +70,7 @@ public class MetadataFieldValue extends BaseEntity {
         this(field);
         this.value = value;
     }
-    
+
     public MetadataFieldValue(String value, ControlledVocabulary cv, MetadataFieldGroup field) {
         this(field);
         this.cv = cv;
@@ -85,23 +85,23 @@ public class MetadataFieldValue extends BaseEntity {
         this.field = field;
     }
 
-	public ControlledVocabulary getCv() {
-		return cv;
-	}
+    public ControlledVocabulary getCv() {
+        return cv;
+    }
 
-	public void setCv(ControlledVocabulary cv) {
-		this.cv = cv;
-	}
+    public void setCv(ControlledVocabulary cv) {
+        this.cv = cv;
+    }
 
-	public String getValue() {
-		if (value == null) {
-			return cv.getValue();
-		}
-		return value;
-	}
+    public String getValue() {
+        if (value == null) {
+            return cv.getValue();
+        }
+        return value;
+    }
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+    public void setValue(String value) {
+        this.value = value;
+    }
 
 }

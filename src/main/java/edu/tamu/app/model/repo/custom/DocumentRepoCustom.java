@@ -25,8 +25,8 @@ import edu.tamu.app.model.Project;
  */
 public interface DocumentRepoCustom {
 
-	public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
+    public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
 
-	public Page<Document> pageableDynamicDocumentQuery(Map<String, String[]> filters, Pageable pageable);
+    public Page<Document> pageableDynamicDocumentQuery(Map<String, String[]> filters, Pageable pageable);
 
 }

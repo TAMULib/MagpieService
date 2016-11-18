@@ -83,7 +83,7 @@ public class ControlledVocabularyController {
      * Get controlled vocabulary by label.
      * 
      * @param label
-     *          @ApiVariable String
+     * @ApiVariable String
      * 
      * @return ApiResponse
      * 

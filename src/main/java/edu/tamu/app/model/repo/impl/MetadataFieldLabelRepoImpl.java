@@ -24,16 +24,16 @@ import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
  */
 public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom {
 
-	@Autowired
-	private MetadataFieldLabelRepo metadataFieldLabelRepo;
+    @Autowired
+    private MetadataFieldLabelRepo metadataFieldLabelRepo;
 
-	@Override
-	public synchronized MetadataFieldLabel create(String name, FieldProfile profile) {
-		MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(name, profile);
-		if (metadataFieldLabel == null) {
-			metadataFieldLabel = metadataFieldLabelRepo.save(new MetadataFieldLabel(name, profile));
-		}
-		return metadataFieldLabel;
-	}
+    @Override
+    public synchronized MetadataFieldLabel create(String name, FieldProfile profile) {
+        MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(name, profile);
+        if (metadataFieldLabel == null) {
+            metadataFieldLabel = metadataFieldLabelRepo.save(new MetadataFieldLabel(name, profile));
+        }
+        return metadataFieldLabel;
+    }
 
 }

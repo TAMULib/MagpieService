@@ -24,8 +24,8 @@ import edu.tamu.app.model.repo.custom.ControlledVocabularyRepoCustom;
 @Repository
 public interface ControlledVocabularyRepo extends JpaRepository<ControlledVocabulary, Long>, ControlledVocabularyRepoCustom {
 
-	public ControlledVocabulary create(String name);
+    public ControlledVocabulary create(String name);
 
-	public ControlledVocabulary findByValue(String value);
+    public ControlledVocabulary findByValue(String value);
 
 }

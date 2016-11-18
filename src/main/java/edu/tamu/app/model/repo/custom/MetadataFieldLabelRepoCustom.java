@@ -20,6 +20,6 @@ import edu.tamu.app.model.MetadataFieldLabel;
  */
 public interface MetadataFieldLabelRepoCustom {
 
-	public MetadataFieldLabel create(String name, FieldProfile profile);
+    public MetadataFieldLabel create(String name, FieldProfile profile);
 
 }

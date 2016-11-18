@@ -23,16 +23,16 @@ import edu.tamu.app.model.repo.custom.ControlledVocabularyRepoCustom;
  */
 public class ControlledVocabularyRepoImpl implements ControlledVocabularyRepoCustom {
 
-	@Autowired
-	private ControlledVocabularyRepo controlledVocabularyRepo;
+    @Autowired
+    private ControlledVocabularyRepo controlledVocabularyRepo;
 
-	@Override
-	public synchronized ControlledVocabulary create(String value) {
-		ControlledVocabulary cv = controlledVocabularyRepo.findByValue(value);
-		if (cv == null) {
-			cv = controlledVocabularyRepo.save(new ControlledVocabulary(value));
-		}
-		return cv;
-	}
+    @Override
+    public synchronized ControlledVocabulary create(String value) {
+        ControlledVocabulary cv = controlledVocabularyRepo.findByValue(value);
+        if (cv == null) {
+            cv = controlledVocabularyRepo.save(new ControlledVocabulary(value));
+        }
+        return cv;
+    }
 
 }

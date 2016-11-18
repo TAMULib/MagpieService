@@ -25,6 +25,6 @@ import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
 @Repository
 public interface MetadataFieldLabelRepo extends JpaRepository<MetadataFieldLabel, Long>, MetadataFieldLabelRepoCustom {
 
-	public MetadataFieldLabel findByNameAndProfile(String name, FieldProfile profile);
+    public MetadataFieldLabel findByNameAndProfile(String name, FieldProfile profile);
 
 }

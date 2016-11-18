@@ -39,10 +39,10 @@ import edu.tamu.framework.model.BaseEntity;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "label_id", "document_id" }))
 public class MetadataFieldGroup extends BaseEntity {
 
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private MetadataFieldLabel label;
-	
-    @ManyToOne(fetch = FetchType.EAGER, cascade =  CascadeType.MERGE)
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Document document;

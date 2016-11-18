@@ -23,69 +23,70 @@ import edu.tamu.app.model.Suggestion;
 
 @Service("NALT")
 public class NALTSuggestor implements Suggestor {
-	
-	private final static String NALT_SUBJECT_LABEL = "dc.subject.nalt";
-	
-	@Value("${app.service.nalt.term-occurrence.url}")
-	private String pelicanTermOccurrenceUrl;
-	
-	@Autowired
-	private ObjectMapper objectMapper;
 
-	@Override
-	public List<Suggestion> suggest(Document document) {
-		
-		List<Suggestion> suggestions = new ArrayList<Suggestion>();
+    private final static String NALT_SUBJECT_LABEL = "dc.subject.nalt";
 
-		try {
-			File file = File.createTempFile("tempFile", Long.toString(System.nanoTime()));
-			
-			file.deleteOnExit();
-			
-			FileUtils.copyURLToFile(new URL(document.getTxtUri()), file);
-			
-			String text = FileUtils.readFileToString(file, StandardCharsets.UTF_8).toLowerCase();
-			
-			JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(text)).get("payload");
+    @Value("${app.service.nalt.term-occurrence.url}")
+    private String pelicanTermOccurrenceUrl;
 
-			JsonNode termOccurrenceArrayNode = payloadNode.get("ArrayList<TermOccurrence>") != null ? payloadNode.get("ArrayList<TermOccurrence>") : payloadNode.get("ArrayList");
+    @Autowired
+    private ObjectMapper objectMapper;
 
-			if (termOccurrenceArrayNode.isArray()) {
-			    for (final JsonNode termOccurrenceNode : termOccurrenceArrayNode) {
-			        System.out.println(termOccurrenceNode);
-			        suggestions.add(new Suggestion(NALT_SUBJECT_LABEL, termOccurrenceNode.get("term").textValue(), termOccurrenceNode.get("count").asInt()));
-			    }
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return suggestions;
-	}
+    @Override
+    public List<Suggestion> suggest(Document document) {
 
-	private String fetchNALTSuggestions(String text) throws IOException {
-		
-		URL pelicanSuggestionUrl = new URL(pelicanTermOccurrenceUrl);
+        List<Suggestion> suggestions = new ArrayList<Suggestion>();
+
+        try {
+            File file = File.createTempFile("tempFile", Long.toString(System.nanoTime()));
+
+            file.deleteOnExit();
+
+            FileUtils.copyURLToFile(new URL(document.getTxtUri()), file);
+
+            String text = FileUtils.readFileToString(file, StandardCharsets.UTF_8).toLowerCase();
+
+            JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(text)).get("payload");
+
+            JsonNode termOccurrenceArrayNode = payloadNode.get("ArrayList<TermOccurrence>") != null ? payloadNode.get("ArrayList<TermOccurrence>") : payloadNode.get("ArrayList");
+
+            if (termOccurrenceArrayNode.isArray()) {
+                for (final JsonNode termOccurrenceNode : termOccurrenceArrayNode) {
+                    System.out.println(termOccurrenceNode);
+                    suggestions.add(new Suggestion(NALT_SUBJECT_LABEL, termOccurrenceNode.get("term").textValue(), termOccurrenceNode.get("count").asInt()));
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return suggestions;
+    }
+
+    private String fetchNALTSuggestions(String text) throws IOException {
+
+        URL pelicanSuggestionUrl = new URL(pelicanTermOccurrenceUrl);
 
         HttpURLConnection connection = (HttpURLConnection) pelicanSuggestionUrl.openConnection();
 
-        connection.setRequestMethod("POST");        
+        connection.setRequestMethod("POST");
         connection.setRequestProperty("Accept", "application/json");
         connection.setRequestProperty("Content-Type", "text/plain");
         connection.setRequestProperty("Content-Length", String.valueOf(text.length()));
-        
+
         connection.setDoOutput(true);
 
-        OutputStream os = connection.getOutputStream();;
+        OutputStream os = connection.getOutputStream();
+        ;
 
         os.write(text.getBytes());
-        
+
         String results = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-        
+
         IOUtils.closeQuietly(connection.getInputStream());
-        
-		return results;
-	}
-	
+
+        return results;
+    }
+
 }

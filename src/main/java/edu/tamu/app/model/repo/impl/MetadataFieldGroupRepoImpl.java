@@ -25,16 +25,16 @@ import edu.tamu.app.model.repo.custom.MetadataFieldGroupRepoCustom;
  */
 public class MetadataFieldGroupRepoImpl implements MetadataFieldGroupRepoCustom {
 
-	@Autowired
-	private MetadataFieldGroupRepo metadataFieldGroupRepo;
+    @Autowired
+    private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
-	@Override
-	public synchronized MetadataFieldGroup create(Document document, MetadataFieldLabel label) {
-		MetadataFieldGroup metadataFieldGroup = metadataFieldGroupRepo.findByDocumentAndLabel(document, label);
-		if (metadataFieldGroup == null) {
-			metadataFieldGroup = metadataFieldGroupRepo.save(new MetadataFieldGroup(document, label));
-		}
-		return metadataFieldGroup;
-	}
+    @Override
+    public synchronized MetadataFieldGroup create(Document document, MetadataFieldLabel label) {
+        MetadataFieldGroup metadataFieldGroup = metadataFieldGroupRepo.findByDocumentAndLabel(document, label);
+        if (metadataFieldGroup == null) {
+            metadataFieldGroup = metadataFieldGroupRepo.save(new MetadataFieldGroup(document, label));
+        }
+        return metadataFieldGroup;
+    }
 
 }

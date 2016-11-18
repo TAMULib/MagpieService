@@ -115,15 +115,13 @@ public class DocumentPushService {
 
         // add new handle to document, change it's status to published, save it
         String publishedUriString;
-        
-        if(defaultRepoUIPath.length() > 0) {
+
+        if (defaultRepoUIPath.length() > 0) {
             publishedUriString = repoUrl + "/" + defaultRepoUIPath + "/" + handleString;
-        }
-        else {
+        } else {
             publishedUriString = repoUrl + "/" + handleString;
         }
-        
-        
+
         document.setPublishedUriString(publishedUriString);
 
         document.setStatus("Published");

@@ -37,31 +37,31 @@ import edu.tamu.framework.model.BaseEntity;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "project_id" }))
 public class Document extends BaseEntity {
 
-	@Column(nullable = false)
+    @Column(nullable = false)
     private String name;
 
-	@Column(nullable = false)
+    @Column(nullable = false)
     private String status;
 
-	@Column(nullable = true)
+    @Column(nullable = true)
     private String annotator;
 
-	@Column(nullable = true)
+    @Column(nullable = true)
     private String notes;
 
-	@Column(nullable = true)
+    @Column(nullable = true)
     private String txtUri;
 
-	@Column(nullable = true)
+    @Column(nullable = true)
     private String pdfUri;
 
-	@Column(nullable = true)
+    @Column(nullable = true)
     private String pdfPath;
 
-	@Column(nullable = true)
+    @Column(nullable = true)
     private String txtPath;
 
-	@Column(nullable = true)
+    @Column(nullable = true)
     private String publishedUriString;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)

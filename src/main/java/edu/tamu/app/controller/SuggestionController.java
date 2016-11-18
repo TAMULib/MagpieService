@@ -24,24 +24,24 @@ import edu.tamu.framework.model.ApiResponse;
 @ApiMapping("/suggest")
 public class SuggestionController {
 
-	@Autowired
-	private DocumentRepo documentRepo;
+    @Autowired
+    private DocumentRepo documentRepo;
 
-	// TODO: handle exception gracefully
-	@ApiMapping("/{projectName}/{documentName}")
-	@Auth(role = "ROLE_USER")
-	public ApiResponse getSuggestions(@ApiVariable String projectName, @ApiVariable String documentName) throws IOException {
-		
-		Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
-		
-		Project project = document.getProject();
-		
-		List<Suggestion> suggestions = new ArrayList<Suggestion>();
-		
-        for(String suggestor : project.getSuggestors()) {
-        	suggestions.addAll(((Suggestor) SpringContext.bean(suggestor)).suggest(document));
+    // TODO: handle exception gracefully
+    @ApiMapping("/{projectName}/{documentName}")
+    @Auth(role = "ROLE_USER")
+    public ApiResponse getSuggestions(@ApiVariable String projectName, @ApiVariable String documentName) throws IOException {
+
+        Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+
+        Project project = document.getProject();
+
+        List<Suggestion> suggestions = new ArrayList<Suggestion>();
+
+        for (String suggestor : project.getSuggestors()) {
+            suggestions.addAll(((Suggestor) SpringContext.bean(suggestor)).suggest(document));
         }
-		
-		return new ApiResponse(SUCCESS, suggestions);
-	}
+
+        return new ApiResponse(SUCCESS, suggestions);
+    }
 }

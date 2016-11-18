@@ -29,21 +29,21 @@ import edu.tamu.app.model.repo.specification.DocumentSpecification;
  */
 public class DocumentRepoImpl implements DocumentRepoCustom {
 
-	@Autowired
-	private DocumentRepo documentRepo;
+    @Autowired
+    private DocumentRepo documentRepo;
 
-	@Override
-	public synchronized Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
-		Document document = documentRepo.findByProjectNameAndName(project.getName(), name);
-		if (document == null) {
-			document = documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, status));
-		}
-		return document;
-	}
+    @Override
+    public synchronized Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
+        Document document = documentRepo.findByProjectNameAndName(project.getName(), name);
+        if (document == null) {
+            document = documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, status));
+        }
+        return document;
+    }
 
-	@Override
-	public Page<Document> pageableDynamicDocumentQuery(Map<String, String[]> filters, Pageable pageable) {
-		return documentRepo.findAll(new DocumentSpecification<Document>(filters), pageable);
-	}
+    @Override
+    public Page<Document> pageableDynamicDocumentQuery(Map<String, String[]> filters, Pageable pageable) {
+        return documentRepo.findAll(new DocumentSpecification<Document>(filters), pageable);
+    }
 
 }

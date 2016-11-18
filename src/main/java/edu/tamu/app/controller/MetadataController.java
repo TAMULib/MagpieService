@@ -90,7 +90,7 @@ public class MetadataController {
      * Endpoint to unlock a given project
      * 
      * @param projectToUnlock
-     *          @ApiVariable String
+     * @ApiVariable String
      * 
      * @return ApiResponse
      * 
@@ -108,7 +108,7 @@ public class MetadataController {
      * Endpoint to return metadata headers for given project.
      * 
      * @param project
-     *          @ApiVariable String
+     * @ApiVariable String
      * 
      * @return ApiResponse
      * 
@@ -171,11 +171,10 @@ public class MetadataController {
     }
 
     /**
-     * Endpoint to return all published metadata fields as dspace csv by
-     * project.
+     * Endpoint to return all published metadata fields as dspace csv by project.
      * 
      * @param project
-     *          @ApiVariable String
+     * @ApiVariable String
      * 
      * @return ApiResponse
      * 
@@ -186,9 +185,9 @@ public class MetadataController {
 
         List<List<String>> metadata = new ArrayList<List<String>>();
 
-        projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document> toList()).forEach(document -> {
+        projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList()).forEach(document -> {
 
-        	List<MetadataFieldGroup> metadataFields = document.getFields();
+            List<MetadataFieldGroup> metadataFields = document.getFields();
 
             Collections.sort(metadataFields, new LabelComparator());
 
@@ -221,7 +220,7 @@ public class MetadataController {
      * Websocket endpoint to export saf.
      * 
      * @param project
-     *          @ApiVariable String
+     * @ApiVariable String
      * 
      * @return ApiResponse
      * 
@@ -237,7 +236,7 @@ public class MetadataController {
         // for each published document
 
         Project exportableProject = projectRepo.findByName(project);
-        List<Document> documents = exportableProject.getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document> toList());
+        List<Document> documents = exportableProject.getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
 
         String directory = "";
         try {
@@ -362,7 +361,7 @@ public class MetadataController {
      * Endpoint to return all by status metadata fields.
      * 
      * @param status
-     *          @ApiVariable String
+     * @ApiVariable String
      * 
      * @return ApiResponse
      * 

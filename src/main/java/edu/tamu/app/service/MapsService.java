@@ -24,7 +24,7 @@ import edu.tamu.app.utilities.CsvUtility;
 public class MapsService {
 
     private static final Logger logger = Logger.getLogger(MapsService.class);
-    
+
     // TODO: MapService needs to be scoped to a project
     private static final String DISSERTATION_PROJECT_NAME = "dissertation";
 

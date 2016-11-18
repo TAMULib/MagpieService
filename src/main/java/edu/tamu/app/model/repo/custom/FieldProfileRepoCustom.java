@@ -21,6 +21,6 @@ import edu.tamu.app.model.Project;
  */
 public interface FieldProfileRepoCustom {
 
-	public FieldProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
+    public FieldProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
 
 }

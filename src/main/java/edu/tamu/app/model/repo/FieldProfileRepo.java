@@ -28,10 +28,10 @@ import edu.tamu.app.model.repo.custom.FieldProfileRepoCustom;
 @Repository
 public interface FieldProfileRepo extends JpaRepository<FieldProfile, Long>, FieldProfileRepoCustom {
 
-	public FieldProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
+    public FieldProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue);
 
-	public FieldProfile findByProjectAndGloss(Project project, String gloss);
+    public FieldProfile findByProjectAndGloss(Project project, String gloss);
 
-	public List<FieldProfile> findByProject(Project project);
+    public List<FieldProfile> findByProject(Project project);
 
 }

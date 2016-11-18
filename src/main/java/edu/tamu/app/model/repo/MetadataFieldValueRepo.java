@@ -26,10 +26,10 @@ import edu.tamu.app.model.repo.custom.MetadataFieldValueRepoCustom;
 @Repository
 public interface MetadataFieldValueRepo extends JpaRepository<MetadataFieldValue, Long>, MetadataFieldValueRepoCustom {
 
-	public MetadataFieldValue findByValueAndField(String value, MetadataFieldGroup field);
+    public MetadataFieldValue findByValueAndField(String value, MetadataFieldGroup field);
 
-	public MetadataFieldValue findByCvAndField(ControlledVocabulary cv, MetadataFieldGroup field);
+    public MetadataFieldValue findByCvAndField(ControlledVocabulary cv, MetadataFieldGroup field);
 
-	public MetadataFieldValue findByValueAndCvAndField(String value, ControlledVocabulary cv, MetadataFieldGroup field);
+    public MetadataFieldValue findByValueAndCvAndField(String value, ControlledVocabulary cv, MetadataFieldGroup field);
 
 }
