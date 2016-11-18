@@ -152,36 +152,6 @@ public class DocumentController {
     }
 
     /**
-     * Endpoint to update document status or annotator.
-     * 
-     * @param data
-     * @ApiData Map<String, String>
-     * 
-     * @return ApiResponse
-     * 
-     */
-    @ApiMapping("/update")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse update(@ApiData Map<String, String> data) {
-
-        int results;
-
-        if (data.get("user") != null) {
-            results = documentRepo.quickSave(data.get("name"), (data.get("status").equals("Open")) ? "" : data.get("user"), data.get("status"), data.get("notes"));
-        } else {
-            results = documentRepo.quickUpdateStatus(data.get("name"), data.get("status"));
-        }
-
-        if (results < 1) {
-            return new ApiResponse(ERROR, "Document not updated");
-        }
-
-        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
-
-        return new ApiResponse(SUCCESS);
-    }
-
-    /**
      * Endpoint to save document.
      * 
      * @param document
@@ -195,7 +165,7 @@ public class DocumentController {
     @Transactional // without this a save with a field value removed results in it not being removed
     public ApiResponse save(@ApiModel Document document) {
         document = documentRepo.save(document);
-        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
+        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));
         return new ApiResponse(SUCCESS);
     }
 
@@ -221,7 +191,7 @@ public class DocumentController {
             return new ApiResponse(ERROR, e.getMessage());
         }
 
-        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
+        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));
 
         return new ApiResponse(SUCCESS, "Your item has been successfully published", document);
     }

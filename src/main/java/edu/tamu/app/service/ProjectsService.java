@@ -237,11 +237,12 @@ public class ProjectsService {
             for (String authority : project.getAuthorities()) {
                 document = ((Authority) SpringContext.bean(authority)).populate(document);
             }
-
-            project.addDocument(documentRepo.save(document));
+            
+            document = documentRepo.save(document);
+            project.addDocument(document);
 
             try {
-                simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
+                simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));
             } catch (Exception e) {
                 logger.error("Error broadcasting new document", e);
             }

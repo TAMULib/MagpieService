@@ -77,7 +77,6 @@ public class NALTSuggestor implements Suggestor {
         connection.setDoOutput(true);
 
         OutputStream os = connection.getOutputStream();
-        ;
 
         os.write(text.getBytes());
 
