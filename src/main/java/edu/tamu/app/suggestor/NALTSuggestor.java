@@ -48,7 +48,7 @@ public class NALTSuggestor implements Suggestor {
 
             JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(text)).get("payload");
 
-            JsonNode termOccurrenceArrayNode = payloadNode.get("CopyOnWriteArrayList<TermOccurrence>") != null ? payloadNode.get("CopyOnWriteArrayList<TermOccurrence>") : payloadNode.get("CopyOnWriteArrayList");
+            JsonNode termOccurrenceArrayNode = payloadNode.get("ArrayList<TermOccurrence>") != null ? payloadNode.get("ArrayList<TermOccurrence>") : payloadNode.get("ArrayList");
 
             if (termOccurrenceArrayNode.isArray()) {
                 for (final JsonNode termOccurrenceNode : termOccurrenceArrayNode) {
