@@ -48,11 +48,21 @@ public class NALTSuggestor implements Suggestor {
 
             JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(text)).get("payload");
 
-            JsonNode termOccurrenceArrayNode = payloadNode.get("ArrayList<TermOccurrence>") != null ? payloadNode.get("ArrayList<TermOccurrence>") : payloadNode.get("ArrayList");
+            JsonNode termOccurrenceArrayNode = payloadNode.get("CopyOnWriteArrayList<TermOccurrence>") != null ? payloadNode.get("CopyOnWriteArrayList<TermOccurrence>") : payloadNode.get("CopyOnWriteArrayList");
 
             if (termOccurrenceArrayNode.isArray()) {
                 for (final JsonNode termOccurrenceNode : termOccurrenceArrayNode) {
-                    suggestions.add(new Suggestion(NALT_SUBJECT_LABEL, termOccurrenceNode.get("term").textValue(), termOccurrenceNode.get("count").asInt()));
+                    Suggestion suggestion = new Suggestion(NALT_SUBJECT_LABEL, termOccurrenceNode.get("term").textValue(), termOccurrenceNode.get("count").asInt());
+
+                    JsonNode synonymOccurrencesNode = termOccurrenceNode.get("synonyms");
+                    if (synonymOccurrencesNode.isArray()) {
+
+                        for (final JsonNode synonymOccurrenceNode : synonymOccurrencesNode) {
+                            suggestion.addSynonym(new Suggestion(NALT_SUBJECT_LABEL, synonymOccurrenceNode.get("term").textValue(), synonymOccurrenceNode.get("count").asInt()));
+                        }
+                    }
+
+                    suggestions.add(suggestion);
                 }
             }
 

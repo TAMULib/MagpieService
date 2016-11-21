@@ -37,6 +37,7 @@ import edu.tamu.framework.model.BaseEntity;
 @Entity
 public class ControlledVocabulary extends BaseEntity {
 
+    // TODO: consider refactoring to name
     @Column(unique = true)
     private String value;
 
