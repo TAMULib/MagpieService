@@ -147,12 +147,7 @@ public class ProjectsService {
                 e.printStackTrace();
             }
 
-            project = projectRepo.create(projectName);
-
-            project.setAuthorities(authorities);
-            project.setSuggestors(suggestors);
-
-            project = projectRepo.save(project);
+            project = projectRepo.create(projectName, authorities, suggestors);
 
             try {
                 simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));

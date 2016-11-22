@@ -9,6 +9,8 @@
  */
 package edu.tamu.app.model.repo.impl;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -39,6 +41,18 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
         if (project == null) {
             project = new Project(name);
         }
+        project.setRepositoryUIUrlString(defaultRepoUrl + "/" + defaultRepoUIPath);
+        return projectRepo.save(project);
+    }
+
+    @Override
+    public synchronized Project create(String name, Set<String> authorities, Set<String> suggestors) {
+        Project project = projectRepo.findByName(name);
+        if (project == null) {
+            project = new Project(name);
+        }
+        project.setAuthorities(authorities);
+        project.setSuggestors(suggestors);
         project.setRepositoryUIUrlString(defaultRepoUrl + "/" + defaultRepoUIPath);
         return projectRepo.save(project);
     }
