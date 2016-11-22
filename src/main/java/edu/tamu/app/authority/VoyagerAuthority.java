@@ -26,7 +26,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.repo.MetadataFieldValueRepo;
+import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.model.response.marc.VoyagerServiceData;
 import edu.tamu.framework.util.HttpUtility;
@@ -53,9 +53,6 @@ public class VoyagerAuthority implements Authority {
     private String app;
 
     @Autowired
-    private MetadataFieldValueRepo metadataFieldValueRepo;
-
-    @Autowired
     private HttpUtility httpUtility;
 
     @Override
@@ -66,8 +63,10 @@ public class VoyagerAuthority implements Authority {
             document.getFields().parallelStream().forEach(fieldGroup -> {
                 List<String> values = metadataMap.get(fieldGroup.getLabel().getName());
                 if (values != null) {
-                    values.forEach(value -> {
-                        fieldGroup.addValue(metadataFieldValueRepo.create(value, fieldGroup));
+                    values.forEach(value -> {                        
+                        if (!fieldGroup.containsValue(value)) {
+                            fieldGroup.addValue(new MetadataFieldValue(value, fieldGroup));
+                        }                        
                     });
                 }
             });

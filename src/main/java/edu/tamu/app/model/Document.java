@@ -187,4 +187,16 @@ public class Document extends BaseEntity {
     public void clearFields() {
         fields = new ArrayList<MetadataFieldGroup>();
     }
+    
+    public MetadataFieldGroup getFieldByLabel(String labelName) {
+        MetadataFieldGroup targetField = null;
+        for(MetadataFieldGroup field : fields) {
+            if(field.getLabel().getName().equals(labelName)) {
+                targetField = field;
+                break;
+            }
+        }
+        return targetField;
+    }
+    
 }

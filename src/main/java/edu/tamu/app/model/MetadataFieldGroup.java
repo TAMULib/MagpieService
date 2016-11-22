@@ -100,5 +100,16 @@ public class MetadataFieldGroup extends BaseEntity {
     public void clearValues() {
         values = new ArrayList<MetadataFieldValue>();
     }
+    
+    public boolean containsValue(String value) {
+        boolean containsValue = false;
+        for(MetadataFieldValue metadataFieldValue : values) {
+            if(metadataFieldValue.getValue().equals(value)) {
+                containsValue = true;
+                break;
+            }
+        }
+        return containsValue;
+    }
 
 }

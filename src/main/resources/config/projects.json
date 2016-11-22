@@ -118,20 +118,33 @@
 
 	"taes_misc_publication": {
 		"repositories": {},
-		"authorities": [],
+		"authorities": [
+			"NALTCSV"
+		],
 		"suggestors": [
 			"NALT"
 		],
 		"metadata": [{
-			"label": "dc.coverage.spatial",
-			"gloss": "Spatial Coverage",
-			"repeatable": true,
-			"inputType": "TEXT"
-		}, {
 			"label": "dc.creator",
 			"gloss": "Author",
 			"repeatable": true,
 			"inputType": "TEXT"
+		}, {
+			"label": "dc.title",
+			"gloss": "Title",
+			"repeatable": false,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.relation.ispartof",
+			"gloss": "Is Part Of",
+			"repeatable": false,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.publisher",
+			"gloss": "Publisher",
+			"repeatable": false,
+			"inputType": "TEXT",
+			"default": "Texas Agricultural Experiment Station"
 		}, {
 			"label": "dc.date.issued",
 			"gloss": "Issue Date",
@@ -143,16 +156,10 @@
 			"repeatable": false,
 			"inputType": "TEXT"
 		}, {
-			"label": "dc.publisher",
-			"gloss": "Publisher",
+			"label": "dc.description.tableofcontents",
+			"gloss": "Table of Contents",
 			"repeatable": false,
-			"inputType": "TEXT",
-			"default": "Texas Agricultural Experiment Station"
-		}, {
-			"label": "dc.relation.ispartof",
-			"gloss": "Is Part Of",
-			"repeatable": false,
-			"inputType": "TEXT"
+			"inputType": "TEXTAREA"
 		}, {
 			"label": "dc.subject",
 			"gloss": "Subject",
@@ -164,9 +171,35 @@
 			"repeatable": true,
 			"inputType": "SUGGESTION"
 		}, {
-			"label": "dc.title",
-			"gloss": "Title",
+			"label": "dc.subject.lcsh",
+			"gloss": "Library of Congress Subject Headings",
+			"repeatable": true,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.language",
+			"gloss": "Language",
 			"repeatable": false,
+			"inputType": "TEXT",
+			"default": "en"
+		}, {
+			"label": "dc.type",
+			"gloss": "Type",
+			"repeatable": false,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.format",
+			"gloss": "Format",
+			"repeatable": false,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.coverage.spatial",
+			"gloss": "Spatial Coverage",
+			"repeatable": true,
+			"inputType": "TEXT"
+		}, {
+			"label": "dc.audience",
+			"gloss": "Audience",
+			"repeatable": true,
 			"inputType": "TEXT"
 		}]
 	},
