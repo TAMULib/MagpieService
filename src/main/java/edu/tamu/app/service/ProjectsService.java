@@ -112,7 +112,7 @@ public class ProjectsService {
         return projectsNode;
     }
 
-    public Project getProject(String projectName) {
+    public synchronized Project getProject(String projectName) {
         Project project = projects.get(projectName);
         if (project == null) {
             project = projectRepo.findByName(projectName);
@@ -171,7 +171,7 @@ public class ProjectsService {
         return profileNode;
     }
 
-    public List<MetadataFieldGroup> getProjectFields(String projectName) {
+    public synchronized List<MetadataFieldGroup> getProjectFields(String projectName) {
         List<MetadataFieldGroup> projectFields = fields.get(projectName);
         if (projectFields == null) {
             projectFields = new ArrayList<MetadataFieldGroup>();
@@ -211,7 +211,7 @@ public class ProjectsService {
         return projectFields;
     }
 
-    public void createDocument(String projectName, String documentName) {
+    public synchronized void createDocument(String projectName, String documentName) {
 
         if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
             final Project project = getProject(projectName);
