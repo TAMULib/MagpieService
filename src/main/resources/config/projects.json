@@ -116,7 +116,7 @@
 		}]
 	},
 
-	"TAES-Misc-Pub": {
+	"taes_misc_publication": {
 		"repositories": {},
 		"authorities": [],
 		"suggestors": [
