@@ -9,15 +9,17 @@
  */
 package edu.tamu.app.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -38,28 +40,33 @@ public class Project extends BaseEntity {
     private String name;
 
     @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<FieldProfile> profiles;
+    private List<FieldProfile> profiles;
 
     @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    private Set<Document> documents;
+    private List<Document> documents;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> authorities;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
+    private List<ProjectAuthority> authorities;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> suggestors;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
+    private List<ProjectSuggestor> suggestors;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
+    private List<ProjectRepository> repositories;
 
     private Boolean isLocked = false;
 
-    private String repositoryUIUrlString;
-
     public Project() {
-        profiles = new HashSet<FieldProfile>();
-        documents = new HashSet<Document>();
-        authorities = new HashSet<String>();
-        suggestors = new HashSet<String>();
+        setProfiles(new ArrayList<FieldProfile>());
+        setDocuments(new ArrayList<Document>());
+        setAuthorities(new ArrayList<ProjectAuthority>());
+        setSuggestors(new ArrayList<ProjectSuggestor>());
+        setRepositories(new ArrayList<ProjectRepository>());
     }
 
     public Project(String name) {
@@ -83,19 +90,11 @@ public class Project extends BaseEntity {
         this.name = name;
     }
 
-    public String getRepositoryUrlString() {
-        return repositoryUIUrlString;
-    }
-
-    public void setRepositoryUIUrlString(String repositoryUIUrlString) {
-        this.repositoryUIUrlString = repositoryUIUrlString;
-    }
-
-    public Set<FieldProfile> getProfiles() {
+    public List<FieldProfile> getProfiles() {
         return profiles;
     }
 
-    public void setProfiles(Set<FieldProfile> profiles) {
+    public void setProfiles(List<FieldProfile> profiles) {
         this.profiles = profiles;
     }
 
@@ -108,14 +107,14 @@ public class Project extends BaseEntity {
     }
 
     public void clearProfiles() {
-        profiles = new HashSet<FieldProfile>();
+        setProfiles(new ArrayList<FieldProfile>());
     }
 
-    public Set<Document> getDocuments() {
+    public List<Document> getDocuments() {
         return documents;
     }
 
-    public void setDocuments(Set<Document> documents) {
+    public void setDocuments(List<Document> documents) {
         this.documents = documents;
     }
 
@@ -128,23 +127,67 @@ public class Project extends BaseEntity {
     }
 
     public void clearDocuments() {
-        documents = new HashSet<Document>();
+        setDocuments(new ArrayList<Document>());
     }
 
-    public Set<String> getAuthorities() {
+    public List<ProjectAuthority> getAuthorities() {
         return authorities;
     }
 
-    public void setAuthorities(Set<String> authorities) {
+    public void setAuthorities(List<ProjectAuthority> authorities) {
         this.authorities = authorities;
     }
 
-    public Set<String> getSuggestors() {
+    public void addAuthority(ProjectAuthority authority) {
+        authorities.add(authority);
+    }
+
+    public void removeAuthority(ProjectAuthority authority) {
+        authorities.remove(authority);
+    }
+
+    public void clearAuthorities() {
+        setAuthorities(new ArrayList<ProjectAuthority>());
+    }
+
+    public List<ProjectSuggestor> getSuggestors() {
         return suggestors;
     }
 
-    public void setSuggestors(Set<String> suggestors) {
+    public void setSuggestors(List<ProjectSuggestor> suggestors) {
         this.suggestors = suggestors;
+    }
+
+    public void addSuggestor(ProjectSuggestor suggestor) {
+        suggestors.add(suggestor);
+    }
+
+    public void removeSuggestor(ProjectSuggestor suggestor) {
+        suggestors.remove(suggestor);
+    }
+
+    public void clearSuggestors() {
+        setSuggestors(new ArrayList<ProjectSuggestor>());
+    }
+
+    public List<ProjectRepository> getRepositories() {
+        return repositories;
+    }
+
+    public void setRepositories(List<ProjectRepository> repositories) {
+        this.repositories = repositories;
+    }
+
+    public void addRepository(ProjectRepository repository) {
+        repositories.add(repository);
+    }
+
+    public void removeRepository(ProjectRepository repository) {
+        repositories.remove(repository);
+    }
+
+    public void clearRepositories() {
+        setRepositories(new ArrayList<ProjectRepository>());
     }
 
 }

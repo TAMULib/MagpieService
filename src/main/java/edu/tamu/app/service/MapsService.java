@@ -83,7 +83,10 @@ public class MapsService {
                     unlockableProjectName = updateDoc.getProject().getName();
                 }
                 updateDoc.setStatus(CHANGE_STATUS);
-                updateDoc.setPublishedUriString(updateDoc.getProject().getRepositoryUrlString() + "/" + documentHandle);
+
+                // TODO: improve method of retrieving project configurations
+                updateDoc.setPublishedUriString(updateDoc.getProject().getRepositories().get(0).getSettingValues("repoUrl") + "/" + documentHandle);
+
                 documentRepo.save(updateDoc);
                 logger.info("Setting status of Document: " + updateDoc.getName() + " to " + CHANGE_STATUS);
             } else {

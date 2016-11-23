@@ -7,7 +7,7 @@
  * Revisions: 
  *     $Log$ 
  */
-package edu.tamu.app.authority;
+package edu.tamu.app.service.authority;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -21,9 +21,6 @@ import javax.xml.bind.JAXBContext;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldValue;
@@ -37,23 +34,24 @@ import edu.tamu.framework.util.HttpUtility;
  * @author
  *
  */
-@Service("Voyager")
-@ConfigurationProperties(prefix = "app.service.voyager")
 public class VoyagerAuthority implements Authority {
 
     private static final Logger logger = Logger.getLogger(VoyagerAuthority.class);
 
-    @Value("${app.service.voyager.host}")
     private String host;
 
-    @Value("${app.service.voyager.port}")
     private String port;
 
-    @Value("${app.service.voyager.app}")
     private String app;
 
     @Autowired
     private HttpUtility httpUtility;
+    
+    public VoyagerAuthority(String host, String port, String app) {
+        this.host = host;
+        this.port = port;
+        this.app = app;
+    }
 
     @Override
     public Document populate(Document document) {

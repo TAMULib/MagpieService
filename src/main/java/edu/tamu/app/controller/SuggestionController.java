@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.Suggestion;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.suggestor.Suggestor;
-import edu.tamu.framework.SpringContext;
+import edu.tamu.app.service.registry.MagpieServiceRegistry;
+import edu.tamu.app.service.suggestor.Suggestor;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.ApiVariable;
 import edu.tamu.framework.aspect.annotation.Auth;
@@ -27,6 +27,9 @@ public class SuggestionController {
     @Autowired
     private DocumentRepo documentRepo;
 
+    @Autowired
+    private MagpieServiceRegistry projectServiceRegistry;
+
     // TODO: handle exception gracefully
     @ApiMapping("/{projectName}/{documentName}")
     @Auth(role = "ROLE_USER")
@@ -34,12 +37,10 @@ public class SuggestionController {
 
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 
-        Project project = document.getProject();
-
         List<Suggestion> suggestions = new ArrayList<Suggestion>();
 
-        for (String suggestor : project.getSuggestors()) {
-            suggestions.addAll(((Suggestor) SpringContext.bean(suggestor)).suggest(document));
+        for (ProjectSuggestor suggestor : document.getProject().getSuggestors()) {
+            suggestions.addAll(((Suggestor) projectServiceRegistry.getService(suggestor.getName())).suggest(document));
         }
 
         return new ApiResponse(SUCCESS, suggestions);

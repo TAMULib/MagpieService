@@ -9,9 +9,9 @@
  */
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,11 +29,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import edu.tamu.app.authority.VoyagerAuthority;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.response.marc.FlatMARC;
-import edu.tamu.app.service.DocumentPushService;
+import edu.tamu.app.service.registry.MagpieServiceRegistry;
+import edu.tamu.app.service.repository.Repository;
 import edu.tamu.framework.aspect.annotation.ApiData;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.ApiModel;
@@ -52,35 +52,15 @@ import edu.tamu.framework.model.ApiResponse;
 public class DocumentController {
 
     @Autowired
-    private VoyagerAuthority voyagerAuthority;
-
-    @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     private DocumentRepo documentRepo;
 
     @Autowired
-    private DocumentPushService documentPushService;
+    private MagpieServiceRegistry projectServiceRegistry;
 
     private static final Logger logger = Logger.getLogger(DocumentController.class);
-
-    /**
-     * Endpoint to return marc record.
-     * 
-     * @param bibId
-     * @ApiVariable String
-     * 
-     * @return ApiResponse
-     * 
-     * @throws Exception
-     * 
-     */
-    @ApiMapping("/marc/{bibId}")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse getMARC(@ApiVariable String bibId) throws Exception {
-        return new ApiResponse(SUCCESS, new FlatMARC(voyagerAuthority.fetchMARC(bibId)));
-    }
 
     /**
      * Endpoint to return all documents.
@@ -184,11 +164,13 @@ public class DocumentController {
 
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 
-        try {
-            document = documentPushService.push(document);
-        } catch (Exception e) {
-            logger.error("The documentPushService threw an exception", e);
-            return new ApiResponse(ERROR, e.getMessage());
+        for (ProjectRepository repository : document.getProject().getRepositories()) {
+            try {
+                ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
+            } catch (IOException e) {
+                logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
+                e.printStackTrace();
+            }
         }
 
         simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));

@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,20 +22,25 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.authority.Authority;
 import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectAuthority;
+import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.service.authority.Authority;
+import edu.tamu.app.service.registry.MagpieServiceRegistry;
+import edu.tamu.app.service.repository.Repository;
+import edu.tamu.app.service.suggestor.Suggestor;
 import edu.tamu.app.utilities.FileSystemUtility;
-import edu.tamu.framework.SpringContext;
 import edu.tamu.framework.model.ApiResponse;
 
 @Service
@@ -47,6 +50,7 @@ public class ProjectsService {
 
     private static final String DEFAULT_PROJECT_KEY = "default";
     private static final String METADATA_KEY = "metadata";
+    private static final String REPOSITORIES_KEY = "repositories";
     private static final String AUTHORITIES_KEY = "authorities";
     private static final String SUGGESTORS_KEY = "suggestors";
 
@@ -67,6 +71,9 @@ public class ProjectsService {
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    private MagpieServiceRegistry projectServiceRegistry;
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -121,10 +128,40 @@ public class ProjectsService {
 
             JsonNode projectNode = getProjectNode(projectName);
 
-            Set<String> authorities = new HashSet<String>();
+            // TODO: improve the object mapping for repositories, authorities, and suggestors
+
+            List<ProjectRepository> repositories = new ArrayList<ProjectRepository>();
 
             try {
-                authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<Set<String>>() {
+                repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
+                });
+
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
+
+            try {
+                authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
+                });
+
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();
+
+            try {
+                suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
                 });
             } catch (JsonParseException e) {
                 e.printStackTrace();
@@ -134,20 +171,28 @@ public class ProjectsService {
                 e.printStackTrace();
             }
 
-            Set<String> suggestors = new HashSet<String>();
+            project = projectRepo.create(projectName, repositories, authorities, suggestors);
 
-            try {
-                suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<Set<String>>() {
-                });
-            } catch (JsonParseException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            repositories.forEach(repository -> {
+                Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
+                if (registeredRepository == null) {
+                    projectServiceRegistry.register(repository);
+                }
+            });
 
-            project = projectRepo.create(projectName, authorities, suggestors);
+            authorities.forEach(authority -> {
+                Authority registeredAuthority = (Authority) projectServiceRegistry.getService(authority.getName());
+                if (registeredAuthority == null) {
+                    projectServiceRegistry.register(authority);
+                }
+            });
+
+            suggestors.forEach(suggestor -> {
+                Suggestor registeredSuggestor = (Suggestor) projectServiceRegistry.getService(suggestor.getName());
+                if (registeredSuggestor == null) {
+                    projectServiceRegistry.register(suggestor);
+                }
+            });
 
             try {
                 simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
@@ -181,13 +226,13 @@ public class ProjectsService {
             final Iterable<JsonNode> iterable = () -> getProjectNode(projectName).get(METADATA_KEY).elements();
 
             for (JsonNode metadata : iterable) {
-                String gloss = metadata.get(GLOSS_KEY) == null ? "" : metadata.get(GLOSS_KEY).asText();
-                Boolean isRepeatable = metadata.get(REPEATABLE_KEY) == null ? false : metadata.get(REPEATABLE_KEY).asBoolean();
-                Boolean isReadOnly = metadata.get(READ_ONLY_KEY) == null ? false : metadata.get(READ_ONLY_KEY).asBoolean();
-                Boolean isHidden = metadata.get(HIDDEN_KEY) == null ? false : metadata.get(HIDDEN_KEY).asBoolean();
-                Boolean isRequired = metadata.get(REQUIRED_KEY) == null ? false : metadata.get(REQUIRED_KEY).asBoolean();
-                InputType inputType = InputType.valueOf(metadata.get(INPUT_TYPE_KEY) == null ? "TEXT" : metadata.get(INPUT_TYPE_KEY).asText());
-                String defaultValue = metadata.get(DEFAULT_KEY) == null ? "" : metadata.get(DEFAULT_KEY).asText();
+                String gloss = metadata.get(GLOSS_KEY) != null ? metadata.get(GLOSS_KEY).asText() : "";
+                Boolean isRepeatable = metadata.get(REPEATABLE_KEY) != null ? metadata.get(REPEATABLE_KEY).asBoolean() : false;
+                Boolean isReadOnly = metadata.get(READ_ONLY_KEY) != null ? metadata.get(READ_ONLY_KEY).asBoolean() : false;
+                Boolean isHidden = metadata.get(HIDDEN_KEY) != null ? metadata.get(HIDDEN_KEY).asBoolean() : false;
+                Boolean isRequired = metadata.get(REQUIRED_KEY) != null ? metadata.get(REQUIRED_KEY).asBoolean() : false;
+                InputType inputType = InputType.valueOf(metadata.get(INPUT_TYPE_KEY) != null ? metadata.get(INPUT_TYPE_KEY).asText() : "TEXT");
+                String defaultValue = metadata.get(DEFAULT_KEY) != null ? metadata.get(DEFAULT_KEY).asText() : "";
 
                 FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
                 if (fieldProfile == null) {
@@ -229,10 +274,10 @@ public class ProjectsService {
             }
 
             // get the Authority Beans and populate document with each Authority
-            for (String authority : project.getAuthorities()) {
-                document = ((Authority) SpringContext.bean(authority)).populate(document);
+            for (ProjectAuthority authority : project.getAuthorities()) {
+                ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
             }
-            
+
             document = documentRepo.save(document);
             project.addDocument(document);
 

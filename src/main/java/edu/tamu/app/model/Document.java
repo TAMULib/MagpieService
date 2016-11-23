@@ -21,6 +21,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -70,6 +73,7 @@ public class Document extends BaseEntity {
     private Project project;
 
     @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
     private List<MetadataFieldGroup> fields;
 
     public Document() {
@@ -187,16 +191,16 @@ public class Document extends BaseEntity {
     public void clearFields() {
         fields = new ArrayList<MetadataFieldGroup>();
     }
-    
+
     public MetadataFieldGroup getFieldByLabel(String labelName) {
         MetadataFieldGroup targetField = null;
-        for(MetadataFieldGroup field : fields) {
-            if(field.getLabel().getName().equals(labelName)) {
+        for (MetadataFieldGroup field : fields) {
+            if (field.getLabel().getName().equals(labelName)) {
                 targetField = field;
                 break;
             }
         }
         return targetField;
     }
-    
+
 }
