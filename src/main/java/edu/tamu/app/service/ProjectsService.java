@@ -3,7 +3,6 @@ package edu.tamu.app.service;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +16,9 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,23 +28,40 @@ import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectAuthority;
+import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.model.response.marc.FlatMARC;
-import edu.tamu.app.observer.ProjectFileListener;
+import edu.tamu.app.service.authority.Authority;
+import edu.tamu.app.service.registry.MagpieServiceRegistry;
+import edu.tamu.app.service.repository.Repository;
+import edu.tamu.app.service.suggestor.Suggestor;
 import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.framework.model.ApiResponse;
 
 @Service
 public class ProjectsService {
 
-    private static final Logger logger = Logger.getLogger(ProjectFileListener.class);
+    private static final Logger logger = Logger.getLogger(ProjectsService.class);
 
-    private static final String DEFAULT = "default";
+    private static final String DEFAULT_PROJECT_KEY = "default";
+    private static final String METADATA_KEY = "metadata";
+    private static final String REPOSITORIES_KEY = "repositories";
+    private static final String AUTHORITIES_KEY = "authorities";
+    private static final String SUGGESTORS_KEY = "suggestors";
+
+    private static final String GLOSS_KEY = "gloss";
+    private static final String REPEATABLE_KEY = "repeatable";
+    private static final String READ_ONLY_KEY = "readOnly";
+    private static final String HIDDEN_KEY = "hidden";
+    private static final String REQUIRED_KEY = "required";
+    private static final String INPUT_TYPE_KEY = "inputType";
+    private static final String DEFAULT_KEY = "default";
+    private static final String LABEL_KEY = "label";
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -54,7 +73,7 @@ public class ProjectsService {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    private VoyagerService voyagerService;
+    private MagpieServiceRegistry projectServiceRegistry;
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -71,9 +90,6 @@ public class ProjectsService {
     @Autowired
     private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
-    @Autowired
-    private MetadataFieldValueRepo metadataFieldValueRepo;
-
     @Value("${app.host}")
     private String host;
 
@@ -86,10 +102,10 @@ public class ProjectsService {
 
     private JsonNode projectsNode = null;
 
-    public JsonNode readProjectNode() {
+    public JsonNode readProjectsNode() {
         String json = null;
         try {
-            json = new String(Files.readAllBytes(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:config").getURL().getPath() + "/metadata.json")));
+            json = new String(Files.readAllBytes(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:config").getURL().getPath() + "/projects.json")));
         } catch (IOException e) {
             logger.error("Error reading metadata json file", e);
         }
@@ -103,13 +119,81 @@ public class ProjectsService {
         return projectsNode;
     }
 
-    public Project createProject(String projectName) {
+    public synchronized Project getProject(String projectName) {
         Project project = projects.get(projectName);
         if (project == null) {
             project = projectRepo.findByName(projectName);
         }
         if (project == null) {
-            project = projectRepo.create(projectName);
+
+            JsonNode projectNode = getProjectNode(projectName);
+
+            // TODO: improve the object mapping for repositories, authorities, and suggestors
+
+            List<ProjectRepository> repositories = new ArrayList<ProjectRepository>();
+
+            try {
+                repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
+                });
+
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
+
+            try {
+                authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
+                });
+
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();
+
+            try {
+                suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
+                });
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            project = projectRepo.create(projectName, repositories, authorities, suggestors);
+
+            repositories.forEach(repository -> {
+                Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
+                if (registeredRepository == null) {
+                    projectServiceRegistry.register(repository);
+                }
+            });
+
+            authorities.forEach(authority -> {
+                Authority registeredAuthority = (Authority) projectServiceRegistry.getService(authority.getName());
+                if (registeredAuthority == null) {
+                    projectServiceRegistry.register(authority);
+                }
+            });
+
+            suggestors.forEach(suggestor -> {
+                Suggestor registeredSuggestor = (Suggestor) projectServiceRegistry.getService(suggestor.getName());
+                if (registeredSuggestor == null) {
+                    projectServiceRegistry.register(suggestor);
+                }
+            });
+
             try {
                 simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
             } catch (Exception e) {
@@ -120,43 +204,46 @@ public class ProjectsService {
         return project;
     }
 
-    public JsonNode getProfileNode(String projectName) {
+    public JsonNode getProjectNode(String projectName) {
         JsonNode profileNode = null;
         if (projectsNode == null) {
-            projectsNode = readProjectNode();
+            projectsNode = readProjectsNode();
         }
         profileNode = projectsNode.get(projectName);
         if (profileNode == null) {
-            profileNode = projectsNode.get(DEFAULT);
+            profileNode = projectsNode.get(DEFAULT_PROJECT_KEY);
         }
         return profileNode;
     }
 
-    public List<MetadataFieldGroup> getProjectFields(String projectName) {
+    public synchronized List<MetadataFieldGroup> getProjectFields(String projectName) {
         List<MetadataFieldGroup> projectFields = fields.get(projectName);
         if (projectFields == null) {
             projectFields = new ArrayList<MetadataFieldGroup>();
-            final Project project = createProject(projectName);
-            final Iterable<JsonNode> iterable = () -> getProfileNode(projectName).elements();
+
+            final Project project = getProject(projectName);
+
+            final Iterable<JsonNode> iterable = () -> getProjectNode(projectName).get(METADATA_KEY).elements();
+
             for (JsonNode metadata : iterable) {
-                String gloss = metadata.get("gloss") == null ? "" : metadata.get("gloss").asText();
-                Boolean isRepeatable = metadata.get("repeatable") == null ? false : metadata.get("repeatable").asBoolean();
-                Boolean isReadOnly = metadata.get("readOnly") == null ? false : metadata.get("readOnly").asBoolean();
-                Boolean isHidden = metadata.get("hidden") == null ? false : metadata.get("hidden").asBoolean();
-                Boolean isRequired = metadata.get("required") == null ? false : metadata.get("required").asBoolean();
-                InputType inputType = InputType.valueOf(metadata.get("inputType") == null ? "TEXT" : metadata.get("inputType").asText());
-                String defaultValue = metadata.get("default") == null ? "" : metadata.get("default").asText();
+                String gloss = metadata.get(GLOSS_KEY) != null ? metadata.get(GLOSS_KEY).asText() : "";
+                Boolean isRepeatable = metadata.get(REPEATABLE_KEY) != null ? metadata.get(REPEATABLE_KEY).asBoolean() : false;
+                Boolean isReadOnly = metadata.get(READ_ONLY_KEY) != null ? metadata.get(READ_ONLY_KEY).asBoolean() : false;
+                Boolean isHidden = metadata.get(HIDDEN_KEY) != null ? metadata.get(HIDDEN_KEY).asBoolean() : false;
+                Boolean isRequired = metadata.get(REQUIRED_KEY) != null ? metadata.get(REQUIRED_KEY).asBoolean() : false;
+                InputType inputType = InputType.valueOf(metadata.get(INPUT_TYPE_KEY) != null ? metadata.get(INPUT_TYPE_KEY).asText() : "TEXT");
+                String defaultValue = metadata.get(DEFAULT_KEY) != null ? metadata.get(DEFAULT_KEY).asText() : "";
 
                 FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
                 if (fieldProfile == null) {
                     fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
                 }
 
-                String label = metadata.get("label").asText();
+                String labelName = metadata.get(LABEL_KEY).asText();
 
-                MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByName(label);
+                MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(labelName, fieldProfile);
                 if (metadataFieldLabel == null) {
-                    metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
+                    metadataFieldLabel = metadataFieldLabelRepo.create(labelName, fieldProfile);
                 }
 
                 projectFields.add(new MetadataFieldGroup(metadataFieldLabel));
@@ -169,10 +256,10 @@ public class ProjectsService {
         return projectFields;
     }
 
-    public void createDocument(String projectName, String documentName) {
+    public synchronized void createDocument(String projectName, String documentName) {
 
-        if ((documentRepo.findByName(documentName) == null)) {
-            final Project project = createProject(projectName);
+        if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
+            final Project project = getProject(projectName);
 
             String pdfPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf";
             String txtPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf.txt";
@@ -182,30 +269,20 @@ public class ProjectsService {
 
             Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, "Open");
 
-            getProjectFields(projectName).parallelStream().forEach(field -> {
+            for (MetadataFieldGroup field : getProjectFields(projectName)) {
                 document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
-            });
-
-            try {
-                Map<String, List<String>> metadataMap = getMARCRecordMetadata(document.getName());
-
-                document.getFields().parallelStream().forEach(field -> {
-                    List<String> values = metadataMap.get(field.getLabel().getName());
-                    if (values != null) {
-                        values.forEach(value -> {
-                            field.addValue(metadataFieldValueRepo.create(value, field));
-                        });
-                    }
-                });
-
-            } catch (Exception e) {
-                logger.debug("MARC record does not exist: " + documentName);
             }
 
-            project.addDocument(documentRepo.save(document));
+            // get the Authority Beans and populate document with each Authority
+            for (ProjectAuthority authority : project.getAuthorities()) {
+                ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
+            }
+
+            document = documentRepo.save(document);
+            project.addDocument(document);
 
             try {
-                simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
+                simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));
             } catch (Exception e) {
                 logger.error("Error broadcasting new document", e);
             }
@@ -214,43 +291,6 @@ public class ProjectsService {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<String, List<String>> getMARCRecordMetadata(String documentName) throws Exception {
-        FlatMARC flatMarc = new FlatMARC(voyagerService.getMARC(documentName));
-
-        Field[] marcFields = FlatMARC.class.getDeclaredFields();
-
-        Map<String, List<String>> metadataMap = new HashMap<String, List<String>>();
-
-        for (Field field : marcFields) {
-            field.setAccessible(true);
-            List<String> marcList = new ArrayList<String>();
-            if (field.getGenericType().toString().equals("java.util.List<java.lang.String>")) {
-                try {
-                    for (String string : (List<String>) field.get(flatMarc)) {
-                        marcList.add(string);
-                    }
-                } catch (IllegalArgumentException e) {
-                    logger.error("Illegal Argument", e);
-                } catch (IllegalAccessException e) {
-                    logger.error("Illegal Access", e);
-                }
-            } else {
-                try {
-                    marcList.add(field.get(flatMarc).toString());
-                } catch (IllegalArgumentException e) {
-                    logger.error("Illegal Argument", e);
-                } catch (IllegalAccessException e) {
-                    logger.error("Illegal Access", e);
-                }
-            }
-
-            metadataMap.put(field.getName().replace('_', '.'), marcList);
-        }
-
-        return metadataMap;
-    }
-    
     public void clear() {
         projects = new HashMap<String, Project>();
         fields = new HashMap<String, List<MetadataFieldGroup>>();

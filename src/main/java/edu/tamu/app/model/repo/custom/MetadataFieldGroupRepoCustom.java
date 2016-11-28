@@ -1,5 +1,5 @@
 /* 
- * CustomMetadataFieldRepo.java 
+ * MetadataFieldGroupRepoCustom.java 
  * 
  * Version: 
  *     $Id$ 
@@ -22,9 +22,5 @@ import edu.tamu.app.model.MetadataFieldLabel;
 public interface MetadataFieldGroupRepoCustom {
 
     public MetadataFieldGroup create(Document document, MetadataFieldLabel label);
-
-    public void delete(MetadataFieldGroup value);
-
-    public void deleteAll();
 
 }

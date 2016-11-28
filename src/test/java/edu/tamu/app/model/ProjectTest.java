@@ -9,14 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.tdl.vireo.annotations.Order;
-import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.annotations.Order;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.runner.OrderedRunner;
 
 @WebAppConfiguration
 @ActiveProfiles({ "test" })
@@ -87,7 +87,7 @@ public class ProjectTest {
 
         projectRepo.delete(testProject);
 
-        Assert.assertEquals("Test Document was deleted.", 1, documentRepo.count());
+        Assert.assertEquals("Test Document was not deleted.", 0, documentRepo.count());
     }
 
     @After

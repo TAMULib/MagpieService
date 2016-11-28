@@ -9,15 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.tdl.vireo.annotations.Order;
-import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.runner.OrderedRunner;
 
 @WebAppConfiguration
 @ActiveProfiles({ "test" })

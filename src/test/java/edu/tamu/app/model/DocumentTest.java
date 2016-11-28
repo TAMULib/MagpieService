@@ -9,22 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.tdl.vireo.annotations.Order;
-import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
-import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.MetadataFieldLabel;
-import edu.tamu.app.model.Project;
-import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.runner.OrderedRunner;
 
 @WebAppConfiguration
 @ActiveProfiles({ "test" })
@@ -72,9 +67,9 @@ public class DocumentTest {
     @Test
     @Order(2)
     public void testFindDocument() {
-        Assert.assertEquals("Test Document already exists.", null, documentRepo.findByName("testFile"));
+        Assert.assertEquals("Test Document already exists.", null, documentRepo.findByProjectNameAndName(testProject.getName(), "testFile"));
         documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
-        Document testDocument = documentRepo.findByName(mockDocument.getName());
+        Document testDocument = documentRepo.findByProjectNameAndName(mockDocument.getProject().getName(), mockDocument.getName());
         Assert.assertEquals("Test Document was not found.", mockDocument.getName(), testDocument.getName());
     }
 
@@ -106,12 +101,22 @@ public class DocumentTest {
         Assert.assertEquals("Test MetadataField was not created.", 1, metadataFieldGroupRepo.count());
 
         Assert.assertEquals("MetadataFieldValue repository is not empty.", 0, metadataFieldValueRepo.count());
-        metadataFieldValueRepo.create("test", testField);
+        MetadataFieldValue fieldValue = metadataFieldValueRepo.create("test", testField);
         Assert.assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
-
+        
+        testField.addValue(fieldValue);
+        
         testDocument.addField(testField);
 
         testDocument = documentRepo.save(testDocument);
+        
+        
+        Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
+        
+        Assert.assertEquals("Test Document had an incorrect number of fields.", 1, testDocument.getFields().size());
+        
+        Assert.assertEquals("Test Document's field had an incorrect number of values.", 1, testDocument.getFields().get(0).getValues().size());
+        
 
         documentRepo.delete(testDocument);
 

@@ -17,5 +17,5 @@ package edu.tamu.app.enums;
  * 
  */
 public enum InputType {
-    TEXTAREA, TEXT
+    SUGGESTION, TEXTAREA, TEXT
 }

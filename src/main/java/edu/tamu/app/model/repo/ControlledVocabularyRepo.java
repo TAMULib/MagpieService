@@ -28,10 +28,4 @@ public interface ControlledVocabularyRepo extends JpaRepository<ControlledVocabu
 
     public ControlledVocabulary findByValue(String value);
 
-    @Override
-    public void delete(ControlledVocabulary cv);
-
-    @Override
-    public void deleteAll();
-
 }

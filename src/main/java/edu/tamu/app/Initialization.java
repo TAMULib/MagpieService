@@ -62,14 +62,14 @@ public class Initialization implements CommandLineRunner {
             }
         }
 
-        syncService.sync();
-
         String root = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath());
 
         fileObserverRegistry.register(new ProjectFileListener(root, "projects"));
         fileObserverRegistry.register(new MapFileListener(root, "maps"));
 
         fileMonitorManager.start();
+
+        syncService.sync();
 
     }
 

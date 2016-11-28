@@ -15,16 +15,16 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.tdl.vireo.annotations.Order;
-import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.annotations.Order;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.runner.OrderedRunner;
 import edu.tamu.app.service.ProjectsService;
 import edu.tamu.app.utilities.FileSystemUtility;
     
@@ -113,7 +113,7 @@ import edu.tamu.app.utilities.FileSystemUtility;
             assertNotNull("The dissertation project was not created!", projectRepo.findByName("dissertation"));
     
             assertEquals("The document repo has the incorrect number of documents!", 1, documentRepo.count());
-            assertNotNull("The dissertation_0 document was not created!", documentRepo.findByName("dissertation_0"));
+            assertNotNull("The dissertation_0 document was not created!", documentRepo.findByProjectNameAndName("dissertation", "dissertation_0"));
         }
     
         @After

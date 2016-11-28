@@ -1,5 +1,5 @@
 /* 
- * CustomProjectRepo.java 
+ * ProjectRepoCustom.java 
  * 
  * Version: 
  *     $Id$ 
@@ -9,7 +9,12 @@
  */
 package edu.tamu.app.model.repo.custom;
 
+import java.util.List;
+
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectAuthority;
+import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.ProjectSuggestor;
 
 /**
  * 
@@ -21,8 +26,6 @@ public interface ProjectRepoCustom {
 
     public Project create(String name);
 
-    public void delete(Project project);
-
-    public void deleteAll();
+    public Project create(String name, List<ProjectRepository> repositories, List<ProjectAuthority> authorities, List<ProjectSuggestor> suggestors);
 
 }

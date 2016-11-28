@@ -11,29 +11,30 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.tdl.vireo.annotations.Order;
-import org.tdl.vireo.runner.OrderedRunner;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.runner.OrderedRunner;
 
 @WebAppConfiguration
 @ActiveProfiles({ "test" })
@@ -74,12 +75,12 @@ public class CsvUtilityTest {
 		
 		FieldProfile profile = projectFieldProfileRepo.create(testProject, "Date Created", false, false, false, false, InputType.TEXT, null);
 		MetadataFieldLabel dateCreatedLabel = metadataFieldLabelRepo.create("dc.date.created", profile);
-		MetadataFieldGroup dateCreatedFields = metadataFieldGroupRepo.create(mockDocument, dateCreatedLabel);
-		MetadataFieldValue dateCreatedValue = metadataFieldValueRepo.create("1962", dateCreatedFields);
+		MetadataFieldGroup dateCreatedFieldGroup = metadataFieldGroupRepo.create(mockDocument, dateCreatedLabel);
+		MetadataFieldValue dateCreatedValue = metadataFieldValueRepo.create("1962", dateCreatedFieldGroup);
 
-		dateCreatedFields.addValue(dateCreatedValue);
+		dateCreatedFieldGroup.addValue(dateCreatedValue);
 
-		mockDocument.addField(dateCreatedFields);
+		mockDocument.addField(dateCreatedFieldGroup);
 		mockDocument.setPublishedUriString("http://hdl.handle.net/1969.1/12345");
 		
 		List<List<String>> csvContents = csvUtility.generateOneArchiveMaticaCSV(mockDocument, "temp");
@@ -101,5 +102,14 @@ public class CsvUtilityTest {
 		
 		FileUtils.deleteDirectory(new File("temp"));
 	}
+	
+	@After
+    public void cleanUp() {
+        metadataFieldValueRepo.deleteAll();
+        metadataFieldLabelRepo.deleteAll();
+        metadataFieldGroupRepo.deleteAll();
+        documentRepo.deleteAll();
+        projectRepo.deleteAll();
+    }
 
 }

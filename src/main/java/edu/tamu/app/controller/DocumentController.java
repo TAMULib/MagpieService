@@ -9,9 +9,9 @@
  */
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -22,21 +22,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.response.marc.FlatMARC;
-import edu.tamu.app.service.DocumentPushService;
-import edu.tamu.app.service.VoyagerService;
+import edu.tamu.app.service.registry.MagpieServiceRegistry;
+import edu.tamu.app.service.repository.Repository;
 import edu.tamu.framework.aspect.annotation.ApiData;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
+import edu.tamu.framework.aspect.annotation.ApiModel;
 import edu.tamu.framework.aspect.annotation.ApiVariable;
 import edu.tamu.framework.aspect.annotation.Auth;
 import edu.tamu.framework.model.ApiResponse;
@@ -52,35 +52,15 @@ import edu.tamu.framework.model.ApiResponse;
 public class DocumentController {
 
     @Autowired
-    private VoyagerService voyagerService;
-
-    @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     private DocumentRepo documentRepo;
 
     @Autowired
-    private DocumentPushService documentPushService;
+    private MagpieServiceRegistry projectServiceRegistry;
 
     private static final Logger logger = Logger.getLogger(DocumentController.class);
-
-    /**
-     * Endpoint to return marc record.
-     * 
-     * @param bibId
-     * @ApiVariable String
-     * 
-     * @return ApiResponse
-     * 
-     * @throws Exception
-     * 
-     */
-    @ApiMapping("/marc/{bibId}")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse getMARC(@ApiVariable String bibId) throws Exception {
-        return new ApiResponse(SUCCESS, new FlatMARC(voyagerService.getMARC(bibId)));
-    }
 
     /**
      * Endpoint to return all documents.
@@ -88,9 +68,8 @@ public class DocumentController {
      * @return ApiResponse
      * 
      */
-    @MessageMapping("/all")
+    @ApiMapping("/all")
     @Auth(role = "ROLE_USER")
-    @SendToUser
     public ApiResponse allDocuments() {
         return new ApiResponse(SUCCESS, documentRepo.findAll());
     }
@@ -104,10 +83,10 @@ public class DocumentController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/get/{name}")
+    @ApiMapping("/get/{projectName}/{documentName}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse documentByName(@ApiVariable String name) {
-        return new ApiResponse(SUCCESS, documentRepo.findByName(name));
+    public ApiResponse documentByName(@ApiVariable String projectName, @ApiVariable String documentName) {
+        return new ApiResponse(SUCCESS, documentRepo.findByProjectNameAndName(projectName, documentName));
     }
 
     /**
@@ -153,36 +132,6 @@ public class DocumentController {
     }
 
     /**
-     * Endpoint to update document status or annotator.
-     * 
-     * @param data
-     * @ApiData Map<String, String>
-     * 
-     * @return ApiResponse
-     * 
-     */
-    @ApiMapping("/update")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse update(@ApiData Map<String, String> data) {
-
-        int results;
-
-        if (data.get("user") != null) {
-            results = documentRepo.quickSave(data.get("name"), (data.get("status").equals("Open")) ? "" : data.get("user"), data.get("status"), data.get("notes"));
-        } else {
-            results = documentRepo.quickUpdateStatus(data.get("name"), data.get("status"));
-        }
-
-        if (results < 1) {
-            return new ApiResponse(ERROR, "Document not updated");
-        }
-
-        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
-
-        return new ApiResponse(SUCCESS);
-    }
-
-    /**
      * Endpoint to save document.
      * 
      * @param document
@@ -193,17 +142,15 @@ public class DocumentController {
      */
     @ApiMapping("/save")
     @Auth(role = "ROLE_USER")
-    public ApiResponse save(@ApiData Document document) {
-
-        documentRepo.update(document);
-
-        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
-
+    @Transactional // without this a save with a field value removed results in it not being removed
+    public ApiResponse save(@ApiModel Document document) {
+        document = documentRepo.save(document);
+        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));
         return new ApiResponse(SUCCESS);
     }
 
     /**
-     * Endpoint to save document.
+     * Endpoint to push document to IR.
      * 
      * @param name
      * @ApiVariable String
@@ -211,20 +158,22 @@ public class DocumentController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/push/{name}")
+    @ApiMapping("/push/{projectName}/{documentName}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse push(@ApiVariable String name) {
+    public ApiResponse push(@ApiVariable String projectName, @ApiVariable String documentName) {
 
-        Document document = documentRepo.findByName(name);
+        Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 
-        try {
-            document = documentPushService.push(document);
-        } catch (Exception e) {
-            logger.error("The documentPushService threw an exception", e);
-            return new ApiResponse(ERROR, e.getMessage());
+        for (ProjectRepository repository : document.getProject().getRepositories()) {
+            try {
+                ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
+            } catch (IOException e) {
+                logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
+                e.printStackTrace();
+            }
         }
 
-        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS));
+        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));
 
         return new ApiResponse(SUCCESS, "Your item has been successfully published", document);
     }

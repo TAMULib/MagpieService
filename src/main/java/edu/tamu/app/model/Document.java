@@ -9,8 +9,8 @@
  */
 package edu.tamu.app.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,6 +18,11 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -32,38 +37,48 @@ import edu.tamu.framework.model.BaseEntity;
  *
  */
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "project_id" }))
 public class Document extends BaseEntity {
 
-    @Column(unique = true)
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String status;
 
+    @Column(nullable = true)
     private String annotator;
 
+    @Column(nullable = true)
     private String notes;
 
+    @Column(nullable = true)
     private String txtUri;
 
+    @Column(nullable = true)
     private String pdfUri;
 
+    @Column(nullable = true)
     private String pdfPath;
 
+    @Column(nullable = true)
     private String txtPath;
 
+    @Column(nullable = true)
     private String publishedUriString;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name")
     @JsonIdentityReference(alwaysAsId = true)
     private Project project;
 
-    @OneToMany(mappedBy = "document", cascade = { CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REMOVE, CascadeType.REFRESH }, fetch = FetchType.EAGER, orphanRemoval = true)
-    private Set<MetadataFieldGroup> fields;
+    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
+    private List<MetadataFieldGroup> fields;
 
     public Document() {
         publishedUriString = null;
-        fields = new HashSet<MetadataFieldGroup>();
+        fields = new ArrayList<MetadataFieldGroup>();
     }
 
     public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
@@ -157,11 +172,11 @@ public class Document extends BaseEntity {
         this.project = project;
     }
 
-    public Set<MetadataFieldGroup> getFields() {
+    public List<MetadataFieldGroup> getFields() {
         return fields;
     }
 
-    public void setFields(Set<MetadataFieldGroup> fields) {
+    public void setFields(List<MetadataFieldGroup> fields) {
         this.fields = fields;
     }
 
@@ -174,6 +189,18 @@ public class Document extends BaseEntity {
     }
 
     public void clearFields() {
-        fields = new HashSet<MetadataFieldGroup>();
+        fields = new ArrayList<MetadataFieldGroup>();
     }
+
+    public MetadataFieldGroup getFieldByLabel(String labelName) {
+        MetadataFieldGroup targetField = null;
+        for (MetadataFieldGroup field : fields) {
+            if (field.getLabel().getName().equals(labelName)) {
+                targetField = field;
+                break;
+            }
+        }
+        return targetField;
+    }
+
 }

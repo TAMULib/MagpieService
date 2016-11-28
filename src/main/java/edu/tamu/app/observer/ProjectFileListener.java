@@ -28,7 +28,7 @@ public class ProjectFileListener extends AbstractFileListener {
     private void createProject(File directory) {
         String projectName = getName(directory);
         logger.info("Creating project " + projectName);
-        projectService.createProject(projectName);
+        projectService.getProject(projectName);
     }
 
     private void createDocument(File directory) {

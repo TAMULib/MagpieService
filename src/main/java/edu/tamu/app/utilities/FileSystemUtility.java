@@ -59,21 +59,21 @@ public class FileSystemUtility {
         }
         return fileNames;
     }
-    
+
     public static void createDirectory(String path) throws IOException {
         Path newDirectoryPath = getWindowsSafePath(path);
         if (!Files.exists(newDirectoryPath)) {
             Files.createDirectory(newDirectoryPath);
         }
     }
-    
+
     public static void createFile(String path, String name) throws IOException {
         Path newFilePath = getWindowsSafePath(path, name);
         if (!Files.exists(newFilePath)) {
             Files.createFile(newFilePath);
         }
     }
-    
+
     public static void deleteDirectory(String path) throws IOException {
         Path directory = getWindowsSafePath(path);
         Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
@@ -93,19 +93,19 @@ public class FileSystemUtility {
     }
 
     public static Path getWindowsSafePath(String path) {
-    	return Paths.get(getWindowsSafePathString(path));
+        return Paths.get(getWindowsSafePathString(path));
     }
 
     public static Path getWindowsSafePath(String path, String name) {
-    	return Paths.get(getWindowsSafePathString(path), name);
+        return Paths.get(getWindowsSafePathString(path), name);
     }
 
     public static String getWindowsSafePathString(String path) {
-	//note that a Windows path will contain one and only one colon character
-    	if (path.contains(":") && path.charAt(0) == '/') {
-			path = path.substring(1, path.length());
-		}
-    	return path;
+        // note that a Windows path will contain one and only one colon character
+        if (path.contains(":") && path.charAt(0) == '/') {
+            path = path.substring(1, path.length());
+        }
+        return path;
     }
 
 }

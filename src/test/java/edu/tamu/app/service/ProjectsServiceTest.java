@@ -15,12 +15,11 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.tdl.vireo.annotations.Order;
-import org.tdl.vireo.runner.OrderedRunner;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.annotations.Order;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -29,6 +28,7 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.runner.OrderedRunner;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 @WebAppConfiguration
@@ -67,22 +67,23 @@ public class ProjectsServiceTest {
     @Test
     @Order(1)
     public void testReadProjectNode() {
-        JsonNode projectsNode = projectsService.readProjectNode();
+        JsonNode projectsNode = projectsService.readProjectsNode();
         assertNotNull("The projects node was not read!", projectsNode);
     }
 
     @Test
     @Order(2)
-    public void testCreateProject() {
-        Project project = projectsService.createProject("dissertation");
+    public void testGetProject() {
+        Project project = projectsService.getProject("dissertation");
         assertNotNull("The project was not created!", project);
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
+        assertEquals("The project has the incorrect number of authorities!", 1, project.getAuthorities().size());
     }
 
     @Test
     @Order(3)
-    public void testGetProfileNode() {
-        JsonNode profileNode = projectsService.getProfileNode("dissertation");
+    public void testGetProjectNode() {
+        JsonNode profileNode = projectsService.getProjectNode("dissertation");
         assertNotNull("The profile node was not retrieved!", profileNode);
     }
 
@@ -111,7 +112,7 @@ public class ProjectsServiceTest {
         assertNotNull("The dissertation project was not created!", projectRepo.findByName("dissertation"));
 
         assertEquals("The document repo has the incorrect number of documents!", 1, documentRepo.count());
-        assertNotNull("The dissertation_0 document was not created!", documentRepo.findByName("dissertation_0"));
+        assertNotNull("The dissertation_0 document was not created!", documentRepo.findByProjectNameAndName("dissertation", "dissertation_0"));
     }
 
     @After

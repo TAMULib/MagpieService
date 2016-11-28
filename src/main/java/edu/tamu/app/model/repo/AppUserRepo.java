@@ -1,5 +1,5 @@
 /* 
- * UserRepo.java 
+ * AppUserRepo.java 
  * 
  * Version: 
  *     $Id$ 

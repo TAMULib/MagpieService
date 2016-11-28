@@ -1,9 +1,10 @@
-package org.tdl.vireo.runner;
+package edu.tamu.app.runner;
 
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.tdl.vireo.annotations.Order;
+
+import edu.tamu.app.annotations.Order;
 
 import java.util.ArrayList;
 import java.util.Collections;

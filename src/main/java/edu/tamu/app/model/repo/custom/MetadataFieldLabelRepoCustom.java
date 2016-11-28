@@ -1,5 +1,5 @@
 /* 
- * CustomMetadataFieldLabelRepo.java 
+ * MetadataFieldLabelRepoCustom.java 
  * 
  * Version: 
  *     $Id$ 
@@ -9,8 +9,8 @@
  */
 package edu.tamu.app.model.repo.custom;
 
-import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.FieldProfile;
+import edu.tamu.app.model.MetadataFieldLabel;
 
 /**
  * 
@@ -21,9 +21,5 @@ import edu.tamu.app.model.FieldProfile;
 public interface MetadataFieldLabelRepoCustom {
 
     public MetadataFieldLabel create(String name, FieldProfile profile);
-
-    public void delete(MetadataFieldLabel label);
-
-    public void deleteAll();
 
 }
