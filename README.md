@@ -282,7 +282,7 @@ Below is a sample for metadata json file
                {
                   "key":"pelicanUrl",
                   "values":[
-                     "http://janus.evans.tamu.edu:9001/nalt/suggestions"
+                     "http://localhost:9001/nalt/suggestions"
                   ]
                },
                {
