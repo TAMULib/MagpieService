@@ -1,14 +1,15 @@
 package edu.tamu.app.service.authority;
 
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,50 +24,38 @@ public class CSVAuthority implements Authority {
 
     private static final Logger logger = Logger.getLogger(CSVAuthority.class);
 
-    private static final String[] headers = new String[] {
-        "filename",
-        "dc.creator",
-        "dc.title",
-        "dc.relation.ispartof",
-        "dc.publisher",
-        "dc.date.issued",
-        "dc.description.tableofcontents",
-        "dc.subject",
-        "subject.lcsh",
-        "dc.subject.nalt",
-        "dc.description",
-        "dc.language",
-        "dc.type",
-        "dc.format",
-        "dc.coverage.spatial",
-        "dc.audience"
-    };
+    private String identifier;
 
     private String delimeter;
 
     private List<String> paths;
+    
+    private Map<String, String[]> headers;
 
     private Map<String, Map<String, CSVRecord>> records;
 
     @Autowired
     private ResourceLoader resourceLoader;
 
-    public CSVAuthority(List<String> paths, String delimeter) {
+    public CSVAuthority(List<String> paths, String identifier, String delimeter) {
         this.paths = paths;
+        this.identifier = identifier;
         this.delimeter = delimeter;
+        headers = new HashMap<String, String[]>();
         records = new HashMap<String, Map<String, CSVRecord>>();
     }
 
     @Override
     public Document populate(Document document) {
         paths.forEach(path -> {
-            if (records.get(path) == null) {
+            if (this.records.get(path) == null) {
                 cacheRecords(path);
             }
-            CSVRecord record = records.get(path).get(document.getName());
+            String[] headers = this.headers.get(path);
+            CSVRecord record = this.records.get(path).get(document.getName());
             if (record != null) {
                 for (String header : headers) {
-                    if (header.equals("filename")) {
+                    if (header.equals(identifier)) {
                         continue;
                     }
                     String cellValue = record.get(header);
@@ -85,6 +74,9 @@ public class CSVAuthority implements Authority {
                             }
                         }
                     }
+                    else {
+                        logger.debug("No row with header: " + header);
+                    }
                 }
             }
         });
@@ -93,21 +85,55 @@ public class CSVAuthority implements Authority {
 
     private void cacheRecords(String path) {
         logger.info("Caching " + path);
-        try {
-            Map<String, CSVRecord> currentRecords = new HashMap<String, CSVRecord>();
-            String absoluteCsvPath = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:" + path).getURL().getPath());
-            CSVFormat.RFC4180.withHeader(headers).parse(new InputStreamReader(new FileInputStream(absoluteCsvPath))).forEach(record -> {
-                String filename = record.get(headers[0]);
+        try {            
+            CSVParser csvParser;            
+            if (this.headers.get(path) == null) {
+                logger.info("Getting headers from " + path);
+                csvParser = getParser(path);
+                this.headers.put(path, getHeaders(csvParser.getRecords().get(0)));
+                csvParser.close();
+            }
+            
+            Map<String, CSVRecord> currentRecords = new HashMap<String, CSVRecord>();               
+            csvParser = getParser(path);            
+            csvParser.getRecords().forEach(record -> {
+                String filename = record.get(identifier);
                 if (filename != null) {
                     currentRecords.put(filename, record);
                 } else {
                     logger.info("Record without filename found!");
                 }
-            });
+            });            
+            csvParser.close();
+            
             records.put(path, currentRecords);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String[] getHeaders(CSVRecord headersRecord) {
+        String[] headers = new String[headersRecord.size()];
+        for (int i = 0; i < headersRecord.size(); i++) {
+            headers[i] = headersRecord.get(i);
+        }
+        return headers;
+    }
+
+    private String getCsvAbsolutePath(String path) throws IOException {
+        return FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:" + path).getURL().getPath());
+    }
+
+    private CSVParser getParser(String path) throws FileNotFoundException, IOException {
+        CSVParser csvParser;
+        String[] headers = this.headers.get(path);
+        if(headers == null) {
+            csvParser = new CSVParser(new FileReader(getCsvAbsolutePath(path)), CSVFormat.RFC4180);
+        }
+        else {
+            csvParser = new CSVParser(new FileReader(getCsvAbsolutePath(path)), CSVFormat.RFC4180.withHeader(headers));
+        }
+        return csvParser;
     }
 
 }

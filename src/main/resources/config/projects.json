@@ -262,6 +262,12 @@
                   ]
                },
                {
+                  "key":"identifier",
+                  "values":[
+                     "filename"
+                  ]
+               },
+               {
                   "key":"delimeter",
                   "values":[
                      "||"
