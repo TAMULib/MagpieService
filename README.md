@@ -211,7 +211,7 @@ Below is a sample for metadata json file
    },
    "taes_misc_publication":{
       "repositories":[
-				{
+        {
             "name":"DSpace for TAES Misc Publications",
             "type":"DSPACE",
             "settings":[
