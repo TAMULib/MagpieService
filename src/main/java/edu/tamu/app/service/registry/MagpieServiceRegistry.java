@@ -55,7 +55,8 @@ public class MagpieServiceRegistry {
         case CSV:
             service = (MagpieService) new CSVAuthority(
                     projectService.getSettingValues("paths"),
-                    projectService.getSettingValues("delimeter").size() > 0 ? projectService.getSettingValues("delimeter").get(0) : "");
+                    projectService.getSettingValues("identifier").size() > 0 ? projectService.getSettingValues("identifier").get(0) : "filename",
+                    projectService.getSettingValues("delimeter").size() > 0 ? projectService.getSettingValues("delimeter").get(0) : "||");
             break;
         case NALT:
             service = (MagpieService) new NALTSuggestor(
