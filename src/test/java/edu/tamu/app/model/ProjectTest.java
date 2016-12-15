@@ -1,5 +1,7 @@
 package edu.tamu.app.model;
 
+import java.util.ArrayList;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -76,7 +78,7 @@ public class ProjectTest {
         Assert.assertEquals("Test Project was not created.", 1, projectRepo.count());
 
         Assert.assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
-        Document testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");
+        Document testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
         Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 
         testProject.addDocument(testDocument);

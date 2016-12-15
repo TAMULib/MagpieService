@@ -416,6 +416,85 @@
          }
       ]
    },
+   "fedora_spotlight_exhibit":{
+      "repositories":[
+      {
+            "name":"Fedora",
+            "type":"FEDORA",
+            "settings":[
+               {
+                  "key":"repoUrl",
+                  "values":[
+                     "http://localhost:8080"
+                  ]
+               },
+               {
+                  "key":"restPath",
+                  "values":[
+                     "fcrepo/rest"
+                  ]
+               },
+               {
+                  "key":"containerPath",
+                  "values":[
+                     "spotlight_exhibit4"
+                  ]
+               },
+               {
+                  "key":"userName",
+                  "values":[
+                     "fedoraAdmin"
+                  ]
+               },
+               {
+                  "key":"password",
+                  "values":[
+                     "secret3"
+                  ]
+               }
+            ]
+         }
+      ],
+      "authorities":[
+         {
+            "name":"Exhibit Metadata",
+            "type":"CSV",
+            "settings":[
+               {
+                  "key":"paths",
+                  "values":[
+                     "config/csv/Fedora-Exhibit.csv"
+                  ]
+               },
+               {
+                  "key":"identifier",
+                  "values":[
+                     "filename"
+                  ]
+               },
+               {
+                  "key":"delimeter",
+                  "values":[
+                     "||"
+                  ]
+               }
+            ]
+         }
+      ],
+      "suggestors":[],
+      "metadata":[
+         {
+            "label":"dc.title",
+            "gloss":"Title",
+            "inputType":"TEXTAREA"
+         },
+         {
+            "label":"dc.description",
+            "gloss":"Description",
+            "inputType":"TEXTAREA"
+         }
+      ]
+   },
    "default":{
       "repositories":[
 

@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.model.repo.custom;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ import edu.tamu.app.model.Project;
  */
 public interface DocumentRepoCustom {
 
-    public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
+    public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String documentPath, String status);
 
     public Page<Document> pageableDynamicDocumentQuery(Map<String, String[]> filters, Pageable pageable);
 

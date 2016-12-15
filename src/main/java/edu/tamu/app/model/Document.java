@@ -63,7 +63,10 @@ public class Document extends BaseEntity {
 
     @Column(nullable = true)
     private String txtPath;
-
+    
+    @Column(nullable=true)
+    private String documentPath;
+    
     @Column(nullable = true)
     private String publishedUriString;
 
@@ -81,15 +84,16 @@ public class Document extends BaseEntity {
         fields = new ArrayList<MetadataFieldGroup>();
     }
 
-    public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
+    public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String documentPath, String status) {
         this();
-        this.project = project;
-        this.name = name;
-        this.txtUri = txtUri;
-        this.pdfUri = pdfUri;
-        this.pdfPath = pdfPath;
-        this.txtPath = txtPath;
-        this.status = status;
+        setProject(project);
+        setName(name);
+        setTxtUri(txtUri);
+        setPdfUri(pdfUri);
+        setPdfPath(pdfPath);
+        setTxtPath(txtPath);
+        setDocumentPath(documentPath);
+        setStatus(status);
     }
 
     public String getName() {
@@ -156,7 +160,15 @@ public class Document extends BaseEntity {
         this.txtPath = txtPath;
     }
 
-    public String getPublishedUriString() {
+    public String getDocumentPath() {
+		return documentPath;
+	}
+
+	public void setDocumentPath(String documentPath) {
+		this.documentPath = documentPath;
+	}
+
+	public String getPublishedUriString() {
         return publishedUriString;
     }
 

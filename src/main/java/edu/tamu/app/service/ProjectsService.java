@@ -2,6 +2,7 @@ package edu.tamu.app.service;
 
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -119,7 +120,15 @@ public class ProjectsService {
         return projectsNode;
     }
 
+    public synchronized Project getProject(File projectDirectory) {
+    	String projectName = getName(projectDirectory);
+    	return getProject(projectName);
+    }
+    
     public synchronized Project getProject(String projectName) {
+    	
+    	logger.info("Creating project " + projectName);
+    	
         Project project = projects.get(projectName);
         if (project == null) {
             project = projectRepo.findByName(projectName);
@@ -256,18 +265,27 @@ public class ProjectsService {
         return projectFields;
     }
 
+    public synchronized void createDocument(File directory) {
+    	String projectName = directory.getParentFile().getName();
+    	String documentName = getName(directory);
+        createDocument(projectName, documentName);
+    }
+    
     public synchronized void createDocument(String projectName, String documentName) {
+    	
+    	logger.info("Creating document " + documentName);
 
         if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
             final Project project = getProject(projectName);
 
-            String pdfPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf";
-            String txtPath = mount + "/projects/" + projectName + "/" + documentName + "/" + documentName + ".pdf.txt";
+            String documentPath = mount + "/projects/" + projectName + "/" + documentName;
+            String pdfPath = documentPath + "/" + documentName + ".pdf";
+            String txtPath = documentPath + "/" + documentName + ".pdf.txt";
 
             String pdfUri = host + pdfPath;
             String txtUri = host + txtPath;
-
-            Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, "Open");
+            
+            Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, documentPath, "Open");
 
             for (MetadataFieldGroup field : getProjectFields(projectName)) {
                 document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
@@ -295,6 +313,10 @@ public class ProjectsService {
         projects = new HashMap<String, Project>();
         fields = new HashMap<String, List<MetadataFieldGroup>>();
         projectsNode = null;
+    }
+    
+    private String getName(File directory) {
+        return directory.getPath().substring(directory.getParent().length() + 1);
     }
 
 }

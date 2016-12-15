@@ -1,5 +1,7 @@
 package edu.tamu.app.model;
 
+import java.util.ArrayList;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -64,7 +66,7 @@ public class MetadataFieldGroupTest {
         testProject = projectRepo.create("testProject");
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
-        testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");
+        testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
         metadataFieldLabelRepo.save(testLabel);
         Assert.assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldGroupRepo.count());
     }

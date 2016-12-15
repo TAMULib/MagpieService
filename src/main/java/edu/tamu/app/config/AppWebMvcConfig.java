@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfigura
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.resource.AppCacheManifestTransformer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
@@ -23,6 +24,11 @@ public class AppWebMvcConfig extends CoreWebMvcConfig {
     @Bean
     public ResourceUrlEncodingFilter resourceUrlEncodingFilter() {
         return new ResourceUrlEncodingFilter();
+    }
+    
+    @Bean
+    public ConfigurableMimeFileTypeMap configurableMimeFileTypeMap() {
+        return new ConfigurableMimeFileTypeMap();
     }
 
     @Override
