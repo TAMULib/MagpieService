@@ -42,7 +42,7 @@ public class FedoraRepository implements Repository {
     private String username;
     
     private String password;
-
+    
     public FedoraRepository(String repoUrl, String restPath, String containerPath,String username, String password) {
     	setRepoUrl(repoUrl);
     	setRestPath(restPath);
@@ -54,13 +54,13 @@ public class FedoraRepository implements Repository {
 	@Override
 	public Document push(Document document) throws IOException {
 		
-		if(!projectContainerExists()) {
-			//Create project container
-			createContainer("", getContainerPath());
-		}
+		setContainerPath(confirmProjectContainerExists());
         
 		//create item container
 		String itemContainerPath = createContainer(getContainerPath(), document.getName());
+		
+		System.out.println(getContainerPath());
+		System.out.println(itemContainerPath);
 				
 		File directory = resourceLoader.getResource("classpath:static" + document.getDocumentPath()).getFile();
 		File[] files = directory.listFiles();
@@ -71,7 +71,11 @@ public class FedoraRepository implements Repository {
 		    }
 		}
 		
-		return null;
+		document.setPublishedUriString(getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/"+itemContainerPath);
+		document.setStatus("Published");
+		document = documentRepo.save(document);
+		
+		return document;
 	}
 	
 	private void createResource(String filePath, String itemContainerPath, String slug) throws IOException {
@@ -96,8 +100,14 @@ public class FedoraRepository implements Repository {
         
 	}
 	
-	private boolean projectContainerExists() throws IOException {
-		return buildFedoraConnection(getContainerPath(), "GET").getResponseCode() != 404;
+	private String confirmProjectContainerExists() throws IOException {
+		String projectContainerPath = null;
+		if(buildFedoraConnection(getContainerPath(), "GET").getResponseCode() == 404) {
+			projectContainerPath = createContainer("", getContainerPath());
+		} else {
+			projectContainerPath = getContainerPath().replace(getRepoUrl()+"/"+getRestPath(), "");
+		}
+		return projectContainerPath;
 	}
 	
 	private String createContainer(String containerName, String slugName) throws IOException {

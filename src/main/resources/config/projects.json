@@ -437,7 +437,7 @@
                {
                   "key":"containerPath",
                   "values":[
-                     "spotlight_exhibit4"
+                     "spotlight_exhibit6"
                   ]
                },
                {
@@ -486,7 +486,7 @@
          {
             "label":"dc.title",
             "gloss":"Title",
-            "inputType":"TEXTAREA"
+            "inputType":"TEXT"
          },
          {
             "label":"dc.description",
@@ -509,7 +509,7 @@
          {
             "label":"dc.title",
             "gloss":"Title",
-            "inputType":"TEXTAREA"
+            "inputType":"TEXT"
          },
          {
             "label":"dc.description",
