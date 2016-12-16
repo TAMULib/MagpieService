@@ -179,9 +179,12 @@ public class ProjectsService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            
+            // this should be done as part or the construction of the project but call
+            // since this method calls get project it causes a stack overflow if
+            // called before the creation of the project. 
             project = projectRepo.create(projectName, repositories, authorities, suggestors);
-
+        
             repositories.forEach(repository -> {
                 Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
                 if (registeredRepository == null) {

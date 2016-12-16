@@ -58,9 +58,6 @@ public class FedoraRepository implements Repository {
         
 		//create item container
 		String itemContainerPath = createContainer(getContainerPath(), document.getName());
-		
-		System.out.println(getContainerPath());
-		System.out.println(itemContainerPath);
 				
 		File directory = resourceLoader.getResource("classpath:static" + document.getDocumentPath()).getFile();
 		File[] files = directory.listFiles();
@@ -117,9 +114,7 @@ public class FedoraRepository implements Repository {
 		if(slugName != null) connection.setRequestProperty("slug", slugName);
 		
 		int responseCode = connection.getResponseCode();
-		
-		System.out.println("Response Message: "+connection.getResponseMessage());
-		
+				
 		if(responseCode != 201) throw new IOException("Could not create container. Server responded with " + responseCode);
 				
 		StringWriter writer = new StringWriter();
