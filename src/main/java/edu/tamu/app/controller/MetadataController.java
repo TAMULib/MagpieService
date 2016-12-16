@@ -11,14 +11,11 @@ package edu.tamu.app.controller;
 
 import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
-import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Paths.get;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,21 +34,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.service.ProjectsService;
 import edu.tamu.app.service.exporter.DspaceCSVExporter;
 import edu.tamu.app.service.exporter.SpotlightExporter;
-import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.ApiVariable;
 import edu.tamu.framework.aspect.annotation.Auth;
@@ -76,8 +67,6 @@ public class MetadataController {
     @Autowired
     private DocumentRepo documentRepo;
     
-    @Autowired
-    private ProjectsService projectsService;
     
     @Autowired
     private DspaceCSVExporter dspaceCSVExporter;
@@ -87,9 +76,6 @@ public class MetadataController {
 
     @Autowired
     private MetadataFieldGroupRepo metadataFieldGroupRepo;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private ApplicationContext appContext;
@@ -126,26 +112,25 @@ public class MetadataController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/headers/{exportType}/{projectName}")
+    @ApiMapping("/headers/{format}/{projectName}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse getMetadataHeaders(@ApiVariable String projectName, @ApiVariable String exportType) {
- 
-    	List<String> metadataHeaders = new ArrayList<String>();
-    	Project project = projectRepo.findByName(projectName);
+    public ApiResponse getMetadataHeaders(@ApiVariable String projectName, @ApiVariable String format) {
+    	List<String> metadataHeaders = null;
     	
-    	projectsService.getProjectFields(projectName).forEach(mfg -> {
-    		metadataHeaders.add(mfg.getLabel().getName());
-    	});
-
-    	for(ProjectRepository repo : project.getRepositories()) {
-    		if(repo.getType().equals("DSPACE")) {
-    			metadataHeaders.add("BUNDLE:ORIGINAL");
-    			break;
-    		}
+    	switch(format) {
+    	
+	    	case "spotlight":
+	    		metadataHeaders = spotlightExporter.extractMetadataFields(projectName);
+	    	break;
+	    	
+	    	case "dspacecsv":
+	    		metadataHeaders = dspaceCSVExporter.extractMetadataFields(projectName);
+	    	break;
+	    	
+	    	default: metadataHeaders = new ArrayList<String>();
+    	
     	}
-
-        Collections.sort(metadataHeaders);
-        
+    	        
         return new ApiResponse(SUCCESS, metadataHeaders);
     }
     
@@ -168,12 +153,12 @@ public class MetadataController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/csv/{project}")
+    @ApiMapping("/dspacecsv/{project}")
     @Auth(role = "ROLE_USER")
     public ApiResponse getCSVByroject(@ApiVariable String project) {
 
         List<List<String>> metadata = dspaceCSVExporter.extractMetadata(projectRepo.findByName(project));
-
+        
         return new ApiResponse(SUCCESS, metadata);
     }
 
