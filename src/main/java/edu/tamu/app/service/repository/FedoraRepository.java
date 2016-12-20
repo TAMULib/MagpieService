@@ -62,20 +62,21 @@ public class FedoraRepository implements Repository {
 		File directory = resourceLoader.getResource("classpath:static" + document.getDocumentPath()).getFile();
 		File[] files = directory.listFiles();
 		
+		String itemPath = null;
 		for (File file : files) {
 		    if (file.isFile()) {
-		    	createResource(document.getDocumentPath()+File.separator+file.getName(), itemContainerPath, null);
+		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(), itemContainerPath, null);
 		    }
 		}
 		
-		document.setPublishedUriString(getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/"+itemContainerPath);
+		document.setPublishedUriString(getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/"+itemContainerPath+"/"+itemPath);
 		document.setStatus("Published");
 		document = documentRepo.save(document);
 		
 		return document;
 	}
 	
-	private void createResource(String filePath, String itemContainerPath, String slug) throws IOException {
+	private String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
 				
 		File file = resourceLoader.getResource("classpath:static" + filePath).getFile();
         FileInputStream fileStrm = new FileInputStream(file);
@@ -92,8 +93,11 @@ public class FedoraRepository implements Repository {
         OutputStream os = connection.getOutputStream();
         os.write(fileBytes);
         os.close();
-        
-        int responseCode = connection.getResponseCode();
+                
+        StringWriter writer = new StringWriter();
+		IOUtils.copy(connection.getInputStream(), writer);
+		
+		return writer.toString().replace(getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/"+itemContainerPath+"/", "");
         
 	}
 	
@@ -115,7 +119,9 @@ public class FedoraRepository implements Repository {
 		
 		int responseCode = connection.getResponseCode();
 				
-		if(responseCode != 201) throw new IOException("Could not create container. Server responded with " + responseCode);
+		if(responseCode != 201) {
+			throw new IOException("Could not create container. Server responded with " + responseCode);
+		}
 				
 		StringWriter writer = new StringWriter();
 		IOUtils.copy(connection.getInputStream(), writer);

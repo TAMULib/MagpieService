@@ -4,6 +4,14 @@ if [ $# -eq 0 ]
 then
 	echo "Usage: gendocs [project name] [number of files created]"
 else
+
+	if [  "$#" -eq 3  ] 
+		then
+			declare -a MEDIA_TYPES=(${3//,/ })
+		else
+			declare -a MEDIA_TYPES=('all')
+	fi
+
 	TILL="$2"
 	echo $TILL
 	COUNT=0
@@ -15,8 +23,18 @@ else
 	do
     	mkdir "projects/"$1"/"$1"_"$COUNT
     	
-    	echo "Hello, World! This is test "$1" "$COUNT"." > "projects/"$1"/"$1"_"$COUNT"/"$1"_"$COUNT".pdf.txt"
-    	cp ./sample.pdf "projects/"$1"/"$1"_"$COUNT"/"$1"_"$COUNT".pdf"
+    	if [[ " ${MEDIA_TYPES[@]} " =~ " txt " ]] || [[ " ${MEDIA_TYPES[@]} " =~ " all " ]]; then
+    		echo "Hello, World! This is test "$1" "$COUNT"." > "projects/"$1"/"$1"_"$COUNT"/"$1"_"$COUNT".pdf.txt"
+    	fi
+
+    	if [[ " ${MEDIA_TYPES[@]} " =~ " pdf " ]] || [[ " ${MEDIA_TYPES[@]} " =~ " all " ]]; then
+    		cp ./sample-media/sample.pdf "projects/"$1"/"$1"_"$COUNT"/"$1"_"$COUNT".pdf"
+    	fi	
+    	
+    	if [[ " ${MEDIA_TYPES[@]} " =~ " jpg " ]] || [[ " ${MEDIA_TYPES[@]} " =~ " all " ]]; then
+    		cp ./sample-media/sample.jpg "projects/"$1"/"$1"_"$COUNT"/"$1"_"$COUNT".jpg"
+    	fi
+    		
     	let COUNT=COUNT+1
 		
 		if [ $(($COUNT%50)) == 0 ]; then
