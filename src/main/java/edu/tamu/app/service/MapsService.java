@@ -25,6 +25,9 @@ public class MapsService {
 
     private static final Logger logger = Logger.getLogger(MapsService.class);
 
+    // TODO: MapService needs to be scoped to a project
+    private static final String DISSERTATION_PROJECT_NAME = "dissertation";
+
     private static final String CHANGE_STATUS = "Published";
 
     @Autowired
@@ -73,14 +76,17 @@ public class MapsService {
                 logger.debug("The document name is: " + documentName);
             }
 
-            Document updateDoc = documentRepo.findByName(documentName);
+            Document updateDoc = documentRepo.findByProjectNameAndName(DISSERTATION_PROJECT_NAME, documentName);
 
             if (updateDoc != null) {
                 if (unlockableProjectName == null) {
                     unlockableProjectName = updateDoc.getProject().getName();
                 }
                 updateDoc.setStatus(CHANGE_STATUS);
-                updateDoc.setPublishedUriString(updateDoc.getProject().getRepositoryUrlString() + "/" + documentHandle);
+
+                // TODO: improve method of retrieving project configurations
+                updateDoc.setPublishedUriString(updateDoc.getProject().getRepositories().get(0).getSettingValues("repoUrl") + "/" + documentHandle);
+
                 documentRepo.save(updateDoc);
                 logger.info("Setting status of Document: " + updateDoc.getName() + " to " + CHANGE_STATUS);
             } else {

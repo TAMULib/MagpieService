@@ -9,17 +9,11 @@
  */
 package edu.tamu.app.model.repo.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
-import edu.tamu.app.model.repo.ControlledVocabularyRepo;
-import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.custom.MetadataFieldValueRepoCustom;
 
@@ -31,17 +25,8 @@ import edu.tamu.app.model.repo.custom.MetadataFieldValueRepoCustom;
  */
 public class MetadataFieldValueRepoImpl implements MetadataFieldValueRepoCustom {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
-
-    @Autowired
-    private MetadataFieldGroupRepo metadataFieldGroupRepo;
-
-    @Autowired
-    private ControlledVocabularyRepo controlledVocabularyRepo;
 
     @Override
     public synchronized MetadataFieldValue create(ControlledVocabulary cv, MetadataFieldGroup field) {
@@ -62,30 +47,12 @@ public class MetadataFieldValueRepoImpl implements MetadataFieldValueRepoCustom 
     }
 
     @Override
-    @Transactional
-    public void delete(MetadataFieldValue value) {
-        MetadataFieldGroup field = value.getField();
-        if (field != null) {
-            value.setField(null);
-            field.removeValue(value);
-            metadataFieldGroupRepo.save(field);
+    public synchronized MetadataFieldValue create(String value, MetadataFieldGroup field, ControlledVocabulary cv) {
+        MetadataFieldValue metadataFieldValue = metadataFieldValueRepo.findByValueAndCvAndField(value, cv, field);
+        if (metadataFieldValue == null) {
+            metadataFieldValue = metadataFieldValueRepo.save(new MetadataFieldValue(value, cv, field));
         }
-
-        ControlledVocabulary cv = value.getCv();
-        if (cv != null) {
-            value.setCv(null);
-            cv.removeValue(value);
-            controlledVocabularyRepo.save(cv);
-        }
-
-        entityManager.remove(entityManager.contains(value) ? value : entityManager.merge(value));
-    }
-
-    @Override
-    public void deleteAll() {
-        metadataFieldValueRepo.findAll().forEach(value -> {
-            metadataFieldValueRepo.delete(value);
-        });
+        return metadataFieldValue;
     }
 
 }

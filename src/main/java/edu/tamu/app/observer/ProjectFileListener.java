@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import edu.tamu.app.service.ProjectsService;
+import edu.tamu.app.utilities.FileSystemUtility;
 
 @Component
 @Scope("prototype")
@@ -27,7 +28,7 @@ public class ProjectFileListener extends AbstractFileListener {
     private void createProject(File directory) {
         String projectName = getName(directory);
         logger.info("Creating project " + projectName);
-        projectService.createProject(projectName);
+        projectService.getProject(projectName);
     }
 
     private void createDocument(File directory) {
@@ -48,7 +49,7 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Override
     public void onDirectoryCreate(File directory) {
-        if (directory.getParent().equals(getPath())) {
+        if (FileSystemUtility.getWindowsSafePath(directory.getParent()).equals(FileSystemUtility.getWindowsSafePath(getPath()))) {
             createProject(directory);
         } else {
             createDocument(directory);

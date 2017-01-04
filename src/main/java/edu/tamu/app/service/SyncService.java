@@ -44,16 +44,17 @@ public class SyncService {
 
     }
 
-    public void sync() {
+    public void sync() throws IOException {
         if (logger.isDebugEnabled()) {
             logger.debug("Running Sync Service");
         }
 
         String directory = null;
         try {
-            directory = resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/projects/";
+            directory = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()) + "/projects/";
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Unable to load projects directory!");
+            throw e;
         }
 
         List<Path> projects = FileSystemUtility.directoryList(directory);
@@ -62,7 +63,7 @@ public class SyncService {
 
             String projectName = projectPath.getFileName().toString();
 
-            projectsService.createProject(projectName);
+            projectsService.getProject(projectName);
 
             List<Path> documents = FileSystemUtility.fileList(projectPath.toString());
 

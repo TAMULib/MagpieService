@@ -36,6 +36,9 @@ public abstract class AbstractFileListener implements FileListener {
         this.folder = folder;
     }
 
+    /**
+     * @return the path
+     */
     public String getPath() {
         return root + "/" + folder;
     }

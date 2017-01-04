@@ -9,17 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.tdl.vireo.annotations.Order;
-import org.tdl.vireo.runner.OrderedRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
-import edu.tamu.app.model.MetadataFieldLabel;
-import edu.tamu.app.model.Project;
-import edu.tamu.app.model.FieldProfile;
-import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
+import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.runner.OrderedRunner;
 
 @WebAppConfiguration
 @ActiveProfiles({ "test" })
@@ -66,15 +64,18 @@ public class MetadataFieldLabelTest {
     @Order(3)
     public void testFindMetadataFieldLabel() {
         MetadataFieldLabel assertLabel = metadataFieldLabelRepo.create("test", testProfile);
-        Assert.assertEquals("MetadataFieldLabel was not found.", assertLabel.getName(), metadataFieldLabelRepo.findByName("test").getName());
+        Assert.assertEquals("MetadataFieldLabel was not found.", assertLabel.getName(), metadataFieldLabelRepo.findByNameAndProfile("test", testProfile).getName());
     }
 
     @Test
     @Order(4)
+    @Transactional // TODO: figure out why metadata field label will not delete without transactional!
     public void testDeleteMetadataFieldLabel() {
         metadataFieldLabelRepo.create("test", testProfile);
         Assert.assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
-        metadataFieldLabelRepo.delete(metadataFieldLabelRepo.findByName("test"));
+        MetadataFieldLabel label = metadataFieldLabelRepo.findByNameAndProfile("test", testProfile);
+        Assert.assertNotNull("Metadatafield was not retrieved!", label);
+        metadataFieldLabelRepo.delete(label);
         Assert.assertEquals("MetadataFieldLabel was not deleted.", 0, metadataFieldLabelRepo.count());
     }
 

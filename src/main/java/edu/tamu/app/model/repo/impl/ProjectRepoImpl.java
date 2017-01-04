@@ -9,20 +9,14 @@
  */
 package edu.tamu.app.model.repo.impl;
 
-import java.util.Set;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
-import edu.tamu.app.model.Document;
-import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.FieldProfileRepo;
+import edu.tamu.app.model.ProjectAuthority;
+import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
 
@@ -34,23 +28,8 @@ import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
  */
 public class ProjectRepoImpl implements ProjectRepoCustom {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Autowired
     private ProjectRepo projectRepo;
-
-    @Autowired
-    private FieldProfileRepo fieldProfileRepo;
-
-    @Autowired
-    private DocumentRepo documentRepo;
-
-    @Value("${app.defaultRepoUrl}")
-    private String defaultRepoUrl;
-
-    @Value("${app.defaultRepoUIPath}")
-    private String defaultRepoUIPath;
 
     @Override
     public synchronized Project create(String name) {
@@ -58,39 +37,19 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
         if (project == null) {
             project = new Project(name);
         }
-        project.setRepositoryUIUrlString(defaultRepoUrl + "/" + defaultRepoUIPath);
         return projectRepo.save(project);
     }
 
     @Override
-    @Transactional
-    public void delete(Project project) {
-        Set<FieldProfile> profiles = project.getProfiles();
-        if (profiles.size() > 0) {
-            profiles.parallelStream().forEach(profile -> {
-                profile.setProject(null);
-                fieldProfileRepo.save(profile);
-            });
-            project.clearProfiles();
+    public synchronized Project create(String name, List<ProjectRepository> repositories, List<ProjectAuthority> authorities, List<ProjectSuggestor> suggestors) {
+        Project project = projectRepo.findByName(name);
+        if (project == null) {
+            project = new Project(name);
         }
-
-        Set<Document> documents = project.getDocuments();
-        if (documents.size() > 0) {
-            documents.parallelStream().forEach(document -> {
-                document.setProject(null);
-                documentRepo.save(document);
-            });
-            project.clearDocuments();
-        }
-
-        entityManager.remove(entityManager.contains(project) ? project : entityManager.merge(project));
-    }
-
-    @Override
-    public void deleteAll() {
-        projectRepo.findAll().parallelStream().forEach(project -> {
-            projectRepo.delete(project);
-        });
+        project.setRepositories(repositories);
+        project.setAuthorities(authorities);
+        project.setSuggestors(suggestors);
+        return projectRepo.save(project);
     }
 
 }

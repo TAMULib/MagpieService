@@ -1,5 +1,5 @@
 /* 
- * MetadataFieldRepo.java 
+ * MetadataFieldGroupRepo.java 
  * 
  * Version: 
  *     $Id$ 
@@ -35,11 +35,5 @@ public interface MetadataFieldGroupRepo extends JpaRepository<MetadataFieldGroup
     public List<MetadataFieldGroup> findByLabel(MetadataFieldLabel label);
 
     public MetadataFieldGroup findByDocumentAndLabel(Document document, MetadataFieldLabel label);
-
-    @Override
-    public void delete(MetadataFieldGroup field);
-
-    @Override
-    public void deleteAll();
 
 }

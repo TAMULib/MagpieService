@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -58,7 +57,7 @@ public class CsvUtility {
         // map.put("dc.relation","");
         // map.put("dc.coverage","");
 
-        Set<MetadataFieldGroup> metadataFields = document.getFields();
+        List<MetadataFieldGroup> metadataFields = document.getFields();
 
         metadataFields.forEach(field -> {
             String values = "";

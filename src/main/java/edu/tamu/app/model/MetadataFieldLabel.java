@@ -9,20 +9,13 @@
  */
 package edu.tamu.app.model;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import edu.tamu.framework.model.BaseEntity;
 
@@ -33,21 +26,16 @@ import edu.tamu.framework.model.BaseEntity;
  *
  */
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "profile_id" }))
 public class MetadataFieldLabel extends BaseEntity {
 
-    @Column(unique = true)
+    @Column(nullable = false)
     private String name;
 
-    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH }, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private FieldProfile profile;
 
-    @OneToMany(mappedBy = "label", fetch = FetchType.EAGER)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id")
-    @JsonIdentityReference(alwaysAsId = true)
-    private Set<MetadataFieldGroup> fields;
-
     public MetadataFieldLabel() {
-        fields = new HashSet<MetadataFieldGroup>();
     }
 
     public MetadataFieldLabel(String name, FieldProfile profile) {
@@ -70,27 +58,6 @@ public class MetadataFieldLabel extends BaseEntity {
 
     public void setProfile(FieldProfile profile) {
         this.profile = profile;
-    }
-
-    @JsonIgnore
-    public Set<MetadataFieldGroup> getFields() {
-        return fields;
-    }
-
-    public void setFields(Set<MetadataFieldGroup> fields) {
-        this.fields = fields;
-    }
-
-    public void addField(MetadataFieldGroup field) {
-        fields.add(field);
-    }
-
-    public void removeField(MetadataFieldGroup field) {
-        fields.remove(field);
-    }
-
-    public void clearFields() {
-        fields = new HashSet<MetadataFieldGroup>();
     }
 
 }

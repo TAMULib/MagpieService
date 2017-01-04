@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import edu.tamu.framework.model.BaseEntity;
+import edu.tamu.framework.resolver.BaseEntityIdResolver;
 
 /**
  * 
@@ -34,12 +35,12 @@ import edu.tamu.framework.model.BaseEntity;
 @Entity
 public class MetadataFieldValue extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id")
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id", resolver = BaseEntityIdResolver.class)
     @JsonIdentityReference(alwaysAsId = true)
     private MetadataFieldGroup field;
 
-    @ManyToOne(optional = true, cascade = { CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH }, fetch = FetchType.EAGER)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private ControlledVocabulary cv;
 
     @Column(columnDefinition = "TEXT", nullable = true)
@@ -53,8 +54,7 @@ public class MetadataFieldValue extends BaseEntity {
         }
     }
 
-    public MetadataFieldValue() {
-    }
+    public MetadataFieldValue() {}
 
     public MetadataFieldValue(MetadataFieldGroup field) {
         this();
@@ -68,6 +68,12 @@ public class MetadataFieldValue extends BaseEntity {
 
     public MetadataFieldValue(String value, MetadataFieldGroup field) {
         this(field);
+        this.value = value;
+    }
+
+    public MetadataFieldValue(String value, ControlledVocabulary cv, MetadataFieldGroup field) {
+        this(field);
+        this.cv = cv;
         this.value = value;
     }
 

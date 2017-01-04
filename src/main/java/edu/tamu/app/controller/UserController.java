@@ -44,7 +44,7 @@ public class UserController {
      * Websocket endpoint to request credentials.
      * 
      * @param credentials
-     *          @ApiCredentials Credentials
+     * @ApiCredentials Credentials
      * 
      * @return ApiResponse
      * 
@@ -71,7 +71,7 @@ public class UserController {
      * Endpoint to update users role.
      * 
      * @param user
-     *          @ApiModel AppUser
+     * @ApiModel AppUser
      * 
      * @return ApiResponse
      * 
@@ -83,7 +83,16 @@ public class UserController {
         simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
         return new ApiResponse(SUCCESS, user);
     }
-    
+
+    /**
+     * Endpoint to delete user.
+     * 
+     * @param user
+     * @ApiModel AppUser
+     * 
+     * @return ApiResponse
+     * 
+     */
     @ApiMapping("/delete")
     @Auth(role = "ROLE_MANAGER")
     public ApiResponse delete(@ApiModel AppUser user) throws Exception {

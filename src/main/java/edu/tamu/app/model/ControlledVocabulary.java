@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -36,10 +37,11 @@ import edu.tamu.framework.model.BaseEntity;
 @Entity
 public class ControlledVocabulary extends BaseEntity {
 
+    // TODO: consider refactoring to name
     @Column(unique = true)
     private String value;
 
-    @OneToMany(mappedBy = "cv", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "cv", fetch = FetchType.EAGER, cascade = CascadeType.MERGE, orphanRemoval = false)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldValue.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Set<MetadataFieldValue> values;

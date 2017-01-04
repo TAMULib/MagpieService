@@ -1,4 +1,4 @@
-package edu.tamu.app.service;
+package edu.tamu.app.service.repository;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -27,7 +27,6 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -41,9 +40,8 @@ import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.utilities.CsvUtility;
 
-@Service
-public class DocumentPushService {
-
+public class DSpaceRepository implements Repository {
+    
     @Autowired
     private ResourceLoader resourceLoader;
 
@@ -55,35 +53,39 @@ public class DocumentPushService {
 
     @Autowired
     private CsvUtility csvUtility;
-
+    
     @Value("${app.mount}")
     private String mount;
+    
+    private String repoUrl;
+    
+    private String repoUIPath;
 
-    @Value("${app.defaultCollectionId}")
     private String collectionId;
 
-    @Value("${app.defaultGroupId}")
     private String groupId;
 
-    @Value("${app.defaultRepoUrl}")
-    private String repoUrl;
-
-    @Value("${app.defaultRepoUIPath}")
-    private String defaultRepoUIPath;
-
-    @Value("${app.defaultDSpaceUsername}")
     private String username;
 
-    @Value("${app.defaultDSpacePassword}")
     private String password;
 
-    public Document push(Document document) throws Exception {
+    public DSpaceRepository(String repoUrl, String repoUIPath, String collectionId, String groupId, String username, String password) {
+        this.repoUrl = repoUrl;
+        this.repoUIPath = repoUIPath;
+        this.collectionId = collectionId;
+        this.groupId = groupId;
+        this.username = username;
+        this.password = password;
+    }
+
+    @Override
+    public Document push(Document document) throws IOException {
         // POST to create the item
         JsonNode createItemResponseNode = null;
         try {
             createItemResponseNode = createItem(document);
         } catch (ParserConfigurationException | TransformerException | IOException e) {
-            Exception serviceEx = new Exception(e.getMessage());
+            RuntimeException serviceEx = new RuntimeException(e.getMessage());
             serviceEx.setStackTrace(e.getStackTrace());
             throw serviceEx;
         }
@@ -115,15 +117,13 @@ public class DocumentPushService {
 
         // add new handle to document, change it's status to published, save it
         String publishedUriString;
-        
-        if(defaultRepoUIPath.length() > 0) {
-            publishedUriString = repoUrl + "/" + defaultRepoUIPath + "/" + handleString;
-        }
-        else {
+
+        if (repoUIPath.length() > 0) {
+            publishedUriString = repoUrl + "/" + repoUIPath + "/" + handleString;
+        } else {
             publishedUriString = repoUrl + "/" + handleString;
         }
-        
-        
+
         document.setPublishedUriString(publishedUriString);
 
         document.setStatus("Published");
@@ -132,7 +132,7 @@ public class DocumentPushService {
 
         return document;
     }
-
+    
     private JsonNode createItem(Document document) throws ParserConfigurationException, TransformerException, IOException {
         URL createItemUrl;
         try {
@@ -268,7 +268,7 @@ public class DocumentPushService {
         return responseNode;
     }
 
-    private void addBitstreams(String itemId, Document document) throws IOException, ParserConfigurationException, TransformerException {
+    private void addBitstreams(String itemId, Document document) throws IOException {
 
         // *************************************
         // POST PDF file
