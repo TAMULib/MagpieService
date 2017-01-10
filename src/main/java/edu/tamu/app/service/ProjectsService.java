@@ -131,7 +131,6 @@ public class ProjectsService {
             // TODO: improve the object mapping for repositories, authorities, and suggestors
 
             List<ProjectRepository> repositories = new ArrayList<ProjectRepository>();
-
             try {
                 repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
                 });
@@ -143,9 +142,8 @@ public class ProjectsService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            
             List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
-
             try {
                 authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
                 });
@@ -159,7 +157,6 @@ public class ProjectsService {
             }
 
             List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();
-
             try {
                 suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
                 });
@@ -173,33 +170,38 @@ public class ProjectsService {
 
             project = projectRepo.create(projectName, repositories, authorities, suggestors);
 
-            repositories.forEach(repository -> {
-                Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
-                if (registeredRepository == null) {
-                    projectServiceRegistry.register(repository);
-                }
-            });
-
-            authorities.forEach(authority -> {
-                Authority registeredAuthority = (Authority) projectServiceRegistry.getService(authority.getName());
-                if (registeredAuthority == null) {
-                    projectServiceRegistry.register(authority);
-                }
-            });
-
-            suggestors.forEach(suggestor -> {
-                Suggestor registeredSuggestor = (Suggestor) projectServiceRegistry.getService(suggestor.getName());
-                if (registeredSuggestor == null) {
-                    projectServiceRegistry.register(suggestor);
-                }
-            });
-
             try {
                 simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
             } catch (Exception e) {
                 logger.error("Error broadcasting new project", e);
             }
         }
+        
+        List<ProjectRepository> repositories = project.getRepositories();
+        List<ProjectAuthority> authorities = project.getAuthorities();
+        List<ProjectSuggestor> suggestors = project.getSuggestors();
+        
+        repositories.forEach(repository -> {
+            Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
+            if (registeredRepository == null) {
+                projectServiceRegistry.register(repository);
+            }
+        });
+
+        authorities.forEach(authority -> {
+            Authority registeredAuthority = (Authority) projectServiceRegistry.getService(authority.getName());
+            if (registeredAuthority == null) {
+                projectServiceRegistry.register(authority);
+            }
+        });
+
+        suggestors.forEach(suggestor -> {
+            Suggestor registeredSuggestor = (Suggestor) projectServiceRegistry.getService(suggestor.getName());
+            if (registeredSuggestor == null) {
+                projectServiceRegistry.register(suggestor);
+            }
+        });
+        
         projects.put(projectName, project);
         return project;
     }
