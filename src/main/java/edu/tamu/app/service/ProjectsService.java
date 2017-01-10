@@ -142,7 +142,7 @@ public class ProjectsService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
             List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
             try {
                 authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
@@ -176,26 +176,22 @@ public class ProjectsService {
                 logger.error("Error broadcasting new project", e);
             }
         }
-        
-        List<ProjectRepository> repositories = project.getRepositories();
-        List<ProjectAuthority> authorities = project.getAuthorities();
-        List<ProjectSuggestor> suggestors = project.getSuggestors();
-        
-        repositories.forEach(repository -> {
+
+        project.getRepositories().forEach(repository -> {
             Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
             if (registeredRepository == null) {
                 projectServiceRegistry.register(repository);
             }
         });
 
-        authorities.forEach(authority -> {
+        project.getAuthorities().forEach(authority -> {
             Authority registeredAuthority = (Authority) projectServiceRegistry.getService(authority.getName());
             if (registeredAuthority == null) {
                 projectServiceRegistry.register(authority);
             }
         });
 
-        suggestors.forEach(suggestor -> {
+        project.getSuggestors().forEach(suggestor -> {
             Suggestor registeredSuggestor = (Suggestor) projectServiceRegistry.getService(suggestor.getName());
             if (registeredSuggestor == null) {
                 projectServiceRegistry.register(suggestor);
