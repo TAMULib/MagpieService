@@ -3,7 +3,9 @@ package edu.tamu.app;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +26,9 @@ import edu.tamu.app.utilities.FileSystemUtility;
 public class Initialization implements CommandLineRunner {
 
     private static final Logger logger = Logger.getLogger(Initialization.class);
+
+    @Value("${app.mount.root}")
+    private String root;
 
     @Value("${app.mount}")
     private String mount;
@@ -46,15 +51,20 @@ public class Initialization implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        Path projectPath = FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()).toAbsolutePath();
+
         if (link.equals("true")) {
             try {
-            	Files.delete(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()));
+                logger.info("Attempting to delete directory: " + projectPath.toString());
+                FileUtils.deleteDirectory(projectPath.toFile());
             } catch (IOException e) {
                 logger.error("\nDIRECTORY DOES NOT EXIST\n", e);
             }
 
             try {
-                Files.createSymbolicLink(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()), FileSystemUtility.getWindowsSafePath("/mnt" + mount));
+                Path mountPath = FileSystemUtility.getWindowsSafePath(root + mount).toAbsolutePath();
+                logger.info("Attempting to symlink directory: " + projectPath.toString() + " to " + mountPath.toString());
+                Files.createSymbolicLink(projectPath, mountPath);
             } catch (FileAlreadyExistsException e) {
                 logger.error("\nSYMLINK ALREADY EXISTS\n", e);
             } catch (IOException e) {
@@ -62,10 +72,8 @@ public class Initialization implements CommandLineRunner {
             }
         }
 
-        String root = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath());
-
-        fileObserverRegistry.register(new ProjectFileListener(root, "projects"));
-        fileObserverRegistry.register(new MapFileListener(root, "maps"));
+        fileObserverRegistry.register(new ProjectFileListener(projectPath.toString(), "projects"));
+        fileObserverRegistry.register(new MapFileListener(projectPath.toString(), "maps"));
 
         fileMonitorManager.start();
 
