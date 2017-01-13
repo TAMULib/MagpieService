@@ -69,11 +69,11 @@ public class FedoraRepository implements Repository {
 		String itemPath = null;
 		for (File file : files) {
 		    if (file.isFile()) {
-		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(), itemContainerPath, null);
+		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(), itemContainerPath, file.getName());
 		    }
 		}
 		updateMetadata(document,itemContainerPath);		
-		document.setPublishedUriString(getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/"+itemContainerPath+"/"+itemPath);
+		document.setPublishedUriString(itemPath);
 		document.setStatus("Published");
 		document = documentRepo.save(document);
 	
@@ -140,9 +140,7 @@ public class FedoraRepository implements Repository {
                 
         StringWriter writer = new StringWriter();
 		IOUtils.copy(connection.getInputStream(), writer);
-		
-		return writer.toString().replace(getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/"+itemContainerPath+"/", "");
-        
+		return connection.getHeaderField("Location");
 	}
 	
 	private String confirmProjectContainerExists() throws IOException {
