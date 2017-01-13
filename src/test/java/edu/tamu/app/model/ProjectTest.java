@@ -1,7 +1,5 @@
 package edu.tamu.app.model;
 
-import java.util.ArrayList;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,8 +12,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.annotations.Order;
-import edu.tamu.app.model.Document;
-import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.runner.OrderedRunner;

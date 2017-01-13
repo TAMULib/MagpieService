@@ -1,7 +1,5 @@
 package edu.tamu.app.model;
 
-import java.util.ArrayList;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,17 +13,11 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
-import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.MetadataFieldLabel;
-import edu.tamu.app.model.MetadataFieldValue;
-import edu.tamu.app.model.Project;
-import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
-import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.runner.OrderedRunner;
 

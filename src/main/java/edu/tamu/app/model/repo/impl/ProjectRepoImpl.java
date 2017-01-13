@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.ProjectRepository;

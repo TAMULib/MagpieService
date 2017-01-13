@@ -1,8 +1,10 @@
 package edu.tamu.app.service.repository;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
@@ -16,6 +18,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.MetadataFieldGroup;
+import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.DocumentRepo;
 
 public class FedoraRepository implements Repository {
@@ -61,19 +65,59 @@ public class FedoraRepository implements Repository {
 				
 		File directory = resourceLoader.getResource("classpath:static" + document.getDocumentPath()).getFile();
 		File[] files = directory.listFiles();
-		
+
 		String itemPath = null;
 		for (File file : files) {
 		    if (file.isFile()) {
 		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(), itemContainerPath, null);
 		    }
 		}
-		
+		updateMetadata(document,itemContainerPath);		
 		document.setPublishedUriString(getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/"+itemContainerPath+"/"+itemPath);
 		document.setStatus("Published");
 		document = documentRepo.save(document);
-		
+	
 		return document;
+	}
+	
+	private void updateMetadata(Document document, String itemContainerPath) throws IOException {
+		String containerURL = getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/"+itemContainerPath+"/";
+		
+		HttpURLConnection getConnection = buildBasicFedoraConnection(containerURL);
+
+		getConnection.setRequestMethod("GET");		
+		getConnection.setRequestProperty("Accept", "text/turtle");
+		
+		StringWriter writer = new StringWriter();
+		
+		BufferedReader in = new BufferedReader(new InputStreamReader(getConnection.getInputStream()));
+		String inputLine;
+		while ((inputLine = in.readLine()) != null) {
+			writer.append(inputLine);
+		}
+
+		in.close();        
+		writer.append(" ");
+		for (MetadataFieldGroup group : document.getFields()) {
+			for (MetadataFieldValue value : group.getValues()) {
+				writer.append("<> "+group.getLabel().getName().replace('.', ':')+" \""+value.getValue()+"\" . ");
+			}			
+		}
+
+		HttpURLConnection putConnection = buildBasicFedoraConnection(containerURL);
+		putConnection.setRequestMethod("PUT");		
+		
+		putConnection.setRequestProperty("CONTENT-TYPE", "text/turtle");
+		putConnection.setDoOutput(true);
+		
+		OutputStream os = putConnection.getOutputStream();
+		os.write(writer.toString().getBytes());
+		os.close();
+		
+		if(putConnection.getResponseCode() != 204) {
+			throw new IOException("Could not update metadata. Server responded with " + putConnection.getResponseCode());
+		}
+		
 	}
 	
 	private String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
@@ -128,6 +172,19 @@ public class FedoraRepository implements Repository {
 		
 		return writer.toString().replace(getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/", "");
 			
+	}
+
+	private HttpURLConnection buildBasicFedoraConnection(String path) throws IOException {
+		
+		URL restUrl = new URL(path);
+		
+		HttpURLConnection connection = (HttpURLConnection) restUrl.openConnection();
+		
+        String encoded = Base64.getEncoder().encodeToString((username+":"+password).getBytes());
+        connection.setRequestProperty("Authorization", "Basic "+encoded);
+        
+        return connection;
+		
 	}
 	
 	private HttpURLConnection buildFedoraConnection(String path, String method) throws IOException {
