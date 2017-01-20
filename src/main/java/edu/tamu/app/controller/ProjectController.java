@@ -49,6 +49,14 @@ public class ProjectController {
         return new ApiResponse(SUCCESS, projectRepo.findAll());
     }
     
+    /**
+     * Endpoint for batch publishing to a given repository all Accepted documents of a project
+     * 
+     * @param projectId
+     * @param repositoryId
+     * @return ApiResponse
+     */
+    
     @ApiMapping("/batchpublish/project/{projectId}/repository/{repositoryId}")
     @Auth(role="ROLE_USER")
     public ApiResponse publishBatch(@ApiVariable Long projectId, @ApiVariable Long repositoryId) {

@@ -80,6 +80,13 @@ public class FedoraRepository implements Repository {
 		return document;
 	}
 	
+	/**
+	 * Updates a Fedora Resource container's metadata
+	 * @param document
+	 * @param itemContainerPath
+	 * @throws IOException
+	 */
+	
 	private void updateMetadata(Document document, String itemContainerPath) throws IOException {
 		String containerURL = getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/"+itemContainerPath+"/";
 		
