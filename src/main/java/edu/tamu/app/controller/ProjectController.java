@@ -65,6 +65,7 @@ public class ProjectController {
     	if (publishRepository != null) {
     		Repository repositoryService = (Repository) projectServiceRegistry.getService(publishRepository.getName());
     		List<Document> publishableDocuments = project.getPublishableDocuments();
+    		boolean errorFlag = false;
     		for (Document document: publishableDocuments) {
     			try {
     				repositoryService.push(document);
@@ -72,12 +73,14 @@ public class ProjectController {
     			} catch (IOException e) {
                     logger.error("Exception thrown attempting to batch push "+document.getName()+" to " + publishRepository.getName() + "!", e);
                     e.printStackTrace();
-  				
+                    errorFlag = true;
     			}
     		}
-            return new ApiResponse(SUCCESS, "Your batch of "+publishableDocuments.size()+" items(s) was successfully published");
+    		if (errorFlag == false) {
+    			return new ApiResponse(SUCCESS, "Your batch of "+publishableDocuments.size()+" items(s) was successfully published");
+    		}
     	}
-    	return new ApiResponse(ERROR);
+    	return new ApiResponse(ERROR,"There was an error with the batch publish");
     }
 
 }
