@@ -58,10 +58,10 @@ public class FedoraRepository implements Repository {
 	@Override
 	public Document push(Document document) throws IOException {
 		
-		setContainerPath(confirmProjectContainerExists());
+		confirmProjectContainerExists();
         
 		//create item container
-		String itemContainerPath = createContainer(getContainerPath(), document.getName());
+		String itemContainerPath = createContainer(buildContainerUrl(), document.getName());
 				
 		File directory = resourceLoader.getResource("classpath:static" + document.getDocumentPath()).getFile();
 		File[] files = directory.listFiles();
@@ -80,6 +80,17 @@ public class FedoraRepository implements Repository {
 		return document;
 	}
 	
+	private String buildItemContainerUrl(String itemContainerPath) {
+		return buildContainerUrl()+"/"+itemContainerPath+"/";
+	}
+
+	private String buildContainerUrl() {
+		return buildRepoRestUrl()+"/"+getContainerPath();
+	}
+	
+	private String buildRepoRestUrl() {
+		return getRepoUrl()+"/"+getRestPath();
+	}
 	/**
 	 * Updates a Fedora Resource container's metadata
 	 * @param document
@@ -88,7 +99,7 @@ public class FedoraRepository implements Repository {
 	 */
 	
 	private void updateMetadata(Document document, String itemContainerPath) throws IOException {
-		String containerURL = getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/"+itemContainerPath+"/";
+		String containerURL = buildItemContainerUrl(itemContainerPath);
 		
 		HttpURLConnection getConnection = buildBasicFedoraConnection(containerURL);
 
@@ -132,8 +143,7 @@ public class FedoraRepository implements Repository {
 		File file = resourceLoader.getResource("classpath:static" + filePath).getFile();
         FileInputStream fileStrm = new FileInputStream(file);
         byte[] fileBytes = IOUtils.toByteArray(fileStrm);
-
-        HttpURLConnection connection = buildFedoraConnection(getContainerPath()+"/"+itemContainerPath, "POST");
+        HttpURLConnection connection = buildFedoraConnection(buildItemContainerUrl(itemContainerPath), "POST");
 		connection.setRequestProperty("CONTENT-TYPE", configurableMimeFileTypeMap.getContentType(file));
 		connection.setRequestProperty("Accept", null);
 		
@@ -152,17 +162,16 @@ public class FedoraRepository implements Repository {
 	
 	private String confirmProjectContainerExists() throws IOException {
 		String projectContainerPath = null;
-		if(buildFedoraConnection(getContainerPath(), "GET").getResponseCode() == 404) {
-			projectContainerPath = createContainer("", getContainerPath());
+		if(buildFedoraConnection(buildContainerUrl(), "GET").getResponseCode() == 404) {
+			projectContainerPath = createContainer(buildRepoRestUrl(), getContainerPath());
 		} else {
 			projectContainerPath = getContainerPath().replace(getRepoUrl()+"/"+getRestPath(), "");
 		}
 		return projectContainerPath;
 	}
 	
-	private String createContainer(String containerName, String slugName) throws IOException {
-				
-		HttpURLConnection connection = buildFedoraConnection(containerName, "POST");
+	private String createContainer(String containerUrl, String slugName) throws IOException {
+		HttpURLConnection connection = buildFedoraConnection(containerUrl, "POST");
 		connection.setRequestProperty("Accept", null);
 		if(slugName != null) connection.setRequestProperty("slug", slugName);
 		
@@ -193,16 +202,10 @@ public class FedoraRepository implements Repository {
 	}
 	
 	private HttpURLConnection buildFedoraConnection(String path, String method) throws IOException {
-		
-		URL restUrl = new URL(getRepoUrl()+"/"+getRestPath()+"/"+path);
-		
-		HttpURLConnection connection = (HttpURLConnection) restUrl.openConnection();
+		HttpURLConnection connection = buildBasicFedoraConnection(path);
 		
 		connection.setRequestMethod(method);		
         connection.setRequestProperty("Accept", "application/ld+json");
-        		
-        String encoded = Base64.getEncoder().encodeToString((username+":"+password).getBytes());
-        connection.setRequestProperty("Authorization", "Basic "+encoded);
         
         return connection;
 		
