@@ -298,7 +298,7 @@ public class ProjectsService {
             project.addDocument(document);
 
             try {
-                simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));
+                simpMessagingTemplate.convertAndSend("/channel/new-document", new ApiResponse(SUCCESS, document));
             } catch (Exception e) {
                 logger.error("Error broadcasting new document", e);
             }

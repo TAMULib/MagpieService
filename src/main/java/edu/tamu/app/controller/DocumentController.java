@@ -145,7 +145,7 @@ public class DocumentController {
     @Transactional // without this a save with a field value removed results in it not being removed
     public ApiResponse save(@ApiModel Document document) {
         document = documentRepo.save(document);
-        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));
+        simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
         return new ApiResponse(SUCCESS);
     }
 
@@ -173,7 +173,7 @@ public class DocumentController {
             }
         }
 
-        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));
+        simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
 
         return new ApiResponse(SUCCESS, "Your item has been successfully published", document);
     }
