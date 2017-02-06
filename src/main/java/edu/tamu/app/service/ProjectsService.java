@@ -121,14 +121,14 @@ public class ProjectsService {
     }
 
     public synchronized Project getProject(File projectDirectory) {
-    	String projectName = getName(projectDirectory);
-    	return getProject(projectName);
+        String projectName = getName(projectDirectory);
+        return getProject(projectName);
     }
-    
+
     public synchronized Project getProject(String projectName) {
-    	
-    	logger.info("Creating project " + projectName);
-    	
+
+        logger.info("Creating project " + projectName);
+
         Project project = projects.get(projectName);
         if (project == null) {
             project = projectRepo.findByName(projectName);
@@ -140,7 +140,6 @@ public class ProjectsService {
             // TODO: improve the object mapping for repositories, authorities, and suggestors
 
             List<ProjectRepository> repositories = new ArrayList<ProjectRepository>();
-
             try {
                 repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
                 });
@@ -154,7 +153,6 @@ public class ProjectsService {
             }
 
             List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
-
             try {
                 authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
                 });
@@ -168,7 +166,6 @@ public class ProjectsService {
             }
 
             List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();
-
             try {
                 suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
                 });
@@ -179,32 +176,8 @@ public class ProjectsService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
-            // this should be done as part or the construction of the project but call
-            // since this method calls get project it causes a stack overflow if
-            // called before the creation of the project. 
+
             project = projectRepo.create(projectName, repositories, authorities, suggestors);
-        
-            repositories.forEach(repository -> {
-                Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
-                if (registeredRepository == null) {
-                    projectServiceRegistry.register(repository);
-                }
-            });
-
-            authorities.forEach(authority -> {
-                Authority registeredAuthority = (Authority) projectServiceRegistry.getService(authority.getName());
-                if (registeredAuthority == null) {
-                    projectServiceRegistry.register(authority);
-                }
-            });
-
-            suggestors.forEach(suggestor -> {
-                Suggestor registeredSuggestor = (Suggestor) projectServiceRegistry.getService(suggestor.getName());
-                if (registeredSuggestor == null) {
-                    projectServiceRegistry.register(suggestor);
-                }
-            });
 
             try {
                 simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
@@ -212,6 +185,28 @@ public class ProjectsService {
                 logger.error("Error broadcasting new project", e);
             }
         }
+
+        project.getRepositories().forEach(repository -> {
+            Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
+            if (registeredRepository == null) {
+                projectServiceRegistry.register(repository);
+            }
+        });
+
+        project.getAuthorities().forEach(authority -> {
+            Authority registeredAuthority = (Authority) projectServiceRegistry.getService(authority.getName());
+            if (registeredAuthority == null) {
+                projectServiceRegistry.register(authority);
+            }
+        });
+
+        project.getSuggestors().forEach(suggestor -> {
+            Suggestor registeredSuggestor = (Suggestor) projectServiceRegistry.getService(suggestor.getName());
+            if (registeredSuggestor == null) {
+                projectServiceRegistry.register(suggestor);
+            }
+        });
+
         projects.put(projectName, project);
         return project;
     }
@@ -269,14 +264,14 @@ public class ProjectsService {
     }
 
     public synchronized void createDocument(File directory) {
-    	String projectName = directory.getParentFile().getName();
-    	String documentName = getName(directory);
+        String projectName = directory.getParentFile().getName();
+        String documentName = getName(directory);
         createDocument(projectName, documentName);
     }
-    
+
     public synchronized void createDocument(String projectName, String documentName) {
-    	
-    	logger.info("Creating document " + documentName);
+
+        logger.info("Creating document " + documentName);
 
         if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
             final Project project = getProject(projectName);
@@ -287,7 +282,7 @@ public class ProjectsService {
 
             String pdfUri = host + pdfPath;
             String txtUri = host + txtPath;
-            
+
             Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, documentPath, "Open");
 
             for (MetadataFieldGroup field : getProjectFields(projectName)) {
@@ -317,7 +312,7 @@ public class ProjectsService {
         fields = new HashMap<String, List<MetadataFieldGroup>>();
         projectsNode = null;
     }
-    
+
     private String getName(File directory) {
         return directory.getPath().substring(directory.getParent().length() + 1);
     }
