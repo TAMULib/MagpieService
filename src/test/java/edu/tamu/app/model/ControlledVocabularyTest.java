@@ -12,7 +12,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.annotations.Order;
-import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.repo.ControlledVocabularyRepo;
 import edu.tamu.app.runner.OrderedRunner;
 

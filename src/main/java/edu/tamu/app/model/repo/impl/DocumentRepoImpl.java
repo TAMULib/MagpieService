@@ -33,10 +33,10 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
     private DocumentRepo documentRepo;
 
     @Override
-    public synchronized Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status) {
+    public synchronized Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String documentPath, String status) {
         Document document = documentRepo.findByProjectNameAndName(project.getName(), name);
         if (document == null) {
-            document = documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, status));
+            document = documentRepo.save(new Document(project, name, txtUri, pdfUri, txtPath, pdfPath, documentPath, status));
         }
         return document;
     }

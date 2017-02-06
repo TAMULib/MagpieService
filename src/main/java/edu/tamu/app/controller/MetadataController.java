@@ -11,14 +11,11 @@ package edu.tamu.app.controller;
 
 import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
-import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Paths.get;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,9 +34,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
@@ -47,7 +41,8 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.utilities.FileSystemUtility;
+import edu.tamu.app.service.exporter.DspaceCSVExporter;
+import edu.tamu.app.service.exporter.SpotlightExporter;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.ApiVariable;
 import edu.tamu.framework.aspect.annotation.Auth;
@@ -71,12 +66,16 @@ public class MetadataController {
 
     @Autowired
     private DocumentRepo documentRepo;
+    
+    
+    @Autowired
+    private DspaceCSVExporter dspaceCSVExporter;
+    
+    @Autowired
+    private SpotlightExporter spotlightExporter;
 
     @Autowired
     private MetadataFieldGroupRepo metadataFieldGroupRepo;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private ApplicationContext appContext;
@@ -107,67 +106,42 @@ public class MetadataController {
     /**
      * Endpoint to return metadata headers for given project.
      * 
-     * @param project
+     * @param projectName
      * @ApiVariable String
      * 
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/headers/{project}")
+    @ApiMapping("/headers/{format}/{projectName}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse getMetadataHeaders(@ApiVariable String project) {
-
-        URL location = this.getClass().getResource("/config");
-        String fullPath = FileSystemUtility.getWindowsSafePathString(location.getPath());
-
-        String json = null;
-
-        try {
-            json = new String(readAllBytes(get(fullPath + "/metadata.json")));
-        } catch (IOException e2) {
-            logger.error("Error reading metadata json", e2);
-            return new ApiResponse(ERROR, "Error reading metadata json");
-        }
-
-        Map<String, Object> metadataMap = null;
-
-        try {
-            metadataMap = objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {
-            });
-        } catch (IOException e) {
-            logger.error("Error reading metadata json value", e);
-            return new ApiResponse(ERROR, "Error reading metadata json value");
-        }
-
-        List<String> metadataHeaders = new ArrayList<String>();
-
-        for (String key : metadataMap.keySet()) {
-
-            if (key.equals(project)) {
-                @SuppressWarnings("unchecked")
-                List<Map<String, String>> fields = (List<Map<String, String>>) metadataMap.get(key);
-
-                for (Map<String, String> field : fields) {
-                    metadataHeaders.add(field.get("label"));
-                }
-            }
-
-        }
-
-        if (metadataHeaders.isEmpty()) {
-            @SuppressWarnings("unchecked")
-            List<Map<String, String>> fields = (List<Map<String, String>>) metadataMap.get("default");
-
-            for (Map<String, String> field : fields) {
-                metadataHeaders.add(field.get("label"));
-            }
-        }
-
-        metadataHeaders.add("BUNDLE:ORIGINAL");
-
-        Collections.sort(metadataHeaders);
-
+    public ApiResponse getMetadataHeaders(@ApiVariable String projectName, @ApiVariable String format) {
+    	List<String> metadataHeaders = null;
+    	
+    	switch(format) {
+    	
+	    	case "spotlight":
+	    		metadataHeaders = spotlightExporter.extractMetadataFields(projectName);
+	    	break;
+	    	
+	    	case "dspacecsv":
+	    		metadataHeaders = dspaceCSVExporter.extractMetadataFields(projectName);
+	    	break;
+	    	
+	    	default: metadataHeaders = new ArrayList<String>();
+    	
+    	}
+    	        
         return new ApiResponse(SUCCESS, metadataHeaders);
+    }
+    
+    @ApiMapping("/spotlight/{project}")
+    @Auth(role = "ROLE_USER")
+    public ApiResponse getSpotlightExport(@ApiVariable String project) {
+    	
+    	List<List<String>> metadata = spotlightExporter.extractMetadata(projectRepo.findByName(project));
+
+        return new ApiResponse(SUCCESS, metadata);
+    	
     }
 
     /**
@@ -179,40 +153,12 @@ public class MetadataController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/csv/{project}")
+    @ApiMapping("/dspacecsv/{project}")
     @Auth(role = "ROLE_USER")
     public ApiResponse getCSVByroject(@ApiVariable String project) {
 
-        List<List<String>> metadata = new ArrayList<List<String>>();
-
-        projectRepo.findByName(project).getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList()).forEach(document -> {
-
-            List<MetadataFieldGroup> metadataFields = document.getFields();
-
-            Collections.sort(metadataFields, new LabelComparator());
-
-            List<String> documentMetadata = new ArrayList<String>();
-
-            documentMetadata.add(document.getName() + ".pdf");
-
-            metadataFields.forEach(field -> {
-                String values = null;
-                boolean firstPass = true;
-                for (MetadataFieldValue medataFieldValue : field.getValues()) {
-                    if (firstPass) {
-                        values = medataFieldValue.getValue();
-                        firstPass = false;
-                    } else {
-                        values += "||" + medataFieldValue.getValue();
-                    }
-                }
-                documentMetadata.add(values);
-            });
-
-            metadata.add(documentMetadata);
-
-        });
-
+        List<List<String>> metadata = dspaceCSVExporter.extractMetadata(projectRepo.findByName(project));
+        
         return new ApiResponse(SUCCESS, metadata);
     }
 

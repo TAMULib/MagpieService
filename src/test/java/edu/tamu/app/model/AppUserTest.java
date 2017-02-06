@@ -13,7 +13,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.annotations.Order;
-import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.app.runner.OrderedRunner;
 

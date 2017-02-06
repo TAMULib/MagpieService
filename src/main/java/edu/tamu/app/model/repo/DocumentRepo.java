@@ -19,7 +19,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
 
 /**
@@ -30,8 +29,6 @@ import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
  */
 @Repository
 public interface DocumentRepo extends JpaRepository<Document, Long>, DocumentRepoCustom, JpaSpecificationExecutor<Document> {
-
-    public Document create(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String status);
 
     public Page<Document> findAll(Specification<Document> specification, Pageable pageable);
 

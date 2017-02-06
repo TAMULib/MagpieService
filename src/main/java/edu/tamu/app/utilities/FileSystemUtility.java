@@ -59,6 +59,17 @@ public class FileSystemUtility {
         }
         return fileNames;
     }
+    
+    public static List<String> fileListAsStrings(String directory) {
+        List<String> fileNames = new ArrayList<>();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(getWindowsSafePath(directory))) {
+            for (Path path : directoryStream) {
+                fileNames.add(path.toString());
+            }
+        } catch (IOException ex) {
+        }
+        return fileNames;
+    }
 
     public static void createDirectory(String path) throws IOException {
         Path newDirectoryPath = getWindowsSafePath(path);

@@ -163,7 +163,7 @@ public class DocumentController {
     public ApiResponse push(@ApiVariable String projectName, @ApiVariable String documentName) {
 
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
-
+        
         for (ProjectRepository repository : document.getProject().getRepositories()) {
             try {
                 ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);

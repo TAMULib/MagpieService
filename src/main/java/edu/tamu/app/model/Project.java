@@ -114,6 +114,20 @@ public class Project extends BaseEntity {
         return documents;
     }
 
+    /**
+     * Returns all documents considered ready for publishing.
+     * @return List<Document>
+     */
+    public List<Document> getPublishableDocuments() {
+    	List<Document> publishableDocuments = new ArrayList<Document>();
+    	for (Document document:this.getDocuments()) {
+    		if (document.getStatus().equals("Accepted")) {
+    			publishableDocuments.add(document);
+    		}
+    	}
+        return publishableDocuments;
+    }
+    
     public void setDocuments(List<Document> documents) {
         this.documents = documents;
     }
@@ -176,6 +190,21 @@ public class Project extends BaseEntity {
 
     public void setRepositories(List<ProjectRepository> repositories) {
         this.repositories = repositories;
+    }
+    
+    /**
+     * Matches by repositoryId a Repository from the Project's list of Repositories and returns it
+     *  
+     * @param repositoryId
+     * @return ProjectRepository
+     */
+    public ProjectRepository getRepositoryById(Long repositoryId) {
+    	for (ProjectRepository repository:this.getRepositories()) {
+    		if (repository.getId() == repositoryId) {
+    			return repository;
+    		}
+    	}    	
+    	return null;
     }
 
     public void addRepository(ProjectRepository repository) {

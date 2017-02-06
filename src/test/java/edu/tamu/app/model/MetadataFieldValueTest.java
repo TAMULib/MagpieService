@@ -64,7 +64,7 @@ public class MetadataFieldValueTest {
     	testProject = projectRepo.create("testProject");
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
-        testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");
+        testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
         testField = metadataFieldGroupRepo.create(testDocument, testLabel);
         Assert.assertEquals("MetadataFieldValueRepo is not empty.", 0, metadataFieldValueRepo.count());
     }

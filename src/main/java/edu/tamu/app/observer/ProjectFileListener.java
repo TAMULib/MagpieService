@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,12 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @Component
 @Scope("prototype")
 public class ProjectFileListener extends AbstractFileListener {
+	
+	@Value("${app.host}")
+    private String host;
+
+    @Value("${app.mount}")
+    private String mount;
 
     private static final Logger logger = Logger.getLogger(ProjectFileListener.class);
 
@@ -25,21 +32,12 @@ public class ProjectFileListener extends AbstractFileListener {
         this.folder = folder;
     }
 
-    private void createProject(File directory) {
-        String projectName = getName(directory);
-        logger.info("Creating project " + projectName);
-        projectService.getProject(projectName);
+    private void createProject(File directory) {        
+        projectService.getProject(directory);
     }
 
-    private void createDocument(File directory) {
-        String documentName = getName(directory);
-        String projectName = directory.getParentFile().getName();
-        logger.info("Creating document " + documentName);
-        projectService.createDocument(projectName, documentName);
-    }
-
-    private String getName(File directory) {
-        return directory.getPath().substring(directory.getParent().length() + 1);
+    private void createDocument(File directory) {        
+        projectService.createDocument(directory);
     }
 
     @Override
@@ -58,7 +56,7 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Override
     public void onDirectoryChange(File directory) {
-
+    	    	
     }
 
     @Override
@@ -68,7 +66,7 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Override
     public void onFileCreate(File file) {
-
+    	
     }
 
     @Override

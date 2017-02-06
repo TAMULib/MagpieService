@@ -12,8 +12,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.annotations.Order;
-import edu.tamu.app.model.Document;
-import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.runner.OrderedRunner;
@@ -76,7 +74,7 @@ public class ProjectTest {
         Assert.assertEquals("Test Project was not created.", 1, projectRepo.count());
 
         Assert.assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
-        Document testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");
+        Document testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
         Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 
         testProject.addDocument(testDocument);

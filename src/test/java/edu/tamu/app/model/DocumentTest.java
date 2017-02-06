@@ -52,14 +52,14 @@ public class DocumentTest {
     @Before
     public void setUp() {
         testProject = projectRepo.create("testProject");
-        mockDocument = new Document(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "Unassigned");
+        mockDocument = new Document(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
         Assert.assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
     }
 
     @Test
     @Order(1)
     public void testCreateDocument() {
-        Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
+        Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
         Assert.assertEquals("Expected Test Document was not created.", mockDocument.getName(), testDocument.getName());
     }
@@ -68,7 +68,7 @@ public class DocumentTest {
     @Order(2)
     public void testFindDocument() {
         Assert.assertEquals("Test Document already exists.", null, documentRepo.findByProjectNameAndName(testProject.getName(), "testFile"));
-        documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
+        documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         Document testDocument = documentRepo.findByProjectNameAndName(mockDocument.getProject().getName(), mockDocument.getName());
         Assert.assertEquals("Test Document was not found.", mockDocument.getName(), testDocument.getName());
     }
@@ -76,7 +76,7 @@ public class DocumentTest {
     @Test
     @Order(3)
     public void testDeleteDocument() {
-        Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
+        Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(),  mockDocument.getStatus());
         Assert.assertEquals("DocumentRepo is empty.", 1, documentRepo.count());
         documentRepo.delete(testDocument);
         Assert.assertEquals("Test Document was not removed.", 0, documentRepo.count());
@@ -85,7 +85,7 @@ public class DocumentTest {
     @Test
     @Order(4)
     public void testCascadeOnDeleteDocument() {
-        Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getStatus());
+        Document testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(),  mockDocument.getStatus());
         Assert.assertEquals("Test Document was not created.", 1, documentRepo.count());
 
         Assert.assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectProfileRepo.count());
