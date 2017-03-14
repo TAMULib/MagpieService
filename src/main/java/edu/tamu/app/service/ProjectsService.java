@@ -3,8 +3,17 @@ package edu.tamu.app.service;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -305,6 +314,32 @@ public class ProjectsService {
 
             projects.put(projectName, projectRepo.save(project));
         }
+    }
+    
+    public synchronized void createChecksum(File file) {
+
+    	byte[] b = null;
+		try {
+			b = Files.readAllBytes(file.toPath());
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+    	byte[] hash = null;
+		try {
+			hash = MessageDigest.getInstance("MD5").digest(b);
+		} catch (NoSuchAlgorithmException e1) {
+			e1.printStackTrace();
+		}
+        
+        try {
+            File f = new File(file.getAbsolutePath() + ".chk");
+            Writer writer = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
+            writer.write(new String(hash, StandardCharsets.UTF_8));
+            writer.close();
+         }
+         catch(Exception e) {
+            e.printStackTrace();
+         }
     }
 
     public void clear() {

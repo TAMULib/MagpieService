@@ -66,7 +66,9 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Override
     public void onFileCreate(File file) {
-    	
+    	if(!file.getName().endsWith(".chk")) {
+    		projectService.createChecksum(file);
+    	}
     }
 
     @Override
