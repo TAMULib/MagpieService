@@ -288,10 +288,6 @@ public class ProjectsService {
 
         logger.info("Creating document " + documentName);
         
-        if (projectIsHeadless(projectName)) {
-        	logger.info("*** "+projectName+" HEADLESS PROJECT ***");
-        }
-
         if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
             final Project project = getProject(projectName);
 
@@ -312,7 +308,18 @@ public class ProjectsService {
             for (ProjectAuthority authority : project.getAuthorities()) {
                 ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
             }
-
+            
+            if (projectIsHeadless(projectName)) {
+	            for (ProjectRepository repository : document.getProject().getRepositories()) {
+	                try {
+	                    ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
+	                } catch (IOException e) {
+	                    logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
+	                    e.printStackTrace();
+	                }
+	            }
+            }
+            
             document = documentRepo.save(document);
             project.addDocument(document);
 

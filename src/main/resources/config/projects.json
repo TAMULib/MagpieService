@@ -1,6 +1,44 @@
 {
    "automated": {
       "isHeadless": true,
+      "repositories":[
+      {
+            "name":"Fedora",
+            "type":"FEDORA",
+            "settings":[
+               {
+                  "key":"repoUrl",
+                  "values":[
+                     "http://localhost:8080"
+                  ]
+               },
+               {
+                  "key":"restPath",
+                  "values":[
+                     "fcrepo/rest"
+                  ]
+               },
+               {
+                  "key":"containerPath",
+                  "values":[
+                     "spotlight_exhibit"
+                  ]
+               },
+               {
+                  "key":"userName",
+                  "values":[
+                     "fedoraAdmin"
+                  ]
+               },
+               {
+                  "key":"password",
+                  "values":[
+                     "secret3"
+                  ]
+               }
+            ]
+         }
+      ],
       "metadata":[
          {
             "label":"dc.title",
