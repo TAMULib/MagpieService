@@ -127,14 +127,12 @@ public class ProjectsService {
         return projectsNode;
     }
 
-    public synchronized Project getProject(File projectDirectory) {
+    public synchronized Project getOrCreateProject(File projectDirectory) {
         String projectName = getName(projectDirectory);
-        return getProject(projectName);
+        return getOrCreateProject(projectName);
     }
 
-    public synchronized Project getProject(String projectName) {
-
-        logger.info("Creating project " + projectName);
+    public synchronized Project getOrCreateProject(String projectName) {
 
         Project project = projects.get(projectName);
         if (project == null) {
@@ -240,7 +238,7 @@ public class ProjectsService {
         if (projectFields == null) {
             projectFields = new ArrayList<MetadataFieldGroup>();
 
-            final Project project = getProject(projectName);
+            final Project project = getOrCreateProject(projectName);
 
             final Iterable<JsonNode> iterable = () -> getProjectNode(projectName).get(METADATA_KEY).elements();
 
@@ -292,7 +290,7 @@ public class ProjectsService {
         logger.info("Creating document " + documentName);
 
         if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
-            final Project project = getProject(projectName);
+            final Project project = getOrCreateProject(projectName);
 
             String documentPath = mount + "/projects/" + projectName + "/" + documentName;
             String pdfPath = documentPath + "/" + documentName + ".pdf";

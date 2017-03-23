@@ -2,43 +2,13 @@
    "dissertation":{
       "repositories":[
          {
-            "name":"DSpace for Dissertations",
-            "type":"DSPACE",
+            "name":"Archivematica for Dissertations",
+            "type":"ARCHIVEMATICA",
             "settings":[
                {
-                  "key":"repoUrl",
+                  "key":"archivematicaDirectoryName",
                   "values":[
-                     "https://dspacepre1.library.tamu.edu"
-                  ]
-               },
-               {
-                  "key":"repoUIPath",
-                  "values":[
-
-                  ]
-               },
-               {
-                  "key":"collectionId",
-                  "values":[
-                     "138"
-                  ]
-               },
-               {
-                  "key":"groupId",
-                  "values":[
-                     "246"
-                  ]
-               },
-               {
-                  "key":"userName",
-                  "values":[
-                     "magpie@oaktrust.library.tamu.edu"
-                  ]
-               },
-               {
-                  "key":"password",
-                  "values":[
-                     "************"
+                     "/Users/jcreel/Development/MetadataAssignmentToolService/src/main/resources/static/metadatatool/archivematica"
                   ]
                }
             ]

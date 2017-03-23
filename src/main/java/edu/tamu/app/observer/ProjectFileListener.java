@@ -16,7 +16,7 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @Scope("prototype")
 public class ProjectFileListener extends AbstractFileListener {
 	
-	@Value("${app.host}")
+    @Value("${app.host}")
     private String host;
 
     @Value("${app.mount}")
@@ -32,11 +32,13 @@ public class ProjectFileListener extends AbstractFileListener {
         this.folder = folder;
     }
 
-    private void createProject(File directory) {        
-        projectService.getProject(directory);
+    private void createProject(File directory) {
+        logger.info("ProjectFileListener is creating project " + directory.getName());
+        projectService.getOrCreateProject(directory);
     }
 
-    private void createDocument(File directory) {        
+    private void createDocument(File directory) {
+        logger.info("ProjectFileListener is creating document " + directory.getName());
         projectService.createDocument(directory);
     }
 
@@ -66,6 +68,7 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Override
     public void onFileCreate(File file) {
+        logger.info("There was a new file created: " + file.getName());
     	if(!file.getName().endsWith(".md5")) {
     		projectService.createChecksum(file);
     	}
