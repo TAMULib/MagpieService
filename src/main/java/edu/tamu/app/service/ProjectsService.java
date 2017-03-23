@@ -63,6 +63,7 @@ public class ProjectsService {
     private static final String INPUT_TYPE_KEY = "inputType";
     private static final String DEFAULT_KEY = "default";
     private static final String LABEL_KEY = "label";
+    private static final String HEADLESS_KEY = "isHeadless";
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -140,43 +141,49 @@ public class ProjectsService {
             // TODO: improve the object mapping for repositories, authorities, and suggestors
 
             List<ProjectRepository> repositories = new ArrayList<ProjectRepository>();
-            try {
-                repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
-                });
-
-            } catch (JsonParseException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+            
+            if (projectNode.has(REPOSITORIES_KEY)) {
+	            try {
+	                repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
+	                });
+	
+	            } catch (JsonParseException e) {
+	                e.printStackTrace();
+	            } catch (JsonMappingException e) {
+	                e.printStackTrace();
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
             }
-
             List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
-            try {
-                authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
-                });
-
-            } catch (JsonParseException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (projectNode.has(AUTHORITIES_KEY)) {
+	            try {
+	                authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
+	                });
+	
+	            } catch (JsonParseException e) {
+	                e.printStackTrace();
+	            } catch (JsonMappingException e) {
+	                e.printStackTrace();
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
             }
-
+            
             List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();
-            try {
-                suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
-                });
-            } catch (JsonParseException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+            
+            if (projectNode.has(SUGGESTORS_KEY)) {
+	            try {
+	                suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
+	                });
+	            } catch (JsonParseException e) {
+	                e.printStackTrace();
+	            } catch (JsonMappingException e) {
+	                e.printStackTrace();
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
             }
-
             project = projectRepo.create(projectName, repositories, authorities, suggestors);
 
             try {
@@ -262,6 +269,14 @@ public class ProjectsService {
         }
         return projectFields;
     }
+    
+    public boolean projectIsHeadless(String projectName) {
+    	JsonNode projectNode = getProjectNode(projectName);
+    	if (projectNode.has(HEADLESS_KEY)) {
+        	return projectNode.get(HEADLESS_KEY).asBoolean();
+    	}
+    	return false;
+    }
 
     public synchronized void createDocument(File directory) {
         String projectName = directory.getParentFile().getName();
@@ -272,6 +287,10 @@ public class ProjectsService {
     public synchronized void createDocument(String projectName, String documentName) {
 
         logger.info("Creating document " + documentName);
+        
+        if (projectIsHeadless(projectName)) {
+        	logger.info("*** "+projectName+" HEADLESS PROJECT ***");
+        }
 
         if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
             final Project project = getProject(projectName);

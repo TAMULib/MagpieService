@@ -1,4 +1,27 @@
 {
+   "automated": {
+      "isHeadless": true,
+      "metadata":[
+         {
+            "label":"dc.title",
+            "gloss":"Title",
+            "repeatable":false,
+            "readOnly":false,
+            "required":true,
+            "inputType":"TEXT",
+            "default": "Default Title"
+         },
+         {
+            "label":"dc.creator",
+            "gloss":"Creator",
+            "repeatable":false,
+            "readOnly":false,
+            "required":true,
+            "inputType":"TEXT",
+            "default": "Default Creator"
+         }
+      ]
+   },
    "dissertation":{
       "repositories":[
          {
