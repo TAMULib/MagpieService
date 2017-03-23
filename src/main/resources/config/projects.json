@@ -8,7 +8,7 @@
                {
                   "key":"archivematicaDirectoryName",
                   "values":[
-                     "/Users/jcreel/Development/MetadataAssignmentToolService/src/main/resources/static/metadatatool/archivematica"
+                     "/Users/jcreel/Development/MetadataAssignmentToolService/target/resources/static/metadatatool/archivematica"
                   ]
                }
             ]

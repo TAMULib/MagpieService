@@ -91,7 +91,9 @@ public class MagpieServiceRegistry {
                             ? projectService.getSettingValues("subjectLabel").get(0) : "");
             break;
         case ARCHIVEMATICA:
-            service = (MagpieService) new ArchivematicaFilesystemRepository();
+            service = (MagpieService) new ArchivematicaFilesystemRepository(
+                    projectService.getSettingValues("archivematicaDirectoryName").size() > 0
+                            ? projectService.getSettingValues("archivematicaDirectoryName").get(0) : "");
             break;
         default:
             logger.info("Unidentified service type: " + projectService.getType());
