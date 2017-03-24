@@ -116,7 +116,7 @@ public class CsvUtility {
             itemDirectory.mkdir();
         }
 
-        generateCsvFile(csvContents, itemDirectory + "/metadata.csv");
+        generateCsvFile(csvContents, itemDirectory + File.separator + "metadata.csv");
 
         return csvContents;
     }
