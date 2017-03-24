@@ -28,6 +28,7 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
+import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.ProjectRepository;
@@ -301,7 +302,17 @@ public class ProjectsService {
             Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, documentPath, "Open");
 
             for (MetadataFieldGroup field : getProjectFields(projectName)) {
-                document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
+                // For headless projects, auto generate metadata 
+            	// TODO Integrate with a mechanism for lookup of metadata values (Voyager)
+            	if (projectIsHeadless(projectName)) {
+            		MetadataFieldValue mfv = new MetadataFieldValue();
+            		mfv.setValue(field.getLabel().getProfile().getDefaultValue());
+            		MetadataFieldGroup mfg = metadataFieldGroupRepo.create(document, field.getLabel());
+            		mfg.addValue(mfv);
+            		document.addField(mfg);
+            	} else {
+            		document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
+            	}
             }
 
             // get the Authority Beans and populate document with each Authority
@@ -309,8 +320,13 @@ public class ProjectsService {
                 ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
             }
             
+            document = documentRepo.save(document);
+
+            project.addDocument(document);
+
+            // For headless projects, attempt to immediately push to registered repositories
             if (projectIsHeadless(projectName)) {
-	            for (ProjectRepository repository : document.getProject().getRepositories()) {
+            	for (ProjectRepository repository : document.getProject().getRepositories()) {
 	                try {
 	                    ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
 	                } catch (IOException e) {
@@ -320,9 +336,6 @@ public class ProjectsService {
 	            }
             }
             
-            document = documentRepo.save(document);
-            project.addDocument(document);
-
             try {
                 simpMessagingTemplate.convertAndSend("/channel/new-document", new ApiResponse(SUCCESS, document));
             } catch (Exception e) {
