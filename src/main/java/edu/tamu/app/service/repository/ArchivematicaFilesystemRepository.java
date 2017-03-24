@@ -7,13 +7,21 @@ import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.utilities.CsvUtility;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 public class ArchivematicaFilesystemRepository implements Repository {
+    
+    @Value("${app.mount}")
+    private String mount;
 
+    @Autowired
+    private CsvUtility csvUtility;
+    
     private String archivematicaDirectoryName;
 
     @Autowired
@@ -52,20 +60,20 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
         // make the top level container for the transfer package
         File transferPackageDirectory = new File(archivematicaDirectoryName + "/" + document.getName());
-        if (!transferPackageDirectory.exists())
+        if (!transferPackageDirectory.isDirectory())
             transferPackageDirectory.mkdir();
 
         // make the logs, metadata, and objects subdirectories
         File logsSubdirectory = new File(transferPackageDirectory.getPath() + "/logs");
-        if (!logsSubdirectory.exists())
+        if (!logsSubdirectory.isDirectory())
             logsSubdirectory.mkdir();
 
         File metadataSubdirectory = new File(transferPackageDirectory.getPath() + "/metadata");
-        if (!metadataSubdirectory.exists())
+        if (!metadataSubdirectory.isDirectory())
             metadataSubdirectory.mkdir();
 
         File objectsSubdirectory = new File(transferPackageDirectory.getPath() + "/objects");
-        if (!objectsSubdirectory.exists())
+        if (!objectsSubdirectory.isDirectory())
             objectsSubdirectory.mkdir();
 
         // copy the checksum to the metadata subdirectory
@@ -73,13 +81,14 @@ public class ArchivematicaFilesystemRepository implements Repository {
         FileUtils.copyFile(md5hash[0], md5Destination);
 
         // write the metadata csv in the metadata subdirectory
-        // TODO:
+        // write the ArchiveMatica CSV for this document
+        csvUtility.generateOneArchiveMaticaCSV(document, metadataSubdirectory.getPath());
 
         // make the submissionDocumentation subdirectory in the metadata
         // subdirectory
         File submissionDocumentationSubdirectory = new File(
                 metadataSubdirectory.getPath() + "/submissionDocumentation");
-        if (!submissionDocumentationSubdirectory.exists())
+        if (!submissionDocumentationSubdirectory.isDirectory())
             submissionDocumentationSubdirectory.mkdir();
 
         // copy the item directory and tiffs to the objects subdirectory

@@ -38,7 +38,6 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.utilities.CsvUtility;
 
 public class DSpaceRepository implements Repository {
     
@@ -50,9 +49,6 @@ public class DSpaceRepository implements Repository {
 
     @Autowired
     private DocumentRepo documentRepo;
-
-    @Autowired
-    private CsvUtility csvUtility;
     
     @Value("${app.mount}")
     private String mount;
@@ -96,24 +92,7 @@ public class DSpaceRepository implements Repository {
         // POST each of the bitstreams in this document to the newly created item
         addBitstreams(newItemIdString, document);
 
-        // write the ArchiveMatica CSV for this document
-        String directory = "";
-        try {
-            directory = resourceLoader.getResource("classpath:static" + mount + "/archivematica").getURL().getPath();
-        } catch (IOException e) {
-            IOException ioe = new IOException("Failed to create items; Could not get Spring resource for the archivematica output directory on the mount. {" + e.getMessage() + "}");
-            ioe.setStackTrace(e.getStackTrace());
-            cleanUpFailedPublish(newItemIdString);
-            throw ioe;
-        }
-
-        String archiveDirectoryName = directory + document.getProject().getName();
-        File archiveDirectory = new File(archiveDirectoryName);
-        if (archiveDirectory.isDirectory() == false) {
-            archiveDirectory.mkdir();
-        }
-        String itemDirectoryName = archiveDirectoryName + "/" + document.getName();
-        csvUtility.generateOneArchiveMaticaCSV(document, itemDirectoryName);
+        
 
         // add new handle to document, change it's status to published, save it
         String publishedUriString;

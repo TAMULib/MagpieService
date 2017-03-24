@@ -115,6 +115,7 @@ public class CsvUtility {
             itemDirectory.mkdir();
         }
 
+        System.out.println("Generating CSV file " + itemDirectory + "/metadata_" + System.currentTimeMillis() + ".csv" );
         generateCsvFile(csvContents, itemDirectory + "/metadata_" + System.currentTimeMillis() + ".csv");
 
         return csvContents;
