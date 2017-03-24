@@ -34,14 +34,9 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
     @Autowired
     private ResourceLoader resourceLoader;
-
+    
     public ArchivematicaFilesystemRepository(String archivematicaDirectoryName) throws IOException {
-        //TODO:  does this work?
-        Path classpath = FileSystemUtility.getWindowsSafePath(
-                resourceLoader.getResource("classpath:static").getURL().getPath());
-                
-                
-        this.archivematicaDirectoryName = classpath.toString() + archivematicaDirectoryName;
+    	this.archivematicaDirectoryName = archivematicaDirectoryName;
     }
 
     @Override
@@ -49,14 +44,16 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
         Path itemDirectoryName = FileSystemUtility.getWindowsSafePath(
                 resourceLoader.getResource("classpath:static").getURL().getPath() + document.getDocumentPath());
-        System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryName.toString()
-                + " to " + archivematicaDirectoryName);
 
         File documentDirectory = itemDirectoryName.toFile();
         
         
         // make the top level container for the transfer package
-        File transferPackageDirectory = new File(archivematicaDirectoryName + "/" + document.getName());
+        File transferPackageDirectory = new File(resourceLoader.getResource("classpath:static").getURL().getPath()+"/"+mount+"/"+archivematicaDirectoryName + "/" + document.getName());
+        
+        System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryName.toString()
+        + " to " + transferPackageDirectory.getCanonicalPath());
+        
         if (!transferPackageDirectory.isDirectory())
             transferPackageDirectory.mkdir();
             
