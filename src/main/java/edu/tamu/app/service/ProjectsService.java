@@ -303,7 +303,6 @@ public class ProjectsService {
 
             for (MetadataFieldGroup field : getProjectFields(projectName)) {
                 // For headless projects, auto generate metadata 
-            	// TODO Integrate with a mechanism for lookup of metadata values (Voyager)
             	if (projectIsHeadless(projectName)) {
             		MetadataFieldValue mfv = new MetadataFieldValue();
             		mfv.setValue(field.getLabel().getProfile().getDefaultValue());
