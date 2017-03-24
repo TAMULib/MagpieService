@@ -47,6 +47,17 @@ public class MetadataFieldLabel extends BaseEntity {
     public String getName() {
         return name;
     }
+    
+    public String getUnqualifiedName() {
+        String nameToReturn = name;
+        String[] parts = name.split("\\.");
+        if(parts.length == 3) {
+            nameToReturn = parts[0] + "." + parts[1];
+        }
+        
+        return nameToReturn;
+        
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -59,5 +70,7 @@ public class MetadataFieldLabel extends BaseEntity {
     public void setProfile(FieldProfile profile) {
         this.profile = profile;
     }
+    
+    
 
 }
