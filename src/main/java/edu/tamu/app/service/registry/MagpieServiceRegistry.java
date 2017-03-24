@@ -1,5 +1,6 @@
 package edu.tamu.app.service.registry;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,9 +92,14 @@ public class MagpieServiceRegistry {
                             ? projectService.getSettingValues("subjectLabel").get(0) : "");
             break;
         case ARCHIVEMATICA:
-            service = (MagpieService) new ArchivematicaFilesystemRepository(
-                    projectService.getSettingValues("archivematicaDirectoryName").size() > 0
-                            ? projectService.getSettingValues("archivematicaDirectoryName").get(0) : "");
+            try {
+                service = (MagpieService) new ArchivematicaFilesystemRepository(
+                        projectService.getSettingValues("archivematicaDirectoryName").size() > 0
+                                ? projectService.getSettingValues("archivematicaDirectoryName").get(0) : "");
+            } catch (IOException e) {
+                logger.error("Could not instantiate Archivematica Repository due to IO exception:");
+                e.printStackTrace();
+            }
             break;
         default:
             logger.info("Unidentified service type: " + projectService.getType());
