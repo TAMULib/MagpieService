@@ -49,7 +49,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         
         
         // make the top level container for the transfer package
-        File transferPackageDirectory = new File(resourceLoader.getResource("classpath:static").getURL().getPath()+"/"+mount+"/"+archivematicaDirectoryName + "/" + document.getName());
+        File transferPackageDirectory = new File(resourceLoader.getResource("classpath:static").getURL().getPath()+"/"+mount+"/"+archivematicaDirectoryName + "/" + document.getProject().getName() + "_" + document.getName());
         
         System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryName.toString()
         + " to " + transferPackageDirectory.getCanonicalPath());
@@ -76,6 +76,11 @@ public class ArchivematicaFilesystemRepository implements Repository {
         File submissionDocumentationSubdirectory = new File(metadataSubdirectory.getPath() + "/submissionDocumentation");
         if (!submissionDocumentationSubdirectory.isDirectory())
             submissionDocumentationSubdirectory.mkdir();
+        
+        //make the specific item subdirectory in the objects subdirectory
+        File singleObjectSubdirectory = new File(objectsSubdirectory.getPath() + "/" + document.getName());
+        if(!singleObjectSubdirectory.isDirectory())
+            singleObjectSubdirectory.mkdir();
 
 
         // assume for now that there are some number of tiffs in the document
@@ -110,7 +115,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
         // copy the item directory and tiffs to the objects subdirectory
         for (File tiff : tiffFiles) {
-            File destinationTiff = new File(objectsSubdirectory.getPath() + "/" + tiff.getName());
+            File destinationTiff = new File(singleObjectSubdirectory.getPath() + "/" + tiff.getName());
             FileUtils.copyFile(tiff, destinationTiff);
         }
 
@@ -138,7 +143,6 @@ public class ArchivematicaFilesystemRepository implements Repository {
             }
 
             lines.add(checksum);
-            System.out.println("Attempting to write to file " + p.toString());            
             Files.write(p, lines);
 
         } catch (IOException e) {
