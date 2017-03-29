@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -38,6 +39,7 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.service.repository.ArchivematicaFilesystemRepository.OnlyTiff;
 
 public class DSpaceRepository implements Repository {
     
@@ -276,6 +278,7 @@ public class DSpaceRepository implements Repository {
         }
 
         String pdfBitstreamId = pdfBitstreamJson.get("id").asText();
+        
 
         // *************************************
         // PUT PDF bitstream metadata
@@ -366,7 +369,66 @@ public class DSpaceRepository implements Repository {
             cleanUpFailedPublish(itemId);
             throw ioe;
         }
+        
+        
+        
+        
+        
+        //POST TIFFS
+        // assume for now that there are some number of tiffs in the document
+        // directory and obtain the tiffs and md5 checksum from disk
+        File[] tiffFiles = (new File(document.getDocumentPath())).listFiles(new OnlyTiff());
+        URL addTiffUrl;
+        FileInputStream tiffFileStrm;
+        for(File tiff : tiffFiles) {
+            try {
+                addTiffUrl = new URL(repoUrl + "/rest/items/" + itemId + "/bitstreams?name=" + tiff.getName());
+            } catch (MalformedURLException e) {
+                MalformedURLException murle = new MalformedURLException("Failed to add tiff bitstream; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}");
+                murle.setStackTrace(e.getStackTrace());
+                cleanUpFailedPublish(itemId);
+                throw murle;
+            }
 
+            tiffFileStrm = new FileInputStream(tiff);
+            byte[] tiffBytes = IOUtils.toByteArray(pdfFileStrm);
+
+            ObjectNode tiffBitstreamJson = null;
+            try {
+                tiffBitstreamJson = (ObjectNode) doRESTRequest(addTiffUrl, "POST", tiffBytes, "application/tiff", "post bitstream");
+            } catch (Exception e) {
+                cleanUpFailedPublish(itemId);
+                tiffFileStrm.close();
+                throw e;
+            }
+
+            String tiffBitstreamId = tiffBitstreamJson.get("id").asText();
+            
+            policiesNode = tiffBitstreamJson.putArray("policies");
+            policyNode = objectMapper.createObjectNode();
+            policyNode.put("action", "READ");
+            policyNode.put("groupId", groupId);
+            policyNode.put("rpType", "TYPE_CUSTOM");
+            policiesNode.add(policyNode);
+
+            try {
+                addPolicyUrl = new URL(repoUrl + "/rest/bitstreams/" + tiffBitstreamId);
+            } catch (MalformedURLException e) {
+                MalformedURLException murle = new MalformedURLException("Failed to update tiff bitstream metadata; the REST URL to PUT the policy was malformed. {" + e.getMessage() + "}");
+                murle.setStackTrace(e.getStackTrace());
+                cleanUpFailedPublish(itemId);
+                tiffFileStrm.close();
+                throw murle;
+            }
+
+            try {
+                doRESTRequest(addPolicyUrl, "PUT", pdfBitstreamJson.toString().getBytes(), "application/json", "update TIFF bitstream metadata");
+            } catch (Exception e) {
+                cleanUpFailedPublish(itemId);
+                tiffFileStrm.close();
+                throw e;
+            }
+        }
     }
 
     private String authenticateRest(String username, String password) throws IOException {
@@ -459,6 +521,13 @@ public class DSpaceRepository implements Repository {
         }
 
         doRESTRequest(deleteItemUrl, "DELETE", "".getBytes(), "application/json", "delete item");
+    }
+    
+    //TODO:  move to utility class
+    class OnlyTiff implements FilenameFilter {
+        public boolean accept(File dir, String name) {
+            return name.toLowerCase().endsWith(".tif") || name.toLowerCase().endsWith(".tiff");
+        }
     }
 
 }
