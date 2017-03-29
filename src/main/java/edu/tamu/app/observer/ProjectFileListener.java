@@ -15,8 +15,8 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @Component
 @Scope("prototype")
 public class ProjectFileListener extends AbstractFileListener {
-	
-	@Value("${app.host}")
+
+    @Value("${app.host}")
     private String host;
 
     @Value("${app.mount}")
@@ -32,11 +32,13 @@ public class ProjectFileListener extends AbstractFileListener {
         this.folder = folder;
     }
 
-    private void createProject(File directory) {        
-        projectService.getProject(directory);
+    private void createProject(File directory) {
+        logger.info("ProjectFileListener is creating project " + directory.getName());
+        projectService.getOrCreateProject(directory);
     }
 
-    private void createDocument(File directory) {        
+    private void createDocument(File directory) {
+        logger.info("ProjectFileListener is creating document " + directory.getName());
         projectService.createDocument(directory);
     }
 
@@ -47,7 +49,8 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Override
     public void onDirectoryCreate(File directory) {
-        if (FileSystemUtility.getWindowsSafePath(directory.getParent()).equals(FileSystemUtility.getWindowsSafePath(getPath()))) {
+        if (FileSystemUtility.getWindowsSafePath(directory.getParent())
+                .equals(FileSystemUtility.getWindowsSafePath(getPath()))) {
             createProject(directory);
         } else {
             createDocument(directory);
@@ -56,7 +59,7 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Override
     public void onDirectoryChange(File directory) {
-    	    	
+
     }
 
     @Override
@@ -66,7 +69,7 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Override
     public void onFileCreate(File file) {
-    	
+
     }
 
     @Override

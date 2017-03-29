@@ -63,7 +63,7 @@ public class SyncService {
 
             String projectName = projectPath.getFileName().toString();
 
-            projectsService.getProject(projectName);
+            projectsService.getOrCreateProject(projectName);
 
             List<Path> documents = FileSystemUtility.fileList(projectPath.toString());
 

@@ -70,9 +70,10 @@ public class CsvUtility {
                     values += "||" + medataFieldValue.getValue();
                 }
             }
-            map.put(field.getLabel().getName(), values);
+            map.put(field.getLabel().getUnqualifiedName(), values);
         });
 
+        //The first row is the "parts" field and all the metadata keys/labels
         ArrayList<String> csvRow = new ArrayList<String>();
         csvRow.add("parts");
         for (int i = 0; i < elements.length; i++) {
@@ -115,7 +116,7 @@ public class CsvUtility {
             itemDirectory.mkdir();
         }
 
-        generateCsvFile(csvContents, itemDirectory + "/metadata_" + System.currentTimeMillis() + ".csv");
+        generateCsvFile(csvContents, itemDirectory + File.separator + "metadata.csv");
 
         return csvContents;
     }

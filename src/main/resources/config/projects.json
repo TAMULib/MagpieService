@@ -1,5 +1,6 @@
 {
    "dissertation":{
+      "isHeadless": true,
       "repositories":[
          {
             "name":"Archivematica for Dissertations",
@@ -27,8 +28,6 @@
                   "key":"archivematicaAPIKey",
                   "values":[
                      "******"
-                  ]
-               }
             ]
          }
       ],
