@@ -2,43 +2,31 @@
    "dissertation":{
       "repositories":[
          {
-            "name":"DSpace for Dissertations",
-            "type":"DSPACE",
+            "name":"Archivematica for Dissertations",
+            "type":"ARCHIVEMATICA",
             "settings":[
                {
-                  "key":"repoUrl",
+                  "key":"archivematicaDirectoryName",
                   "values":[
-                     "https://dspacepre1.library.tamu.edu"
+                     "/Volumes/disc_work/archivematica/magpie-output"
                   ]
                },
                {
-                  "key":"repoUIPath",
+                  "key":"archivematicaURL",
                   "values":[
-
+                     "archivematica-demo.library.tamu.edu"
                   ]
                },
                {
-                  "key":"collectionId",
+                  "key":"archivematicaUsername",
                   "values":[
-                     "138"
+                     "teammagpie"
                   ]
                },
                {
-                  "key":"groupId",
+                  "key":"archivematicaAPIKey",
                   "values":[
-                     "246"
-                  ]
-               },
-               {
-                  "key":"userName",
-                  "values":[
-                     "magpie@oaktrust.library.tamu.edu"
-                  ]
-               },
-               {
-                  "key":"password",
-                  "values":[
-                     "************"
+                     "******"
                   ]
                }
             ]
