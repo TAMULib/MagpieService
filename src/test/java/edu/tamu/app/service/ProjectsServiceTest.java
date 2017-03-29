@@ -74,7 +74,7 @@ public class ProjectsServiceTest {
     @Test
     @Order(2)
     public void testGetProject() {
-        Project project = projectsService.getProject("dissertation");
+        Project project = projectsService.getOrCreateProject("dissertation");
         assertNotNull("The project was not created!", project);
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
         assertEquals("The project has the incorrect number of authorities!", 1, project.getAuthorities().size());
