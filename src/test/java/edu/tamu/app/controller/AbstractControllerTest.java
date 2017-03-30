@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
+import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.DocumentPushService;
 import edu.tamu.app.service.ProjectsService;
 import edu.tamu.app.service.SyncService;
@@ -42,6 +43,9 @@ public abstract class AbstractControllerTest extends MockData {
 
 	@Mock
 	protected AppUserRepo userRepo;
+
+	@Mock
+	protected ProjectRepo projectRepo;
 
 	@Spy
 	protected ObjectMapper objectMapper;
@@ -85,7 +89,7 @@ public abstract class AbstractControllerTest extends MockData {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-
+		//app user
 		when(userRepo.findAll()).thenReturn(mockAppUserList);
 
 		when(userRepo.save(any (AppUser.class))).then( new Answer<AppUser>() {
@@ -94,6 +98,8 @@ public abstract class AbstractControllerTest extends MockData {
 				return saveAppUser((AppUser)invocation.getArguments()[0]);
 			}
 		});
+		//project
+		when(projectRepo.findAll()).thenReturn(mockProjectList);
 
 		aggieJackToken = new HashMap<String, String>();
 		aggieJackToken.put("lastName","Daniels");

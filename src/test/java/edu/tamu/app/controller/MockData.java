@@ -8,6 +8,7 @@ import java.util.Map;
 
 import edu.tamu.app.enums.AppRole;
 import edu.tamu.app.model.AppUser;
+import edu.tamu.app.model.Project;
 import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.Credentials;
 
@@ -49,6 +50,19 @@ public class MockData {
 	}
 
 	protected static Map<String, String> aggieJackToken;
+
+	//Project
+	protected static Project TEST_PROJECT1 = new Project("Project Name 1");
+	protected static Project TEST_PROJECT2 = new Project("Project Name 2");
+	protected static Project TEST_PROJECT3 = new Project("Project Name 3");
+
+	static {
+		TEST_PROJECT1.setId(1l);
+		TEST_PROJECT2.setId(2l);
+		TEST_PROJECT3.setId(3l);
+	}
+
+	protected static List<Project> mockProjectList = new ArrayList<Project>(Arrays.asList(new Project[] {TEST_PROJECT1 , TEST_PROJECT2 , TEST_PROJECT3}));
 
 	protected static List<String> grantorList = new ArrayList<String>();
 	protected static List<String> degreeList = new ArrayList<String>();
