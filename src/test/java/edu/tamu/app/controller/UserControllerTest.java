@@ -39,4 +39,10 @@ public class UserControllerTest extends AbstractControllerTest {
 		AppUser user = (AppUser) response.getPayload().get("AppUser");
 		assertEquals(" The app user role was not updated " , TEST_USER1.getRole() , user.getRole());
 	}
+
+	@Test
+	public void testDeleteUser() throws Exception {
+		response = userController.delete(TEST_USER3);
+		assertEquals(" The response was not successful ", ApiResponseType.SUCCESS , response.getMeta().getType());
+	}
 }
