@@ -64,6 +64,26 @@ public class MockData {
 
 	protected static List<Project> mockProjectList = new ArrayList<Project>(Arrays.asList(new Project[] {TEST_PROJECT1 , TEST_PROJECT2 , TEST_PROJECT3}));
 
+	public Project saveProject(Project modifiedProject) {
+		for(Project project : mockProjectList) {
+			if(project.getId().equals(modifiedProject.getId())) {
+				project.setName(modifiedProject.getName());
+				project.setIsLocked(false);
+				return project;
+			}
+		}
+		return null;
+	}
+
+	public Project findProjectByName(String projectname) {
+		for(Project project : mockProjectList) {
+			if(project.getName().equals(projectname)) {
+				return project;
+			}
+		}
+		return null;
+	}
+
 	protected static List<String> grantorList = new ArrayList<String>();
 	protected static List<String> degreeList = new ArrayList<String>();
 

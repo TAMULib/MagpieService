@@ -15,6 +15,7 @@ import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,7 +26,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.AppUser;
+import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.AppUserRepo;
+import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.DocumentPushService;
 import edu.tamu.app.service.ProjectsService;
@@ -42,7 +46,16 @@ public abstract class AbstractControllerTest extends MockData {
 	protected static ApiResponse response;
 
 	@Mock
+	protected ApplicationContext applicationContext;
+
+	@Mock
 	protected AppUserRepo userRepo;
+
+	@Mock
+	protected DocumentRepo documentRepo;
+
+	@Mock
+	protected MetadataFieldGroupRepo metadataFieldGroupRepo;
 
 	@Mock
 	protected ProjectRepo projectRepo;
@@ -100,6 +113,20 @@ public abstract class AbstractControllerTest extends MockData {
 		});
 		//project
 		when(projectRepo.findAll()).thenReturn(mockProjectList);
+
+		when(projectRepo.save(any (Project.class))).then( new Answer<Project>() {
+			@Override
+			public Project answer(InvocationOnMock invocation) throws Throwable {
+				return saveProject( (Project) invocation.getArguments()[0]);
+			}
+		});
+
+		when(projectRepo.findByName(any (String.class))).then(new Answer<Project>() {
+			@Override
+			public Project answer(InvocationOnMock invocation) throws Throwable {
+				return findProjectByName( (String) invocation.getArguments()[0]);
+			}
+		});
 
 		aggieJackToken = new HashMap<String, String>();
 		aggieJackToken.put("lastName","Daniels");
