@@ -1,6 +1,7 @@
 package edu.tamu.app.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -8,23 +9,23 @@ import java.util.Map;
 import org.junit.Test;
 
 import edu.tamu.framework.enums.ApiResponseType;
-
+@SuppressWarnings("unchecked")
 public class ControlledVocabularyControllerTest extends AbstractControllerTest {
-	@SuppressWarnings("unchecked")
+
 	@Test
-	public void testAllControlledVocabulary() throws Exception {
+	public void testAllControlledVocabulary() {
 		response = controlledVocabularyController.getAllControlledVocabulary();
 		assertEquals(" The response was not successful " , ApiResponseType.SUCCESS, response.getMeta().getType());
-		Map<String,Object> map = (Map<String, Object>) response.getPayload().get("HashMap");
-		assertEquals(" The response does not contain the grantor List ", grantorList.size() ,((List<String>) map.get("grantor")).size() );
-		assertEquals(" The response does not contain the degree List ", degreeList.size() ,((List<String>) map.get("degrees")).size() );
+		Map<String,Object> map = (Map<String, Object>) response.getPayload().get("LinkedHashMap");
+		assertNotNull(" The degree grantor list is null ", ((List<String>) map.get("thesis.degree.grantor")).size());
+		assertNotNull(" The degree name list is null ", ((List<String>) map.get("thesis.degree.name")).size());
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Test
-	public void testControlledVocabularyByField() throws Exception {
-		response = controlledVocabularyController.getControlledVocabularyByField("grantor");
-		Map<String,Object> map = (Map<String, Object>) response.getPayload().get("HashMap");
-		assertEquals(" The response does not contain the grantor List ", grantorList.size() ,((List<String>) map.get("grantor")).size() );
+	public void testControlledVocabularyByField() {
+		response = controlledVocabularyController.getControlledVocabularyByField("thesis.degree.grantor");
+		assertEquals(" The response was not successful " , ApiResponseType.SUCCESS, response.getMeta().getType());
+		List<String> degreeGrantorList = (List<String>)response.getPayload().get("ArrayList<String>");
+		assertNotNull(" The degree grantor list is null ", degreeGrantorList.size());
 	}
 }
