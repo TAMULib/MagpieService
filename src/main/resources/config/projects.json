@@ -9,7 +9,25 @@
                {
                   "key":"archivematicaDirectoryName",
                   "values":[
-                     "archivematica"
+                     "/Volumes/disc_work/archivematica/magpie-output"
+                  ]
+               },
+               {
+                  "key":"archivematicaURL",
+                  "values":[
+                     "archivematica-demo.library.tamu.edu"
+                  ]
+               },
+               {
+                  "key":"archivematicaUsername",
+                  "values":[
+                     "teammagpie"
+                  ]
+               },
+               {
+                  "key":"archivematicaAPIKey",
+                  "values":[
+                     "******"
                   ]
                }
             ]

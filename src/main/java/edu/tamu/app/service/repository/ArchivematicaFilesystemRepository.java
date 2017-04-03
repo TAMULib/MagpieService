@@ -183,17 +183,11 @@ public class ArchivematicaFilesystemRepository implements Repository {
     }
     
     private boolean startArchivematicaTransfer(Document document, File archivematicaPackageDirectory) throws IOException {
-    	/* This command is working except for maybe a permission error on the server!!!!
-    	 *  curl --verbose -X POST -d 'name=123456&type=standard&paths[]="TlRoaE5EWTRPV1l0WkdZNU1DMDBZMlEwTFRobE5tTXRORGxtTVdSak5URXpOalJqT2k5V2IyeDFiV1Z6TDJScGMyTmZkMjl5YXk5aGNtTm9hWFpsYldGMGFXTmhMMjFoWjNCcFpTMXZkWFJ3ZFhRdlpHbHpjMlZ5ZEdGMGFXOXVYekV5TXpRMU5nPT0="' 'http://archivematica-demo.library.tamu.edu/api/transfer/start_transfer/?username=teammagpie&api_key=8e4800ec5d02723d6bc28cd1d580c4ec692ea68c'
-    	 */
-        
         //TODO:  this shares code with the REST method in the DSpace repository - consider pulling out into a utility method?
         //create the URL for the REST call
         URL restUrl;
         try {
             restUrl = new URL("http://" + archivematicaURL + "/api/transfer/start_transfer/?username=" + archivematicaUsername + "&api_key=" + archivematicaAPIKey);
-            //restUrl = new URL("http://" + archivematicaURL + "/api/transfer/start_transfer/");
-            
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             MalformedURLException murle = new MalformedURLException("Failed to initialize URL for Archivematica REST API call - the URL was malformed. {" + e.getMessage() + "}");
@@ -221,39 +215,13 @@ public class ArchivematicaFilesystemRepository implements Repository {
         
         connection.setDoOutput(true);
         
-  ///      connection.setRequestProperty("Accept", "application/json");
-        //connection.setRequestProperty("Authorization", "Archivematica-API api_key=\"" + archivematicaAPIKey + "\", username=\"" + archivematicaUsername + "\"");
-//        connection.setRequestProperty("Authorization", "ApiKey "+archivematicaUsername+":"+archivematicaAPIKey);
-        
-        
-        ObjectNode on = objectMapper.createObjectNode();
-        on.put("name", document.getName());
-        on.put("type", "standard");
-        //on.put("accession", "?");
-
-        ArrayNode pathsNode = objectMapper.createArrayNode();
-        
         UUID uuid = UUID.randomUUID();
         String pathString = uuid.toString() + ":" + archivematicaPackageDirectory.getPath();
         System.out.println("Transfer package path string: " + pathString);
         byte[] encodedBytes = Base64.getEncoder().encode(pathString.getBytes());
-        pathsNode.add(encodedBytes);
         
         System.out.println("Transfer package encoded and then decoded: " + Base64.getDecoder().decode(encodedBytes) );
         
-        on.set("paths", pathsNode);
-        
-        ArrayNode row_idsNode= objectMapper.createArrayNode();
-        row_idsNode.add("");
-        
-        on.set("row_ids", row_idsNode);
-        
-        
-        String json = objectMapper.writer().writeValueAsString(on);
-        
-        System.out.println("POST request to start Archivematia Transfer: " + json);
-        
-
         // Write post data by opening an output stream on the connection and writing to it
         OutputStream os;
         try {
@@ -264,18 +232,14 @@ public class ArchivematicaFilesystemRepository implements Repository {
             throw ioe;
         }
 
-        //TODO:  putting the transfer info in the params is one possibility for getting archivematica to start them
         String params = "";
         params += "name=" + document.getName()
                +  "&type=standard"
-               +  "&paths[]=" + pathString  
-               +  "&row_ids[]=\n";
-//               + json;
+               +  "&paths[]=" + encodedBytes.toString();  
         try {
-            //os.write(params.getBytes());
-            
-//            os.write(json.getBytes());
-            
+        	System.out.println("POST DATA: ");
+        	System.out.println(params);
+        	
             connection.getOutputStream().write(params.getBytes());
             
         } catch (IOException e) {
