@@ -21,15 +21,22 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.controller.interceptor.AppRestInterceptor;
+import edu.tamu.app.controller.interceptor.AppStompInterceptor;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.AppUserRepo;
+import edu.tamu.app.model.repo.ControlledVocabularyRepo;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
+import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.DocumentPushService;
 import edu.tamu.app.service.ProjectsService;
@@ -52,10 +59,22 @@ public abstract class AbstractControllerTest extends MockData {
 	protected AppUserRepo userRepo;
 
 	@Mock
+	protected ControlledVocabularyRepo controlledVocabularyRepo;
+
+	@Mock
 	protected DocumentRepo documentRepo;
 
 	@Mock
+	protected FieldProfileRepo projectFieldProfileRepo;
+
+	@Mock
 	protected MetadataFieldGroupRepo metadataFieldGroupRepo;
+
+	@Mock
+	protected MetadataFieldLabelRepo metadataFieldLabelRepo;
+
+	@Mock
+	protected MetadataFieldValueRepo metadataFieldValueRepo;
 
 	@Mock
 	protected ProjectRepo projectRepo;
@@ -99,6 +118,15 @@ public abstract class AbstractControllerTest extends MockData {
 	@InjectMocks
 	protected UserController userController;
 
+	@InjectMocks
+	protected AppStompInterceptor appStompInterceptor;
+
+	@InjectMocks
+	protected AppRestInterceptor appRestInterceptor;
+
+	protected static String[] mockAdmins = {TEST_USER1.getUin().toString(), TEST_USER2.getUin().toString() };
+	protected static String[] mockManagers = {TEST_USER3.getUin().toString()};
+
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
@@ -111,7 +139,21 @@ public abstract class AbstractControllerTest extends MockData {
 				return saveAppUser((AppUser)invocation.getArguments()[0]);
 			}
 		});
-		//project
+
+		when(userRepo.findByUin(any (Long.class))).then( new Answer<AppUser>() {
+			@Override
+			public AppUser answer(InvocationOnMock invocation) throws Throwable {
+				return findUserByUin((Long)invocation.getArguments()[0]);
+			}
+		});
+
+		when(userRepo.create(any (Long.class), any (String.class), any (String.class), any (String.class))).then(new Answer<AppUser>() {
+			@Override
+			public AppUser answer(InvocationOnMock invocation) throws Throwable {
+				return createAppUser((Long) invocation.getArguments()[0], (String) invocation.getArguments()[1], (String) invocation.getArguments()[2], (String) invocation.getArguments()[3] );
+			}
+		});
+
 		when(projectRepo.findAll()).thenReturn(mockProjectList);
 
 		when(projectRepo.save(any (Project.class))).then( new Answer<Project>() {
@@ -128,6 +170,9 @@ public abstract class AbstractControllerTest extends MockData {
 			}
 		});
 
+		//metadatafieldGroup
+		when(metadataFieldGroupRepo.findAll()).thenReturn(mockMetadataFieldGroupList);
+
 		aggieJackToken = new HashMap<String, String>();
 		aggieJackToken.put("lastName","Daniels");
 		aggieJackToken.put("firstName","Jack");
@@ -136,26 +181,23 @@ public abstract class AbstractControllerTest extends MockData {
 		aggieJackToken.put("exp",null);
 		aggieJackToken.put("email","aggiejack@tamu.edu");
 
-		grantorList.add("A & M");
-		grantorList.add("TAMU");
-
-		degreeList.add("PhD");
-		degreeList.add("ME");
-		degreeList.add("MS");
-
-		cvMap.put("grantor", grantorList);
-		cvMap.put("degrees", degreeList);
-
-//		when(objectMapper.readValue(any (String.class), any (TypeReference.class))).then(new Answer<Map<String, Object>>(){
-//			@Override
-//			public Map<String, Object> answer(InvocationOnMock invocation) throws Throwable {
-//				return cvMap;
-//			}
-//		});
+		ReflectionTestUtils.setField(appRestInterceptor, "admins", mockAdmins);
+		ReflectionTestUtils.setField(appStompInterceptor, "admins", mockAdmins);
+		ReflectionTestUtils.setField(appStompInterceptor, "managers", mockManagers);
 	}
 
 	@After
 	public void cleanUp () {
 		response = null;
+		credentials = null;
+		testCredentials = null;
+		controlledVocabularyRepo.deleteAll();
+		projectFieldProfileRepo.deleteAll();
+		metadataFieldValueRepo.deleteAll();
+		metadataFieldLabelRepo.deleteAll();
+		metadataFieldGroupRepo.deleteAll();
+		documentRepo.deleteAll();
+		projectRepo.deleteAll();
+		userRepo.deleteAll();
 	}
 }
