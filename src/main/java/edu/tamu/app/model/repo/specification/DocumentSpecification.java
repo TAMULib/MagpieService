@@ -11,6 +11,8 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import edu.tamu.app.model.Project;
+
 public class DocumentSpecification<E> implements Specification<E> {
 
     private Map<String, String[]> filters;
@@ -27,7 +29,8 @@ public class DocumentSpecification<E> implements Specification<E> {
         List<Predicate> orStatusPredicates = new ArrayList<Predicate>();
         List<Predicate> notStatusPredicates = new ArrayList<Predicate>();
         List<Predicate> annotatorPredicates = new ArrayList<Predicate>();
-
+        List<Predicate> projectPredicates = new ArrayList<Predicate>();
+        
         for (Map.Entry<String, String[]> entry : filters.entrySet()) {
             String key = entry.getKey();
             String[] values = entry.getValue();
@@ -65,6 +68,12 @@ public class DocumentSpecification<E> implements Specification<E> {
                     annotatorPredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
                 }
                 break;
+            case "projects":
+            	Root<Project> projectFrom = query.from(Project.class);
+            	for (String value: values) {
+            		projectPredicates.add(cb.like(cb.lower(projectFrom.get("name").as(String.class)), "%" + value.toLowerCase() + "%"));
+            	}
+            	break;
             default:
                 break;
             }
