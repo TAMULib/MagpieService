@@ -1,46 +1,24 @@
 package edu.tamu.app.model;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.web.WebAppConfiguration;
 
-import edu.tamu.app.WebServerInit;
 import edu.tamu.app.annotations.Order;
-import edu.tamu.app.model.repo.AppUserRepo;
-import edu.tamu.app.runner.OrderedRunner;
+import edu.tamu.app.enums.AppRole;
+import edu.tamu.app.utilities.FileSystemUtility;
 
-@WebAppConfiguration
-@ActiveProfiles({"test"})
-@RunWith(OrderedRunner.class)
-@SpringApplicationConfiguration(classes = WebServerInit.class)
-public class AppUserTest {
-
-    @Autowired
-    private AppUserRepo userRepo;
-
-    private Long uin = 123456789L;
-
-    private AppUser testUser1 = new AppUser(uin);
-
-    private AppUser testUser2 = new AppUser(uin);
-
-    @Before
-    public void setUp() {
-        Assert.assertEquals("User repository is not empty.", 0, userRepo.findAll().size());
-    }
+public class AppUserTest extends AbstractClass {
 
     @Test
     @Order(1)
     public void testSaveUser() {
         userRepo.save(testUser1);
-        Assert.assertEquals("Test user was not saved.", testUser1.getUin(), userRepo.findByUin(uin).getUin());
+        assertEquals("Test user was not saved.", testUser1.getUin(), userRepo.findByUin(uin).getUin());
     }
 
     @Test(expected = DataIntegrityViolationException.class)
@@ -54,23 +32,34 @@ public class AppUserTest {
     @Order(3)
     public void testFindUser() {
         userRepo.save(testUser1);
-        Assert.assertEquals("User repository is empty.", 1, userRepo.findAll().size());
+        assertEquals("User repository is empty.", 1, userRepo.findAll().size());
         AppUser assertUser = userRepo.findByUin(uin);
-        Assert.assertEquals("Test User was not found.", assertUser.getUin(), testUser1.getUin());
+        assertEquals("Test User was not found.", assertUser.getUin(), testUser1.getUin());
     }
 
     @Test
     @Order(4)
     public void testDeleteUser() {
         userRepo.save(testUser1);
-        Assert.assertEquals("User repository is empty.", 1, userRepo.findAll().size());
+        assertEquals("User repository is empty.", 1, userRepo.findAll().size());
         userRepo.delete(testUser1);
-        Assert.assertNull("Test User was not removed.", userRepo.findByUin(uin));
+        assertNull("Test User was not removed.", userRepo.findByUin(uin));
     }
 
-    @After
-    public void cleanUp() {
-        userRepo.deleteAll();
+    @Test
+    @Order(5)
+    public void testAppUserGetters() throws Exception {
+		userRepo.save(testUser3);
+		AppUser assertUser = userRepo.findByUin(testUser3.getUin());
+		assertEquals("Test User 3  was not found.", assertUser.getUin(), testUser3.getUin());
+		assertUser.setFirstName("Another Jane");
+		assertUser.setLastName("Another Daniel");
+		assertUser.setRole(AppRole.ROLE_USER);
+		userRepo.save(testUser3);
+		assertUser = userRepo.findByUin(testUser3.getUin());
+		assertEquals("Test User 3  firstName was not modified.", assertUser.getFirstName(), testUser3.getFirstName());
+		assertEquals("Test User 3  lastName was not modified.", assertUser.getLastName(), testUser3.getLastName());
+		assertEquals("Test User 3  role was not modified.", assertUser.getRole(), testUser3.getRole());
     }
 
 }
