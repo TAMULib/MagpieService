@@ -10,6 +10,7 @@
 package edu.tamu.app.controller;
 
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -161,7 +162,6 @@ public class DocumentController {
     @ApiMapping("/push/{projectName}/{documentName}")
     @Auth(role = "ROLE_USER")
     public ApiResponse push(@ApiVariable String projectName, @ApiVariable String documentName) {
-
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
         
         for (ProjectRepository repository : document.getProject().getRepositories()) {
@@ -170,6 +170,8 @@ public class DocumentController {
             } catch (IOException e) {
                 logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
                 e.printStackTrace();
+                
+                return new ApiResponse(ERROR, "There was an error publishing this item");
             }
         }
 
