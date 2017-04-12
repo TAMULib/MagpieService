@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.Base64Utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -218,9 +219,9 @@ public class ArchivematicaFilesystemRepository implements Repository {
         UUID uuid = UUID.randomUUID();
         String pathString = uuid.toString() + ":" + archivematicaPackageDirectory.getPath();
         System.out.println("Transfer package path string: " + pathString);
-        byte[] encodedBytes = Base64.getEncoder().encode(pathString.getBytes());
+        String encodedPath = Base64Utils.encodeToString(pathString.getBytes());
         
-        System.out.println("Transfer package encoded and then decoded: " + Base64.getDecoder().decode(encodedBytes) );
+        System.out.println("Transfer package encoded and then decoded: " +encodedPath );
         
         // Write post data by opening an output stream on the connection and writing to it
         OutputStream os;
@@ -235,7 +236,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         String params = "";
         params += "name=" + document.getName()
                +  "&type=standard"
-               +  "&paths[]=" + encodedBytes.toString();  
+               +  "&paths[]=" + encodedPath;  
         try {
         	System.out.println("POST DATA: ");
         	System.out.println(params);
