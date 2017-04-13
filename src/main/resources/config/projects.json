@@ -9,7 +9,7 @@
                {
                   "key":"archivematicaDirectoryName",
                   "values":[
-                     "/Users/jcreel/Development/deploy-pub/playbooks/archivematica/magpie-output"
+                     "/Volumes/disc_work/archivematica/magpie-output"
                   ]
                },
                {
@@ -21,7 +21,7 @@
                {
                   "key":"archivematicaURL",
                   "values":[
-                     "192.168.168.192"
+                     "archivematica-demo.library.tamu.edu"
                   ]
                },
                {
