@@ -118,7 +118,11 @@ public class DocumentController {
         filters.put("name", arrayNodeToStringArray((ArrayNode) dataNode.get("filters").get("name")));
         filters.put("annotator", arrayNodeToStringArray((ArrayNode) dataNode.get("filters").get("annotator")));
         filters.put("status", arrayNodeToStringArray((ArrayNode) dataNode.get("filters").get("status")));
-
+        if (dataNode.get("filters").get("projects").size() > 0 && dataNode.get("filters").get("projects").isArray()) {
+            for (final JsonNode objNode : dataNode.get("filters").get("projects")) {
+            	filters.put("projects", arrayNodeToStringArray((ArrayNode) objNode));
+            }
+        }
         return new ApiResponse(SUCCESS, documentRepo.pageableDynamicDocumentQuery(filters, request));
     }
 

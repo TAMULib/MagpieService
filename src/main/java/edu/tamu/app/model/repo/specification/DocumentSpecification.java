@@ -27,7 +27,8 @@ public class DocumentSpecification<E> implements Specification<E> {
         List<Predicate> orStatusPredicates = new ArrayList<Predicate>();
         List<Predicate> notStatusPredicates = new ArrayList<Predicate>();
         List<Predicate> annotatorPredicates = new ArrayList<Predicate>();
-
+        List<Predicate> projectPredicates = new ArrayList<Predicate>();
+        
         for (Map.Entry<String, String[]> entry : filters.entrySet()) {
             String key = entry.getKey();
             String[] values = entry.getValue();
@@ -65,6 +66,11 @@ public class DocumentSpecification<E> implements Specification<E> {
                     annotatorPredicates.add(cb.like(cb.lower(root.get(key).as(String.class)), "%" + value.toLowerCase() + "%"));
                 }
                 break;
+            case "projects":
+            	for (String value: values) {
+            		projectPredicates.add(cb.equal(root.get("project").get("id").as(Integer.class), value.toLowerCase()));
+            	}
+            	break;
             default:
                 break;
             }
@@ -74,9 +80,17 @@ public class DocumentSpecification<E> implements Specification<E> {
         Predicate predicate = null;
 
         if (orStatusPredicates.size() > 0) {
-            predicate = cb.and(cb.and(namePredicates.toArray(new Predicate[namePredicates.size()])), cb.and(statusPredicates.toArray(new Predicate[statusPredicates.size()])), cb.or(orStatusPredicates.toArray(new Predicate[orStatusPredicates.size()])), cb.and(notStatusPredicates.toArray(new Predicate[notStatusPredicates.size()])), cb.and(annotatorPredicates.toArray(new Predicate[annotatorPredicates.size()])));
+        	if (projectPredicates.size() > 0) {
+        		predicate = cb.and(cb.and(namePredicates.toArray(new Predicate[namePredicates.size()])), cb.and(statusPredicates.toArray(new Predicate[statusPredicates.size()])), cb.or(orStatusPredicates.toArray(new Predicate[orStatusPredicates.size()])), cb.and(notStatusPredicates.toArray(new Predicate[notStatusPredicates.size()])), cb.and(annotatorPredicates.toArray(new Predicate[annotatorPredicates.size()])),cb.or(projectPredicates.toArray(new Predicate[projectPredicates.size()])));
+        	} else {
+        		predicate = cb.and(cb.and(namePredicates.toArray(new Predicate[namePredicates.size()])), cb.and(statusPredicates.toArray(new Predicate[statusPredicates.size()])), cb.or(orStatusPredicates.toArray(new Predicate[orStatusPredicates.size()])), cb.and(notStatusPredicates.toArray(new Predicate[notStatusPredicates.size()])), cb.and(annotatorPredicates.toArray(new Predicate[annotatorPredicates.size()])));
+        	}
         } else {
-            predicate = cb.and(cb.and(namePredicates.toArray(new Predicate[namePredicates.size()])), cb.and(statusPredicates.toArray(new Predicate[statusPredicates.size()])), cb.and(notStatusPredicates.toArray(new Predicate[notStatusPredicates.size()])), cb.and(annotatorPredicates.toArray(new Predicate[annotatorPredicates.size()])));
+        	if (projectPredicates.size() > 0) {
+                predicate = cb.and(cb.and(namePredicates.toArray(new Predicate[namePredicates.size()])), cb.and(statusPredicates.toArray(new Predicate[statusPredicates.size()])), cb.and(notStatusPredicates.toArray(new Predicate[notStatusPredicates.size()])), cb.and(annotatorPredicates.toArray(new Predicate[annotatorPredicates.size()])),cb.or(projectPredicates.toArray(new Predicate[projectPredicates.size()])));
+        	} else {
+                predicate = cb.and(cb.and(namePredicates.toArray(new Predicate[namePredicates.size()])), cb.and(statusPredicates.toArray(new Predicate[statusPredicates.size()])), cb.and(notStatusPredicates.toArray(new Predicate[notStatusPredicates.size()])), cb.and(annotatorPredicates.toArray(new Predicate[annotatorPredicates.size()])));
+        	}
         }
 
         return predicate;
