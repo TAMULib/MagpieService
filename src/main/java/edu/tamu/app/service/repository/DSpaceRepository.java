@@ -281,7 +281,7 @@ public class DSpaceRepository implements Repository {
         URL addBitstreamUrl;
         try {
             addBitstreamUrl = new URL(repoUrl + "/rest/items/" + itemId + "/bitstreams?name=" + document.getName()
-                    + ".pdf&description=primary_pdf");
+                    + ".pdf");
         } catch (MalformedURLException e) {
             MalformedURLException murle = new MalformedURLException(
                     "Failed to add pdf bitstream; the REST URL to post the bitstreams was malformed. {" + e.getMessage()
