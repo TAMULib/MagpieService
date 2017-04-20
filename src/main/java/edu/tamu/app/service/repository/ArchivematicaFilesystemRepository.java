@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.utilities.CsvUtility;
 import edu.tamu.app.utilities.FileSystemUtility;
 
@@ -40,11 +41,14 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
     @Autowired
     private CsvUtility csvUtility;
-
-    private String archivematicaTopDirectory;
+    
+    @Autowired
+    private DocumentRepo documentRepo;
 
     @Autowired
     private ResourceLoader resourceLoader;
+
+    private String archivematicaTopDirectory;
 
     private String archivematicaURL;
 
@@ -133,7 +137,6 @@ public class ArchivematicaFilesystemRepository implements Repository {
         File md5Listing = new File(metadataSubdirectory.getPath() + File.separator + "checksum.md5");
 
         for (File tiff : tiffFiles) {
-            System.out.println("Found tiff " + tiff.getPath());
             // make the md5hash listing from the tiffs
             addChecksumToListing(tiff, md5Listing);
         }
@@ -150,8 +153,10 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
         Boolean startedTransfer = startArchivematicaTransfer(document, archivematicaPackageDirectory);
 
-        if (startedTransfer)
+        if (startedTransfer) {
             document.setStatus("Published");
+            documentRepo.save(document);
+        }
         else {
 
         }
@@ -245,7 +250,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         }
 
         String params = "";
-        params += "name=" + document.getName() + "&type=standard" + "&paths[]=" + encodedPath;
+        params += "name=" + document.getProject().getName() + "_" + document.getName() + "&type=standard" + "&paths[]=" + encodedPath;
         try {
             System.out.println("POST DATA: ");
             System.out.println(params);
@@ -320,10 +325,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
             }
         }
 
-        //System.out.println("Archivematica transfer start message: " + responseNode.get("message")
-        //        + "\nArchivematica transfer start response:" + connection.getResponseMessage());
-
-        return (responseNode.get("message").equals("Copy successful."));
+        return (responseNode.get("message").asText().equals("Copy successful."));
 
     }
 
