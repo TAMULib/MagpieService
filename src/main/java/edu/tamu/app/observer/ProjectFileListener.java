@@ -36,10 +36,32 @@ public class ProjectFileListener extends AbstractFileListener {
         logger.info("ProjectFileListener is creating project " + directory.getName());
         projectService.getOrCreateProject(directory);
     }
-
+    
+    private boolean directoryIsReady(File directory) {
+    	if (projectService.projectIsHeadless(projectService.getName(directory.getParentFile())) == false) {
+    		return true;
+    	} else {
+    		long lastModified = 0L;
+    		long oldLastModified = -1L;
+            long stableTime = 0L;
+            //if a document directory in a headless project hasn't been modified in the last 10 seconds, it's probably ready
+            while ((oldLastModified < lastModified) || (oldLastModified == lastModified) && (System.currentTimeMillis() - stableTime) < 10000) {
+            	lastModified = directory.lastModified();
+            	if ((lastModified != oldLastModified) || stableTime == 0L) {
+            		stableTime = System.currentTimeMillis();
+            	}
+            	oldLastModified = lastModified;
+    		}
+        	return true;
+    	}
+    }
+    
     private void createDocument(File directory) {
         logger.info("ProjectFileListener is creating document " + directory.getName());
-        projectService.createDocument(directory);
+        
+        if (directoryIsReady(directory)) {
+        	projectService.createDocument(directory);
+        }
     }
 
     @Override

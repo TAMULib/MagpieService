@@ -13,6 +13,12 @@
                   ]
                },
                {
+                  "key":"archivematicaTransferLocationDirectoryName",
+                  "values":[
+                     "vagrant/magpie-output"
+                  ]
+               },
+               {
                   "key":"archivematicaURL",
                   "values":[
                      "archivematica-demo.library.tamu.edu"
@@ -28,6 +34,12 @@
                   "key":"archivematicaAPIKey",
                   "values":[
                      "******"
+                  ]
+               },
+               {
+                  "key":"archivematicaTransferSourceLocationUUID",
+                  "values":[
+                     "16880615-cc70-4ca1-a793-a311e2ccff2d"
                   ]
                }
             ]

@@ -101,7 +101,12 @@ public class MagpieServiceRegistry {
                         projectService.getSettingValues("archivematicaUsername").size() > 0
                                 ? projectService.getSettingValues("archivematicaUsername").get(0) : "",
                         projectService.getSettingValues("archivematicaAPIKey").size() > 0
-                                ? projectService.getSettingValues("archivematicaAPIKey").get(0) : "");
+                                ? projectService.getSettingValues("archivematicaAPIKey").get(0) : "",
+                        projectService.getSettingValues("archivematicaTransferSourceLocationUUID").size() > 0
+                                ? projectService.getSettingValues("archivematicaTransferSourceLocationUUID").get(0) : "",
+                        projectService.getSettingValues("archivematicaTransferLocationDirectoryName").size() > 0
+                                ? projectService.getSettingValues("archivematicaTransferLocationDirectoryName").get(0) : ""
+                                        );
             } catch (IOException e) {
                 logger.error("Could not instantiate Archivematica Repository due to IO exception:");
                 e.printStackTrace();

@@ -298,6 +298,7 @@ public class ProjectsService {
     public synchronized void createDocument(File directory) {
         String projectName = directory.getParentFile().getName();
         String documentName = getName(directory);
+
         createDocument(projectName, documentName);
     }
 
@@ -368,7 +369,7 @@ public class ProjectsService {
         projectsNode = null;
     }
 
-    private String getName(File directory) {
+    public String getName(File directory) {
         return directory.getPath().substring(directory.getParent().length() + 1);
     }
 
