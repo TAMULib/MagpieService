@@ -3,7 +3,10 @@ package edu.tamu.app.controller;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
+import java.awt.print.Pageable;
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,180 +17,241 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.domain.Page;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.WebServerInit;
 import edu.tamu.app.controller.interceptor.AppRestInterceptor;
 import edu.tamu.app.controller.interceptor.AppStompInterceptor;
+import edu.tamu.app.enums.AppRole;
 import edu.tamu.app.model.AppUser;
+import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.AppUserRepo;
-import edu.tamu.app.model.repo.ControlledVocabularyRepo;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
-import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
-import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.ProjectsService;
 import edu.tamu.app.service.SyncService;
+import edu.tamu.app.service.exporter.DspaceCSVExporter;
+import edu.tamu.app.service.exporter.SpotlightExporter;
+import edu.tamu.app.service.registry.MagpieServiceRegistry;
+import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.framework.model.ApiResponse;
 
 @ActiveProfiles("test")
-@WebAppConfiguration
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = WebServerInit.class)
+@RunWith(SpringRunner.class)
 public abstract class AbstractControllerTest extends MockData {
 
-	protected static ApiResponse response;
+    protected static ApiResponse response;
 
-	@Mock
-	protected ApplicationContext applicationContext;
+    @Mock
+    protected DocumentRepo documentRepo;
 
-	@Mock
-	protected AppUserRepo userRepo;
+    @Mock
+    protected ProjectRepo projectRepo;
 
-	@Mock
-	protected ControlledVocabularyRepo controlledVocabularyRepo;
+    @Mock
+    protected AppUserRepo userRepo;
 
-	@Mock
-	protected DocumentRepo documentRepo;
+    @Mock
+    protected MetadataFieldGroupRepo metadataFieldGroupRepo;
 
-	@Mock
-	protected FieldProfileRepo projectFieldProfileRepo;
+    @Mock
+    protected ApplicationContext appContext;
 
-	@Mock
-	protected MetadataFieldGroupRepo metadataFieldGroupRepo;
+    @Spy
+    protected static FileSystemUtility fileSystemUtility;
 
-	@Mock
-	protected MetadataFieldLabelRepo metadataFieldLabelRepo;
+    @Mock
+    protected DspaceCSVExporter dspaceCSVExporter;
 
-	@Mock
-	protected MetadataFieldValueRepo metadataFieldValueRepo;
+    @Mock
+    protected ResourceLoader resourceLoader;
 
-	@Mock
-	protected ProjectRepo projectRepo;
+    @Mock
+    protected SpotlightExporter spotlightExporter;
 
-	@Spy
-	protected ObjectMapper objectMapper;
+    @Mock
+    protected ProjectsService projectsService;
 
-	@Mock
-	protected SyncService syncService;
+    @Mock
+    protected MagpieServiceRegistry projectServiceRegistry;
 
-	@Mock
-	protected ProjectsService projectsService;
+    @Mock
+    protected SyncService syncService;
 
-	@Mock
-	protected ResourceLoader resourceLoader;
+    @InjectMocks
+    protected AdminController adminController;
 
-	@Mock
-	protected SimpMessagingTemplate simpMessagingTemplate;
+    @InjectMocks
+    protected ControlledVocabularyController controlledVocabularyController;
 
-	@InjectMocks
-	protected AdminController adminController;
+    @InjectMocks
+    protected DocumentController documentController;
 
-	@InjectMocks
-	protected ControlledVocabularyController controlledVocabularyController;
+    @InjectMocks
+    protected MetadataController metadataController;
 
-	@InjectMocks
-	protected DocumentController documentController;
+    @InjectMocks
+    protected ProjectController projectController;
 
-	@InjectMocks
-	protected MetadataController metadataController;
+    @InjectMocks
+    protected SuggestionController suggestionController;
 
-	@InjectMocks
-	protected ProjectController projectController;
+    @InjectMocks
+    protected UserController userController;
 
-	@InjectMocks
-	protected UserController userController;
+    @InjectMocks
+    protected AppStompInterceptor appStompInterceptor;
 
-	@InjectMocks
-	protected AppStompInterceptor appStompInterceptor;
+    @InjectMocks
+    protected AppRestInterceptor appRestInterceptor;
 
-	@InjectMocks
-	protected AppRestInterceptor appRestInterceptor;
+    @Spy
+    protected ObjectMapper objectMapper;
 
-	protected static String[] mockAdmins = {TEST_USER1.getUin().toString(), TEST_USER2.getUin().toString() };
-	protected static String[] mockManagers = {TEST_USER3.getUin().toString()};
+    @Mock
+    protected SimpMessagingTemplate simpMessagingTemplate;
 
-	@Before
-	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
-		//app user
-		when(userRepo.findAll()).thenReturn(mockAppUserList);
+    protected static String[] mockAdmins = { TEST_USER1.getUin().toString(), TEST_USER2.getUin().toString() };
 
-		when(userRepo.save(any (AppUser.class))).then( new Answer<AppUser>() {
-			@Override
-			public AppUser answer(InvocationOnMock invocation) throws Throwable {
-				return saveAppUser((AppUser)invocation.getArguments()[0]);
-			}
-		});
+    protected static String[] mockManagers = { TEST_USER3.getUin().toString() };
 
-		when(userRepo.findByUin(any (Long.class))).then( new Answer<AppUser>() {
-			@Override
-			public AppUser answer(InvocationOnMock invocation) throws Throwable {
-				return findUserByUin((Long)invocation.getArguments()[0]);
-			}
-		});
+    @SuppressWarnings({ "unchecked" })
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
 
-		when(userRepo.create(any (Long.class), any (String.class), any (String.class), any (String.class))).then(new Answer<AppUser>() {
-			@Override
-			public AppUser answer(InvocationOnMock invocation) throws Throwable {
-				return createAppUser((Long) invocation.getArguments()[0], (String) invocation.getArguments()[1], (String) invocation.getArguments()[2], (String) invocation.getArguments()[3] );
-			}
-		});
+        ReflectionTestUtils.setField(syncService, "mount", "/metadatatool");
 
-		when(projectRepo.findAll()).thenReturn(mockProjectList);
+        ReflectionTestUtils.setField(appRestInterceptor, "admins", mockAdmins);
+        ReflectionTestUtils.setField(appStompInterceptor, "admins", mockAdmins);
+        ReflectionTestUtils.setField(appStompInterceptor, "managers", mockManagers);
 
-		when(projectRepo.save(any (Project.class))).then( new Answer<Project>() {
-			@Override
-			public Project answer(InvocationOnMock invocation) throws Throwable {
-				return saveProject( (Project) invocation.getArguments()[0]);
-			}
-		});
+        credentials.setEmail("aggieJane@tamu.edu");
+        credentials.setFirstName(TEST_USER1.getFirstName());
+        credentials.setLastName(TEST_USER1.getLastName());
+        credentials.setRole(AppRole.ROLE_ADMIN.toString());
+        credentials.setUin(TEST_USER1.getUin().toString());
+        credentials.setNetid("aggieJane@tamu.edu");
 
-		when(projectRepo.findByName(any (String.class))).then(new Answer<Project>() {
-			@Override
-			public Project answer(InvocationOnMock invocation) throws Throwable {
-				return findProjectByName( (String) invocation.getArguments()[0]);
-			}
-		});
+        // app user
+        when(userRepo.findAll()).thenReturn(mockUserList);
 
-		//metadatafieldGroup
-		when(metadataFieldGroupRepo.findAll()).thenReturn(mockMetadataFieldGroupList);
+        when(userRepo.save(any(AppUser.class))).then(new Answer<AppUser>() {
+            @Override
+            public AppUser answer(InvocationOnMock invocation) throws Throwable {
+                return saveAppUser((AppUser) invocation.getArguments()[0]);
+            }
+        });
 
-		aggieJackToken = new HashMap<String, String>();
-		aggieJackToken.put("lastName","Daniels");
-		aggieJackToken.put("firstName","Jack");
-		aggieJackToken.put("netid","aggiejack");
-		aggieJackToken.put("uin","123456789");
-		aggieJackToken.put("exp",null);
-		aggieJackToken.put("email","aggiejack@tamu.edu");
+        when(userRepo.create(any(String.class), any(String.class), any(String.class), any(String.class))).then(new Answer<AppUser>() {
+            @Override
+            public AppUser answer(InvocationOnMock invocation) throws Throwable {
+                return createUser((String) invocation.getArguments()[0], (String) invocation.getArguments()[1], (String) invocation.getArguments()[1], (String) invocation.getArguments()[2]);
+            }
+        });
 
-		ReflectionTestUtils.setField(appRestInterceptor, "admins", mockAdmins);
-		ReflectionTestUtils.setField(appStompInterceptor, "admins", mockAdmins);
-		ReflectionTestUtils.setField(appStompInterceptor, "managers", mockManagers);
-	}
+        // document
+        when(documentRepo.findAll()).thenReturn(mockDocumentList);
 
-	@After
-	public void cleanUp () {
-	    MockData.reset();
-		controlledVocabularyRepo.deleteAll();
-		projectFieldProfileRepo.deleteAll();
-		metadataFieldValueRepo.deleteAll();
-		metadataFieldLabelRepo.deleteAll();
-		metadataFieldGroupRepo.deleteAll();
-		documentRepo.deleteAll();
-		projectRepo.deleteAll();
-		userRepo.deleteAll();
-	}
+        when(documentRepo.save(any(Document.class))).then(new Answer<Document>() {
+            @Override
+            public Document answer(InvocationOnMock invocation) throws Throwable {
+                return saveDocument((Document) invocation.getArguments()[0]);
+            }
+        });
+
+        when(documentRepo.findByProjectNameAndName(any(String.class), any(String.class))).then(new Answer<Document>() {
+            @Override
+            public Document answer(InvocationOnMock invocation) throws Throwable {
+                return findDocumentByProjectNameandName((String) invocation.getArguments()[0], (String) invocation.getArguments()[1]);
+            }
+        });
+
+        // TODO
+        when(documentRepo.pageableDynamicDocumentQuery((Map<String, String[]>) any(Map.class), (org.springframework.data.domain.Pageable) any(Pageable.class))).then(new Answer<Page<Document>>() {
+            @Override
+            public Page<Document> answer(InvocationOnMock invocation) throws Throwable {
+                return (Page<Document>) TEST_DOCUMENT1;
+            }
+        });
+
+        when(documentRepo.findByStatus(any(String.class))).thenReturn(mockDocumentList);
+
+        // project
+        when(projectRepo.findAll()).thenReturn(mockProjectList);
+
+        when(projectRepo.create(any(String.class), (List<ProjectRepository>) any(List.class), any(List.class), any(List.class))).then(new Answer<Project>() {
+            @Override
+            public Project answer(InvocationOnMock invocation) throws Throwable {
+                return TEST_PROJECT1;
+            }
+        });
+
+        when(projectRepo.findOne(any(Long.class))).then(new Answer<Project>() {
+            @Override
+            public Project answer(InvocationOnMock invocation) throws Throwable {
+                return findProjectById((Long) invocation.getArguments()[0]);
+            }
+        });
+
+        when(projectRepo.findByName(any(String.class))).then(new Answer<Project>() {
+            @Override
+            public Project answer(InvocationOnMock invocation) throws Throwable {
+                return findProjectbyName((String) invocation.getArguments()[0]);
+            }
+        });
+
+        when(projectRepo.save(any(Project.class))).then(new Answer<Project>() {
+            @Override
+            public Project answer(InvocationOnMock invocation) throws Throwable {
+                return saveProject((Project) invocation.getArguments()[0]);
+            }
+        });
+
+        when(projectsService.getOrCreateProject(any(File.class))).then(new Answer<Project>() {
+            @Override
+            public Project answer(InvocationOnMock invocation) throws Throwable {
+                return TEST_PROJECT1;
+            }
+        });
+
+        // metdataHeader formats
+        mockSpotlightExportedMetadataHeaders.add(0, "url");
+        mockSpotlightExportedMetadataHeaders.add(1, "spotlight exported metadataheader 1");
+        mockSpotlightExportedMetadataHeaders.add(2, "spotlight exported metadataheader 1");
+
+        when(spotlightExporter.extractMetadataFields(any(String.class))).thenReturn(mockSpotlightExportedMetadataHeaders);
+
+        mockSpotlightMetdata.add(mockSpotlightExportedMetadataHeaders);
+        when(spotlightExporter.extractMetadata(any(Project.class))).thenReturn(mockSpotlightMetdata);
+
+        mockDspaceCSVExportedMetadataHeaders.add("BUNDLE:ORIGINAL");
+        mockDspaceCSVExportedMetadataHeaders.add("dspaceCSVExportedMetadataHeader 1");
+        mockDspaceCSVExportedMetadataHeaders.add("dspaceCSVExportedMetadataHeader 2");
+        mockDspaceCSVExportedMetadata.add(mockDspaceCSVExportedMetadataHeaders);
+        when(dspaceCSVExporter.extractMetadataFields(any(String.class))).thenReturn(mockDspaceCSVExportedMetadataHeaders);
+        when(dspaceCSVExporter.extractMetadata(any(Project.class))).thenReturn(mockDspaceCSVExportedMetadata);
+
+        when(metadataFieldGroupRepo.findAll()).thenReturn(mockMetadataFieldGroupList);
+
+    }
+
+    @After
+    public void cleanUp() {
+        response = null;
+        documentRepo.deleteAll();
+        metadataFieldGroupRepo.deleteAll();
+        projectRepo.deleteAll();
+        userRepo.deleteAll();
+    }
 }

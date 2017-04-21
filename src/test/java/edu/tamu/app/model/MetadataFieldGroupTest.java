@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
 
 public class MetadataFieldGroupTest extends AbstractModelTest {
@@ -21,7 +20,6 @@ public class MetadataFieldGroupTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(1)
     public void testCreateMetadataField() {
         testFieldGroup = metadataFieldGroupRepo.create(testDocument, testLabel);
         assertEquals("Test MetadataField was not created.", 1, metadataFieldGroupRepo.count());
@@ -29,7 +27,6 @@ public class MetadataFieldGroupTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(2)
     public void testFindMetadataField() {
         testFieldGroup = metadataFieldGroupRepo.create(testDocument, testLabel);
         assertEquals("Test MetadataField was not created.", 1, metadataFieldGroupRepo.count());
@@ -38,7 +35,6 @@ public class MetadataFieldGroupTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(3)
     public void testDeleteMetadataField() {
         testFieldGroup = metadataFieldGroupRepo.create(testDocument, testLabel);
         assertEquals("Document repository is empty.", 1, metadataFieldGroupRepo.count());
@@ -47,7 +43,6 @@ public class MetadataFieldGroupTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(4)
     public void testCascadeOnDeleteMetadataField() {
 
         testFieldGroup = metadataFieldGroupRepo.create(testDocument, testLabel);

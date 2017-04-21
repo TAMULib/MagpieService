@@ -25,29 +25,29 @@ import edu.tamu.framework.model.ApiResponse;
 import edu.tamu.framework.model.Credentials;
 
 /**
- * Stomp interceptor. Checks command, decodes and verifies token, either returns
- * error message to frontend or continues to controller.
+ * Stomp interceptor. Checks command, decodes and verifies token, either returns error message to
+ * frontend or continues to controller.
  * 
  * @author
  *
  */
 @Component
-public class AppStompInterceptor extends CoreStompInterceptor {
+public class AppStompInterceptor extends CoreStompInterceptor<AppUser> {
+
+    private static final Logger logger = Logger.getLogger(AppRestInterceptor.class);
 
     @Autowired
     private AppUserRepo userRepo;
+
+    @Autowired
+    @Lazy
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Value("${app.authority.admins}")
     private String[] admins;
 
     @Value("${app.authority.managers}")
     private String[] managers;
-
-    @Autowired
-    @Lazy
-    private SimpMessagingTemplate simpMessagingTemplate;
-
-    private static final Logger logger = Logger.getLogger(AppStompInterceptor.class);
 
     // TODO: move static values into config
     @Override
@@ -68,13 +68,13 @@ public class AppStompInterceptor extends CoreStompInterceptor {
      * @param credentials
      *            Credentials
      * 
-     * @return shib
+     * @return user
      * 
      * @see edu.tamu.framework.interceptor.CoreStompInterceptor#confirmCreateUser(edu.tamu.framework.model.Credentials)
      */
-    public Credentials confirmCreateUser(Credentials credentials) {
+    public AppUser confirmCreateUser(Credentials credentials) {
 
-        AppUser user = userRepo.findByUin(Long.parseLong(credentials.getUin()));
+        AppUser user = userRepo.findByUin(credentials.getUin());
 
         if (user == null) {
 
@@ -96,23 +96,16 @@ public class AppStompInterceptor extends CoreStompInterceptor {
                 }
             }
 
-            user = userRepo.create(Long.valueOf(shibUin), credentials.getFirstName(), credentials.getLastName(), credentials.getRole().toString());
-
-            if (!credentials.getUin().equals("null")) {
-                user.setUin(Long.parseLong(credentials.getUin()));
-                user = userRepo.save(user);
-            }
-
-            logger.info(Long.parseLong(credentials.getUin()));
+            user = userRepo.create(shibUin, credentials.getFirstName(), credentials.getLastName(), credentials.getRole());
 
             simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
 
-        } else {
-            credentials.setRole(user.getRole().toString());
+            logger.info("Created new user: " + credentials.getFirstName() + " " + credentials.getLastName() + " (" + credentials.getUin() + ")");
         }
 
-        return credentials;
+        credentials.setRole(user.getRole().toString());
 
+        return user;
     }
 
 }

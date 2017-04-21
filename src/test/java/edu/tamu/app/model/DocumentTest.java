@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
 
 public class DocumentTest extends AbstractModelTest {
@@ -18,7 +17,6 @@ public class DocumentTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(1)
     public void testCreateDocument() {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         assertEquals("Test Document was not created.", 1, documentRepo.count());
@@ -26,7 +24,6 @@ public class DocumentTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(2)
     public void testFindDocument() {
         assertEquals("Test Document already exists.", null, documentRepo.findByProjectNameAndName(testProject.getName(), "testFile"));
         documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
@@ -35,7 +32,6 @@ public class DocumentTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(3)
     public void testDeleteDocument() {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         assertEquals("DocumentRepo is empty.", 1, documentRepo.count());
@@ -44,7 +40,6 @@ public class DocumentTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(4)
     public void testCascadeOnDeleteDocument() {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         assertEquals("Test Document was not created.", 1, documentRepo.count());
@@ -91,7 +86,6 @@ public class DocumentTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(5)
     public void testDocumentSetters() {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         testDocument.setName("Another name for test Document");
