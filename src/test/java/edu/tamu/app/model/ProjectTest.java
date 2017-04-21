@@ -2,7 +2,6 @@ package edu.tamu.app.model;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.After;
 import org.junit.Test;
 
 import edu.tamu.app.annotations.Order;
@@ -30,7 +29,9 @@ public class ProjectTest extends AbstractModelTest {
     public void testFindProject() {
         projectRepo.create("testProject");
         assertEquals("Test Project was not created.", 1, projectRepo.count());
+
         assertProject = projectRepo.findByName("testProject");
+
         assertEquals("Test Project was not found.", "testProject", assertProject.getName());
     }
 
@@ -46,11 +47,13 @@ public class ProjectTest extends AbstractModelTest {
     @Test
     @Order(5)
     public void testCascadeOnDeleteProject() {
-        Project testProject = projectRepo.create("testProject");
+
+        testProject = projectRepo.create("testProject");
         assertEquals("Test Project was not created.", 1, projectRepo.count());
 
         assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
-        Document testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
+        testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
+
         assertEquals("Test Document was not created.", 1, documentRepo.count());
 
         testProject.addDocument(testDocument);
@@ -62,12 +65,7 @@ public class ProjectTest extends AbstractModelTest {
         projectRepo.delete(testProject);
 
         assertEquals("Test Document was not deleted.", 0, documentRepo.count());
-    }
 
-    @After
-    public void cleanUp() {
-        projectRepo.deleteAll();
-        documentRepo.deleteAll();
     }
 
 }

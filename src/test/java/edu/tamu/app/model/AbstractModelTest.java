@@ -24,37 +24,37 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.runner.OrderedRunner;
 
 @WebAppConfiguration
-@ActiveProfiles({"test"})
+@ActiveProfiles({ "test" })
 @RunWith(OrderedRunner.class)
 @SpringApplicationConfiguration(classes = WebServerInit.class)
 public abstract class AbstractModelTest extends MockData {
 
-	@Autowired
-	protected AppUserRepo userRepo;
+    @Autowired
+    protected AppUserRepo userRepo;
 
-	@Autowired
-	protected ControlledVocabularyRepo controlledVocabularyRepo;
+    @Autowired
+    protected ControlledVocabularyRepo controlledVocabularyRepo;
 
-	@Autowired
+    @Autowired
     protected ProjectRepo projectRepo;
 
-	@Autowired
+    @Autowired
     protected DocumentRepo documentRepo;
 
-	@Autowired
+    @Autowired
     protected MetadataFieldGroupRepo metadataFieldGroupRepo;
 
-	@Autowired
+    @Autowired
     protected MetadataFieldLabelRepo metadataFieldLabelRepo;
 
-	@Autowired
+    @Autowired
     protected MetadataFieldValueRepo metadataFieldValueRepo;
 
-	@Autowired
+    @Autowired
     protected FieldProfileRepo projectFieldProfileRepo;
 
-	@Before
-	public void setUp() {
+    @Before
+    public void setUp() {
         aggieJackToken = new HashMap<>();
         aggieJackToken.put("lastName", "Daniels");
         aggieJackToken.put("firstName", "Jack");
@@ -64,19 +64,20 @@ public abstract class AbstractModelTest extends MockData {
         aggieJackToken.put("email", "aggiejack@tamu.edu");
 
         assertEquals("User repository is not empty.", 0, userRepo.findAll().size());
-	    assertEquals("ControlledVocabularyRepo is not empty.", 0, controlledVocabularyRepo.count());
+        assertEquals("ControlledVocabularyRepo is not empty.", 0, controlledVocabularyRepo.count());
 
-	}
+    }
 
-	@After
-	public void cleanUp() {
-		controlledVocabularyRepo.deleteAll();
-		documentRepo.deleteAll();
-		metadataFieldGroupRepo.deleteAll();
-		metadataFieldLabelRepo.deleteAll();
-		metadataFieldValueRepo.deleteAll();
-		projectFieldProfileRepo.deleteAll();
-		projectRepo.deleteAll();
-		userRepo.deleteAll();
-	}
+    @After
+    public void cleanUp() {
+        controlledVocabularyRepo.deleteAll();
+        documentRepo.deleteAll();
+        metadataFieldGroupRepo.deleteAll();
+        metadataFieldLabelRepo.deleteAll();
+        metadataFieldValueRepo.deleteAll();
+        projectFieldProfileRepo.deleteAll();
+        projectRepo.deleteAll();
+        userRepo.deleteAll();
+    }
+
 }

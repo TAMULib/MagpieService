@@ -7,10 +7,9 @@ import org.junit.Test;
 import edu.tamu.app.annotations.Order;
 import edu.tamu.framework.model.Credentials;
 
-
 public class ShibTest extends AbstractModelTest {
 
-	@Test
+    @Test
     @Order(1)
     public void testCreateShib() {
         Credentials shib = new Credentials(aggieJackToken);

@@ -427,3 +427,16 @@ Below is a sample for metadata json file
    }
 }
 ```
+
+
+Cobertura Reporting Tool
+------------------------
+
+Command used to see the code coverage by unit testing :
+```
+mvn cobertura:cobertura OR mvn site
+```
+Location of the generated report :
+```
+<Application>/target/site/index.html
+```

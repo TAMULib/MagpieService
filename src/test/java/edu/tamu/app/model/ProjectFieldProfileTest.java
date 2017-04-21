@@ -25,7 +25,13 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
     public void testSaveProjectFieldProfile() {
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
+
         assertEquals("Test ProjectFieldProfile with expected project was not created.", testProject.getName(), testProfile.getProject().getName());
+
+        testProfile.setProject(testProject);
+        projectFieldProfileRepo.save(testProfile);
+        testProfile = projectFieldProfileRepo.findByProjectAndGloss(testProject, "testGloss");
+        assertEquals(" The testProfile project was not set ", testProfile.getProject().getName(), testProject.getName());
     }
 
     @Test
@@ -57,6 +63,7 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
     @Test
     @Order(5)
     public void testSettersFieldProfile() {
+
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXTAREA, "default");
         Set<MetadataFieldLabel> labels = new HashSet<MetadataFieldLabel>();
         labels.add(metadataFieldLabelRepo.create("Field Label Name 1", testProfile));
@@ -88,6 +95,7 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
         testProfile.removeLabel(testLabel);
         testProfile = projectFieldProfileRepo.save(testProfile);
         assertEquals("The third metadata field label was not removed", labels.size(), testProfile.getLabels().size());
+
     }
 
 }

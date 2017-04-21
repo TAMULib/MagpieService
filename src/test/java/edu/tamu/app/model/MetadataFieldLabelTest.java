@@ -3,7 +3,6 @@ package edu.tamu.app.model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
 
+
 public class MetadataFieldLabelTest extends AbstractModelTest {
+
 
     @Before
     public void setUp() {
@@ -51,16 +52,6 @@ public class MetadataFieldLabelTest extends AbstractModelTest {
         MetadataFieldLabel label = metadataFieldLabelRepo.findByNameAndProfile("test", testProfile);
         assertNotNull("Metadatafield was not retrieved!", label);
         metadataFieldLabelRepo.delete(label);
-        assertEquals("MetadataFieldLabel was not deleted.", 0, metadataFieldLabelRepo.count());
-    }
-
-    @After
-    public void cleanUp() {
-        metadataFieldLabelRepo.deleteAll();
-        projectFieldProfileRepo.deleteAll();
-        projectRepo.deleteAll();
-        // assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
-        // metadataFieldLabelRepo.delete(metadataFieldLabelRepo.findByName("test"));
         assertEquals("MetadataFieldLabel was not deleted.", 0, metadataFieldLabelRepo.count());
     }
 

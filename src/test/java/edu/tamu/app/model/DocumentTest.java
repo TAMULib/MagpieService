@@ -28,7 +28,7 @@ public class DocumentTest extends AbstractModelTest {
     @Test
     @Order(2)
     public void testFindDocument() {
-        assertEquals("Test Document already exists.", null, documentRepo.findByProjectNameAndName("testProject", "testFile"));
+        assertEquals("Test Document already exists.", null, documentRepo.findByProjectNameAndName(testProject.getName(), "testFile"));
         documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         testDocument = documentRepo.findByProjectNameAndName(mockDocument.getProject().getName(), mockDocument.getName());
         assertEquals("Test Document was not found.", mockDocument.getName(), testDocument.getName());
@@ -91,6 +91,7 @@ public class DocumentTest extends AbstractModelTest {
     }
 
     @Test
+    @Order(5)
     public void testDocumentSetters() {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         testDocument.setName("Another name for test Document");

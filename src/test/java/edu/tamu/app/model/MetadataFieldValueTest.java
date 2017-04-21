@@ -12,18 +12,18 @@ public class MetadataFieldValueTest extends AbstractModelTest {
 
     @Before
     public void setUp() {
-    	testProject = projectRepo.create("testProject");
+        testProject = projectRepo.create("testProject");
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
         testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
-        testField = metadataFieldGroupRepo.create(testDocument, testLabel);
+        testFieldGroup = metadataFieldGroupRepo.create(testDocument, testLabel);
         assertEquals("MetadataFieldValueRepo is not empty.", 0, metadataFieldValueRepo.count());
     }
 
     @Test
     @Order(1)
     public void testSaveMetadataFieldValue() {
-        testValue = metadataFieldValueRepo.create("test", testField);
+        testValue = metadataFieldValueRepo.create("test", testFieldGroup);
         assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
         assertEquals("Expected Test MetadataFieldValue was not created.", "test", testValue.getValue());
     }
@@ -31,7 +31,7 @@ public class MetadataFieldValueTest extends AbstractModelTest {
     @Test
     @Order(2)
     public void testSaveWithControlCharacterMetadataFieldValue() {
-        testValue = metadataFieldValueRepo.create("test\n\r\t\b\f", testField);
+        testValue = metadataFieldValueRepo.create("test\n\r\t\b\f", testFieldGroup);
         assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
         assertEquals("Expected Test MetadataFieldValue was not created.", "test", testValue.getValue());
     }
@@ -39,16 +39,16 @@ public class MetadataFieldValueTest extends AbstractModelTest {
     @Test
     @Order(3)
     public void testFindMetadataFieldValue() {
-        testValue = metadataFieldValueRepo.create("test", testField);
+        testValue = metadataFieldValueRepo.create("test", testFieldGroup);
         assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
-        testValue = metadataFieldValueRepo.findByValueAndField("test", testField);
+        testValue = metadataFieldValueRepo.findByValueAndField("test", testFieldGroup);
         assertEquals("Test MetadataFieldValue was not found.", "test", testValue.getValue());
     }
 
     @Test
     @Order(4)
     public void testDeleteMetadataFieldValue() {
-        testValue = metadataFieldValueRepo.create("test", testField);
+        testValue = metadataFieldValueRepo.create("test", testFieldGroup);
         assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
         metadataFieldValueRepo.delete(testValue);
         assertEquals("Test MetadataFieldValue was not deleted.", 0, metadataFieldValueRepo.count());
@@ -57,11 +57,13 @@ public class MetadataFieldValueTest extends AbstractModelTest {
     @Test
     @Order(5)
     public void testCascadeOnDeleteMetadataFieldValue() {
-        ControlledVocabulary testControlledVocabulary = controlledVocabularyRepo.create("test");
+
+        testControlledVocabulary = controlledVocabularyRepo.create("test");
+
         assertEquals("Test ControlledVocabulary was not created.", 1, controlledVocabularyRepo.count());
 
         assertEquals("MetadataFieldValueRepo is not empty.", 0, metadataFieldValueRepo.count());
-        testValue = metadataFieldValueRepo.create(testControlledVocabulary, testField);
+        testValue = metadataFieldValueRepo.create(testControlledVocabulary, testFieldGroup);
         assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
 
         assertEquals("Test MetadataFieldValue with ControlledVocabulary was not created.", testControlledVocabulary.getValue(), testValue.getValue());
