@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -29,7 +28,6 @@ import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.runner.OrderedRunner;
-import edu.tamu.app.utilities.FileSystemUtility;
 
 @WebAppConfiguration
 @ActiveProfiles({ "test" })
@@ -39,9 +37,6 @@ public class ProjectsServiceTest {
 
     @Value("${app.mount}")
     private String mount;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
 
     @Autowired
     private ProjectsService projectsService;
@@ -97,14 +92,7 @@ public class ProjectsServiceTest {
     @Test
     @Order(5)
     public void testCreateDocument() throws IOException {
-        String projectsPath = resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/projects";
-        String disseratationsPath = projectsPath + "/dissertation";
-        String documentPath = disseratationsPath + "/dissertation_0";
-        FileSystemUtility.createDirectory(projectsPath);
-        FileSystemUtility.createDirectory(disseratationsPath);
-        FileSystemUtility.createDirectory(documentPath);
-        FileSystemUtility.createFile(documentPath, "dissertation.pdf");
-        FileSystemUtility.createFile(documentPath, "dissertation.pdf.txt");
+        assertEquals("Wrong number of projects!", 0, projectRepo.count());
 
         projectsService.createDocument("dissertation", "dissertation_0");
 

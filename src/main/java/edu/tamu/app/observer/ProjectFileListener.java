@@ -15,6 +15,9 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @Component
 @Scope("prototype")
 public class ProjectFileListener extends AbstractFileListener {
+    
+    @Value("${app.document.create.wait}")
+    private int documentCreationWait;
 
     @Value("${app.host}")
     private String host;
@@ -36,31 +39,32 @@ public class ProjectFileListener extends AbstractFileListener {
         logger.info("ProjectFileListener is creating project " + directory.getName());
         projectService.getOrCreateProject(directory);
     }
-    
+
     private boolean directoryIsReady(File directory) {
-    	if (projectService.projectIsHeadless(projectService.getName(directory.getParentFile())) == false) {
-    		return true;
-    	} else {
-    		long lastModified = 0L;
-    		long oldLastModified = -1L;
+        if (projectService.projectIsHeadless(projectService.getName(directory.getParentFile())) == false) {
+            return true;
+        } else {
+            long lastModified = 0L;
+            long oldLastModified = -1L;
             long stableTime = 0L;
-            //if a document directory in a headless project hasn't been modified in the last 10 seconds, it's probably ready
-            while ((oldLastModified < lastModified) || (oldLastModified == lastModified) && (System.currentTimeMillis() - stableTime) < 10000) {
-            	lastModified = directory.lastModified();
-            	if ((lastModified != oldLastModified) || stableTime == 0L) {
-            		stableTime = System.currentTimeMillis();
-            	}
-            	oldLastModified = lastModified;
-    		}
-        	return true;
-    	}
+            // if a document directory in a headless project hasn't been modified in the last 10
+            // seconds, it's probably ready
+            while ((oldLastModified < lastModified) || (oldLastModified == lastModified) && (System.currentTimeMillis() - stableTime) < documentCreationWait) {
+                lastModified = directory.lastModified();
+                if ((lastModified != oldLastModified) || stableTime == 0L) {
+                    stableTime = System.currentTimeMillis();
+                }
+                oldLastModified = lastModified;
+            }
+            return true;
+        }
     }
-    
+
     private void createDocument(File directory) {
         logger.info("ProjectFileListener is creating document " + directory.getName());
-        
+
         if (directoryIsReady(directory)) {
-        	projectService.createDocument(directory);
+            projectService.createDocument(directory);
         }
     }
 
@@ -71,8 +75,7 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Override
     public void onDirectoryCreate(File directory) {
-        if (FileSystemUtility.getWindowsSafePath(directory.getParent())
-                .equals(FileSystemUtility.getWindowsSafePath(getPath()))) {
+        if (FileSystemUtility.getWindowsSafePath(directory.getParent()).equals(FileSystemUtility.getWindowsSafePath(getPath()))) {
             createProject(directory);
         } else {
             createDocument(directory);
