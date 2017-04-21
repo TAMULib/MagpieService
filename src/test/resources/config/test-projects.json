@@ -1,55 +1,7 @@
-Metadata Assignment Service
-===========================
-
-Spring MVC applications which provides an interface to annotate documents.
-
-
-Below is a sample for metadata json file
-```json
 {
    "dissertation":{
-      "repositories":[
-         {
-            "name":"DSpace for Dissertations",
-            "type":"DSPACE",
-            "settings":[
-               {
-                  "key":"repoUrl",
-                  "values":[
-                     "https://dspacepre1.library.tamu.edu"
-                  ]
-               },
-               {
-                  "key":"repoUIPath",
-                  "values":[]
-               },
-               {
-                  "key":"collectionId",
-                  "values":[
-                     "138"
-                  ]
-               },
-               {
-                  "key":"groupId",
-                  "values":[
-                     "246"
-                  ]
-               },
-               {
-                  "key":"userName",
-                  "values":[
-                     "magpie@oaktrust.library.tamu.edu"
-                  ]
-               },
-               {
-                  "key":"password",
-                  "values":[
-                     "************"
-                  ]
-               }
-            ]
-         }
-      ],
+      "isHeadless": true,
+      "repositories":[],
       "authorities":[
          {
             "name":"Voyager for Dissertations Authority",
@@ -76,7 +28,9 @@ Below is a sample for metadata json file
             ]
          }
       ],
-      "suggestors":[],
+      "suggestors":[
+
+      ],
       "metadata":[
          {
             "label":"dc.title",
@@ -211,7 +165,7 @@ Below is a sample for metadata json file
    },
    "taes_misc_publication":{
       "repositories":[
-        {
+		{
             "name":"DSpace for TAES Misc Publications",
             "type":"DSPACE",
             "settings":[
@@ -263,6 +217,12 @@ Below is a sample for metadata json file
                   "key":"paths",
                   "values":[
                      "config/csv/TAES-Misc-Publication-Collection-Metadata.csv"
+                  ]
+               },
+               {
+                  "key":"identifier",
+                  "values":[
+                     "filename"
                   ]
                },
                {
@@ -390,9 +350,15 @@ Below is a sample for metadata json file
       ]
    },
    "thesis":{
-      "repositories":[],
-      "authorities":[],
-      "suggestors":[],
+      "repositories":[
+
+      ],
+      "authorities":[
+
+      ],
+      "suggestors":[
+
+      ],
       "metadata":[
          {
             "label":"dc.author",
@@ -408,15 +374,100 @@ Below is a sample for metadata json file
          }
       ]
    },
-   "default":{
-      "repositories":[],
-      "authorities":[],
+   "fedora_spotlight_exhibit":{
+      "repositories":[
+      {
+            "name":"Fedora",
+            "type":"FEDORA",
+            "settings":[
+               {
+                  "key":"repoUrl",
+                  "values":[
+                     "http://localhost:8080"
+                  ]
+               },
+               {
+                  "key":"restPath",
+                  "values":[
+                     "fcrepo/rest"
+                  ]
+               },
+               {
+                  "key":"containerPath",
+                  "values":[
+                     "spotlight_exhibit"
+                  ]
+               },
+               {
+                  "key":"userName",
+                  "values":[
+                     "fedoraAdmin"
+                  ]
+               },
+               {
+                  "key":"password",
+                  "values":[
+                     "secret3"
+                  ]
+               }
+            ]
+         }
+      ],
+      "authorities":[
+         {
+            "name":"Exhibit Metadata",
+            "type":"CSV",
+            "settings":[
+               {
+                  "key":"paths",
+                  "values":[
+                     "config/csv/Fedora-Exhibit.csv"
+                  ]
+               },
+               {
+                  "key":"identifier",
+                  "values":[
+                     "filename"
+                  ]
+               },
+               {
+                  "key":"delimeter",
+                  "values":[
+                     "||"
+                  ]
+               }
+            ]
+         }
+      ],
       "suggestors":[],
       "metadata":[
          {
             "label":"dc.title",
             "gloss":"Title",
+            "inputType":"TEXT"
+         },
+         {
+            "label":"dc.description",
+            "gloss":"Description",
             "inputType":"TEXTAREA"
+         }
+      ]
+   },
+   "default":{
+      "repositories":[
+
+      ],
+      "authorities":[
+
+      ],
+      "suggestors":[
+
+      ],
+      "metadata":[
+         {
+            "label":"dc.title",
+            "gloss":"Title",
+            "inputType":"TEXT"
          },
          {
             "label":"dc.description",
@@ -426,17 +477,3 @@ Below is a sample for metadata json file
       ]
    }
 }
-```
-
-
-Cobertura Reporting Tool
-------------------------
-
-Command used to see the code coverage by unit testing :
-```
-mvn cobertura:cobertura OR mvn site
-```
-Location of the generated report :
-```
-<Application>/target/site/index.html
-```
