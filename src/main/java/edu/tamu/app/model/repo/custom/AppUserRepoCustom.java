@@ -23,10 +23,10 @@ public interface AppUserRepoCustom {
      * Creates application user based on uin in the repository
      * 
      * @param uin
-     *            Long
+     *            String
      */
-    public AppUser create(Long uin);
+    public AppUser create(String uin);
 
-    public AppUser create(Long uin, String firstName, String lastName, String role);
+    public AppUser create(String uin, String firstName, String lastName, String role);
 
 }

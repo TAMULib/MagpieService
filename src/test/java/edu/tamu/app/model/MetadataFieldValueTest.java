@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
 
 public class MetadataFieldValueTest extends AbstractModelTest {
@@ -21,7 +20,6 @@ public class MetadataFieldValueTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(1)
     public void testSaveMetadataFieldValue() {
         testValue = metadataFieldValueRepo.create("test", testFieldGroup);
         assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
@@ -29,7 +27,6 @@ public class MetadataFieldValueTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(2)
     public void testSaveWithControlCharacterMetadataFieldValue() {
         testValue = metadataFieldValueRepo.create("test\n\r\t\b\f", testFieldGroup);
         assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
@@ -37,7 +34,6 @@ public class MetadataFieldValueTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(3)
     public void testFindMetadataFieldValue() {
         testValue = metadataFieldValueRepo.create("test", testFieldGroup);
         assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
@@ -46,7 +42,6 @@ public class MetadataFieldValueTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(4)
     public void testDeleteMetadataFieldValue() {
         testValue = metadataFieldValueRepo.create("test", testFieldGroup);
         assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
@@ -55,7 +50,6 @@ public class MetadataFieldValueTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(5)
     public void testCascadeOnDeleteMetadataFieldValue() {
 
         testControlledVocabulary = controlledVocabularyRepo.create("test");

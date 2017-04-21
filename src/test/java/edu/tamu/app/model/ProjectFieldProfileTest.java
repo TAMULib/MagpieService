@@ -9,7 +9,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
 
 public class ProjectFieldProfileTest extends AbstractModelTest {
@@ -21,7 +20,6 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(1)
     public void testSaveProjectFieldProfile() {
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
@@ -35,7 +33,6 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(2)
     public void testDuplicateProjectFieldProfile() {
         projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
@@ -43,7 +40,6 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(3)
     public void testFindProjectFieldProfile() {
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
@@ -52,7 +48,6 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(4)
     public void testDeleteProjectFieldProfile() {
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
@@ -61,7 +56,6 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(5)
     public void testSettersFieldProfile() {
 
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXTAREA, "default");

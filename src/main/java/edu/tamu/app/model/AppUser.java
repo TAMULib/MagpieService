@@ -9,14 +9,21 @@
  */
 package edu.tamu.app.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import edu.tamu.app.enums.AppRole;
-import edu.tamu.framework.model.AbstractCoreUserImpl;
+import edu.tamu.framework.model.AbstractCoreUser;
 import edu.tamu.framework.model.IRole;
 
 /**
@@ -26,7 +33,9 @@ import edu.tamu.framework.model.IRole;
  *
  */
 @Entity
-public class AppUser extends AbstractCoreUserImpl {
+public class AppUser extends AbstractCoreUser {
+
+    private static final long serialVersionUID = -322779181704256964L;
 
     @Column(name = "role")
     private AppRole role;
@@ -49,7 +58,7 @@ public class AppUser extends AbstractCoreUserImpl {
      * Constructor for the application user
      * 
      */
-    public AppUser(Long uin) {
+    public AppUser(String uin) {
         super(uin);
     }
 
@@ -60,7 +69,7 @@ public class AppUser extends AbstractCoreUserImpl {
      *            Long
      * 
      */
-    public AppUser(Long uin, String firstName, String lastName, String role) {
+    public AppUser(String uin, String firstName, String lastName, String role) {
         this(uin);
         setFirstName(firstName);
         setLastName(lastName);
@@ -117,6 +126,51 @@ public class AppUser extends AbstractCoreUserImpl {
      */
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(this.getRole().toString());
+        authorities.add(authority);
+        return authorities;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getUsername() {
+        return getUin();
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isEnabled() {
+        return true;
     }
 
 }

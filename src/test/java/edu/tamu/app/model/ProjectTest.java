@@ -4,12 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import edu.tamu.app.annotations.Order;
-
 public class ProjectTest extends AbstractModelTest {
 
     @Test
-    @Order(1)
     public void testSaveProject() {
         assertProject = projectRepo.create("testProject");
         assertEquals("Test Project was not created.", 1, projectRepo.count());
@@ -17,7 +14,6 @@ public class ProjectTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(2)
     public void testDuplicateProject() {
         projectRepo.create("testProject");
         projectRepo.create("testProject");
@@ -25,7 +21,6 @@ public class ProjectTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(3)
     public void testFindProject() {
         projectRepo.create("testProject");
         assertEquals("Test Project was not created.", 1, projectRepo.count());
@@ -36,7 +31,6 @@ public class ProjectTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(4)
     public void testDeleteProject() {
         assertProject = projectRepo.create("testProject");
         assertEquals("Test Project was not created.", 1, projectRepo.count());
@@ -45,7 +39,6 @@ public class ProjectTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(5)
     public void testCascadeOnDeleteProject() {
 
         testProject = projectRepo.create("testProject");
