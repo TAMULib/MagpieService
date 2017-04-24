@@ -49,7 +49,6 @@ public class SyncService {
             logger.debug("Running Sync Service");
         }
 
-        System.out.println("\n\n" + mount + "\n\n");
         String directory = null;
         try {
             directory = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()) + "/projects/";
