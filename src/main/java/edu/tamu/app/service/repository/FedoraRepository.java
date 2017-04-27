@@ -88,7 +88,7 @@ public class FedoraRepository implements Repository {
 		return buildRepoRestUrl()+"/"+getContainerPath();
 	}
 	
-	private String buildRepoRestUrl() {
+	protected String buildRepoRestUrl() {
 		return getRepoUrl()+"/"+getRestPath();
 	}
 	/**
@@ -170,7 +170,7 @@ public class FedoraRepository implements Repository {
 		return projectContainerPath;
 	}
 	
-	private String createContainer(String containerUrl, String slugName) throws IOException {
+	protected String createContainer(String containerUrl, String slugName) throws IOException {
 		HttpURLConnection connection = buildFedoraConnection(containerUrl, "POST");
 		connection.setRequestProperty("Accept", null);
 		if(slugName != null) connection.setRequestProperty("slug", slugName);

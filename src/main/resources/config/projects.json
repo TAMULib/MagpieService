@@ -1,4 +1,56 @@
 {
+   "pcdm": {
+      "repositories":[
+      {
+            "name":"Fedora PCDM",
+            "type":"FEDORA_PCDM",
+            "settings":[
+               {
+                  "key":"repoUrl",
+                  "values":[
+                     "http://localhost:8080"
+                  ]
+               },
+               {
+                  "key":"restPath",
+                  "values":[
+                     "fcrepo/rest/"
+                  ]
+               },
+               {
+                  "key":"containerPath",
+                  "values":[
+                     "magpie_pcdm"
+                  ]
+               },
+               {
+                  "key":"userName",
+                  "values":[
+                     "fedoraAdmin"
+                  ]
+               },
+               {
+                  "key":"password",
+                  "values":[
+                     "secret3"
+                  ]
+               }
+            ]
+         }
+      ],
+      "metadata":[
+         {
+            "label":"dc.title",
+            "gloss":"Title",
+            "inputType":"TEXT"
+         },
+         {
+            "label":"dc.description",
+            "gloss":"Description",
+            "inputType":"TEXTAREA"
+         }
+      ]
+   },
    "dissertation":{
       "isHeadless": true,
       "repositories":[
