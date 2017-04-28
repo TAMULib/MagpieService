@@ -28,9 +28,10 @@ public class FedoraPCDMRepository extends FedoraRepository {
 
 	@Override
 	protected String createContainer(String containerUrl, String slugName) throws IOException {
+		System.out.println("creating container: "+containerUrl+"/");
 		HttpURLConnection connection = buildBasicFedoraConnection(containerUrl+"/");
         connection.setRequestProperty("CONTENT-TYPE", "application/rdf+xml");
-		connection.setRequestMethod("POST");		
+		connection.setRequestMethod("PUT");		
 
 		connection.setDoOutput(true);
 
@@ -38,7 +39,8 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		
 		OutputStream os = connection.getOutputStream();
 
-		os = buildLDPBasicContainer(containerUrl, os);
+		Model pcdmObject = buildPCDMObject(containerUrl, os);
+		pcdmObject.write(os);
 		System.out.println("*** JENA GENERATED RDF+XML ***");
 		System.out.println(os.toString());		
 		os.close();
@@ -54,19 +56,17 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		return connection.getHeaderField("Location");
 	}
 	
-	private OutputStream buildLDPBasicContainer(String containerUrl, OutputStream os) throws FileNotFoundException {
+	private Model buildPCDMObject(String containerUrl, OutputStream os) throws FileNotFoundException {
 		/*
-		 * @prefix ldp: <http://www.w3.org/ns/ldp#>
- 
-			<> a ldp:BasicContainer .
+			@prefix pcdm: <http://pcdm.org/models#>
+			  
+			<> a pcdm:Object .
 		 */
 
 		Model model = ModelFactory.createDefaultModel();
 		Resource resource = model.createResource(containerUrl);
 		resource.addProperty(RDF.type,"http://pcdm.org/models#Object");
-
-		model.write(os);
-		return os;
+		return model;
 	}
 
 }
