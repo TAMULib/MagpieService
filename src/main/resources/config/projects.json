@@ -14,7 +14,7 @@
                {
                   "key":"restPath",
                   "values":[
-                     "fcrepo/rest/"
+                     "fcrepo/rest"
                   ]
                },
                {

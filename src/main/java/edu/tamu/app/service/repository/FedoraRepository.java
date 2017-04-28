@@ -84,7 +84,7 @@ public class FedoraRepository implements Repository {
 		return buildContainerUrl()+"/"+itemContainerPath+"/";
 	}
 
-	private String buildContainerUrl() {
+	protected String buildContainerUrl() {
 		return buildRepoRestUrl()+"/"+getContainerPath();
 	}
 	
@@ -188,7 +188,7 @@ public class FedoraRepository implements Repository {
 			
 	}
 
-	private HttpURLConnection buildBasicFedoraConnection(String path) throws IOException {
+	protected HttpURLConnection buildBasicFedoraConnection(String path) throws IOException {
 		
 		URL restUrl = new URL(path);
 		
@@ -201,7 +201,7 @@ public class FedoraRepository implements Repository {
 		
 	}
 	
-	private HttpURLConnection buildFedoraConnection(String path, String method) throws IOException {
+	protected HttpURLConnection buildFedoraConnection(String path, String method) throws IOException {
 		HttpURLConnection connection = buildBasicFedoraConnection(path);
 		
 		connection.setRequestMethod(method);		
