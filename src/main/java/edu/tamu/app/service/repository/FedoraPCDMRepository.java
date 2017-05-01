@@ -4,11 +4,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.util.Map;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
+import org.fcrepo.vocabulary.LDP;
 
 import edu.tamu.app.model.Document;
 
@@ -22,25 +24,42 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	@Override
 	public Document push(Document document) throws IOException {
 		System.out.println("PRETENDING TO PUSH");
-		System.out.println("container is: "+createContainer(buildContainerUrl(),getContainerPath()));
+		confirmProjectContainerExists();
+		
+		String pcdmMembersUrl = buildContainerUrl()+"/members/";
+		
+		if (!resourceExists(pcdmMembersUrl)) {
+			generatePutRequest(pcdmMembersUrl,null,buildPCDMMember(pcdmMembersUrl));
+		}
+
 		return null;
 	}
+	
+	private String generatePutRequest(String url, Map<String,String> requestProperties,Model rdfObject) throws IOException {
+		HttpURLConnection connection = buildBasicFedoraConnection(url);
 
-	@Override
-	protected String createContainer(String containerUrl, String slugName) throws IOException {
-		System.out.println("creating container: "+containerUrl+"/");
-		HttpURLConnection connection = buildBasicFedoraConnection(containerUrl+"/");
-        connection.setRequestProperty("CONTENT-TYPE", "application/rdf+xml");
+		boolean hasContentType = false;
+		if (requestProperties != null) {
+			if (requestProperties.containsKey("CONTENT-TYPE")) {
+				hasContentType = true;
+			}
+
+			requestProperties.forEach((k,v) -> {
+		        connection.setRequestProperty(k, v);
+			});
+		}
+		if (!hasContentType) {
+			connection.setRequestProperty("CONTENT-TYPE", "application/rdf+xml");
+		}
+		
+		
 		connection.setRequestMethod("PUT");		
 
 		connection.setDoOutput(true);
 
-		if(slugName != null) connection.setRequestProperty("slug", slugName);
-		
 		OutputStream os = connection.getOutputStream();
 
-		Model pcdmObject = buildPCDMObject(containerUrl, os);
-		pcdmObject.write(os);
+		rdfObject.write(os);
 		System.out.println("*** JENA GENERATED RDF+XML ***");
 		System.out.println(os.toString());		
 		os.close();
@@ -50,13 +69,27 @@ public class FedoraPCDMRepository extends FedoraRepository {
 				
 		if(responseCode != 201) {
 			System.out.println("message: "+connection.getResponseMessage());
-			throw new IOException("Could not create container. Server responded with " + responseCode);
+			throw new IOException("Could not complete PUT request. Server responded with " + responseCode);
 		}
 				
 		return connection.getHeaderField("Location");
+		
 	}
 	
-	private Model buildPCDMObject(String containerUrl, OutputStream os) throws FileNotFoundException {
+	@Override
+	protected String createContainer(String containerUrl, String slugName) throws IOException {
+		System.out.println("creating container: "+containerUrl+"/"+slugName);
+		
+		/*
+		Map<String,String> requestProperties = new HashMap<String,String>();
+		if (slugName != null) {
+			requestProperties.put("slug", slugName);
+		}
+*/
+		return generatePutRequest(containerUrl+"/"+slugName,null,buildPCDMObject(containerUrl+"/"+slugName));
+	}
+	
+	private Model buildPCDMObject(String containerUrl) throws FileNotFoundException {
 		/*
 			@prefix pcdm: <http://pcdm.org/models#>
 			  
@@ -65,7 +98,29 @@ public class FedoraPCDMRepository extends FedoraRepository {
 
 		Model model = ModelFactory.createDefaultModel();
 		Resource resource = model.createResource(containerUrl);
-		resource.addProperty(RDF.type,"http://pcdm.org/models#Object");
+		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
+		return model;
+	}
+	
+	private Model buildPCDMMember(String memberUrl) {
+		/*
+		 *	@prefix ldp: <http://www.w3.org/ns/ldp#>
+			@prefix pcdm: <http://pcdm.org/models#>
+			@prefix ore: <http://www.openarchives.org/ore/terms/>
+			 
+			<> a ldp:IndirectContainer, pcdm:Object ;
+			  ldp:membershipResource </fcrepo/rest/collections/primeros-libros/> ;
+			  ldp:hasMemberRelation pcdm:hasMember ;
+			  ldp:insertedContentRelation ore:proxyFor .
+
+		 */
+		Model model = ModelFactory.createDefaultModel();
+		Resource resource = model.createResource(memberUrl);
+		resource.addProperty(RDF.type,model.createProperty(LDP.IndirectContainer.getIRIString()));
+		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
+		resource.addProperty(model.createProperty(LDP.hasMemberRelation.getIRIString()),model.createProperty("http://pcdm.org/models#hasMember"));
+		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(buildContainerUrl()+"/"));
+		resource.addProperty(model.createProperty(LDP.insertedContentRelation.getIRIString()), model.createProperty("http://www.openarchives.org/ore/terms/proxyFor"));
 		return model;
 	}
 

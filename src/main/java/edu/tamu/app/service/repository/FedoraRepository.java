@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,14 +161,37 @@ public class FedoraRepository implements Repository {
 		return connection.getHeaderField("Location");
 	}
 	
-	private String confirmProjectContainerExists() throws IOException {
+	protected String confirmProjectContainerExists() throws IOException {
 		String projectContainerPath = null;
-		if(buildFedoraConnection(buildContainerUrl(), "GET").getResponseCode() == 404) {
+		if(!resourceExists(buildContainerUrl())) {
 			projectContainerPath = createContainer(buildRepoRestUrl(), getContainerPath());
 		} else {
 			projectContainerPath = getContainerPath().replace(getRepoUrl()+"/"+getRestPath(), "");
 		}
 		return projectContainerPath;
+	}
+	
+	protected boolean resourceExists(String uri) throws IOException {
+		HttpURLConnection connection = getResource(uri,null);
+		int responseCode = connection.getResponseCode();
+		System.out.println("resource check for <"+uri+">: "+responseCode);
+		if (responseCode == 200 || responseCode == 304) {
+			return true;
+		}
+		return false;
+	}
+	
+	protected HttpURLConnection getResource(String uri,Map<String,String> requestProperties) throws IOException {
+		HttpURLConnection connection = buildBasicFedoraConnection(uri);
+
+		connection.setRequestMethod("GET");		
+	
+		if (requestProperties != null) {
+			requestProperties.forEach((k,v) -> {
+				connection.addRequestProperty(k, v);
+			});
+		}		
+		return connection;
 	}
 	
 	protected String createContainer(String containerUrl, String slugName) throws IOException {
