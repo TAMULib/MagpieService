@@ -24,7 +24,7 @@ import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.DocumentRepo;
 
-public class FedoraRepository implements Repository {
+public class FedoraRepository extends AbstractFedoraRepository {
     @Autowired
     private ResourceLoader resourceLoader;
 

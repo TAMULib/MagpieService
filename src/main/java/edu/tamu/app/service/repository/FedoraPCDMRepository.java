@@ -14,12 +14,13 @@ import org.fcrepo.vocabulary.LDP;
 
 public class FedoraPCDMRepository extends FedoraRepository {
 	private String membersEndpoint = "members";
-	private String objectsEndpoint = "magpie_objects";
+	private String objectsEndpoint = "objects";
 	private String pagesEndpoint = "pages";
 
 	public FedoraPCDMRepository(String repoUrl, String restPath, String containerPath, String username,
 			String password) {
 		super(repoUrl, restPath, containerPath, username, password);
+		objectsEndpoint = containerPath+"_"+objectsEndpoint;
 	}
 	
 	@Override
