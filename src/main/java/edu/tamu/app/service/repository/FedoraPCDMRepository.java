@@ -15,6 +15,9 @@ import org.fcrepo.vocabulary.LDP;
 import edu.tamu.app.model.Document;
 
 public class FedoraPCDMRepository extends FedoraRepository {
+	private String membersEndpoint = "members";
+	private String objectsEndpoint = "objects";
+	private String pagesEndpoint = "pages";
 
 	public FedoraPCDMRepository(String repoUrl, String restPath, String containerPath, String username,
 			String password) {
@@ -23,14 +26,48 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	
 	@Override
 	public Document push(Document document) throws IOException {
-		System.out.println("PRETENDING TO PUSH");
+		logger.debug("PRETENDING TO PUSH");
+		
+		verifyPCDMStructures();
+			//push the stuff!
+
+		return null;
+	}
+	
+	private void verifyPCDMStructures() throws IOException {
 		confirmProjectContainerExists();
 		
-		String pcdmMembersUrl = buildContainerUrl()+"/members";
+		String pcdmMembersUrl = getMembersUrl();
 		
+		//make sure we have a members resource to represent properties of the items in the context of the collection
 		if (!resourceExists(pcdmMembersUrl)) {
 			generatePutRequest(pcdmMembersUrl,null,buildPCDMMember(pcdmMembersUrl));
 		}
+
+		//make sure we have an objects resource to store items
+		String objectsUrl = getObjectsUrl();
+		if (!resourceExists(objectsUrl)) {
+			generatePutRequest(objectsUrl,null,buildPCDMMember(objectsUrl));
+		}
+
+	}
+	
+	private String getMembersUrl() {
+		return buildContainerUrl()+"/"+membersEndpoint+"/";
+	}
+		
+	private String getObjectsUrl() {
+		return buildRepoRestUrl()+"/"+objectsEndpoint+"/";
+	}
+	
+	@Override
+	protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
+		String itemUrl = getObjectsUrl()+"/"+slug+"/";
+		// Create a container for the item within the 
+		generatePutRequest(itemUrl,null,buildPCDMObject(itemUrl));
+		
+		// Create a pages container for within the item container 
+		generatePutRequest(itemUrl+pagesEndpoint+"/",null,buildPCDMObject(itemUrl+pagesEndpoint+"/"));
 
 		return null;
 	}
@@ -60,15 +97,15 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		OutputStream os = connection.getOutputStream();
 
 		rdfObject.write(os);
-		System.out.println("*** JENA GENERATED RDF+XML ***");
-		System.out.println(os.toString());		
+		logger.debug("*** JENA GENERATED RDF+XML ***");
+		logger.debug(os.toString());		
 		os.close();
 
 		
 		int responseCode = connection.getResponseCode();
 				
 		if(responseCode != 201) {
-			System.out.println("message: "+connection.getResponseMessage());
+			logger.debug("Server message: "+connection.getResponseMessage());
 			throw new IOException("Could not complete PUT request. Server responded with " + responseCode);
 		}
 				
@@ -78,7 +115,7 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	
 	@Override
 	protected String createContainer(String containerUrl, String slugName) throws IOException {
-		System.out.println("creating container: "+containerUrl+"/"+slugName);
+		logger.debug("creating container: "+containerUrl+"/"+slugName);
 		
 		/*
 		Map<String,String> requestProperties = new HashMap<String,String>();
@@ -95,7 +132,7 @@ public class FedoraPCDMRepository extends FedoraRepository {
 			  
 			<> a pcdm:Object .
 		 */
-
+		logger.debug("Building PCDM Object at <"+containerUrl+">");
 		Model model = ModelFactory.createDefaultModel();
 		Resource resource = model.createResource(containerUrl);
 		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
@@ -114,6 +151,7 @@ public class FedoraPCDMRepository extends FedoraRepository {
 			  ldp:insertedContentRelation ore:proxyFor .
 
 		 */
+		logger.debug("Building PCDM Member at <"+memberUrl+">");
 		Model model = ModelFactory.createDefaultModel();
 		Resource resource = model.createResource(memberUrl);
 		resource.addProperty(RDF.type,model.createProperty(LDP.IndirectContainer.getIRIString()));

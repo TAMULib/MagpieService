@@ -13,6 +13,7 @@ import java.util.Base64;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
@@ -24,7 +25,6 @@ import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.DocumentRepo;
 
 public class FedoraRepository implements Repository {
-    
     @Autowired
     private ResourceLoader resourceLoader;
 
@@ -47,6 +47,9 @@ public class FedoraRepository implements Repository {
     private String username;
     
     private String password;
+    
+    protected static final Logger logger = Logger.getLogger(FedoraRepository.class);
+
     
     public FedoraRepository(String repoUrl, String restPath, String containerPath,String username, String password) {
     	setRepoUrl(repoUrl);
@@ -139,7 +142,7 @@ public class FedoraRepository implements Repository {
 		
 	}
 	
-	private String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
+	protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
 				
 		File file = resourceLoader.getResource("classpath:static" + filePath).getFile();
         FileInputStream fileStrm = new FileInputStream(file);
@@ -174,10 +177,12 @@ public class FedoraRepository implements Repository {
 	protected boolean resourceExists(String uri) throws IOException {
 		HttpURLConnection connection = getResource(uri,null);
 		int responseCode = connection.getResponseCode();
-		System.out.println("resource check for <"+uri+">: "+responseCode);
+		logger.debug("Checking Fedora for existence of <"+uri+">: "+responseCode);
 		if (responseCode == 200 || responseCode == 304) {
+			logger.debug("<"+uri+"> exists");
 			return true;
 		}
+		logger.debug("<"+uri+"> does not exist");
 		return false;
 	}
 	
