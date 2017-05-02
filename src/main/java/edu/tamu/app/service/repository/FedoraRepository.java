@@ -58,22 +58,22 @@ public class FedoraRepository implements Repository {
     	setUsername(username);
     	setPassword(password);
     }
-
+    
 	@Override
 	public Document push(Document document) throws IOException {
 		
-		confirmProjectContainerExists();
-        
+		prepForPush();
+		
 		//create item container
-		String itemContainerPath = createContainer(buildContainerUrl(), document.getName());
+		String itemContainerPath = createItemContainer(document.getName());
 				
-		File directory = resourceLoader.getResource("classpath:static" + document.getDocumentPath()).getFile();
-		File[] files = directory.listFiles();
+		File[] files = getFiles(document.getDocumentPath());
 
 		String itemPath = null;
 		for (File file : files) {
 		    if (file.isFile()) {
-		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(), itemContainerPath, file.getName());
+		    	System.out.println("CREATING BINARY RESOURCE: "+file.getName());
+		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(),itemContainerPath, file.getName());
 		    }
 		}
 		updateMetadata(document,itemContainerPath);		
@@ -84,10 +84,15 @@ public class FedoraRepository implements Repository {
 		return document;
 	}
 	
-	private String buildItemContainerUrl(String itemContainerPath) {
-		return buildContainerUrl()+"/"+itemContainerPath+"/";
+    protected File[] getFiles(String directoryPath) throws IOException {
+		File directory = resourceLoader.getResource("classpath:static" + directoryPath).getFile();
+		return directory.listFiles();
+    }
+	
+	protected void prepForPush() throws IOException {
+		confirmProjectContainerExists();
 	}
-
+	
 	protected String buildContainerUrl() {
 		return buildRepoRestUrl()+"/"+getContainerPath();
 	}
@@ -102,10 +107,9 @@ public class FedoraRepository implements Repository {
 	 * @throws IOException
 	 */
 	
-	private void updateMetadata(Document document, String itemContainerPath) throws IOException {
-		String containerURL = buildItemContainerUrl(itemContainerPath);
+	private void updateMetadata(Document document, String itemContainerUrl) throws IOException {
 		
-		HttpURLConnection getConnection = buildBasicFedoraConnection(containerURL);
+		HttpURLConnection getConnection = buildBasicFedoraConnection(itemContainerUrl);
 
 		getConnection.setRequestMethod("GET");		
 		getConnection.setRequestProperty("Accept", "text/turtle");
@@ -126,7 +130,7 @@ public class FedoraRepository implements Repository {
 			}			
 		}
 
-		HttpURLConnection putConnection = buildBasicFedoraConnection(containerURL);
+		HttpURLConnection putConnection = buildBasicFedoraConnection(itemContainerUrl);
 		putConnection.setRequestMethod("PUT");		
 		
 		putConnection.setRequestProperty("CONTENT-TYPE", "text/turtle");
@@ -147,7 +151,7 @@ public class FedoraRepository implements Repository {
 		File file = resourceLoader.getResource("classpath:static" + filePath).getFile();
         FileInputStream fileStrm = new FileInputStream(file);
         byte[] fileBytes = IOUtils.toByteArray(fileStrm);
-        HttpURLConnection connection = buildFedoraConnection(buildItemContainerUrl(itemContainerPath), "POST");
+        HttpURLConnection connection = buildFedoraConnection(itemContainerPath, "POST");
 		connection.setRequestProperty("CONTENT-TYPE", configurableMimeFileTypeMap.getContentType(file));
 		connection.setRequestProperty("Accept", null);
 		
@@ -198,6 +202,11 @@ public class FedoraRepository implements Repository {
 		}		
 		return connection;
 	}
+
+	protected String createItemContainer(String slugName) throws IOException {
+		return createContainer(buildContainerUrl(), slugName);
+	}
+
 	
 	protected String createContainer(String containerUrl, String slugName) throws IOException {
 		HttpURLConnection connection = buildFedoraConnection(containerUrl, "POST");
@@ -213,8 +222,7 @@ public class FedoraRepository implements Repository {
 		StringWriter writer = new StringWriter();
 		IOUtils.copy(connection.getInputStream(), writer);
 		
-		return writer.toString().replace(getRepoUrl()+"/"+getRestPath()+"/"+getContainerPath()+"/", "");
-			
+		return connection.getHeaderField("Location");
 	}
 
 	protected HttpURLConnection buildBasicFedoraConnection(String path) throws IOException {

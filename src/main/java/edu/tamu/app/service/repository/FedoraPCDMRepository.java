@@ -12,11 +12,9 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
 import org.fcrepo.vocabulary.LDP;
 
-import edu.tamu.app.model.Document;
-
 public class FedoraPCDMRepository extends FedoraRepository {
 	private String membersEndpoint = "members";
-	private String objectsEndpoint = "objects";
+	private String objectsEndpoint = "magpie_objects";
 	private String pagesEndpoint = "pages";
 
 	public FedoraPCDMRepository(String repoUrl, String restPath, String containerPath, String username,
@@ -25,13 +23,8 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	}
 	
 	@Override
-	public Document push(Document document) throws IOException {
-		logger.debug("PRETENDING TO PUSH");
-		
+	protected void prepForPush() throws IOException {
 		verifyPCDMStructures();
-			//push the stuff!
-
-		return null;
 	}
 	
 	private void verifyPCDMStructures() throws IOException {
@@ -53,23 +46,29 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	}
 	
 	private String getMembersUrl() {
-		return buildContainerUrl()+"/"+membersEndpoint+"/";
+		return buildContainerUrl()+"/"+membersEndpoint;
 	}
 		
 	private String getObjectsUrl() {
-		return buildRepoRestUrl()+"/"+objectsEndpoint+"/";
+		return buildRepoRestUrl()+"/"+objectsEndpoint;
 	}
 	
 	@Override
-	protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
-		String itemUrl = getObjectsUrl()+"/"+slug+"/";
-		// Create a container for the item within the 
-		generatePutRequest(itemUrl,null,buildPCDMObject(itemUrl));
+	protected String createItemContainer(String slugName) throws FileNotFoundException, IOException {
+		String desiredItemUrl = getObjectsUrl()+"/"+slugName;
 		
+		String actualItemUrl = generatePutRequest(desiredItemUrl,null,buildPCDMObject(desiredItemUrl));
 		// Create a pages container for within the item container 
-		generatePutRequest(itemUrl+pagesEndpoint+"/",null,buildPCDMObject(itemUrl+pagesEndpoint+"/"));
+		generatePutRequest(actualItemUrl+"/"+pagesEndpoint+"/",null,buildPCDMObject(actualItemUrl+"/"+pagesEndpoint));
 
-		return null;
+		return actualItemUrl;
+	}
+	
+	@Override
+	protected String createResource(String filePath, String itemContainerPath, String slugName) throws IOException {
+		String resourceUrl = itemContainerPath+"/"+pagesEndpoint+"/"+slugName;
+		generatePutRequest(resourceUrl,null,buildPCDMObject(resourceUrl));
+		return super.createResource(filePath, itemContainerPath+"/"+pagesEndpoint+"/", slugName);
 	}
 	
 	private String generatePutRequest(String url, Map<String,String> requestProperties,Model rdfObject) throws IOException {
@@ -97,8 +96,10 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		OutputStream os = connection.getOutputStream();
 
 		rdfObject.write(os);
-		logger.debug("*** JENA GENERATED RDF+XML ***");
+		logger.debug("*** JENA GENERATED RDF+XML for <"+url+"> ***");
 		logger.debug(os.toString());		
+		System.out.println("*** JENA GENERATED RDF+XML <"+url+"> ***");
+		System.out.println(os.toString());		
 		os.close();
 
 		
