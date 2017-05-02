@@ -26,7 +26,7 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		System.out.println("PRETENDING TO PUSH");
 		confirmProjectContainerExists();
 		
-		String pcdmMembersUrl = buildContainerUrl()+"/members/";
+		String pcdmMembersUrl = buildContainerUrl()+"/members";
 		
 		if (!resourceExists(pcdmMembersUrl)) {
 			generatePutRequest(pcdmMembersUrl,null,buildPCDMMember(pcdmMembersUrl));
