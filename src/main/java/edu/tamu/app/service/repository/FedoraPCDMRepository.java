@@ -1,5 +1,6 @@
 package edu.tamu.app.service.repository;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,6 +12,8 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
 import org.fcrepo.vocabulary.LDP;
+
+import edu.tamu.app.model.Document;
 
 public class FedoraPCDMRepository extends FedoraRepository {
 	private String membersEndpoint = "members";
@@ -47,29 +50,44 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	}
 	
 	private String getMembersUrl() {
-		return buildContainerUrl()+"/"+membersEndpoint;
+		return buildContainerUrl()+File.separator+membersEndpoint;
 	}
 		
 	private String getObjectsUrl() {
-		return buildRepoRestUrl()+"/"+objectsEndpoint;
+		return buildRepoRestUrl()+File.separator+objectsEndpoint;
 	}
 	
 	@Override
 	protected String createItemContainer(String slugName) throws FileNotFoundException, IOException {
-		String desiredItemUrl = getObjectsUrl()+"/"+slugName;
-		
+		// Create the item container
+		String desiredItemUrl = getObjectsUrl()+File.separator+slugName;
 		String actualItemUrl = generatePutRequest(desiredItemUrl,null,buildPCDMObject(desiredItemUrl));
-		// Create a pages container for within the item container 
-		generatePutRequest(actualItemUrl+"/"+pagesEndpoint+"/",null,buildPCDMObject(actualItemUrl+"/"+pagesEndpoint));
+		// Create a pages container within the item container 
+		generatePutRequest(actualItemUrl+File.separator+pagesEndpoint+File.separator,null,buildPCDMObject(actualItemUrl+File.separator+pagesEndpoint));
 
 		return actualItemUrl;
 	}
 	
 	@Override
-	protected String createResource(String filePath, String itemContainerPath, String slugName) throws IOException {
-		String resourceUrl = itemContainerPath+"/"+pagesEndpoint+"/"+slugName;
-		generatePutRequest(resourceUrl,null,buildPCDMObject(resourceUrl));
-		return super.createResource(filePath, itemContainerPath+"/"+pagesEndpoint+"/", slugName);
+	protected String createResource(String filePath, String resourceContainerPath, String slugName) throws IOException {
+		generatePutRequest(resourceContainerPath,null,buildPCDMObject(resourceContainerPath));
+
+		generatePutRequest(resourceContainerPath+File.separator+"files",null,buildPCDMFileContainer(resourceContainerPath+File.separator+"files"));
+		return super.createResource(filePath, resourceContainerPath+File.separator+"files",slugName);
+	}
+	
+	@Override
+	protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
+		String itemPath = null;
+		int x = 0;
+		//TODO Since magpie hasn't been modified to support defining pages, yet, we're treating each file as a different page to provide a proof of concept for a paged PCDM collection pushed to Fedora
+		for (File file : files) {
+		    if (file.isFile()) {
+		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(),itemContainerPath+File.separator+pagesEndpoint+File.separator+"page_"+x, file.getName());
+		    }
+		    x++;
+		}
+		return itemPath;
 	}
 	
 	private String generatePutRequest(String url, Map<String,String> requestProperties,Model rdfObject) throws IOException {
@@ -99,8 +117,6 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		rdfObject.write(os);
 		logger.debug("*** JENA GENERATED RDF+XML for <"+url+"> ***");
 		logger.debug(os.toString());		
-		System.out.println("*** JENA GENERATED RDF+XML <"+url+"> ***");
-		System.out.println(os.toString());		
 		os.close();
 
 		
@@ -118,22 +134,10 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	@Override
 	protected String createContainer(String containerUrl, String slugName) throws IOException {
 		logger.debug("creating container: "+containerUrl+"/"+slugName);
-		
-		/*
-		Map<String,String> requestProperties = new HashMap<String,String>();
-		if (slugName != null) {
-			requestProperties.put("slug", slugName);
-		}
-*/
 		return generatePutRequest(containerUrl+"/"+slugName,null,buildPCDMObject(containerUrl+"/"+slugName));
 	}
 	
 	private Model buildPCDMObject(String containerUrl) throws FileNotFoundException {
-		/*
-			@prefix pcdm: <http://pcdm.org/models#>
-			  
-			<> a pcdm:Object .
-		 */
 		logger.debug("Building PCDM Object at <"+containerUrl+">");
 		Model model = ModelFactory.createDefaultModel();
 		Resource resource = model.createResource(containerUrl);
@@ -142,17 +146,6 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	}
 	
 	private Model buildPCDMMember(String memberUrl) {
-		/*
-		 *	@prefix ldp: <http://www.w3.org/ns/ldp#>
-			@prefix pcdm: <http://pcdm.org/models#>
-			@prefix ore: <http://www.openarchives.org/ore/terms/>
-			 
-			<> a ldp:IndirectContainer, pcdm:Object ;
-			  ldp:membershipResource </fcrepo/rest/collections/primeros-libros/> ;
-			  ldp:hasMemberRelation pcdm:hasMember ;
-			  ldp:insertedContentRelation ore:proxyFor .
-
-		 */
 		logger.debug("Building PCDM Member at <"+memberUrl+">");
 		Model model = ModelFactory.createDefaultModel();
 		Resource resource = model.createResource(memberUrl);
@@ -161,6 +154,17 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		resource.addProperty(model.createProperty(LDP.hasMemberRelation.getIRIString()),model.createProperty("http://pcdm.org/models#hasMember"));
 		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(buildContainerUrl()+"/"));
 		resource.addProperty(model.createProperty(LDP.insertedContentRelation.getIRIString()), model.createProperty("http://www.openarchives.org/ore/terms/proxyFor"));
+		return model;
+	}
+	
+	private Model buildPCDMFileContainer(String containerUrl) {
+		logger.debug("Building PCDM File container at <"+containerUrl+">");
+		Model model = ModelFactory.createDefaultModel();
+		Resource resource = model.createResource(containerUrl);
+		resource.addProperty(RDF.type,model.createProperty(LDP.DirectContainer.getIRIString()));
+		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
+		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(containerUrl));
+		resource.addProperty(model.createProperty(LDP.hasMemberRelation.getIRIString()),model.createProperty("http://pcdm.org/models#hasFile"));
 		return model;
 	}
 

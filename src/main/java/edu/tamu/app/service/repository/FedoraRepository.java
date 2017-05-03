@@ -68,14 +68,9 @@ public class FedoraRepository extends AbstractFedoraRepository {
 		String itemContainerPath = createItemContainer(document.getName());
 				
 		File[] files = getFiles(document.getDocumentPath());
+		
+		String itemPath = pushFiles(document, itemContainerPath, files);
 
-		String itemPath = null;
-		for (File file : files) {
-		    if (file.isFile()) {
-		    	System.out.println("CREATING BINARY RESOURCE: "+file.getName());
-		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(),itemContainerPath, file.getName());
-		    }
-		}
 		updateMetadata(document,itemContainerPath);		
 		document.setPublishedUriString(itemPath);
 		document.setStatus("Published");
@@ -88,17 +83,27 @@ public class FedoraRepository extends AbstractFedoraRepository {
 		File directory = resourceLoader.getResource("classpath:static" + directoryPath).getFile();
 		return directory.listFiles();
     }
+    
+    protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
+		String itemPath = null;
+		for (File file : files) {
+		    if (file.isFile()) {
+		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(),itemContainerPath, file.getName());
+		    }
+		}
+		return itemPath;
+    }
 	
 	protected void prepForPush() throws IOException {
 		confirmProjectContainerExists();
 	}
 	
 	protected String buildContainerUrl() {
-		return buildRepoRestUrl()+"/"+getContainerPath();
+		return buildRepoRestUrl()+File.pathSeparator+getContainerPath();
 	}
 	
 	protected String buildRepoRestUrl() {
-		return getRepoUrl()+"/"+getRestPath();
+		return getRepoUrl()+File.pathSeparator+getRestPath();
 	}
 	/**
 	 * Updates a Fedora Resource container's metadata
@@ -173,7 +178,7 @@ public class FedoraRepository extends AbstractFedoraRepository {
 		if(!resourceExists(buildContainerUrl())) {
 			projectContainerPath = createContainer(buildRepoRestUrl(), getContainerPath());
 		} else {
-			projectContainerPath = getContainerPath().replace(getRepoUrl()+"/"+getRestPath(), "");
+			projectContainerPath = getContainerPath().replace(getRepoUrl()+File.pathSeparator+getRestPath(), "");
 		}
 		return projectContainerPath;
 	}
