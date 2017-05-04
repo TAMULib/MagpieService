@@ -80,14 +80,18 @@ public abstract class AbstractFedoraRepository implements Repository {
 		return getRepoUrl()+File.separator+getRestPath();
 	}
 	
+	protected String getEncodedBasicAuthorization() {
+        String encoded = Base64.getEncoder().encodeToString((getUsername()+":"+getPassword()).getBytes());
+        return "Basic "+encoded;
+	}
+	
 	protected HttpURLConnection buildBasicFedoraConnection(String path) throws IOException {
 		
 		URL restUrl = new URL(path);
 		
 		HttpURLConnection connection = (HttpURLConnection) restUrl.openConnection();
 		
-        String encoded = Base64.getEncoder().encodeToString((username+":"+password).getBytes());
-        connection.setRequestProperty("Authorization", "Basic "+encoded);
+        connection.setRequestProperty("Authorization", getEncodedBasicAuthorization());
         
         return connection;
 		

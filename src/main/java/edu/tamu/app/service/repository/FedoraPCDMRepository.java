@@ -5,8 +5,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -38,7 +46,11 @@ public class FedoraPCDMRepository extends FedoraRepository {
 
 		generatePutRequest(resourceContainerPath+File.separator+"files",null,buildPCDMFileContainer(resourceContainerPath+File.separator+"files"));
 
-		return super.createResource(filePath, resourceContainerPath+File.separator+"files",slugName);
+		String resourceUri = super.createResource(filePath, resourceContainerPath+File.separator+"files",slugName);
+		
+		updateFileMetadata(resourceUri);
+		
+		return resourceUri;
 	}
 	
 	@Override
@@ -90,22 +102,23 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		String itemPath = null;
 		ProxyPage[] proxyPages = new ProxyPage[files.length];
 		//TODO Since magpie hasn't been modified to support defining pages, yet, we're treating each file as a different page to provide a proof of concept for a paged PCDM collection pushed to Fedora
-		
 		int x = 0;
 		for (File file : files) {
 		    if (file.isFile()) {
 		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(),itemContainerPath+File.separator+pagesEndpoint+File.separator+"page_"+x, file.getName());
 				proxyPages[x] = new ProxyPage(itemContainerPath+File.separator+"orderProxies"+File.separator+"page_"+x,itemContainerPath);
+				generatePutRequest(proxyPages[x].getProxyUrl(),null,buildPCDMPageProxy(proxyPages[x].getProxyUrl(),proxyPages[x].getProxyInUrl(),proxyPages[x].getPageUrl()));
+
 		    }
 		    x++;
 		}
 		
-		setUpPageProxies(proxyPages);
+		orderPageProxies(proxyPages);
 		return itemPath;
 	}
 	
-	private void setUpPageProxies(ProxyPage[] proxyPages) throws IOException {
-		// Helper class for generating order structure of Proxy Pages
+	private void orderPageProxies(ProxyPage[] proxyPages) throws IOException {
+		// Helper class for generating order structure for an array of Proxy Pages
 		class ProxyBuilder {
 			private ProxyPage[] proxyPages;
 			ProxyBuilder(ProxyPage[] proxyPages) {
@@ -118,13 +131,11 @@ public class FedoraPCDMRepository extends FedoraRepository {
 			}
 			
 			private int buildProxyOrder(int currentIndex) {
-				if (currentIndex > 0) {
-					proxyPages[currentIndex].setPrevUrl(proxyPages[currentIndex-1].getProxyUrl());
-				}
 				if (currentIndex < (proxyPages.length-1)) {
 					proxyPages[currentIndex].setNextUrl(proxyPages[currentIndex+1].getProxyUrl());
 				}
 				if (currentIndex > 0) {
+					proxyPages[currentIndex].setPrevUrl(proxyPages[currentIndex-1].getProxyUrl());
 					return buildProxyOrder(currentIndex-1);
 				} else {
 					return 0;
@@ -133,12 +144,10 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		}
 		ProxyBuilder proxyBuilder = new ProxyBuilder(proxyPages);
 
-		/* TODO solve spqarql-update issue
 		ProxyPage[] orderedProxyPages = proxyBuilder.getOrderedProxyPages();
 		for (ProxyPage orderedProxyPage : orderedProxyPages) {
-			generatePutRequest(orderedProxyPage.getProxyUrl(),null,buildPCDMPageProxy(orderedProxyPage.getProxyUrl(),orderedProxyPage.getProxyInUrl(),orderedProxyPage.getPageUrl(),orderedProxyPage.getNextUrl(),orderedProxyPage.getPrevUrl()));
+			executeSparqlUpdate(orderedProxyPage.getProxyUrl(),buildPCDMPageProxyOrderUpdate(orderedProxyPage.getProxyUrl(),orderedProxyPage.getNextUrl(),orderedProxyPage.getPrevUrl()));
 		}
-		*/
 	}
 	
 	private String generatePutRequest(String url, Map<String,String> requestProperties,Model rdfObject) throws IOException {
@@ -182,6 +191,39 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		
 	}
 	
+	protected void updateFileMetadata(String fileUri) throws IOException {
+		String fileMetadataUri = fileUri+File.separator+"fcr:metadata";
+		executeSparqlUpdate(fileMetadataUri,buildPCDMFile(fileMetadataUri));
+	}
+	
+	private void executeSparqlUpdate(String uri,String sparqlQuery) throws ClientProtocolException, IOException {
+		CloseableHttpClient httpClient = HttpClients.createDefault();
+		HttpPatch httpPatch;
+		try {
+			httpPatch = new HttpPatch(new URI(uri));
+			
+			System.out.println("**** PATCHING SPARQL UPDATE ****");
+			System.out.println(sparqlQuery);
+			StringEntity data = new StringEntity(sparqlQuery);
+			
+			data.setContentType("application/sparql-update");
+
+			httpPatch.setEntity(data);
+			
+			httpPatch.addHeader("Authorization", getEncodedBasicAuthorization());
+			CloseableHttpResponse response = httpClient.execute(httpPatch);
+			
+			int responseCode = response.getStatusLine().getStatusCode();
+			if(responseCode != 201) {
+				System.out.println("Server message: "+response.getStatusLine());
+				throw new IOException("Could not complete PATCH request. Server responded with " + responseCode);
+			}
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	private Model buildPCDMObject(String containerUrl) throws FileNotFoundException {
 		logger.debug("Building PCDM Object at <"+containerUrl+">");
 		Model model = ModelFactory.createDefaultModel();
@@ -202,21 +244,29 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		return model;
 	}
 	
-	private Model buildPCDMPageProxy(String proxyUrl,String proxyInUrl, String pageUrl,String nextUrl,String prevUrl) {
+	private Model buildPCDMPageProxy(String proxyUrl,String proxyInUrl,String pageUrl) {
 		logger.debug("Building PCDM Page Proxy at <"+proxyUrl+">");
 		Model model = ModelFactory.createDefaultModel();
-		Resource resource = model.createResource(pageUrl);
+		Resource resource = model.createResource(proxyUrl);
 		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
 		resource.addProperty(model.createProperty("http://www.openarchives.org/ore/terms#proxyFor"),model.createProperty(pageUrl));
 		resource.addProperty(model.createProperty("http://www.openarchives.org/ore/terms#proxyIn"),model.createProperty(proxyInUrl));
+		return model;
+	}
+	
+	private String buildPCDMPageProxyOrderUpdate(String proxyUrl,String nextUrl,String prevUrl) {
+		logger.debug("Setting order for PCDM Page Proxy at <"+proxyUrl+">");
+		String orderedPageProxy = "PREFIX iana: <http://www.iana.org/assignments/relation/>"+
+									"INSERT {";
 		if (nextUrl != null) {
-			resource.addProperty(model.createProperty("http://www.iana.org/assignments/relation/#next"),model.createProperty(nextUrl));
+			orderedPageProxy +=	  "<> iana:next <"+nextUrl+"> .";
 		}
 		if (prevUrl != null) {
-			resource.addProperty(model.createProperty("http://www.iana.org/assignments/relation/#prev"),model.createProperty(prevUrl));
+			orderedPageProxy +=	  "<> iana:prev <"+prevUrl+">";
 		}
-
-		return model;
+		orderedPageProxy +=		"} WHERE {"+
+									"}";
+		return orderedPageProxy;
 	}
 	
 	private Model buildPCDMOrderProxy(String orderUrl) {
@@ -240,6 +290,17 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		resource.addProperty(model.createProperty(LDP.hasMemberRelation.getIRIString()),model.createProperty("http://pcdm.org/models#hasFile"));
 		return model;
 	}
+	
+
+	private String buildPCDMFile(String fileUrl) {
+		logger.debug("Building PCDM File SPARQL for <"+fileUrl+">");
+		String updateQuery = "PREFIX pcdm: <http://pcdm.org/models#>"+
+							"INSERT {"+
+							"<> a pcdm:File"+
+							"}";
+		
+		return updateQuery;
+}
 	
 	// intermediary for prepping PCDM Proxy Pages to be pushed to the Fedora repo
 	class ProxyPage {
