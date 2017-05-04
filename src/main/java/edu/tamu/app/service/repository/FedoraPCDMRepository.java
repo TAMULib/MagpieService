@@ -28,11 +28,38 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	
 	@Override
 	protected void prepForPush() throws IOException {
+		super.confirmProjectContainerExists();
 		verifyPCDMStructures();
 	}
 	
+	@Override
+	protected String createResource(String filePath, String resourceContainerPath, String slugName) throws IOException {
+		generatePutRequest(resourceContainerPath,null,buildPCDMObject(resourceContainerPath));
+
+		generatePutRequest(resourceContainerPath+File.separator+"files",null,buildPCDMFileContainer(resourceContainerPath+File.separator+"files"));
+
+		return super.createResource(filePath, resourceContainerPath+File.separator+"files",slugName);
+	}
+	
+	@Override
+	protected String createItemContainer(String slugName) throws FileNotFoundException, IOException {
+		// Create the item container
+		String desiredItemUrl = getObjectsUrl()+File.separator+slugName;
+		String actualItemUrl = generatePutRequest(desiredItemUrl,null,buildPCDMObject(desiredItemUrl));
+		// Create a pages container within the item container 
+		generatePutRequest(actualItemUrl+File.separator+pagesEndpoint+File.separator,null,buildPCDMObject(actualItemUrl+File.separator+pagesEndpoint));
+		generatePutRequest(actualItemUrl+File.separator+"orderProxies",null,buildPCDMOrderProxy(actualItemUrl+File.separator+"orderProxies"));
+
+		return actualItemUrl;
+	}
+	
+	@Override
+	protected String createContainer(String containerUrl, String slugName) throws IOException {
+		logger.debug("creating container: "+containerUrl+"/"+slugName);
+		return generatePutRequest(containerUrl+"/"+slugName,null,buildPCDMObject(containerUrl+"/"+slugName));
+	}
+	
 	private void verifyPCDMStructures() throws IOException {
-		confirmProjectContainerExists();
 		
 		String pcdmMembersUrl = getMembersUrl();
 		
@@ -55,27 +82,6 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		
 	private String getObjectsUrl() {
 		return buildRepoRestUrl()+File.separator+objectsEndpoint;
-	}
-	
-	@Override
-	protected String createItemContainer(String slugName) throws FileNotFoundException, IOException {
-		// Create the item container
-		String desiredItemUrl = getObjectsUrl()+File.separator+slugName;
-		String actualItemUrl = generatePutRequest(desiredItemUrl,null,buildPCDMObject(desiredItemUrl));
-		// Create a pages container within the item container 
-		generatePutRequest(actualItemUrl+File.separator+pagesEndpoint+File.separator,null,buildPCDMObject(actualItemUrl+File.separator+pagesEndpoint));
-		generatePutRequest(actualItemUrl+File.separator+"orderProxies",null,buildPCDMOrderProxy(actualItemUrl+File.separator+"orderProxies"));
-
-		return actualItemUrl;
-	}
-	
-	@Override
-	protected String createResource(String filePath, String resourceContainerPath, String slugName) throws IOException {
-		generatePutRequest(resourceContainerPath,null,buildPCDMObject(resourceContainerPath));
-
-		generatePutRequest(resourceContainerPath+File.separator+"files",null,buildPCDMFileContainer(resourceContainerPath+File.separator+"files"));
-
-		return super.createResource(filePath, resourceContainerPath+File.separator+"files",slugName);
 	}
 	
 	@Override
@@ -174,12 +180,6 @@ public class FedoraPCDMRepository extends FedoraRepository {
 				
 		return connection.getHeaderField("Location");
 		
-	}
-	
-	@Override
-	protected String createContainer(String containerUrl, String slugName) throws IOException {
-		logger.debug("creating container: "+containerUrl+"/"+slugName);
-		return generatePutRequest(containerUrl+"/"+slugName,null,buildPCDMObject(containerUrl+"/"+slugName));
 	}
 	
 	private Model buildPCDMObject(String containerUrl) throws FileNotFoundException {
