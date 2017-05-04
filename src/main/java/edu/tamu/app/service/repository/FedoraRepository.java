@@ -99,11 +99,11 @@ public class FedoraRepository extends AbstractFedoraRepository {
 	}
 	
 	protected String buildContainerUrl() {
-		return buildRepoRestUrl()+File.pathSeparator+getContainerPath();
+		return buildRepoRestUrl()+File.separator+getContainerPath();
 	}
 	
 	protected String buildRepoRestUrl() {
-		return getRepoUrl()+File.pathSeparator+getRestPath();
+		return getRepoUrl()+File.separator+getRestPath();
 	}
 	/**
 	 * Updates a Fedora Resource container's metadata
@@ -178,7 +178,7 @@ public class FedoraRepository extends AbstractFedoraRepository {
 		if(!resourceExists(buildContainerUrl())) {
 			projectContainerPath = createContainer(buildRepoRestUrl(), getContainerPath());
 		} else {
-			projectContainerPath = getContainerPath().replace(getRepoUrl()+File.pathSeparator+getRestPath(), "");
+			projectContainerPath = getContainerPath().replace(getRepoUrl()+File.separator+getRestPath(), "");
 		}
 		return projectContainerPath;
 	}
