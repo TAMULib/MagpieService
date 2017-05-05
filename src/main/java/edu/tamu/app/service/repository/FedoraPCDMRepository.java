@@ -58,8 +58,10 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		// Create the item container
 		String desiredItemUrl = getObjectsUrl()+File.separator+slugName;
 		String actualItemUrl = generatePutRequest(desiredItemUrl,null,buildPCDMObject(desiredItemUrl));
+		generatePutRequest(getMembersUrl()+File.separator+slugName+"Proxy",null,buildPCDMItemProxy(getMembersUrl()+File.separator+slugName+"Proxy",actualItemUrl+File.separator));
 		// Create a pages container within the item container 
 		generatePutRequest(actualItemUrl+File.separator+pagesEndpoint+File.separator,null,buildPCDMObject(actualItemUrl+File.separator+pagesEndpoint));
+		// Set up the container that will hold the page order proxies
 		generatePutRequest(actualItemUrl+File.separator+"orderProxies",null,buildPCDMOrderProxy(actualItemUrl+File.separator+"orderProxies"));
 
 		return actualItemUrl;
@@ -181,6 +183,7 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		OutputStream os = connection.getOutputStream();
 
 		rdfObject.write(os);
+		
 		logger.debug("*** JENA GENERATED RDF+XML for <"+url+"> ***");
 		logger.debug(os.toString());		
 		os.close();
@@ -233,15 +236,24 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		return model;
 	}
 	
-	private Model buildPCDMMember(String memberUrl) {
-		logger.debug("Building PCDM Member at <"+memberUrl+">");
+	private Model buildPCDMMember(String membersUrl) {
+		logger.debug("Building PCDM Member at <"+membersUrl+">");
 		Model model = ModelFactory.createDefaultModel();
-		Resource resource = model.createResource(memberUrl);
+		Resource resource = model.createResource(membersUrl);
 		resource.addProperty(RDF.type,model.createProperty(LDP.IndirectContainer.getIRIString()));
 		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
 		resource.addProperty(model.createProperty(LDP.hasMemberRelation.getIRIString()),model.createProperty("http://pcdm.org/models#hasMember"));
-		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(buildContainerUrl()+"/"));
+		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(buildContainerUrl()));
 		resource.addProperty(model.createProperty(LDP.insertedContentRelation.getIRIString()), model.createProperty("http://www.openarchives.org/ore/terms#proxyFor"));
+		return model;
+	}
+	
+	private Model buildPCDMItemProxy(String proxyUrl, String itemUrl) {
+		logger.debug("Building PCDM ORE Proxy at <"+proxyUrl+"> for <"+itemUrl+">");
+		Model model = ModelFactory.createDefaultModel();
+		Resource resource = model.createResource(proxyUrl);
+		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
+		resource.addProperty(model.createProperty("http://www.openarchives.org/ore/terms#proxyFor"),model.createProperty(itemUrl));
 		return model;
 	}
 	
