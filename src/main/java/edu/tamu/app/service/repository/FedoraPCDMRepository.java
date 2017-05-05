@@ -240,6 +240,7 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		logger.debug("Building Direct Container at <"+directContainerUrl+"> with member <"+membershipResourceUrl+">");
 		Model model = ModelFactory.createDefaultModel();
 		Resource resource = model.createResource(directContainerUrl);
+		resource.addProperty(RDF.type,model.createProperty(LDP.DirectContainer.getIRIString()));
 		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
 		resource.addProperty(model.createProperty(LDP.hasMemberRelation.getIRIString()),model.createProperty("http://pcdm.org/models#hasMember"));
 		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(membershipResourceUrl));
