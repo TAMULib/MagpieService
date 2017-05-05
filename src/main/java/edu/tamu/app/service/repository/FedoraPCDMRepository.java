@@ -93,6 +93,9 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		}
 		
 		orderPageProxies(proxyPages);
+		//set the first/last pages for the item
+		executeSparqlUpdate(itemContainerPath,buildPCDMItemOrderUpdate(itemContainerPath,proxyPages[0].getProxyUrl(),proxyPages[proxyPages.length-1].getProxyUrl()));
+
 		return itemPath;
 	}
 	
@@ -291,6 +294,17 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		orderedPageProxy +=		"} WHERE {"+
 									"}";
 		return orderedPageProxy;
+	}
+	
+	private String buildPCDMItemOrderUpdate(String itemUrl,String firstUrl,String lastUrl) {
+		logger.debug("Setting first/last order for PCDM Item at <"+itemUrl+">");
+		String orderedItemUpdate = "PREFIX iana: <http://www.iana.org/assignments/relation/>"+
+									"INSERT {"+
+									"<> iana:first <"+firstUrl+"> ."+
+									"<> iana:last <"+lastUrl+">"+
+									"} WHERE {"+
+									"}";
+		return orderedItemUpdate;
 	}
 	
 	private Model buildPCDMOrderProxy(String orderUrl,String membershipResourceUrl) {
