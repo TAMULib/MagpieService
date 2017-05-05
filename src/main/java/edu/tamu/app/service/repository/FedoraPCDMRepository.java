@@ -44,7 +44,7 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	protected String createResource(String filePath, String resourceContainerPath, String slugName) throws IOException {
 		generatePutRequest(resourceContainerPath,null,buildPCDMObject(resourceContainerPath));
 
-		generatePutRequest(resourceContainerPath+File.separator+"files",null,buildPCDMFileContainer(resourceContainerPath+File.separator+"files"));
+		generatePutRequest(resourceContainerPath+File.separator+"files",null,buildPCDMFileContainer(resourceContainerPath+File.separator+"files",resourceContainerPath));
 
 		String resourceUri = super.createResource(filePath, resourceContainerPath+File.separator+"files",slugName);
 		
@@ -59,10 +59,10 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		String desiredItemUrl = getObjectsUrl()+File.separator+slugName;
 		String actualItemUrl = generatePutRequest(desiredItemUrl,null,buildPCDMObject(desiredItemUrl));
 		generatePutRequest(getMembersUrl()+File.separator+slugName+"Proxy",null,buildPCDMItemProxy(getMembersUrl()+File.separator+slugName+"Proxy",actualItemUrl+File.separator));
-		// Create a pages container within the item container 
-		generatePutRequest(actualItemUrl+File.separator+pagesEndpoint+File.separator,null,buildPCDMObject(actualItemUrl+File.separator+pagesEndpoint));
+		// Create a pages container within the item container
+		generatePutRequest(actualItemUrl+File.separator+pagesEndpoint+File.separator,null,buildPCDMDirectContainer(actualItemUrl+File.separator+pagesEndpoint,actualItemUrl));
 		// Set up the container that will hold the page order proxies
-		generatePutRequest(actualItemUrl+File.separator+"orderProxies",null,buildPCDMOrderProxy(actualItemUrl+File.separator+"orderProxies"));
+		generatePutRequest(actualItemUrl+File.separator+"orderProxies",null,buildPCDMOrderProxy(actualItemUrl+File.separator+"orderProxies",actualItemUrl));
 
 		return actualItemUrl;
 	}
@@ -82,10 +82,10 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		int x = 0;
 		for (File file : files) {
 		    if (file.isFile()) {
-		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(),itemContainerPath+File.separator+pagesEndpoint+File.separator+"page_"+x, file.getName());
-		    	//		public ProxyPage(String proxyUrl, String proxyForUrl, String proxyInUrl) {
+		    	String pagePath = itemContainerPath+File.separator+pagesEndpoint+File.separator+"page_"+x; 
+		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(),pagePath, file.getName());
 
-				proxyPages[x] = new ProxyPage(itemContainerPath+File.separator+"orderProxies"+File.separator+"page_"+x+"_proxy",itemPath,itemContainerPath);
+				proxyPages[x] = new ProxyPage(itemContainerPath+File.separator+"orderProxies"+File.separator+"page_"+x+"_proxy",pagePath,itemContainerPath);
 				generatePutRequest(proxyPages[x].getProxyUrl(),null,buildPCDMPageProxy(proxyPages[x].getProxyUrl(),proxyPages[x].getProxyInUrl(),proxyPages[x].getProxyForUrl()));
 
 		    }
@@ -236,6 +236,16 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		return model;
 	}
 	
+	private Model buildPCDMDirectContainer(String directContainerUrl, String membershipResourceUrl) throws FileNotFoundException {
+		logger.debug("Building Direct Container at <"+directContainerUrl+"> with member <"+membershipResourceUrl+">");
+		Model model = ModelFactory.createDefaultModel();
+		Resource resource = model.createResource(directContainerUrl);
+		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
+		resource.addProperty(model.createProperty(LDP.hasMemberRelation.getIRIString()),model.createProperty("http://pcdm.org/models#hasMember"));
+		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(membershipResourceUrl));
+		return model;
+	}
+	
 	private Model buildPCDMMember(String membersUrl) {
 		logger.debug("Building PCDM Member at <"+membersUrl+">");
 		Model model = ModelFactory.createDefaultModel();
@@ -282,24 +292,24 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		return orderedPageProxy;
 	}
 	
-	private Model buildPCDMOrderProxy(String orderUrl) {
+	private Model buildPCDMOrderProxy(String orderUrl,String membershipResourceUrl) {
 		logger.debug("Building PCDM Order Proxy at <"+orderUrl+">");
 		Model model = ModelFactory.createDefaultModel();
 		Resource resource = model.createResource(orderUrl);
 		resource.addProperty(RDF.type,model.createProperty(LDP.DirectContainer.getIRIString()));
 		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
 		resource.addProperty(model.createProperty(LDP.isMemberOfRelation.getIRIString()),model.createProperty("http://www.openarchives.org/ore/terms#proxyIn"));
-		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(buildContainerUrl()+"/"));
+		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(membershipResourceUrl));
 		return model;
 	}
 	
-	private Model buildPCDMFileContainer(String containerUrl) {
-		logger.debug("Building PCDM File container at <"+containerUrl+">");
+	private Model buildPCDMFileContainer(String fileContainerUrl, String membershipResourceUrl) {
+		logger.debug("Building PCDM File container at <"+fileContainerUrl+"> for <"+membershipResourceUrl+">");
 		Model model = ModelFactory.createDefaultModel();
-		Resource resource = model.createResource(containerUrl);
+		Resource resource = model.createResource(fileContainerUrl);
 		resource.addProperty(RDF.type,model.createProperty(LDP.DirectContainer.getIRIString()));
 		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
-		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(containerUrl));
+		resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(membershipResourceUrl));
 		resource.addProperty(model.createProperty(LDP.hasMemberRelation.getIRIString()),model.createProperty("http://pcdm.org/models#hasFile"));
 		return model;
 	}
