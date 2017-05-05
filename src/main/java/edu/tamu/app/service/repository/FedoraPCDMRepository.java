@@ -71,6 +71,33 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		return generatePutRequest(containerUrl+"/"+slugName,null,buildPCDMObject(containerUrl+"/"+slugName));
 	}
 	
+	@Override
+	protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
+
+		String itemPath = null;
+		ProxyPage[] proxyPages = new ProxyPage[files.length];
+		//TODO Since magpie hasn't been modified to support defining pages, yet, we're treating each file as a different page to provide a proof of concept for a paged PCDM collection pushed to Fedora
+		int x = 0;
+		for (File file : files) {
+		    if (file.isFile()) {
+		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(),itemContainerPath+File.separator+pagesEndpoint+File.separator+"page_"+x, file.getName());
+		    	//		public ProxyPage(String proxyUrl, String proxyForUrl, String proxyInUrl) {
+
+				proxyPages[x] = new ProxyPage(itemContainerPath+File.separator+"orderProxies"+File.separator+"page_"+x+"_proxy",itemPath,itemContainerPath);
+				generatePutRequest(proxyPages[x].getProxyUrl(),null,buildPCDMPageProxy(proxyPages[x].getProxyUrl(),proxyPages[x].getProxyInUrl(),proxyPages[x].getProxyForUrl()));
+
+		    }
+		    x++;
+		}
+		
+		orderPageProxies(proxyPages);
+		return itemPath;
+	}
+	
+	protected void updateFileMetadata(String fileUri) throws IOException {
+		executeSparqlUpdate(fileUri+File.separator+"fcr:metadata",buildPCDMFile());
+	}
+	
 	private void verifyPCDMStructures() throws IOException {
 		
 		String pcdmMembersUrl = getMembersUrl();
@@ -94,27 +121,6 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		
 	private String getObjectsUrl() {
 		return buildRepoRestUrl()+File.separator+objectsEndpoint;
-	}
-	
-	@Override
-	protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
-
-		String itemPath = null;
-		ProxyPage[] proxyPages = new ProxyPage[files.length];
-		//TODO Since magpie hasn't been modified to support defining pages, yet, we're treating each file as a different page to provide a proof of concept for a paged PCDM collection pushed to Fedora
-		int x = 0;
-		for (File file : files) {
-		    if (file.isFile()) {
-		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(),itemContainerPath+File.separator+pagesEndpoint+File.separator+"page_"+x, file.getName());
-				proxyPages[x] = new ProxyPage(itemContainerPath+File.separator+"orderProxies"+File.separator+"page_"+x,itemContainerPath);
-				generatePutRequest(proxyPages[x].getProxyUrl(),null,buildPCDMPageProxy(proxyPages[x].getProxyUrl(),proxyPages[x].getProxyInUrl(),proxyPages[x].getPageUrl()));
-
-		    }
-		    x++;
-		}
-		
-		orderPageProxies(proxyPages);
-		return itemPath;
 	}
 	
 	private void orderPageProxies(ProxyPage[] proxyPages) throws IOException {
@@ -191,19 +197,14 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		
 	}
 	
-	protected void updateFileMetadata(String fileUri) throws IOException {
-		String fileMetadataUri = fileUri+File.separator+"fcr:metadata";
-		executeSparqlUpdate(fileMetadataUri,buildPCDMFile(fileMetadataUri));
-	}
-	
 	private void executeSparqlUpdate(String uri,String sparqlQuery) throws ClientProtocolException, IOException {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpPatch httpPatch;
 		try {
 			httpPatch = new HttpPatch(new URI(uri));
 			
-			System.out.println("**** PATCHING SPARQL UPDATE ****");
-			System.out.println(sparqlQuery);
+			logger.debug("**** PATCHING SPARQL UPDATE ****");
+			logger.debug(sparqlQuery);
 			StringEntity data = new StringEntity(sparqlQuery);
 			
 			data.setContentType("application/sparql-update");
@@ -211,11 +212,11 @@ public class FedoraPCDMRepository extends FedoraRepository {
 			httpPatch.setEntity(data);
 			
 			httpPatch.addHeader("Authorization", getEncodedBasicAuthorization());
+			httpPatch.addHeader("CONTENT-TYPE","application/sparql-update");
 			CloseableHttpResponse response = httpClient.execute(httpPatch);
 			
 			int responseCode = response.getStatusLine().getStatusCode();
-			if(responseCode != 201) {
-				System.out.println("Server message: "+response.getStatusLine());
+			if(responseCode != 204) {
 				throw new IOException("Could not complete PATCH request. Server responded with " + responseCode);
 			}
 		} catch (URISyntaxException e) {
@@ -244,12 +245,12 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		return model;
 	}
 	
-	private Model buildPCDMPageProxy(String proxyUrl,String proxyInUrl,String pageUrl) {
+	private Model buildPCDMPageProxy(String proxyUrl,String proxyInUrl,String proxyForUrl) {
 		logger.debug("Building PCDM Page Proxy at <"+proxyUrl+">");
 		Model model = ModelFactory.createDefaultModel();
 		Resource resource = model.createResource(proxyUrl);
 		resource.addProperty(RDF.type,model.createProperty("http://pcdm.org/models#Object"));
-		resource.addProperty(model.createProperty("http://www.openarchives.org/ore/terms#proxyFor"),model.createProperty(pageUrl));
+		resource.addProperty(model.createProperty("http://www.openarchives.org/ore/terms#proxyFor"),model.createProperty(proxyForUrl));
 		resource.addProperty(model.createProperty("http://www.openarchives.org/ore/terms#proxyIn"),model.createProperty(proxyInUrl));
 		return model;
 	}
@@ -292,23 +293,22 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	}
 	
 
-	private String buildPCDMFile(String fileUrl) {
-		logger.debug("Building PCDM File SPARQL for <"+fileUrl+">");
+	private String buildPCDMFile() {
 		String updateQuery = "PREFIX pcdm: <http://pcdm.org/models#>"+
 							"INSERT {"+
 							"<> a pcdm:File"+
-							"}";
+							"} WHERE { }";
 		
 		return updateQuery;
 }
 	
 	// intermediary for prepping PCDM Proxy Pages to be pushed to the Fedora repo
 	class ProxyPage {
-		private String proxyUrl, proxyInUrl, pageUrl, nextUrl, prevUrl;
+		private String proxyUrl, proxyInUrl, proxyForUrl, nextUrl, prevUrl;
 		
-		public ProxyPage(String pageUrl, String proxyInUrl) {
-			setPageUrl(pageUrl);
-			setProxyUrl(pageUrl+"proxy");
+		public ProxyPage(String proxyUrl, String proxyForUrl, String proxyInUrl) {
+			setProxyUrl(proxyUrl);
+			setProxyForUrl(proxyForUrl);
 			setProxyInUrl(proxyInUrl);
 		}
 		
@@ -328,12 +328,12 @@ public class FedoraPCDMRepository extends FedoraRepository {
 			this.proxyInUrl = proxyInUrl;
 		}
 
-		public String getPageUrl() {
-			return pageUrl;
+		public String getProxyForUrl() {
+			return proxyForUrl;
 		}
 
-		public void setPageUrl(String pageUrl) {
-			this.pageUrl = pageUrl;
+		public void setProxyForUrl(String proxyForUrl) {
+			this.proxyForUrl = proxyForUrl;
 		}
 
 		public String getNextUrl() {
