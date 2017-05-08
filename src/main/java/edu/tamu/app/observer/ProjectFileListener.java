@@ -15,7 +15,7 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @Component
 @Scope("prototype")
 public class ProjectFileListener extends AbstractFileListener {
-    
+
     @Value("${app.document.create.wait}")
     private int documentCreationWait;
 
