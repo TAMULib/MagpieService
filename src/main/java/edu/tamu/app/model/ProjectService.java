@@ -24,7 +24,7 @@ public abstract class ProjectService extends BaseEntity {
     @Enumerated
     private ServiceType type;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<ProjectSetting> settings;
 

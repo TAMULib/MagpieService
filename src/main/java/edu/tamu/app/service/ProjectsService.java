@@ -6,9 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,10 +100,6 @@ public class ProjectsService {
     @Value("${app.mount}")
     private String mount;
 
-    private Map<String, Project> projects = new HashMap<String, Project>();
-
-    private Map<String, List<MetadataFieldGroup>> fields = new HashMap<String, List<MetadataFieldGroup>>();
-
     private JsonNode projectsNode = null;
 
     public JsonNode readProjectsNode() {
@@ -126,74 +120,74 @@ public class ProjectsService {
     }
 
     public synchronized Project getOrCreateProject(File projectDirectory) {
-        String projectName = getName(projectDirectory);
-        return getOrCreateProject(projectName);
+        return getOrCreateProject(getName(projectDirectory));
     }
 
     public synchronized Project getOrCreateProject(String projectName) {
-
-        Project project = projects.get(projectName);
+        Project project = projectRepo.findByName(projectName);
         if (project == null) {
-            project = projectRepo.findByName(projectName);
+            project = createProject(projectName);
         }
-        if (project == null) {
+        return project;
+    }
 
-            JsonNode projectNode = getProjectNode(projectName);
+    public synchronized Project createProject(String projectName) {
 
-            // TODO: improve the object mapping for repositories, authorities,
-            // and suggestors
+        JsonNode projectNode = getProjectNode(projectName);
 
-            List<ProjectRepository> repositories = new ArrayList<ProjectRepository>();
-            if (projectNode.has(REPOSITORIES_KEY)) {
-                try {
-                    repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
-                    });
+        // TODO: improve the object mapping for repositories, authorities, and suggestors
 
-                } catch (JsonParseException e) {
-                    e.printStackTrace();
-                } catch (JsonMappingException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
-
-            if (projectNode.has(AUTHORITIES_KEY)) {
-                try {
-                    authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
-                    });
-
-                } catch (JsonParseException e) {
-                    e.printStackTrace();
-                } catch (JsonMappingException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();
-            if (projectNode.has(SUGGESTORS_KEY)) {
-                try {
-                    suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
-                    });
-                } catch (JsonParseException e) {
-                    e.printStackTrace();
-                } catch (JsonMappingException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            project = projectRepo.create(projectName, repositories, authorities, suggestors);
-
+        List<ProjectRepository> repositories = new ArrayList<ProjectRepository>();
+        if (projectNode.has(REPOSITORIES_KEY)) {
             try {
-                simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
-            } catch (Exception e) {
-                logger.error("Error broadcasting new project", e);
+                repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
+                });
+
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
+
+        List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
+
+        if (projectNode.has(AUTHORITIES_KEY)) {
+            try {
+                authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
+                });
+
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();
+        if (projectNode.has(SUGGESTORS_KEY)) {
+            try {
+                suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
+                });
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Project project = projectRepo.create(projectName, repositories, authorities, suggestors);
+
+        try {
+            simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
+        } catch (Exception e) {
+            logger.error("Error broadcasting new project", e);
         }
 
         project.getRepositories().forEach(repository -> {
@@ -217,7 +211,6 @@ public class ProjectsService {
             }
         });
 
-        projects.put(projectName, project);
         return project;
     }
 
@@ -234,42 +227,52 @@ public class ProjectsService {
     }
 
     public synchronized List<MetadataFieldGroup> getProjectFields(String projectName) {
-        List<MetadataFieldGroup> projectFields = fields.get(projectName);
-        if (projectFields == null) {
-            projectFields = new ArrayList<MetadataFieldGroup>();
 
-            final Project project = getOrCreateProject(projectName);
+        List<MetadataFieldGroup> projectFields = new ArrayList<MetadataFieldGroup>();
 
-            final Iterable<JsonNode> iterable = () -> getProjectNode(projectName).get(METADATA_KEY).elements();
+        Project project = projectRepo.findByName(projectName);
 
-            for (JsonNode metadata : iterable) {
-                String gloss = metadata.get(GLOSS_KEY) != null ? metadata.get(GLOSS_KEY).asText() : "";
-                Boolean isRepeatable = metadata.get(REPEATABLE_KEY) != null ? metadata.get(REPEATABLE_KEY).asBoolean() : false;
-                Boolean isReadOnly = metadata.get(READ_ONLY_KEY) != null ? metadata.get(READ_ONLY_KEY).asBoolean() : false;
-                Boolean isHidden = metadata.get(HIDDEN_KEY) != null ? metadata.get(HIDDEN_KEY).asBoolean() : false;
-                Boolean isRequired = metadata.get(REQUIRED_KEY) != null ? metadata.get(REQUIRED_KEY).asBoolean() : false;
-                InputType inputType = InputType.valueOf(metadata.get(INPUT_TYPE_KEY) != null ? metadata.get(INPUT_TYPE_KEY).asText() : "TEXT");
-                String defaultValue = metadata.get(DEFAULT_KEY) != null ? metadata.get(DEFAULT_KEY).asText() : "";
+        boolean newProject = project == null;
 
-                FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
-                if (fieldProfile == null) {
-                    fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
-                }
+        if (newProject) {
+            project = createProject(projectName);
+        }
 
-                String labelName = metadata.get(LABEL_KEY).asText();
+        final Iterable<JsonNode> nodesOfProject = () -> getProjectNode(projectName).get(METADATA_KEY).elements();
 
-                MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(labelName, fieldProfile);
-                if (metadataFieldLabel == null) {
-                    metadataFieldLabel = metadataFieldLabelRepo.create(labelName, fieldProfile);
-                }
+        for (JsonNode metadata : nodesOfProject) {
+            String gloss = metadata.get(GLOSS_KEY) != null ? metadata.get(GLOSS_KEY).asText() : "";
+            Boolean isRepeatable = metadata.get(REPEATABLE_KEY) != null ? metadata.get(REPEATABLE_KEY).asBoolean() : false;
+            Boolean isReadOnly = metadata.get(READ_ONLY_KEY) != null ? metadata.get(READ_ONLY_KEY).asBoolean() : false;
+            Boolean isHidden = metadata.get(HIDDEN_KEY) != null ? metadata.get(HIDDEN_KEY).asBoolean() : false;
+            Boolean isRequired = metadata.get(REQUIRED_KEY) != null ? metadata.get(REQUIRED_KEY).asBoolean() : false;
+            InputType inputType = InputType.valueOf(metadata.get(INPUT_TYPE_KEY) != null ? metadata.get(INPUT_TYPE_KEY).asText() : "TEXT");
+            String defaultValue = metadata.get(DEFAULT_KEY) != null ? metadata.get(DEFAULT_KEY).asText() : "";
 
-                projectFields.add(new MetadataFieldGroup(metadataFieldLabel));
+            FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
+            if (fieldProfile == null) {
+                fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
+            }
 
+            String labelName = metadata.get(LABEL_KEY).asText();
+
+            MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(labelName, fieldProfile);
+            if (metadataFieldLabel == null) {
+                metadataFieldLabel = metadataFieldLabelRepo.create(labelName, fieldProfile);
+            }
+
+            projectFields.add(new MetadataFieldGroup(metadataFieldLabel));
+
+            if (newProject) {
                 project.addProfile(fieldProfile);
             }
-            fields.put(projectName, projectFields);
-            projects.put(projectName, projectRepo.save(project));
+
         }
+
+        if (newProject) {
+            projectRepo.save(project);
+        }
+
         return projectFields;
     }
 
@@ -282,10 +285,7 @@ public class ProjectsService {
     }
 
     public synchronized void createDocument(File directory) {
-        String projectName = directory.getParentFile().getName();
-        String documentName = getName(directory);
-
-        createDocument(projectName, documentName);
+        createDocument(directory.getParentFile().getName(), getName(directory));
     }
 
     public synchronized void createDocument(String projectName, String documentName) {
@@ -344,18 +344,16 @@ public class ProjectsService {
                 logger.error("Error broadcasting new document", e);
             }
 
-            projects.put(projectName, projectRepo.save(project));
+            projectRepo.save(project);
         }
-    }
-
-    public void clear() {
-        projects = new HashMap<String, Project>();
-        fields = new HashMap<String, List<MetadataFieldGroup>>();
-        projectsNode = null;
     }
 
     public String getName(File directory) {
         return directory.getPath().substring(directory.getParent().length() + 1);
+    }
+
+    public void clear() {
+        projectsNode = null;
     }
 
 }
