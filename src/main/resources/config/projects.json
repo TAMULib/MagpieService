@@ -1,6 +1,6 @@
 {
    "dissertation":{
-      "isHeadless": false,
+      "isHeadless": true,
       "repositories":[
          {
             "name":"Archivematica for Dissertations",
