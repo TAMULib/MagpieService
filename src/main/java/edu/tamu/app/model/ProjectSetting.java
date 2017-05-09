@@ -18,7 +18,7 @@ public class ProjectSetting extends BaseEntity {
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> values;
-    
+
     public ProjectSetting() {
         setValues(new ArrayList<String>());
     }
@@ -43,13 +43,13 @@ public class ProjectSetting extends BaseEntity {
     public void setValues(List<String> values) {
         this.values = values;
     }
-    
+
     public void addValue(String value) {
-        if(!values.contains(value)) {
+        if (!values.contains(value)) {
             this.values.add(value);
         }
     }
-    
+
     public void removeValue(String value) {
         this.values.remove(value);
     }

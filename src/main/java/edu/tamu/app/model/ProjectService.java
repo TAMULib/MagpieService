@@ -9,6 +9,9 @@ import javax.persistence.FetchType;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import edu.tamu.app.enums.ServiceType;
 import edu.tamu.framework.model.BaseEntity;
 
@@ -21,7 +24,8 @@ public abstract class ProjectService extends BaseEntity {
     @Enumerated
     private ServiceType type;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
     private List<ProjectSetting> settings;
 
     public String getName() {
