@@ -76,14 +76,13 @@ public class FedoraPCDMRepository extends FedoraRepository {
 	@Override
 	protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
 
-		String itemPath = null;
 		ProxyPage[] proxyPages = new ProxyPage[files.length];
 		//TODO Since magpie hasn't been modified to support defining pages, yet, we're treating each file as a different page to provide a proof of concept for a paged PCDM collection pushed to Fedora
 		int x = 0;
 		for (File file : files) {
 		    if (file.isFile()) {
 		    	String pagePath = itemContainerPath+File.separator+pagesEndpoint+File.separator+"page_"+x; 
-		    	itemPath = createResource(document.getDocumentPath()+File.separator+file.getName(),pagePath, file.getName());
+		    	createResource(document.getDocumentPath()+File.separator+file.getName(),pagePath, file.getName());
 
 				proxyPages[x] = new ProxyPage(itemContainerPath+File.separator+"orderProxies"+File.separator+"page_"+x+"_proxy",pagePath,itemContainerPath);
 				generatePutRequest(proxyPages[x].getProxyUrl(),null,buildPCDMPageProxy(proxyPages[x].getProxyUrl(),proxyPages[x].getProxyInUrl(),proxyPages[x].getProxyForUrl()));
@@ -96,7 +95,7 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		//set the first/last pages for the item
 		executeSparqlUpdate(itemContainerPath,buildPCDMItemOrderUpdate(itemContainerPath,proxyPages[0].getProxyUrl(),proxyPages[proxyPages.length-1].getProxyUrl()));
 
-		return itemPath;
+		return itemContainerPath;
 	}
 	
 	protected void updateFileMetadata(String fileUri) throws IOException {
