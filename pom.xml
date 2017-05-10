@@ -37,6 +37,16 @@
 			<version>1.1</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-rdf-api</artifactId>
+			<version>0.3.0-incubating</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-rdf-simple</artifactId>
+			<version>0.3.0-incubating</version>
+		</dependency>
+		<dependency>
 			<groupId>xml-apis</groupId>
 			<artifactId>xml-apis</artifactId>
 			<version>1.4.01</version>
@@ -46,11 +56,6 @@
 		   <artifactId>apache-jena-libs</artifactId>
 		   <type>pom</type>
 		   <version>3.2.0</version>
-		</dependency>
-		<dependency>
-  			<groupId>org.fcrepo</groupId>
-  			<artifactId>fcrepo-vocabulary</artifactId>
-  			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
