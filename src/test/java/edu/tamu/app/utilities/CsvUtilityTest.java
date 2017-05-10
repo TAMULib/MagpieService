@@ -15,12 +15,11 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.WebServerInit;
-import edu.tamu.app.annotations.Order;
 import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.FieldProfile;
@@ -34,76 +33,73 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.runner.OrderedRunner;
 
-@WebAppConfiguration
-@ActiveProfiles({ "test" })
-@RunWith(OrderedRunner.class)
-@SpringApplicationConfiguration(classes = WebServerInit.class)
+@ActiveProfiles("test")
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = WebServerInit.class)
 public class CsvUtilityTest {
 
-	@Autowired
-	private ProjectRepo projectRepo;
+    @Autowired
+    private ProjectRepo projectRepo;
 
-	@Autowired
-	private DocumentRepo documentRepo;
-	
-	@Autowired
+    @Autowired
+    private DocumentRepo documentRepo;
+
+    @Autowired
     private CsvUtility csvUtility;
-	
-	@Autowired
-	private MetadataFieldGroupRepo metadataFieldGroupRepo;
-	
-	@Autowired
-	private MetadataFieldLabelRepo metadataFieldLabelRepo;
-	
-	@Autowired
-	private MetadataFieldValueRepo metadataFieldValueRepo;
-	
-	@Autowired
-	private FieldProfileRepo projectFieldProfileRepo;
-	
-	private Project testProject;
-	
-	private Document mockDocument;
 
-	@Test
-	@Order(1)
-	public void testGenerateOneArchiveMaticaCSV() throws IOException {
-		testProject = projectRepo.create("testProject");
-		mockDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
-		
-		FieldProfile profile = projectFieldProfileRepo.create(testProject, "Date Created", false, false, false, false, InputType.TEXT, null);
-		MetadataFieldLabel dateCreatedLabel = metadataFieldLabelRepo.create("dc.date.created", profile);
-		MetadataFieldGroup dateCreatedFieldGroup = metadataFieldGroupRepo.create(mockDocument, dateCreatedLabel);
-		MetadataFieldValue dateCreatedValue = metadataFieldValueRepo.create("1962", dateCreatedFieldGroup);
+    @Autowired
+    private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
-		dateCreatedFieldGroup.addValue(dateCreatedValue);
+    @Autowired
+    private MetadataFieldLabelRepo metadataFieldLabelRepo;
 
-		mockDocument.addField(dateCreatedFieldGroup);
-		mockDocument.setPublishedUriString("http://hdl.handle.net/1969.1/12345");
-		
-		List<List<String>> csvContents = csvUtility.generateOneArchiveMaticaCSV(mockDocument, "temp");
-		
-		assertEquals("The parts column was incorrect.", csvContents.get(1).get(0), "objects/testDocument");
-		assertEquals("The dc.date.created was incorrect.", csvContents.get(1).get(1), "1962");
-		
-		Path path = Paths.get("temp");
-		
-		assertTrue("temp path is not a directory", Files.isDirectory(path));
-		
-		Files.walk(path).forEach(filePath -> {
-		    if (Files.isRegularFile(filePath)) {
-		        System.out.println(filePath);
-		    }
-		});
+    @Autowired
+    private MetadataFieldValueRepo metadataFieldValueRepo;
 
-		// TODO: assert values of csv file are as expected
-		
-		FileUtils.deleteDirectory(new File("temp"));
-	}
-	
-	@After
+    @Autowired
+    private FieldProfileRepo projectFieldProfileRepo;
+
+    private Project testProject;
+
+    private Document mockDocument;
+
+    @Test
+    public void testGenerateOneArchiveMaticaCSV() throws IOException {
+        testProject = projectRepo.create("testProject");
+        mockDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
+
+        FieldProfile profile = projectFieldProfileRepo.create(testProject, "Date Created", false, false, false, false, InputType.TEXT, null);
+        MetadataFieldLabel dateCreatedLabel = metadataFieldLabelRepo.create("dc.date.created", profile);
+        MetadataFieldGroup dateCreatedFieldGroup = metadataFieldGroupRepo.create(mockDocument, dateCreatedLabel);
+        MetadataFieldValue dateCreatedValue = metadataFieldValueRepo.create("1962", dateCreatedFieldGroup);
+
+        dateCreatedFieldGroup.addValue(dateCreatedValue);
+
+        mockDocument.addField(dateCreatedFieldGroup);
+        mockDocument.setPublishedUriString("http://hdl.handle.net/1969.1/12345");
+
+        List<List<String>> csvContents = csvUtility.generateOneArchiveMaticaCSV(mockDocument, "temp");
+
+        assertEquals("The parts column was incorrect.", csvContents.get(1).get(0), "objects/testDocument");
+        assertEquals("The dc.date.created was incorrect.", csvContents.get(1).get(1), "1962");
+
+        Path path = Paths.get("temp");
+
+        assertTrue("temp path is not a directory", Files.isDirectory(path));
+
+        Files.walk(path).forEach(filePath -> {
+            if (Files.isRegularFile(filePath)) {
+                System.out.println(filePath);
+            }
+        });
+
+        // TODO: assert values of csv file are as expected
+
+        FileUtils.deleteDirectory(new File("temp"));
+    }
+
+    @After
     public void cleanUp() {
         metadataFieldValueRepo.deleteAll();
         metadataFieldLabelRepo.deleteAll();

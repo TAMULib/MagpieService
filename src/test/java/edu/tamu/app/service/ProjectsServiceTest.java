@@ -11,14 +11,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.tamu.app.WebServerInit;
-import edu.tamu.app.annotations.Order;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -27,12 +26,10 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.runner.OrderedRunner;
 
-@WebAppConfiguration
-@ActiveProfiles({ "test" })
-@RunWith(OrderedRunner.class)
-@SpringApplicationConfiguration(classes = WebServerInit.class)
+@ActiveProfiles("test")
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = WebServerInit.class)
 public class ProjectsServiceTest {
 
     @Value("${app.mount}")
@@ -60,14 +57,12 @@ public class ProjectsServiceTest {
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Test
-    @Order(1)
     public void testReadProjectNode() {
         JsonNode projectsNode = projectsService.readProjectsNode();
         assertNotNull("The projects node was not read!", projectsNode);
     }
 
     @Test
-    @Order(2)
     public void testGetProject() {
         Project project = projectsService.getOrCreateProject("dissertation");
         assertNotNull("The project was not created!", project);
@@ -76,24 +71,19 @@ public class ProjectsServiceTest {
     }
 
     @Test
-    @Order(3)
     public void testGetProjectNode() {
         JsonNode profileNode = projectsService.getProjectNode("dissertation");
         assertNotNull("The profile node was not retrieved!", profileNode);
     }
 
     @Test
-    @Order(4)
     public void testGetProjectFields() {
         List<MetadataFieldGroup> projectFields = projectsService.getProjectFields("dissertation");
         assertEquals("The project fields did not have the correct number of MetadataFieldFroups!", projectFields.size(), 21);
     }
 
     @Test
-    @Order(5)
     public void testCreateDocument() throws IOException {
-        assertEquals("Wrong number of projects!", 0, projectRepo.count());
-
         projectsService.createDocument("dissertation", "dissertation_0");
 
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());

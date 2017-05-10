@@ -8,9 +8,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.repo.AppUserRepo;
@@ -21,12 +21,10 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.runner.OrderedRunner;
 
-@WebAppConfiguration
-@ActiveProfiles({ "test" })
-@RunWith(OrderedRunner.class)
-@SpringApplicationConfiguration(classes = WebServerInit.class)
+@ActiveProfiles("test")
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = WebServerInit.class)
 public abstract class AbstractModelTest extends MockData {
 
     @Autowired

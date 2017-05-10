@@ -6,11 +6,11 @@ import org.junit.Test;
 
 import edu.tamu.app.controller.AbstractControllerTest;
 
-public class AppRestInterceptorTest extends AbstractControllerTest {
+public class AppStompInterceptorTest extends AbstractControllerTest {
 
     @Test
     public void testAnonymousCredentials() {
-        credentials = appRestInterceptor.getAnonymousCredentials();
+        credentials = appStompInterceptor.getAnonymousCredentials();
         assertEquals(" The credentials are not for anonymous user last name ", "Anonymous", credentials.getLastName());
         assertEquals(" The credentials are not for anonymous user first name ", "Role", credentials.getFirstName());
         assertEquals(" The credentials are not for anonymous user uin ", "000000000", credentials.getUin());
@@ -28,5 +28,4 @@ public class AppRestInterceptorTest extends AbstractControllerTest {
     public void testCreateUser() {
 
     }
-
 }

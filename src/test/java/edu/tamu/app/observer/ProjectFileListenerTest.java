@@ -11,27 +11,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.WebServerInit;
-import edu.tamu.app.annotations.Order;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.runner.OrderedRunner;
 import edu.tamu.app.service.ProjectsService;
 import edu.tamu.app.utilities.FileSystemUtility;
 
-@WebAppConfiguration
-@ActiveProfiles({ "test" })
-@RunWith(OrderedRunner.class)
-@SpringApplicationConfiguration(classes = WebServerInit.class)
+@ActiveProfiles("test")
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = WebServerInit.class)
 public class ProjectFileListenerTest {
 
     @Value("${app.mount}")
@@ -76,7 +73,7 @@ public class ProjectFileListenerTest {
         String mountPath = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath());
         projectsPath = mountPath + "/projects";
         String projectsPath = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/projects");
-        
+
         FileSystemUtility.createDirectory(projectsPath);
         dissertationFileListener = new ProjectFileListener(mountPath, "projects");
         fileObserverRegistry.register(dissertationFileListener);
@@ -86,7 +83,6 @@ public class ProjectFileListenerTest {
     }
 
     @Test
-    @Order(1)
     public void testNewProject() throws IOException, InterruptedException {
         String disseratationsPath = projectsPath + "/dissertation";
         FileSystemUtility.createDirectory(disseratationsPath);
@@ -98,7 +94,6 @@ public class ProjectFileListenerTest {
     }
 
     @Test
-    @Order(2)
     public void testNewDocument() throws IOException, InterruptedException {
         String disseratationsPath = projectsPath + "/dissertation";
         String documentPath = disseratationsPath + "/dissertation_0";
@@ -128,7 +123,7 @@ public class ProjectFileListenerTest {
         documentRepo.deleteAll();
         projectRepo.deleteAll();
         projectsService.clear();
-        
+
         fileObserverRegistry.dismiss(dissertationFileListener);
         fileMonitorManager.stop();
 

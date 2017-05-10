@@ -4,12 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import edu.tamu.app.annotations.Order;
-
 public class ControlledVocabularyTest extends AbstractModelTest {
 
     @Test
-    @Order(1)
     public void testCreateControlledVocabulary() {
         testControlledVocabulary = controlledVocabularyRepo.create("test");
         assertEquals("Test ControlledVocabulary was not created.", 1, controlledVocabularyRepo.count());
@@ -17,7 +14,6 @@ public class ControlledVocabularyTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(2)
     public void testDuplicateControlledVocabulary() {
         controlledVocabularyRepo.create("test");
         controlledVocabularyRepo.create("test");
@@ -25,7 +21,6 @@ public class ControlledVocabularyTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(3)
     public void testFindControlledVocabulary() {
         testControlledVocabulary = controlledVocabularyRepo.create("test");
         assertEquals("Test ControlledVocabulary was not created.", 1, controlledVocabularyRepo.count());
@@ -34,7 +29,6 @@ public class ControlledVocabularyTest extends AbstractModelTest {
     }
 
     @Test
-    @Order(4)
     public void testDeleteControlledVocabulary() {
         testControlledVocabulary = controlledVocabularyRepo.create("test");
         assertEquals("Test ControlledVocabulary was not created.", 1, controlledVocabularyRepo.count());

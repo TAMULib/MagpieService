@@ -5,13 +5,13 @@ import java.util.Map;
 
 public class MockData {
 
-    protected Long uin = 123456789L;
+    protected String uin = "123456789";
 
     protected AppUser testUser1 = new AppUser(uin);
 
     protected AppUser testUser2 = new AppUser(uin);
 
-    protected AppUser testUser3 = new AppUser(123456789l, "Jane", "Daniel", "ROLE_ADMIN");
+    protected AppUser testUser3 = new AppUser("123456789", "Jane", "Daniel", "ROLE_ADMIN");
 
     protected ControlledVocabulary testControlledVocabulary;
 
