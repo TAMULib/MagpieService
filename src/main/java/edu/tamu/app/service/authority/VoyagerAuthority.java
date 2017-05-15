@@ -23,7 +23,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldValue;
+import edu.tamu.app.model.MetadataFieldGroup;
+import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.model.response.marc.VoyagerServiceData;
 import edu.tamu.framework.util.HttpUtility;
@@ -46,7 +47,10 @@ public class VoyagerAuthority implements Authority {
 
     @Autowired
     private HttpUtility httpUtility;
-    
+
+    @Autowired
+    private MetadataFieldValueRepo metadataFieldValueRepo;
+
     public VoyagerAuthority(String host, String port, String app) {
         this.host = host;
         this.port = port;
@@ -57,17 +61,20 @@ public class VoyagerAuthority implements Authority {
     public Document populate(Document document) {
         try {
             Map<String, List<String>> metadataMap = getMARCRecordMetadata(document.getName());
-
-            document.getFields().parallelStream().forEach(fieldGroup -> {
-                List<String> values = metadataMap.get(fieldGroup.getLabel().getName());
+            List<MetadataFieldGroup> mfgs = new ArrayList<MetadataFieldGroup>();
+            for (MetadataFieldGroup mfg : document.getFields()) {
+                List<String> values = metadataMap.get(mfg.getLabel().getName());
                 if (values != null) {
-                    values.forEach(value -> {                        
-                        if (!fieldGroup.containsValue(value)) {
-                            fieldGroup.addValue(new MetadataFieldValue(value, fieldGroup));
-                        }                        
-                    });
+                    for (String value : values) {
+                        if (!mfg.containsValue(value)) {
+                            mfg.addValue(metadataFieldValueRepo.create(value, mfg));
+                        }
+                    }
                 }
-            });
+                mfgs.add(mfg);
+            }
+
+            document.setFields(mfgs);
 
         } catch (Exception e) {
             logger.debug("MARC record does not exist: " + document.getName());

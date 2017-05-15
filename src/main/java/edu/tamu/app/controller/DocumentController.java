@@ -13,10 +13,8 @@ import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -32,12 +30,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
-import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
 import edu.tamu.framework.aspect.annotation.ApiData;
@@ -62,12 +56,6 @@ public class DocumentController {
 
     @Autowired
     private DocumentRepo documentRepo;
-
-    @Autowired
-    private MetadataFieldGroupRepo metadataFieldGroupRepo;
-
-    @Autowired
-    private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
@@ -159,19 +147,7 @@ public class DocumentController {
     @ApiMapping("/save")
     @Auth(role = "ROLE_USER")
     public ApiResponse save(@ApiModel Document document) {
-        List<MetadataFieldGroup> mfgs = new ArrayList<MetadataFieldGroup>();
-        for (MetadataFieldGroup mfg : document.getFields()) {
-            List<MetadataFieldValue> mfvs = new ArrayList<MetadataFieldValue>();
-            for (MetadataFieldValue mfv : mfg.getValues()) {
-                mfv = metadataFieldValueRepo.save(mfv);
-                mfvs.add(mfv);
-            }
-            mfg.setValues(mfvs);
-            mfg = metadataFieldGroupRepo.save(mfg);
-            mfgs.add(mfg);
-        }
-        document.setFields(mfgs);
-        document = documentRepo.save(document);
+        document = documentRepo.fullSave(document);
         simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
         return new ApiResponse(SUCCESS);
     }
