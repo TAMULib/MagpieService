@@ -14,6 +14,7 @@ import edu.tamu.app.service.authority.CSVAuthority;
 import edu.tamu.app.service.authority.VoyagerAuthority;
 import edu.tamu.app.service.repository.ArchivematicaFilesystemRepository;
 import edu.tamu.app.service.repository.DSpaceRepository;
+import edu.tamu.app.service.repository.FedoraPCDMRepository;
 import edu.tamu.app.service.repository.FedoraRepository;
 import edu.tamu.app.service.suggestor.NALTSuggestor;
 
@@ -57,6 +58,19 @@ public class MagpieServiceRegistry {
             break;
         case FEDORA:
             service = (MagpieService) new FedoraRepository(
+                    projectService.getSettingValues("repoUrl").size() > 0
+                            ? projectService.getSettingValues("repoUrl").get(0) : "",
+                    projectService.getSettingValues("restPath").size() > 0
+                            ? projectService.getSettingValues("restPath").get(0) : "",
+                    projectService.getSettingValues("containerPath").size() > 0
+                            ? projectService.getSettingValues("containerPath").get(0) : "",
+                    projectService.getSettingValues("userName").size() > 0
+                            ? projectService.getSettingValues("userName").get(0) : "",
+                    projectService.getSettingValues("password").size() > 0
+                            ? projectService.getSettingValues("password").get(0) : "");
+            break;
+        case FEDORA_PCDM:
+            service = (MagpieService) new FedoraPCDMRepository(
                     projectService.getSettingValues("repoUrl").size() > 0
                             ? projectService.getSettingValues("repoUrl").get(0) : "",
                     projectService.getSettingValues("restPath").size() > 0
