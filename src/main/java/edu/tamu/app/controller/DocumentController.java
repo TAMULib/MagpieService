@@ -9,8 +9,8 @@
  */
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 import static edu.tamu.framework.enums.ApiResponseType.ERROR;
+import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -24,7 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -120,7 +119,7 @@ public class DocumentController {
         filters.put("status", arrayNodeToStringArray((ArrayNode) dataNode.get("filters").get("status")));
         if (dataNode.get("filters").get("projects").size() > 0 && dataNode.get("filters").get("projects").isArray()) {
             for (final JsonNode objNode : dataNode.get("filters").get("projects")) {
-            	filters.put("projects", arrayNodeToStringArray((ArrayNode) objNode));
+                filters.put("projects", arrayNodeToStringArray((ArrayNode) objNode));
             }
         }
         return new ApiResponse(SUCCESS, documentRepo.pageableDynamicDocumentQuery(filters, request));
@@ -147,9 +146,8 @@ public class DocumentController {
      */
     @ApiMapping("/save")
     @Auth(role = "ROLE_USER")
-    @Transactional // without this a save with a field value removed results in it not being removed
     public ApiResponse save(@ApiModel Document document) {
-        document = documentRepo.save(document);
+        document = documentRepo.fullSave(document);
         simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
         return new ApiResponse(SUCCESS);
     }
@@ -167,14 +165,14 @@ public class DocumentController {
     @Auth(role = "ROLE_USER")
     public ApiResponse push(@ApiVariable String projectName, @ApiVariable String documentName) {
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
-        
+
         for (ProjectRepository repository : document.getProject().getRepositories()) {
             try {
                 ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
             } catch (IOException e) {
                 logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
                 e.printStackTrace();
-                
+
                 return new ApiResponse(ERROR, "There was an error publishing this item");
             }
         }
