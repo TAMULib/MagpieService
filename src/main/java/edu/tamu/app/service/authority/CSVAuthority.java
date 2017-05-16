@@ -3,6 +3,7 @@ package edu.tamu.app.service.authority;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import org.springframework.core.io.ResourceLoader;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
-import edu.tamu.app.model.MetadataFieldValue;
+import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 public class CSVAuthority implements Authority {
@@ -36,6 +37,9 @@ public class CSVAuthority implements Authority {
 
     @Autowired
     private ResourceLoader resourceLoader;
+    
+    @Autowired
+    private MetadataFieldValueRepo metadataFieldValueRepo;
 
     public CSVAuthority(List<String> paths, String identifier, String delimeter) {
         this.paths = paths;
@@ -54,6 +58,7 @@ public class CSVAuthority implements Authority {
             String[] headers = this.headers.get(path);
             CSVRecord record = this.records.get(path).get(document.getName());
             if (record != null) {
+                List<MetadataFieldGroup> mfgs = new ArrayList<MetadataFieldGroup>();
                 for (String header : headers) {
                     if (header.equals(identifier)) {
                         continue;
@@ -62,13 +67,14 @@ public class CSVAuthority implements Authority {
                     if (cellValue != null) {
                         String[] values = cellValue.split(Pattern.quote(delimeter));
                         if (values != null) {
-                            MetadataFieldGroup fieldGroup = document.getFieldByLabel(header);
-                            if (fieldGroup != null) {
+                            MetadataFieldGroup mfg = document.getFieldByLabel(header);
+                            if (mfg != null) {
                                 for (String value : values) {
-                                    if (!fieldGroup.containsValue(value)) {
-                                        fieldGroup.addValue(new MetadataFieldValue(value, fieldGroup));
+                                    if (!mfg.containsValue(value)) {
+                                        mfg.addValue(metadataFieldValueRepo.create(value, mfg));
                                     }
                                 }
+                                mfgs.add(mfg);
                             } else {
                                 logger.debug("No MetadataFieldGroup with label: " + header);
                             }
@@ -78,6 +84,7 @@ public class CSVAuthority implements Authority {
                         logger.debug("No row with header: " + header);
                     }
                 }
+                document.setFields(mfgs);
             }
         });
         return document;
