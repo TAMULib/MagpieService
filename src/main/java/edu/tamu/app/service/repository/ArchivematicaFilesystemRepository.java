@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.utilities.CsvUtility;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 public class ArchivematicaFilesystemRepository implements Repository {
@@ -39,9 +38,6 @@ public class ArchivematicaFilesystemRepository implements Repository {
     @Value("${app.mount}")
     private String mount;
 
-    @Autowired
-    private CsvUtility csvUtility;
-    
     @Autowired
     private DocumentRepo documentRepo;
 
@@ -63,9 +59,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public ArchivematicaFilesystemRepository(String archivematicaDirectoryName, String archivematicaURL,
-            String archivematicaUsername, String archivematicaAPIKey, String archivematicaTransferLocationUUID,
-            String archivematicaTransferLocationDirectoryName) throws IOException {
+    public ArchivematicaFilesystemRepository(String archivematicaDirectoryName, String archivematicaURL, String archivematicaUsername, String archivematicaAPIKey, String archivematicaTransferLocationUUID, String archivematicaTransferLocationDirectoryName) throws IOException {
 
         // if this is an absolute path (preceded with the file separator) treat
         // it as such
@@ -75,8 +69,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
           // will be a relative path in the MAGPIE static directory. Perhaps it
           // could be symlinked to somewhere.
         else {
-            archivematicaTopDirectory = resourceLoader.getResource("classpath:static").getURL().getPath()
-                    + File.separator + mount + File.separator + archivematicaDirectoryName;
+            archivematicaTopDirectory = resourceLoader.getResource("classpath:static").getURL().getPath() + File.separator + mount + File.separator + archivematicaDirectoryName;
         }
 
         this.archivematicaURL = archivematicaURL;
@@ -90,17 +83,14 @@ public class ArchivematicaFilesystemRepository implements Repository {
     @Override
     public Document push(Document document) throws IOException {
 
-        Path itemDirectoryName = FileSystemUtility.getWindowsSafePath(
-                resourceLoader.getResource("classpath:static").getURL().getPath() + document.getDocumentPath());
+        Path itemDirectoryName = FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:static").getURL().getPath() + document.getDocumentPath());
 
         File documentDirectory = itemDirectoryName.toFile();
 
         // make the top level container for the transfer package
-        File archivematicaPackageDirectory = new File(archivematicaTopDirectory + File.separator
-                + document.getProject().getName() + "_" + document.getName());
+        File archivematicaPackageDirectory = new File(archivematicaTopDirectory + File.separator + document.getProject().getName() + "_" + document.getName());
 
-        System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryName.toString()
-                + " to " + archivematicaPackageDirectory.getCanonicalPath());
+        System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryName.toString() + " to " + archivematicaPackageDirectory.getCanonicalPath());
 
         if (!archivematicaPackageDirectory.isDirectory())
             archivematicaPackageDirectory.mkdir();
@@ -120,8 +110,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
         // make the submissionDocumentation subdirectory in the metadata
         // subdirectory
-        File submissionDocumentationSubdirectory = new File(
-                metadataSubdirectory.getPath() + File.separator + "submissionDocumentation");
+        File submissionDocumentationSubdirectory = new File(metadataSubdirectory.getPath() + File.separator + "submissionDocumentation");
         if (!submissionDocumentationSubdirectory.isDirectory())
             submissionDocumentationSubdirectory.mkdir();
 
@@ -141,10 +130,6 @@ public class ArchivematicaFilesystemRepository implements Repository {
             addChecksumToListing(tiff, md5Listing);
         }
 
-        // write the metadata csv in the metadata subdirectory
-        // write the ArchiveMatica CSV for this document
-        csvUtility.generateOneArchiveMaticaCSV(document, metadataSubdirectory.getPath());
-
         // copy the item directory and tiffs to the objects subdirectory
         for (File tiff : tiffFiles) {
             File destinationTiff = new File(singleObjectSubdirectory.getPath() + File.separator + tiff.getName());
@@ -156,8 +141,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         if (startedTransfer) {
             document.setStatus("Published");
             documentRepo.save(document);
-        }
-        else {
+        } else {
 
         }
 
@@ -189,20 +173,16 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
     }
 
-    private boolean startArchivematicaTransfer(Document document, File archivematicaPackageDirectory)
-            throws IOException {
+    private boolean startArchivematicaTransfer(Document document, File archivematicaPackageDirectory) throws IOException {
         // TODO: this shares code with the REST method in the DSpace repository
         // - consider pulling out into a utility method?
         // create the URL for the REST call
         URL restUrl;
         try {
-            restUrl = new URL("http://" + archivematicaURL + "/api/transfer/start_transfer/?username="
-                    + archivematicaUsername + "&api_key=" + archivematicaAPIKey);
+            restUrl = new URL("http://" + archivematicaURL + "/api/transfer/start_transfer/?username=" + archivematicaUsername + "&api_key=" + archivematicaAPIKey);
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
-            MalformedURLException murle = new MalformedURLException(
-                    "Failed to initialize URL for Archivematica REST API call - the URL was malformed. {"
-                            + e.getMessage() + "}");
+            MalformedURLException murle = new MalformedURLException("Failed to initialize URL for Archivematica REST API call - the URL was malformed. {" + e.getMessage() + "}");
             murle.setStackTrace(e.getStackTrace());
             throw murle;
         }
@@ -212,9 +192,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         try {
             connection = (HttpURLConnection) restUrl.openConnection();
         } catch (IOException e) {
-            IOException ioe = new IOException(
-                    "Failed to open connection to Archivematica REST API - URL was malformed. {" + e.getMessage()
-                            + "}");
+            IOException ioe = new IOException("Failed to open connection to Archivematica REST API - URL was malformed. {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
@@ -222,9 +200,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         try {
             connection.setRequestMethod("POST");
         } catch (ProtocolException e) {
-            ProtocolException pe = new ProtocolException(
-                    "Failed to set Archivematica request method to GET; that protocol for the request is invalid. {"
-                            + e.getMessage() + "}");
+            ProtocolException pe = new ProtocolException("Failed to set Archivematica request method to GET; that protocol for the request is invalid. {" + e.getMessage() + "}");
             pe.setStackTrace(e.getStackTrace());
             throw pe;
         }
@@ -232,8 +208,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         connection.setDoOutput(true);
 
         String itemDirectoryName = document.getProject().getName() + "_" + document.getName();
-        String pathString = archivematicaTransferSourceLocationUUID + ":" + archivematicaTransferLocationDirectoryName
-                + File.separator + itemDirectoryName;
+        String pathString = archivematicaTransferSourceLocationUUID + ":" + archivematicaTransferLocationDirectoryName + File.separator + itemDirectoryName;
         System.out.println("Transfer package path string: " + pathString);
         String encodedPath = Base64Utils.encodeToString(pathString.getBytes());
 
@@ -243,8 +218,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         try {
             os = connection.getOutputStream();
         } catch (IOException e) {
-            IOException ioe = new IOException(
-                    "Could not open output stream to write the post data. {" + e.getMessage() + "}");
+            IOException ioe = new IOException("Could not open output stream to write the post data. {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
@@ -258,8 +232,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
             connection.getOutputStream().write(params.getBytes());
 
         } catch (IOException e) {
-            IOException ioe = new IOException(
-                    "Could not write data to the open output stream for the post. {" + e.getMessage() + "}");
+            IOException ioe = new IOException("Could not write data to the open output stream for the post. {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
@@ -271,10 +244,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
             br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
         } catch (IOException e) {
-            IOException ioe = new IOException(
-                    "Could not get input stream for a response from the connection of the post request. Response message was \""
-                            + connection.getResponseMessage() + "\" with this exception thrown: {" + e.getMessage()
-                            + "}");
+            IOException ioe = new IOException("Could not get input stream for a response from the connection of the post request. Response message was \"" + connection.getResponseMessage() + "\" with this exception thrown: {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
@@ -286,8 +256,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
                 response.append(line);
             }
         } catch (IOException e) {
-            IOException ioe = new IOException(
-                    "Could not read a line from the response from the post. {" + e.getMessage() + "}");
+            IOException ioe = new IOException("Could not read a line from the response from the post. {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
@@ -296,17 +265,14 @@ public class ArchivematicaFilesystemRepository implements Repository {
         try {
             br.close();
         } catch (IOException e) {
-            IOException ioe = new IOException(
-                    "Could not close the buffered reader from which we were getting the response from the post. {"
-                            + e.getMessage() + "}");
+            IOException ioe = new IOException("Could not close the buffered reader from which we were getting the response from the post. {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
         try {
             os.close();
         } catch (IOException e) {
-            IOException ioe = new IOException(
-                    "Could not close the output stream we were using to write to the post. {" + e.getMessage() + "}");
+            IOException ioe = new IOException("Could not close the output stream we were using to write to the post. {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
@@ -317,9 +283,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
             try {
                 responseNode = objectMapper.readTree(response.toString());
             } catch (IOException e) {
-                IOException ioe = new IOException(
-                        "Object mapper could not read the response from the post request into JSON. {" + e.getMessage()
-                                + "}");
+                IOException ioe = new IOException("Object mapper could not read the response from the post request into JSON. {" + e.getMessage() + "}");
                 ioe.setStackTrace(e.getStackTrace());
                 throw ioe;
             }
