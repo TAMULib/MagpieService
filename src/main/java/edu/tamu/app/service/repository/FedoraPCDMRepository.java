@@ -80,13 +80,11 @@ public class FedoraPCDMRepository extends FedoraRepository {
 		//TODO Since magpie hasn't been modified to support defining pages, yet, we're treating each file as a different page to provide a proof of concept for a paged PCDM collection pushed to Fedora
 		int x = 0;
 		for (File file : files) {
-		    if (file.isFile()) {
+		    if (file.isFile() && !file.isHidden()) {
 		    	String pagePath = itemContainerPath+File.separator+pagesEndpoint+File.separator+"page_"+x; 
 		    	createResource(document.getDocumentPath()+File.separator+file.getName(),pagePath, file.getName());
-
 				proxyPages[x] = new ProxyPage(itemContainerPath+File.separator+"orderProxies"+File.separator+"page_"+x+"_proxy",pagePath,itemContainerPath);
 				generatePutRequest(proxyPages[x].getProxyUrl(),null,buildPCDMPageProxy(proxyPages[x].getProxyUrl(),proxyPages[x].getProxyInUrl(),proxyPages[x].getProxyForUrl()));
-
 		    }
 		    x++;
 		}
