@@ -23,11 +23,11 @@ import edu.tamu.app.model.repo.DocumentRepo;
 
 public abstract class AbstractFedoraRepository implements Repository {
 
-    @Autowired
-    private ResourceLoader resourceLoader;
-
     @Value("${app.mount}")
     private String mount;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @Autowired
     private DocumentRepo documentRepo;
