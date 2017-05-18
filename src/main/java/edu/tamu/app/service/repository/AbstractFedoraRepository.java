@@ -23,11 +23,11 @@ import edu.tamu.app.model.repo.DocumentRepo;
 
 public abstract class AbstractFedoraRepository implements Repository {
 
-    @Autowired
-    private ResourceLoader resourceLoader;
-
     @Value("${app.mount}")
     private String mount;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @Autowired
     private DocumentRepo documentRepo;
@@ -66,7 +66,7 @@ public abstract class AbstractFedoraRepository implements Repository {
     protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
         String itemPath = null;
         for (File file : files) {
-            if (file.isFile()) {
+            if (file.isFile() && !file.isHidden()) {
                 itemPath = createResource(document.getDocumentPath() + File.separator + file.getName(), itemContainerPath, file.getName());
             }
         }

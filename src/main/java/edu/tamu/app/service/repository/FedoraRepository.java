@@ -28,17 +28,15 @@ public class FedoraRepository extends AbstractFedoraRepository {
         confirmProjectContainerExists();
     }
 
-    protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
-
+    protected String createResource(String filePath, String containerUrl, String slug) throws IOException {
         File file = getResourceLoader().getResource("classpath:static" + filePath).getFile();
         FileInputStream fileStrm = new FileInputStream(file);
         byte[] fileBytes = IOUtils.toByteArray(fileStrm);
-        HttpURLConnection connection = buildFedoraConnection(itemContainerPath, "POST");
+
+        HttpURLConnection connection = buildFedoraConnection(containerUrl + File.separator + slug, "PUT");
+
         connection.setRequestProperty("CONTENT-TYPE", configurableMimeFileTypeMap.getContentType(file));
         connection.setRequestProperty("Accept", null);
-
-        if (slug != null)
-            connection.setRequestProperty("slug", slug);
 
         connection.setDoOutput(true);
 
@@ -55,11 +53,10 @@ public class FedoraRepository extends AbstractFedoraRepository {
         return createContainer(buildContainerUrl(), slugName);
     }
 
-    protected String createContainer(String containerUrl, String slugName) throws IOException {
-        HttpURLConnection connection = buildFedoraConnection(containerUrl, "POST");
+    protected String createContainer(String containerUrl, String slug) throws IOException {
+        HttpURLConnection connection = buildFedoraConnection(containerUrl + File.separator + slug, "PUT");
+
         connection.setRequestProperty("Accept", null);
-        if (slugName != null)
-            connection.setRequestProperty("slug", slugName);
 
         int responseCode = connection.getResponseCode();
 
@@ -69,7 +66,6 @@ public class FedoraRepository extends AbstractFedoraRepository {
 
         StringWriter writer = new StringWriter();
         IOUtils.copy(connection.getInputStream(), writer, "UTF-8");
-
         return connection.getHeaderField("Location");
     }
 
