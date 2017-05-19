@@ -92,7 +92,9 @@ public abstract class AbstractFedoraRepository implements Repository {
 
         HttpURLConnection connection = (HttpURLConnection) restUrl.openConnection();
 
-        connection.setRequestProperty("Authorization", getEncodedBasicAuthorization());
+        if(getUsername() != null && !getUsername().isEmpty() && getPassword() != null && !getPassword().isEmpty()) {
+            connection.setRequestProperty("Authorization", getEncodedBasicAuthorization());
+        }
 
         return connection;
 
