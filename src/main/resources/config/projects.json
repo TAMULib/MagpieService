@@ -287,7 +287,7 @@
       "settings": [{
           "key": "paths",
           "values": [
-            "config/csv/Fedora-Exhibit.csv"
+            "config/csv/Fedora-Spotlight-Exhibit.csv"
           ]
         },
         {
@@ -306,14 +306,20 @@
     }],
     "suggestors": [],
     "metadata": [{
-        "label": "dc.title",
+        "label": "full_title_tesim",
         "gloss": "Title",
         "inputType": "TEXT"
       },
       {
-        "label": "dc.description",
+        "label": "spotlight_upload_description_tesim",
         "gloss": "Description",
         "inputType": "TEXTAREA"
+      },
+      {
+        "label": "spotlight_upload_attribution_tesim",
+        "gloss": "Attribution",
+        "inputType": "TEXT",
+        "repeatable": true
       }
     ]
   },
