@@ -306,17 +306,17 @@
     }],
     "suggestors": [],
     "metadata": [{
-        "label": "full_title_tesim",
+        "label": "dc.title",
         "gloss": "Title",
         "inputType": "TEXT"
       },
       {
-        "label": "spotlight_upload_description_tesim",
+        "label": "dc.description",
         "gloss": "Description",
         "inputType": "TEXTAREA"
       },
       {
-        "label": "spotlight_upload_attribution_tesim",
+        "label": "dc.attribution",
         "gloss": "Attribution",
         "inputType": "TEXT",
         "repeatable": true

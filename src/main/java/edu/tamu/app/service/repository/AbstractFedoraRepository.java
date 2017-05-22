@@ -92,7 +92,7 @@ public abstract class AbstractFedoraRepository implements Repository {
 
         HttpURLConnection connection = (HttpURLConnection) restUrl.openConnection();
 
-        if(getUsername() != null && !getUsername().isEmpty() && getPassword() != null && !getPassword().isEmpty()) {
+        if (getUsername() != null && !getUsername().isEmpty() && getPassword() != null && !getPassword().isEmpty()) {
             connection.setRequestProperty("Authorization", getEncodedBasicAuthorization());
         }
 
@@ -156,6 +156,7 @@ public abstract class AbstractFedoraRepository implements Repository {
 
         in.close();
         writer.append(" ");
+
         for (MetadataFieldGroup group : document.getFields()) {
             for (MetadataFieldValue value : group.getValues()) {
                 writer.append("<> " + group.getLabel().getName().replace('.', ':') + " \"" + value.getValue() + "\" . ");
