@@ -66,7 +66,7 @@ public abstract class AbstractFedoraRepository implements Repository {
     protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
         String itemPath = null;
         for (File file : files) {
-            if (file.isFile()) {
+            if (file.isFile() && !file.isHidden()) {
                 itemPath = createResource(document.getDocumentPath() + File.separator + file.getName(), itemContainerPath, file.getName());
             }
         }
@@ -92,7 +92,9 @@ public abstract class AbstractFedoraRepository implements Repository {
 
         HttpURLConnection connection = (HttpURLConnection) restUrl.openConnection();
 
-        connection.setRequestProperty("Authorization", getEncodedBasicAuthorization());
+        if (getUsername() != null && !getUsername().isEmpty() && getPassword() != null && !getPassword().isEmpty()) {
+            connection.setRequestProperty("Authorization", getEncodedBasicAuthorization());
+        }
 
         return connection;
 
@@ -154,6 +156,7 @@ public abstract class AbstractFedoraRepository implements Repository {
 
         in.close();
         writer.append(" ");
+
         for (MetadataFieldGroup group : document.getFields()) {
             for (MetadataFieldValue value : group.getValues()) {
                 writer.append("<> " + group.getLabel().getName().replace('.', ':') + " \"" + value.getValue() + "\" . ");

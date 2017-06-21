@@ -35,7 +35,7 @@ public class FedoraRepository extends AbstractFedoraRepository {
         byte[] fileBytes = IOUtils.toByteArray(fileStrm);
         HttpURLConnection connection = buildFedoraConnection(itemContainerPath, "POST");
         connection.setRequestProperty("CONTENT-TYPE", configurableMimeFileTypeMap.getContentType(file));
-        connection.setRequestProperty("Accept", null);
+        connection.setRequestProperty("Accept", "*/*");
 
         if (slug != null)
             connection.setRequestProperty("slug", slug);
@@ -57,7 +57,7 @@ public class FedoraRepository extends AbstractFedoraRepository {
 
     protected String createContainer(String containerUrl, String slugName) throws IOException {
         HttpURLConnection connection = buildFedoraConnection(containerUrl, "POST");
-        connection.setRequestProperty("Accept", null);
+        connection.setRequestProperty("Accept", "*/*");
         if (slugName != null)
             connection.setRequestProperty("slug", slugName);
 
