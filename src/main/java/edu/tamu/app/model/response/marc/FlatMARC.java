@@ -3,7 +3,11 @@ package edu.tamu.app.model.response.marc;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 public class FlatMARC {
+    
+    private static final Logger logger = Logger.getLogger(FlatMARC.class);
 
     private String dc_creator = "";
     private String dc_title = "";
@@ -69,7 +73,7 @@ public class FlatMARC {
                     for (Subfield subField : subFields) {
                         if (subField.getCode().equals("a") || subField.getCode().equals("b")) {
                             if (dc_description.length() > 0) {
-                                System.out.println("Multiple description found. Deferring to the first. Ignoring: " + scrubField(".", subField.getValue()));
+                                logger.info("Multiple description found. Deferring to the first. Ignoring: " + scrubField(".", subField.getValue()));
                                 continue;
                             }
                             dc_description += scrubField(".", subField.getValue());
