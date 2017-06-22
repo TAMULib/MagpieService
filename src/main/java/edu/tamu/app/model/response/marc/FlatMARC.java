@@ -69,8 +69,7 @@ public class FlatMARC {
                     for (Subfield subField : subFields) {
                         if (subField.getCode().equals("a") || subField.getCode().equals("b")) {
                             if (dc_description.length() > 0) {
-                                System.out.println("Multiple description found. Deferring to the first.");
-                                System.out.println(scrubField(".", subField.getValue()));
+                                System.out.println("Multiple description found. Deferring to the first. Ignoring: " + scrubField(".", subField.getValue()));
                                 continue;
                             }
                             dc_description += scrubField(".", subField.getValue());
@@ -106,16 +105,22 @@ public class FlatMARC {
                     for (Subfield subField : subFields) {
                         if (df.getInd2().equals("4")) {
                             dc_subject += scrubField(".", subField.getValue());
-                        } else if (df.getInd2().equals("0")) {
-                            lcsh += subField.getValue();
                         }
-                        if (subField.getCode().equals("x") || subField.getCode().equals("z")) {
+                        if (df.getInd2().equals("0")) {
                             if (lcsh.length() > 0) {
                                 lcsh += " -- " + subField.getValue();
                             } else {
                                 lcsh += subField.getValue();
                             }
+                        } else {
+                            if (subField.getCode().equals("x") || subField.getCode().equals("z")) {
+                                if (lcsh.length() > 0) {
+                                    lcsh += " -- " + subField.getValue();
+                                } else {
+                                    lcsh += subField.getValue();
+                                }
 
+                            }
                         }
                     }
                     if (!"".equals(lcsh)) {
