@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 public class FlatMARC {
-    
+
     private static final Logger logger = Logger.getLogger(FlatMARC.class);
 
     private String dc_creator = "";
@@ -228,7 +228,11 @@ public class FlatMARC {
         if (scrubbable.endsWith(scrubber)) {
             return rightTrim(scrubber.length(), scrubbable);
         }
-        return scrubbable;
+        return sanatize(scrubbable);
+    }
+
+    private String sanatize(String sinatizable) {
+        return sinatizable.replaceAll("\"", "");
     }
 
     private String rightTrim(int length, String trimmable) {
