@@ -40,8 +40,8 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.ProjectsService;
 import edu.tamu.app.service.SyncService;
-import edu.tamu.app.service.exporter.DspaceCSVExporter;
-import edu.tamu.app.service.exporter.SpotlightExporter;
+import edu.tamu.app.service.exporter.DspaceCsvExporter;
+import edu.tamu.app.service.exporter.SpotlightCsvExporter;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.framework.model.ApiResponse;
@@ -71,13 +71,13 @@ public abstract class AbstractControllerTest extends MockData {
     protected static FileSystemUtility fileSystemUtility;
 
     @Mock
-    protected DspaceCSVExporter dspaceCSVExporter;
+    protected DspaceCsvExporter dspaceCSVExporter;
 
     @Mock
     protected ResourceLoader resourceLoader;
 
     @Mock
-    protected SpotlightExporter spotlightExporter;
+    protected SpotlightCsvExporter spotlightExporter;
 
     @Mock
     protected ProjectsService projectsService;
@@ -99,6 +99,9 @@ public abstract class AbstractControllerTest extends MockData {
 
     @InjectMocks
     protected MetadataController metadataController;
+    
+    @InjectMocks
+    protected ExportController exportController;
 
     @InjectMocks
     protected ProjectController projectController;
