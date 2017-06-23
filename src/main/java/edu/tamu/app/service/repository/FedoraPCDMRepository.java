@@ -24,7 +24,7 @@ import org.fcrepo.vocabulary.LDP;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.ProjectRepository;
 
-public class FedoraPCDMRepository extends FedoraRepository {
+public class FedoraPCDMRepository extends FedoraSpotlightRepository {
 	private String membersEndpoint = "members";
 	private String objectsEndpoint = "objects";
 	private String pagesEndpoint = "pages";

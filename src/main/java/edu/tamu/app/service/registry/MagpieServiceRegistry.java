@@ -16,7 +16,7 @@ import edu.tamu.app.service.authority.VoyagerAuthority;
 import edu.tamu.app.service.repository.ArchivematicaFilesystemRepository;
 import edu.tamu.app.service.repository.DSpaceRepository;
 import edu.tamu.app.service.repository.FedoraPCDMRepository;
-import edu.tamu.app.service.repository.FedoraRepository;
+import edu.tamu.app.service.repository.FedoraSpotlightRepository;
 import edu.tamu.app.service.suggestor.NALTSuggestor;
 
 @Service
@@ -46,7 +46,7 @@ public class MagpieServiceRegistry {
             service = (MagpieService) new DSpaceRepository((ProjectRepository) projectService);
             break;
         case FEDORA_SPOTLIGHT:
-            service = (MagpieService) new FedoraRepository((ProjectRepository) projectService);
+            service = (MagpieService) new FedoraSpotlightRepository((ProjectRepository) projectService);
             break;
         case FEDORA_PCDM:
             service = (MagpieService) new FedoraPCDMRepository((ProjectRepository) projectService);

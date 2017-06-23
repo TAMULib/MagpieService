@@ -51,11 +51,11 @@ public abstract class AbstractFedoraRepository implements Repository {
 
         File[] files = getFiles(document.getDocumentPath());
 
-        String publishedUrl = pushFiles(document, itemContainerPath, files);
+        pushFiles(document, itemContainerPath, files);
 
         updateMetadata(document, itemContainerPath);
 
-        document.addPublishedLocation(new PublishedLocation(projectRepository, publishedUrl));
+        document.addPublishedLocation(new PublishedLocation(projectRepository, itemContainerPath));
 
         document.setStatus("Published");
 

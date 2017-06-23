@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
 
 import org.apache.commons.io.IOUtils;
@@ -13,12 +12,12 @@ import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
 import edu.tamu.app.model.ProjectRepository;
 
-public class FedoraRepository extends AbstractFedoraRepository {
+public class FedoraSpotlightRepository extends AbstractFedoraRepository {
 
     @Autowired
     private ConfigurableMimeFileTypeMap configurableMimeFileTypeMap;
 
-    public FedoraRepository(ProjectRepository projectRepository) {
+    public FedoraSpotlightRepository(ProjectRepository projectRepository) {
         super(projectRepository);
     }
 
@@ -35,8 +34,9 @@ public class FedoraRepository extends AbstractFedoraRepository {
         connection.setRequestProperty("CONTENT-TYPE", configurableMimeFileTypeMap.getContentType(file));
         connection.setRequestProperty("Accept", "*/*");
 
-        if (slug != null)
+        if (slug != null) {
             connection.setRequestProperty("slug", slug);
+        }
 
         connection.setDoOutput(true);
 
@@ -44,8 +44,6 @@ public class FedoraRepository extends AbstractFedoraRepository {
         os.write(fileBytes);
         os.close();
 
-        StringWriter writer = new StringWriter();
-        IOUtils.copy(connection.getInputStream(), writer, "UTF-8");
         return connection.getHeaderField("Location");
     }
 
@@ -64,9 +62,6 @@ public class FedoraRepository extends AbstractFedoraRepository {
         if (responseCode != 201) {
             throw new IOException("Could not create container. Server responded with " + responseCode);
         }
-
-        StringWriter writer = new StringWriter();
-        IOUtils.copy(connection.getInputStream(), writer, "UTF-8");
 
         return connection.getHeaderField("Location");
     }
