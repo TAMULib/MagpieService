@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.utilities.CsvUtility;
@@ -26,7 +30,10 @@ public class MapsService {
     private static final Logger logger = Logger.getLogger(MapsService.class);
 
     // TODO: MapService needs to be scoped to a project
-    private static final String DISSERTATION_PROJECT_NAME = "dissertation";
+    private static final String DISSERTATION_PROJECT_NAME = "taes_misc_publication";
+
+    // TODO: MapService needs to be scoped to a project and repository
+    private static final String DISSERTATION_DSPACE_REPOSITORY_NAME = "DSpace for TAES Misc Publications";
 
     private static final String CHANGE_STATUS = "Published";
 
@@ -54,13 +61,14 @@ public class MapsService {
         if (logger.isDebugEnabled()) {
             logger.debug("The map file is named: " + file.getName());
         }
+
         InputStream stream = new FileInputStream(file);
         InputStreamReader sReader = new InputStreamReader(stream);
         BufferedReader bReader = new BufferedReader(sReader);
 
-        // the project to unlock, if all documents have been published
-        String unlockableProjectName = null;
         logger.info("Reading mapfile: " + file);
+
+        Project dissertationProject = projectRepo.findByName(DISSERTATION_PROJECT_NAME);
 
         String line;
         while ((line = bReader.readLine()) != null) {
@@ -79,13 +87,12 @@ public class MapsService {
             Document updateDoc = documentRepo.findByProjectNameAndName(DISSERTATION_PROJECT_NAME, documentName);
 
             if (updateDoc != null) {
-                if (unlockableProjectName == null) {
-                    unlockableProjectName = updateDoc.getProject().getName();
-                }
                 updateDoc.setStatus(CHANGE_STATUS);
 
                 // TODO: improve method of retrieving project configurations
-                // updateDoc.setPublishedUriString(updateDoc.getProject().getRepositories().get(0).getSettingValues("repoUrl") + "/" + documentHandle);
+                String publishedUrl = updateDoc.getProject().getRepositories().get(0).getSettingValues("repoUrl") + "/" + documentHandle;
+
+                updateDoc.addPublishedLocation(new PublishedLocation(getProjectRepository(dissertationProject), publishedUrl));
 
                 documentRepo.save(updateDoc);
                 logger.info("Setting status of Document: " + updateDoc.getName() + " to " + CHANGE_STATUS);
@@ -93,27 +100,48 @@ public class MapsService {
                 logger.info("No Document found for string: " + documentName);
             }
         }
-        if (unlockableProjectName != null) {
-            List<Document> unpublishedDocs = documentRepo.findByProjectNameAndStatus(unlockableProjectName, "Pending");
-            // unlock project if there are no pending documents
-            if (unpublishedDocs.size() == 0) {
-                // get the project fresh so the documents we modified above keep their changes
-                Project unlockableProject = projectRepo.findByName(unlockableProjectName);
-                unlockableProject.setIsLocked(false);
-                projectRepo.save(unlockableProject);
-                logger.info("Project '" + unlockableProject.getName() + "' unlocked.");
-                generateArchiveMaticaCSV(unlockableProject.getName());
-            } else {
-                logger.info("Project '" + unlockableProjectName + "' was left locked because there was a count of  " + unpublishedDocs.size() + " unpublished document(s).");
-            }
-        } else {
-            logger.info("No Project found");
-        }
+
+        unlockProject(dissertationProject);
+
         bReader.close();
+        sReader.close();
+        stream.close();
+
         if (file.delete()) {
             logger.info("Mapfile: " + file.getName() + " removed.");
         } else {
             logger.info("Error removing mapfile: " + file.getName() + ".");
+        }
+    }
+
+    private ProjectRepository getProjectRepository(Project project) {
+        Optional<ProjectRepository> dspaceRepository = Optional.empty();
+
+        for (ProjectRepository repository : project.getRepositories()) {
+            if (repository.getType().equals(ServiceType.DSPACE) && repository.getName().equals(DISSERTATION_DSPACE_REPOSITORY_NAME)) {
+                dspaceRepository = Optional.of(repository);
+                break;
+            }
+        }
+
+        if (!dspaceRepository.isPresent()) {
+            throw new RuntimeException("Could not find " + DISSERTATION_DSPACE_REPOSITORY_NAME + " DSpace repository!");
+        }
+        return dspaceRepository.get();
+    }
+
+    private void unlockProject(Project project) throws IOException {
+        List<Document> unpublishedDocs = documentRepo.findByProjectNameAndStatus(DISSERTATION_PROJECT_NAME, "Pending");
+        // unlock project if there are no pending documents
+        if (unpublishedDocs.size() == 0) {
+            // get the project fresh so the documents we modified above keep their changes
+            project = projectRepo.findByName(DISSERTATION_PROJECT_NAME);
+            project.setIsLocked(false);
+            project = projectRepo.save(project);
+            logger.info("Project '" + project.getName() + "' unlocked.");
+            generateArchiveMaticaCSV(project.getName());
+        } else {
+            logger.info("Project '" + DISSERTATION_PROJECT_NAME + "' was left locked because there was a count of  " + unpublishedDocs.size() + " unpublished document(s).");
         }
     }
 
@@ -134,7 +162,6 @@ public class MapsService {
             String itemDirectoryName = archiveDirectoryName + "/" + document.getName();
             csvUtility.generateOneArchiveMaticaCSV(document, itemDirectoryName);
         }
-
     }
 
 }
