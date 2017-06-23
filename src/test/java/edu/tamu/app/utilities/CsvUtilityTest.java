@@ -46,9 +46,6 @@ public class CsvUtilityTest {
     private DocumentRepo documentRepo;
 
     @Autowired
-    private CsvUtility csvUtility;
-
-    @Autowired
     private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
     @Autowired
@@ -63,6 +60,8 @@ public class CsvUtilityTest {
     private Project testProject;
 
     private Document mockDocument;
+    
+    private CsvUtility csvUtility;
 
     @Test
     public void testGenerateOneArchiveMaticaCSV() throws IOException {
@@ -77,7 +76,8 @@ public class CsvUtilityTest {
         dateCreatedFieldGroup.addValue(dateCreatedValue);
 
         mockDocument.addField(dateCreatedFieldGroup);
-        // mockDocument.setPublishedUriString("http://hdl.handle.net/1969.1/12345");
+        
+        csvUtility = new CsvUtility();
 
         List<List<String>> csvContents = csvUtility.generateOneArchiveMaticaCSV(mockDocument, "temp");
 
@@ -95,7 +95,6 @@ public class CsvUtilityTest {
         });
 
         // TODO: assert values of csv file are as expected
-
         FileUtils.deleteDirectory(new File("temp"));
     }
 

@@ -7,18 +7,30 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
+import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.PublishedLocation;
 
-@Service
 public class CsvUtility {
 
     private static final Logger logger = Logger.getLogger(CsvUtility.class);
+
+    private Optional<ProjectRepository> projectRepository;
+
+    public CsvUtility() {
+        this.projectRepository = Optional.empty();
+    }
+
+    public CsvUtility(ProjectRepository projectRepository) {
+        this();
+        this.projectRepository = Optional.of(projectRepository);
+    }
 
     public void generateCsvFile(List<List<String>> csvContents, String csvFileName) throws IOException {
         if (csvContents.size() > 0) {
@@ -36,7 +48,6 @@ public class CsvUtility {
         String csv = "";
         for (List<String> row : csvContents) {
             for (String value : row) {
-                logger.info(value);
                 csv += "\"" + value + "\",";
             }
             csv = csv.substring(0, csv.length() - 1);
@@ -52,7 +63,18 @@ public class CsvUtility {
         String[] elements = { "title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "language", "relation", "coverage", "rights" };
 
         Map<String, String> map = new HashMap<String, String>();
-        // map.put("dc.identifier", document.getPublishedUriString());
+        if (projectRepository.isPresent()) {
+            Optional<String> publishedUrl = getPublishedUrl(document);
+            if (publishedUrl.isPresent()) {
+                map.put("dc.identifier", publishedUrl.get());
+            } else {
+                logger.info("Unable to find Project Repositories published URL!");
+            }
+
+        } else {
+            logger.info("No Project Repository specified!");
+        }
+
         // map.put("dc.source","");
         // map.put("dc.relation","");
         // map.put("dc.coverage","");
@@ -73,7 +95,7 @@ public class CsvUtility {
             map.put(field.getLabel().getUnqualifiedName(), values);
         });
 
-        //The first row is the "parts" field and all the metadata keys/labels
+        // The first row is the "parts" field and all the metadata keys/labels
         ArrayList<String> csvRow = new ArrayList<String>();
         csvRow.add("parts");
         for (int i = 0; i < elements.length; i++) {
@@ -121,4 +143,14 @@ public class CsvUtility {
         return csvContents;
     }
 
+    private Optional<String> getPublishedUrl(Document document) {
+        Optional<String> publishedUrl = Optional.empty();
+        for (PublishedLocation publishedLocation : document.getPublishedLocations()) {
+            if (publishedLocation.getRepository().equals(projectRepository.get())) {
+                publishedUrl = Optional.of(publishedLocation.getUrl());
+                break;
+            }
+        }
+        return publishedUrl;
+    }
 }
