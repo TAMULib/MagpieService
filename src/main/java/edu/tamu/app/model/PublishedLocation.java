@@ -3,10 +3,13 @@ package edu.tamu.app.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import edu.tamu.framework.model.BaseEntity;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "url", "repository_id" }))
 public class PublishedLocation extends BaseEntity {
 
     @ManyToOne(optional = false)

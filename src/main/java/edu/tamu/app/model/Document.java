@@ -206,7 +206,9 @@ public class Document extends BaseEntity {
     }
 
     public void addPublishedLocation(PublishedLocation publishedLocation) {
-        publishedLocations.add(publishedLocation);
+        if (!publishedLocations.contains(publishedLocation)) {
+            publishedLocations.add(publishedLocation);
+        }
     }
 
     public void removePublishedLocation(PublishedLocation publishedLocation) {
