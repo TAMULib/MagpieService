@@ -56,7 +56,7 @@ public class MagpieServiceRegistry {
                     projectService.getSettingValues("password").size() > 0
                             ? projectService.getSettingValues("password").get(0) : "");
             break;
-        case FEDORA:
+        case FEDORA_SPOTLIGHT:
             service = (MagpieService) new FedoraRepository(
                     projectService.getSettingValues("repoUrl").size() > 0
                             ? projectService.getSettingValues("repoUrl").get(0) : "",

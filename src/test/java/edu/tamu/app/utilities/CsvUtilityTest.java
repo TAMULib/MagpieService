@@ -77,7 +77,7 @@ public class CsvUtilityTest {
         dateCreatedFieldGroup.addValue(dateCreatedValue);
 
         mockDocument.addField(dateCreatedFieldGroup);
-        mockDocument.setPublishedUriString("http://hdl.handle.net/1969.1/12345");
+        // mockDocument.setPublishedUriString("http://hdl.handle.net/1969.1/12345");
 
         List<List<String>> csvContents = csvUtility.generateOneArchiveMaticaCSV(mockDocument, "temp");
 

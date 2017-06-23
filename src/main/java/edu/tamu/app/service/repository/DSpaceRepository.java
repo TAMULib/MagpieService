@@ -104,7 +104,7 @@ public class DSpaceRepository implements Repository {
             publishedUriString = repoUrl + "/" + handleString;
         }
 
-        document.setPublishedUriString(publishedUriString);
+        // document.setPublishedUriString(publishedUriString);
 
         document.setStatus("Published");
 

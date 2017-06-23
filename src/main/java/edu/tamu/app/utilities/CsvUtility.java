@@ -52,7 +52,7 @@ public class CsvUtility {
         String[] elements = { "title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "language", "relation", "coverage", "rights" };
 
         Map<String, String> map = new HashMap<String, String>();
-        map.put("dc.identifier", document.getPublishedUriString());
+        // map.put("dc.identifier", document.getPublishedUriString());
         // map.put("dc.source","");
         // map.put("dc.relation","");
         // map.put("dc.coverage","");
