@@ -248,7 +248,7 @@
   "fedora_spotlight_exhibit": {
     "repositories": [{
       "name": "Fedora Spotlight",
-      "type": "FEDORA",
+      "type": "FEDORA_SPOTLIGHT",
       "settings": [{
           "key": "repoUrl",
           "values": [
