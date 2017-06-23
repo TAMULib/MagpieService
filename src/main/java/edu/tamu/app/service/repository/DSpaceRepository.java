@@ -1,7 +1,6 @@
 package edu.tamu.app.service.repository;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
@@ -13,6 +12,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -25,6 +27,16 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
@@ -41,6 +53,8 @@ import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.DocumentRepo;
 
 public class DSpaceRepository implements Repository {
+    
+    private static final Logger logger = Logger.getLogger(DSpaceRepository.class);
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -66,6 +80,8 @@ public class DSpaceRepository implements Repository {
 
     private String password;
 
+    private Optional<Cookie> authCookie;
+
     public DSpaceRepository(String repoUrl, String repoUIPath, String collectionId, String groupId, String username, String password) {
         this.repoUrl = repoUrl;
         this.repoUIPath = repoUIPath;
@@ -73,10 +89,15 @@ public class DSpaceRepository implements Repository {
         this.groupId = groupId;
         this.username = username;
         this.password = password;
+        authCookie = Optional.empty();
     }
 
     @Override
     public Document push(Document document) throws IOException {
+
+        // login to get JSESSIONID
+        login();
+
         // POST to create the item
         JsonNode createItemResponseNode = null;
         try {
@@ -88,10 +109,9 @@ public class DSpaceRepository implements Repository {
         }
 
         String handleString = createItemResponseNode.get("handle").asText();
-        String newItemIdString = createItemResponseNode.get("id").asText();
+        String newItemIdString = createItemResponseNode.get("uuid").asText();
 
-        // POST each of the bitstreams in this document to the newly created
-        // item
+        // POST each of the bitstreams in this document to the newly created item
         addBitstreams(newItemIdString, document);
 
         // add new handle to document, change it's status to published, save it
@@ -107,9 +127,54 @@ public class DSpaceRepository implements Repository {
 
         document.setStatus("Published");
 
+        // logout to kill session
+        logout();
+
         document = documentRepo.save(document);
 
         return document;
+    }
+
+    private void login() throws IOException {
+        try {
+            HttpClient httpClient = null;
+            CookieStore httpCookieStore = new BasicCookieStore();
+            HttpClientBuilder builder = HttpClientBuilder.create().setDefaultCookieStore(httpCookieStore);
+            httpClient = builder.build();
+
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+            nameValuePairs.add(new BasicNameValuePair("email", username));
+            nameValuePairs.add(new BasicNameValuePair("password", password));
+
+            HttpPost httpPost = new HttpPost(repoUrl + "/rest/login");
+
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+            httpClient.execute(httpPost);
+
+            for (Cookie cookie : httpCookieStore.getCookies()) {
+                if (cookie.getName().equals("JSESSIONID")) {
+                    authCookie = Optional.of(cookie);
+                }
+            }
+            
+            logger.info("Login successful. Authorization cookie: " + getCookieAsString(authCookie.get()));
+
+            if (!authCookie.isPresent()) {
+                throw new RuntimeException("Unable to get cookie JSESSIONID from response!");
+            }
+
+        } catch (IOException e) {
+            IOException ioe = new IOException("Failed to authenticate to DSpace. {" + e.getMessage() + "}");
+            ioe.setStackTrace(e.getStackTrace());
+            throw ioe;
+        }
+    }
+
+    private void logout() throws IOException {
+        doRESTRequest(new URL(repoUrl + "/rest/logout"), "POST", "".getBytes(), "application/xml", "logout");
+        authCookie = Optional.empty();
+        logger.info("Logout successful.");
     }
 
     private JsonNode createItem(Document document) throws ParserConfigurationException, TransformerException, IOException {
@@ -122,8 +187,7 @@ public class DSpaceRepository implements Repository {
             throw murle;
         }
 
-        // produce the XML data from the document that we will post to the REST
-        // API
+        // produce the XML data from the document that we will post to the REST API
         String xmlDataToPost;
         try {
             xmlDataToPost = generateItemPostXMLFromDocument(document);
@@ -171,8 +235,7 @@ public class DSpaceRepository implements Repository {
 
         connection.setRequestProperty("Content-Length", String.valueOf(postData.length));
 
-        String token = authenticateRest(username, password);
-        connection.setRequestProperty("rest-dspace-token", token);
+        connection.setRequestProperty("Cookie", getCookieAsString(authCookie.get()));
 
         connection.setDoOutput(true);
 
@@ -277,15 +340,16 @@ public class DSpaceRepository implements Repository {
             throw e;
         }
 
-        String pdfBitstreamId = pdfBitstreamJson.get("id").asText();
-
         // *************************************
         // PUT PDF bitstream metadata
         // *************************************
         // put a resource policy for member group access on the pdf bitstream
-        // REST endpoint is PUT /bitstreams/{bitstream id} - Update metadata of
+        // REST endpoint is PUT /bitstreams/{bitstream uuid} - Update metadata of
         // bitstream. You must put a Bitstream, does not alter the file/data
         // Fix up the PDF bitstream metadata to have new policy, etc.
+
+        String pdfBitstreamId = pdfBitstreamJson.get("uuid").asText();
+
         ArrayNode policiesNode = pdfBitstreamJson.putArray("policies");
         ObjectNode policyNode = objectMapper.createObjectNode();
         policyNode.put("action", "READ");
@@ -340,9 +404,11 @@ public class DSpaceRepository implements Repository {
         // **************************************
         // put the txt bitstream into the TEXT bundle and set the READ policy to
         // the groupId.
-        // REST endpoint is PUT /bitstreams/{bitstream id} - Update metadata of
+        // REST endpoint is PUT /bitstreams/{bitstream uuid} - Update metadata of
         // bitstream. You must put a Bitstream, does not alter the file/data
-        String txtBitstreamId = txtBitstreamJson.get("id").asText();
+
+        String txtBitstreamId = txtBitstreamJson.get("uuid").asText();
+
         policiesNode = txtBitstreamJson.putArray("policies");
         policyNode = objectMapper.createObjectNode();
         policyNode.put("action", "READ");
@@ -374,11 +440,11 @@ public class DSpaceRepository implements Repository {
         // assume for now that there are some number of tiffs in the document
         File documentDir = resourceLoader.getResource("classpath:static" + document.getDocumentPath()).getFile();
         File[] tiffFiles = documentDir.listFiles(new OnlyTiff());
-        System.out.println("Document " + document.getName() + " contains " + tiffFiles.length + " tiff files.");
+        logger.info("Document " + document.getName() + " contains " + tiffFiles.length + " tiff files.");
         URL addTiffUrl;
         FileInputStream tiffFileStrm;
         for (File tiff : tiffFiles) {
-            System.out.println("Pushing tiff file " + tiff.getName());
+            logger.info("Pushing tiff file " + tiff.getName());
             try {
                 addTiffUrl = new URL(repoUrl + "/rest/items/" + itemId + "/bitstreams?name=" + tiff.getName());
             } catch (MalformedURLException e) {
@@ -400,7 +466,7 @@ public class DSpaceRepository implements Repository {
                 throw e;
             }
 
-            String tiffBitstreamId = tiffBitstreamJson.get("id").asText();
+            String tiffBitstreamId = tiffBitstreamJson.get("uuid").asText();
 
             policiesNode = tiffBitstreamJson.putArray("policies");
             policyNode = objectMapper.createObjectNode();
@@ -427,46 +493,6 @@ public class DSpaceRepository implements Repository {
                 throw e;
             }
         }
-    }
-
-    private String authenticateRest(String username, String password) throws IOException {
-
-        HttpURLConnection con;
-        String token = null;
-        try {
-
-            URL loginUrl = new URL(repoUrl + "/rest/login");
-
-            con = (HttpURLConnection) loginUrl.openConnection();
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Content-Type", "application/json");
-            con.setDoOutput(true);
-
-            // Send request
-            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-            wr.writeBytes("{\"email\": \"" + username + "\", \"password\": \"" + password + "\"}");
-            wr.flush();
-            wr.close();
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-
-            String inputLine;
-
-            StringBuffer strBufRes = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                strBufRes.append(inputLine);
-            }
-
-            in.close();
-
-            token = strBufRes.toString();
-        } catch (IOException e) {
-            IOException ioe = new IOException("Failed to authenticate to DSpace. {" + e.getMessage() + "}");
-            ioe.setStackTrace(e.getStackTrace());
-            throw ioe;
-        }
-        return token;
     }
 
     private String generateItemPostXMLFromDocument(Document document) throws ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException {
@@ -505,21 +531,25 @@ public class DSpaceRepository implements Repository {
         return stw.toString();
     }
 
-    private void cleanUpFailedPublish(String id) throws IOException {
-        // delete the item in case there was an error along the way with all the
-        // requests.
-        // REST endpoint is DELETE /items/{item id} - Delete item.
+    private void cleanUpFailedPublish(String uuid) throws IOException {
+        // delete the item in case there was an error along the way with all the requests.
+        // REST endpoint is DELETE /items/{item uuid} - Delete item.
+        
+        logger.error("Error pushing to DSpace. Rolling back.");
 
         URL deleteItemUrl;
         try {
-            deleteItemUrl = new URL(repoUrl + "/rest/items/" + id);
+            deleteItemUrl = new URL(repoUrl + "/rest/items/" + uuid);
         } catch (MalformedURLException e) {
-            MalformedURLException murle = new MalformedURLException("Failed to delete item " + id + "; the REST URL for the DELETE request was malformed. {" + e.getMessage() + "}");
+            MalformedURLException murle = new MalformedURLException("Failed to delete item " + uuid + "; the REST URL for the DELETE request was malformed. {" + e.getMessage() + "}");
             murle.setStackTrace(e.getStackTrace());
             throw murle;
         }
 
         doRESTRequest(deleteItemUrl, "DELETE", "".getBytes(), "application/json", "delete item");
+
+        // logout to kill session
+        logout();
     }
 
     // TODO: move to utility class
@@ -527,6 +557,10 @@ public class DSpaceRepository implements Repository {
         public boolean accept(File dir, String name) {
             return name.toLowerCase().endsWith(".tif") || name.toLowerCase().endsWith(".tiff");
         }
+    }
+
+    private String getCookieAsString(Cookie cookie) {
+        return String.join("=", cookie.getName(), cookie.getValue());
     }
 
 }
