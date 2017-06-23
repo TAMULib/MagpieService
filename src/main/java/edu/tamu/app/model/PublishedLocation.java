@@ -1,6 +1,5 @@
 package edu.tamu.app.model;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -10,7 +9,7 @@ import edu.tamu.framework.model.BaseEntity;
 @Entity
 public class PublishedLocation extends BaseEntity {
 
-    @ManyToOne(cascade = CascadeType.MERGE, optional = false)
+    @ManyToOne(optional = false)
     private ProjectRepository repository;
 
     @Column(nullable = false)

@@ -117,9 +117,7 @@ public class DSpaceRepository implements Repository {
         // logout to kill session
         logout();
 
-        document = documentRepo.save(document);
-
-        return document;
+        return documentRepo.save(document);
     }
 
     private void login() throws IOException {
