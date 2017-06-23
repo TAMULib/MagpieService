@@ -37,6 +37,9 @@ public class MapsService {
 
     private static final String CHANGE_STATUS = "Published";
 
+    @Value("${app.mount}")
+    private String mount;
+
     @Autowired
     private ResourceLoader resourceLoader;
 
@@ -46,11 +49,7 @@ public class MapsService {
     @Autowired
     private DocumentRepo documentRepo;
 
-    @Autowired
     private CsvUtility csvUtility;
-
-    @Value("${app.mount}")
-    private String mount;
 
     public MapsService() {
 
@@ -69,6 +68,10 @@ public class MapsService {
         logger.info("Reading mapfile: " + file);
 
         Project dissertationProject = projectRepo.findByName(DISSERTATION_PROJECT_NAME);
+
+        ProjectRepository projectRepository = getProjectRepository(dissertationProject);
+
+        csvUtility = new CsvUtility(projectRepository);
 
         String line;
         while ((line = bReader.readLine()) != null) {
@@ -92,9 +95,10 @@ public class MapsService {
                 // TODO: improve method of retrieving project configurations
                 String publishedUrl = updateDoc.getProject().getRepositories().get(0).getSettingValues("repoUrl") + "/" + documentHandle;
 
-                updateDoc.addPublishedLocation(new PublishedLocation(getProjectRepository(dissertationProject), publishedUrl));
+                updateDoc.addPublishedLocation(new PublishedLocation(projectRepository, publishedUrl));
 
                 documentRepo.save(updateDoc);
+
                 logger.info("Setting status of Document: " + updateDoc.getName() + " to " + CHANGE_STATUS);
             } else {
                 logger.info("No Document found for string: " + documentName);

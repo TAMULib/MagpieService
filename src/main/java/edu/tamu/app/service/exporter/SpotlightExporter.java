@@ -18,6 +18,8 @@ import edu.tamu.app.model.PublishedLocation;
 @Service
 public class SpotlightExporter extends AbstractExporter {
 
+    private static final String SPOTLIGHT_REPOSITORY_NAME = "Fedora for Spotlight Exhibits";
+
     @Override
     public List<List<String>> extractMetadata(Project project) {
 
@@ -31,41 +33,47 @@ public class SpotlightExporter extends AbstractExporter {
 
             List<String> documentMetadata = new ArrayList<String>();
 
-            Optional<String> publishedUrl = Optional.empty();
+            String publishedUrl = getPublishedUrl(document);
 
-            for (PublishedLocation publishedLocation : document.getPublishedLocations()) {
-                if (publishedLocation.getRepository().getType().equals(ServiceType.FEDORA_SPOTLIGHT)) {
-                    publishedUrl = Optional.of(publishedLocation.getUrl());
-                    break;
-                }
-            }
+            documentMetadata.add(0, publishedUrl);
 
-            if (publishedUrl.isPresent()) {
-
-                documentMetadata.add(0, publishedUrl.get());
-
-                metadataFields.forEach(field -> {
-                    String values = null;
-                    boolean firstPass = true;
-                    for (MetadataFieldValue medataFieldValue : field.getValues()) {
-                        if (firstPass) {
-                            values = medataFieldValue.getValue();
-                            firstPass = false;
-                        } else {
-                            values += "||" + medataFieldValue.getValue();
-                        }
+            metadataFields.forEach(field -> {
+                String values = null;
+                boolean firstPass = true;
+                for (MetadataFieldValue medataFieldValue : field.getValues()) {
+                    if (firstPass) {
+                        values = medataFieldValue.getValue();
+                        firstPass = false;
+                    } else {
+                        values += "||" + medataFieldValue.getValue();
                     }
-                    documentMetadata.add(values);
-                });
+                }
+                documentMetadata.add(values);
+            });
 
-                metadata.add(documentMetadata);
-
-            }
+            metadata.add(documentMetadata);
 
         });
 
         return metadata;
 
+    }
+
+    private String getPublishedUrl(Document document) {
+        Optional<String> publishedUrl = Optional.empty();
+
+        for (PublishedLocation publishedLocation : document.getPublishedLocations()) {
+            if (publishedLocation.getRepository().getType().equals(ServiceType.FEDORA_SPOTLIGHT) && publishedLocation.getRepository().getName().equals(SPOTLIGHT_REPOSITORY_NAME)) {
+                publishedUrl = Optional.of(publishedLocation.getUrl());
+                break;
+            }
+        }
+
+        if (!publishedUrl.isPresent()) {
+            throw new RuntimeException("Could not find Fedora Spotlight published url for document " + document.getName());
+        }
+
+        return publishedUrl.get();
     }
 
     @Override
