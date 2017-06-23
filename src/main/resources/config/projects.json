@@ -334,7 +334,7 @@
           ]
         },
         {
-          "key": "repoUIPath",
+          "key": "repoContextPath",
           "values": []
         },
         {
@@ -350,7 +350,7 @@
           ]
         },
         {
-          "key": "getEmail",
+          "key": "email",
           "values": [
             "sword@oaktrust.library.tamu.edu"
           ]

@@ -104,8 +104,8 @@ public class DSpaceRepository implements Repository {
         // add new handle to document, change it's status to published, save it
         String publishedUrl;
 
-        if (getRepoUIPath().length() > 0) {
-            publishedUrl = getRepoUrl() + "/" + getRepoUIPath() + "/" + handleString;
+        if (getRepoContextPath().length() > 0) {
+            publishedUrl = getRepoUrl() + "/" + getRepoContextPath() + "/" + handleString;
         } else {
             publishedUrl = getRepoUrl() + "/" + handleString;
         }
@@ -159,7 +159,7 @@ public class DSpaceRepository implements Repository {
     }
 
     private void logout() throws IOException {
-        doRESTRequest(new URL(repoUrl + "/rest/logout"), "POST", "".getBytes(), "application/xml", "logout");
+        doRESTRequest(new URL(getRepoUrl() + "/rest/logout"), "POST", "".getBytes(), "application/xml", "logout");
         authCookie = Optional.empty();
         logger.info("Logout successful.");
     }
@@ -550,8 +550,8 @@ public class DSpaceRepository implements Repository {
         return projectRepository.getSettingValues("repoUrl").get(0);
     }
 
-    public String getRepoUIPath() {
-        return projectRepository.getSettingValues("repoUIPath").get(0);
+    public String getRepoContextPath() {
+        return projectRepository.getSettingValues("repoContextPath").get(0);
     }
 
     public String getCollectionId() {
