@@ -63,25 +63,26 @@ public class Document extends BaseEntity {
 
     @Column(nullable = true)
     private String txtPath;
-    
-    @Column(nullable=true)
-    private String documentPath;
-    
+
     @Column(nullable = true)
-    private String publishedUriString;
+    private String documentPath;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name")
     @JsonIdentityReference(alwaysAsId = true)
     private Project project;
 
-    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<MetadataFieldGroup> fields;
 
+    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
+    private List<PublishedLocation> publishedLocations;
+
     public Document() {
-        publishedUriString = null;
         fields = new ArrayList<MetadataFieldGroup>();
+        publishedLocations = new ArrayList<PublishedLocation>();
     }
 
     public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String documentPath, String status) {
@@ -161,19 +162,11 @@ public class Document extends BaseEntity {
     }
 
     public String getDocumentPath() {
-		return documentPath;
-	}
-
-	public void setDocumentPath(String documentPath) {
-		this.documentPath = documentPath;
-	}
-
-	public String getPublishedUriString() {
-        return publishedUriString;
+        return documentPath;
     }
 
-    public void setPublishedUriString(String publishedUriString) {
-        this.publishedUriString = publishedUriString;
+    public void setDocumentPath(String documentPath) {
+        this.documentPath = documentPath;
     }
 
     public Project getProject() {
@@ -201,7 +194,27 @@ public class Document extends BaseEntity {
     }
 
     public void clearFields() {
-        fields = new ArrayList<MetadataFieldGroup>();
+        fields.clear();
+    }
+
+    public List<PublishedLocation> getPublishedLocations() {
+        return publishedLocations;
+    }
+
+    public void setPublishedLocations(List<PublishedLocation> publishedLocations) {
+        this.publishedLocations = publishedLocations;
+    }
+
+    public void addPublishedLocation(PublishedLocation publishedLocation) {
+        publishedLocations.add(publishedLocation);
+    }
+
+    public void removePublishedLocation(PublishedLocation publishedLocation) {
+        publishedLocations.remove(publishedLocation);
+    }
+
+    public void clearPublishedLocations() {
+        publishedLocations.clear();
     }
 
     public MetadataFieldGroup getFieldByLabel(String labelName) {
