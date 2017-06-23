@@ -57,8 +57,8 @@ public class ProjectModelIntegrationTest extends AbstractModelTest {
     @Test
     public void testDocumentPublishedLocation() {
         testProjectDocument();
-
-        PublishedLocation publishedLocation = new PublishedLocation(projectRepository, "http://localhost:9000/fcrepo/rest/collection/resource/test.jpg");
+        
+        PublishedLocation publishedLocation = new PublishedLocation(testProject.getRepositories().get(0), "http://localhost:9000/fcrepo/rest/collection/resource/test.jpg");
 
         testDocument.addPublishedLocation(publishedLocation);
 
