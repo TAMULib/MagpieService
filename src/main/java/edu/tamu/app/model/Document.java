@@ -76,7 +76,7 @@ public class Document extends BaseEntity {
     @Fetch(FetchMode.SELECT)
     private List<MetadataFieldGroup> fields;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<PublishedLocation> publishedLocations;
 
