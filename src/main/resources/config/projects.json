@@ -222,13 +222,13 @@
         {
           "key": "userName",
           "values": [
-            "fedoraAdmin"
+            ""
           ]
         },
         {
           "key": "password",
           "values": [
-            "secret3"
+            ""
           ]
         }
       ]
@@ -247,7 +247,7 @@
   },
   "fedora_spotlight_exhibit": {
     "repositories": [{
-      "name": "Fedora",
+      "name": "Fedora Spotlight",
       "type": "FEDORA",
       "settings": [{
           "key": "repoUrl",
@@ -270,13 +270,13 @@
         {
           "key": "userName",
           "values": [
-            "fedoraAdmin"
+            ""
           ]
         },
         {
           "key": "password",
           "values": [
-            "secret3"
+            ""
           ]
         }
       ]
@@ -350,7 +350,7 @@
           ]
         },
         {
-          "key": "userName",
+          "key": "getEmail",
           "values": [
             "sword@oaktrust.library.tamu.edu"
           ]
