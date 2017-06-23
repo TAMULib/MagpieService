@@ -19,30 +19,28 @@ import org.springframework.core.io.ResourceLoader;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
+import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.repo.DocumentRepo;
 
 public abstract class AbstractFedoraRepository implements Repository {
 
-    @Autowired
-    private ResourceLoader resourceLoader;
+    protected static final Logger logger = Logger.getLogger(AbstractFedoraRepository.class);
 
     @Value("${app.mount}")
     private String mount;
 
     @Autowired
+    private ResourceLoader resourceLoader;
+
+    @Autowired
     private DocumentRepo documentRepo;
 
-    private String repoUrl;
+    private ProjectRepository projectRepository;
 
-    private String restPath;
-
-    private String containerPath;
-
-    private String username;
-
-    private String password;
-
-    protected static final Logger logger = Logger.getLogger(FedoraRepository.class);
+    public AbstractFedoraRepository(ProjectRepository projectRepository) {
+        this.projectRepository = projectRepository;
+    }
 
     public Document push(Document document) throws IOException {
 
@@ -53,15 +51,15 @@ public abstract class AbstractFedoraRepository implements Repository {
 
         File[] files = getFiles(document.getDocumentPath());
 
-        String itemPath = pushFiles(document, itemContainerPath, files);
+        String publishedUrl = pushFiles(document, itemContainerPath, files);
 
         updateMetadata(document, itemContainerPath);
-        
-        // document.setPublishedUriString(itemPath);
-        document.setStatus("Published");
-        document = documentRepo.save(document);
 
-        return document;
+        document.addPublishedLocation(new PublishedLocation(projectRepository, publishedUrl));
+
+        document.setStatus("Published");
+
+        return documentRepo.save(document);
     }
 
     protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
@@ -224,43 +222,23 @@ public abstract class AbstractFedoraRepository implements Repository {
     }
 
     public String getRepoUrl() {
-        return repoUrl;
-    }
-
-    public void setRepoUrl(String repoUrl) {
-        this.repoUrl = repoUrl;
+        return projectRepository.getSettingValues("repoUrl").get(0);
     }
 
     public String getRestPath() {
-        return restPath;
-    }
-
-    public void setRestPath(String restPath) {
-        this.restPath = restPath;
+        return projectRepository.getSettingValues("restPath").get(0);
     }
 
     public String getContainerPath() {
-        return containerPath;
-    }
-
-    public void setContainerPath(String containerId) {
-        this.containerPath = containerId;
+        return projectRepository.getSettingValues("containerPath").get(0);
     }
 
     public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+        return projectRepository.getSettingValues("userName").get(0);
     }
 
     public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+        return projectRepository.getSettingValues("password").get(0);
     }
 
     abstract void prepForPush() throws IOException;

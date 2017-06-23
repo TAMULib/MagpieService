@@ -22,16 +22,16 @@ import org.apache.jena.vocabulary.RDF;
 import org.fcrepo.vocabulary.LDP;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.ProjectRepository;
 
 public class FedoraPCDMRepository extends FedoraRepository {
 	private String membersEndpoint = "members";
 	private String objectsEndpoint = "objects";
 	private String pagesEndpoint = "pages";
 
-	public FedoraPCDMRepository(String repoUrl, String restPath, String containerPath, String username,
-			String password) {
-		super(repoUrl, restPath, containerPath, username, password);
-		objectsEndpoint = containerPath+"_"+objectsEndpoint;
+	public FedoraPCDMRepository(ProjectRepository projectRepository) {
+        super(projectRepository);
+		objectsEndpoint = String.join("_",  getContainerPath() , objectsEndpoint);
 	}
 	
 	@Override

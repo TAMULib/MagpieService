@@ -11,17 +11,15 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
+import edu.tamu.app.model.ProjectRepository;
+
 public class FedoraRepository extends AbstractFedoraRepository {
 
     @Autowired
     private ConfigurableMimeFileTypeMap configurableMimeFileTypeMap;
 
-    public FedoraRepository(String repoUrl, String restPath, String containerPath, String username, String password) {
-        setRepoUrl(repoUrl);
-        setRestPath(restPath);
-        setContainerPath(containerPath);
-        setUsername(username);
-        setPassword(password);
+    public FedoraRepository(ProjectRepository projectRepository) {
+        super(projectRepository);
     }
 
     protected void prepForPush() throws IOException {
