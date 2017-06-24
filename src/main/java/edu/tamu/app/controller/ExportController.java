@@ -168,7 +168,9 @@ public class ExportController {
 
             File originDir = null;
             try {
-                String documentDirectory = appContext.getResource("classpath:static" + document.getPdfPath()).getFile().getAbsolutePath();
+                // String documentDirectory = appContext.getResource("classpath:static" + document.getPdfPath()).getFile().getAbsolutePath();
+            	// TODO: get odf file from resource
+            	String documentDirectory = "";
                 documentDirectory = documentDirectory.substring(0, documentDirectory.length() - (document.getName().length() + 5));
                 originDir = new File(documentDirectory);
                 FileUtils.copyDirectory(originDir, itemDirectory);

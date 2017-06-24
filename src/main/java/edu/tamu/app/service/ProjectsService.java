@@ -295,14 +295,9 @@ public class ProjectsService {
         if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
             final Project project = getOrCreateProject(projectName);
 
-            String documentPath = mount + "/projects/" + projectName + "/" + documentName;
-            String pdfPath = documentPath + "/" + documentName + ".pdf";
-            String txtPath = documentPath + "/" + documentName + ".pdf.txt";
+            String documentPath = String.join(File.separator, mount, "projects", projectName, documentName);
 
-            String pdfUri = host + pdfPath;
-            String txtUri = host + txtPath;
-
-            Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, documentPath, "Open");
+            Document document = documentRepo.create(project, documentName, documentPath, "Open");
 
             for (MetadataFieldGroup field : getProjectFields(projectName)) {
                 // For headless projects, auto generate metadata

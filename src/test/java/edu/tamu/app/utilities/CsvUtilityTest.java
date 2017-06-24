@@ -66,7 +66,7 @@ public class CsvUtilityTest {
     @Test
     public void testGenerateOneArchiveMaticaCSV() throws IOException {
         testProject = projectRepo.create("testProject");
-        mockDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
+        mockDocument = documentRepo.create(testProject, "testDocument", "documentPath", "Unassigned");
 
         FieldProfile profile = projectFieldProfileRepo.create(testProject, "Date Created", false, false, false, false, InputType.TEXT, null);
         MetadataFieldLabel dateCreatedLabel = metadataFieldLabelRepo.create("dc.date.created", profile);

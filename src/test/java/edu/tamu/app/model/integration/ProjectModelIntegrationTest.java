@@ -18,7 +18,7 @@ public class ProjectModelIntegrationTest extends AbstractModelTest {
 
     @Before
     public void setUp() {
-        mockDocument = new Document(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
+        mockDocument = new Document(testProject, "testDocument", "documentPath", "Unassigned");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class ProjectModelIntegrationTest extends AbstractModelTest {
     public void testProjectDocument() {
         testProjectRepository();
 
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
 
         testProject = projectRepo.findByName("testProject");
 

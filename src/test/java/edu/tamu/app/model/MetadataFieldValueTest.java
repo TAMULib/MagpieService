@@ -14,7 +14,7 @@ public class MetadataFieldValueTest extends AbstractModelTest {
         testProject = projectRepo.create("testProject");
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
-        testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
+        testDocument = documentRepo.create(testProject, "testDocument", "documentPath", "Unassigned");
         testFieldGroup = metadataFieldGroupRepo.create(testDocument, testLabel);
         assertEquals("MetadataFieldValueRepo is not empty.", 0, metadataFieldValueRepo.count());
     }

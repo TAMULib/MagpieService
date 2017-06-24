@@ -299,12 +299,15 @@ public class DSpaceRepository implements Repository {
 
     private void addBitstreams(String itemId, Document document) throws IOException {
 
+    	// TODO: iterate over prd resources
+    	
         // *************************************
         // POST PDF file
         // *************************************
         // add the bitstream for the primary pdf
         URL addBitstreamUrl;
         try {
+        	// TODO: use name of resource
             addBitstreamUrl = new URL(getRepoUrl() + "/rest/items/" + itemId + "/bitstreams?name=" + document.getName() + ".pdf");
         } catch (MalformedURLException e) {
             MalformedURLException murle = new MalformedURLException("Failed to add pdf bitstream; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}");
@@ -313,7 +316,11 @@ public class DSpaceRepository implements Repository {
             throw murle;
         }
 
-        File pdfFile = resourceLoader.getResource("classpath:static" + document.getPdfPath()).getFile();
+        
+        // File pdfFile = resourceLoader.getResource("classpath:static" + document.getPdfPath()).getFile();
+        
+        // TODO: get pdf from resource
+        File pdfFile = resourceLoader.getResource("classpath:static/temp").getFile();
         FileInputStream pdfFileStrm = new FileInputStream(pdfFile);
         byte[] pdfBytes = IOUtils.toByteArray(pdfFileStrm);
 
@@ -359,11 +366,15 @@ public class DSpaceRepository implements Repository {
             throw e;
         }
 
+        
+        // TODO: iterate over text resources
+        
         // *************************************
         // POST txt file
         // *************************************
         // add the bitstream for the extracted text
         try {
+        	// TODO: use name of resource
             addBitstreamUrl = new URL(getRepoUrl() + "/rest/items/" + itemId + "/bitstreams?name=" + document.getName() + ".pdf.txt&description=ocr_text");
         } catch (MalformedURLException e) {
             MalformedURLException murle = new MalformedURLException("Failed to add bitstreams; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}");
@@ -372,7 +383,10 @@ public class DSpaceRepository implements Repository {
             throw murle;
         }
 
-        File txtFile = resourceLoader.getResource("classpath:static" + document.getTxtPath()).getFile();
+        // File txtFile = resourceLoader.getResource("classpath:static" + document.getTxtPath()).getFile();
+        
+        // TODO: get text file from resource
+        File txtFile = resourceLoader.getResource("classpath:static/temp").getFile();
         FileInputStream txtFileStrm = new FileInputStream(txtFile);
         byte[] txtBytes = IOUtils.toByteArray(txtFileStrm);
 

@@ -43,7 +43,8 @@ public class NALTSuggestor implements Suggestor {
 
             file.deleteOnExit();
 
-            FileUtils.copyURLToFile(new URL(document.getTxtUri()), file);
+            // TODO: get all text files from resources and concat into one
+            // FileUtils.copyURLToFile(new URL(document.getTxtUri()), file);
 
             String text = FileUtils.readFileToString(file, StandardCharsets.UTF_8).toLowerCase();
 

@@ -53,18 +53,6 @@ public class Document extends BaseEntity {
     private String notes;
 
     @Column(nullable = true)
-    private String txtUri;
-
-    @Column(nullable = true)
-    private String pdfUri;
-
-    @Column(nullable = true)
-    private String pdfPath;
-
-    @Column(nullable = true)
-    private String txtPath;
-
-    @Column(nullable = true)
     private String documentPath;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
@@ -85,14 +73,10 @@ public class Document extends BaseEntity {
         publishedLocations = new ArrayList<PublishedLocation>();
     }
 
-    public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String documentPath, String status) {
+    public Document(Project project, String name, String documentPath, String status) {
         this();
         setProject(project);
         setName(name);
-        setTxtUri(txtUri);
-        setPdfUri(pdfUri);
-        setPdfPath(pdfPath);
-        setTxtPath(txtPath);
         setDocumentPath(documentPath);
         setStatus(status);
     }
@@ -127,38 +111,6 @@ public class Document extends BaseEntity {
 
     public void setNotes(String notes) {
         this.notes = notes;
-    }
-
-    public String getTxtUri() {
-        return txtUri;
-    }
-
-    public void setTxtUri(String txtUri) {
-        this.txtUri = txtUri;
-    }
-
-    public String getPdfUri() {
-        return pdfUri;
-    }
-
-    public void setPdfUri(String pdfUri) {
-        this.pdfUri = pdfUri;
-    }
-
-    public String getPdfPath() {
-        return pdfPath;
-    }
-
-    public void setPdfPath(String pdfPath) {
-        this.pdfPath = pdfPath;
-    }
-
-    public String getTxtPath() {
-        return txtPath;
-    }
-
-    public void setTxtPath(String txtPath) {
-        this.txtPath = txtPath;
     }
 
     public String getDocumentPath() {
