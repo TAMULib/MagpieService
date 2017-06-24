@@ -67,7 +67,9 @@ public class ProjectsServiceTest {
         Project project = projectsService.getOrCreateProject("default");
         assertNotNull("The project was not created!", project);
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
-        assertEquals("The project has the incorrect number of authorities!", 1, project.getAuthorities().size());
+        assertEquals("The project has the incorrect number of repositories!", 0, project.getRepositories().size());
+        assertEquals("The project has the incorrect number of authorities!", 0, project.getAuthorities().size());
+        assertEquals("The project has the incorrect number of suggestors!", 0, project.getSuggestors().size());
     }
 
     @Test
@@ -79,7 +81,7 @@ public class ProjectsServiceTest {
     @Test
     public void testGetProjectFields() {
         List<MetadataFieldGroup> projectFields = projectsService.getProjectFields("default");
-        assertEquals("The project fields did not have the correct number of MetadataFieldFroups!", projectFields.size(), 21);
+        assertEquals("The project fields did not have the correct number of MetadataFieldFroups!", projectFields.size(), 2);
     }
 
     @Test
