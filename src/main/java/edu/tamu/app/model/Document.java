@@ -59,6 +59,10 @@ public class Document extends BaseEntity {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name")
     @JsonIdentityReference(alwaysAsId = true)
     private Project project;
+    
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
+    private List<Resource> resources;
 
     @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
@@ -69,6 +73,7 @@ public class Document extends BaseEntity {
     private List<PublishedLocation> publishedLocations;
 
     public Document() {
+    	resources = new ArrayList<Resource>();
         fields = new ArrayList<MetadataFieldGroup>();
         publishedLocations = new ArrayList<PublishedLocation>();
     }
@@ -127,6 +132,22 @@ public class Document extends BaseEntity {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+    
+    public List<Resource> getResources() {
+        return resources;
+    }
+
+    public void setResources(List<Resource> resources) {
+        this.resources = resources;
+    }
+
+    public void addResource(Resource resource) {
+    	resources.add(resource);
+    }
+
+    public void removeResource(Resource resource) {
+    	resources.remove(resource);
     }
 
     public List<MetadataFieldGroup> getFields() {
