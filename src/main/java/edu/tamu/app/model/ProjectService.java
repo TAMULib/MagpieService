@@ -1,5 +1,7 @@
 package edu.tamu.app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 

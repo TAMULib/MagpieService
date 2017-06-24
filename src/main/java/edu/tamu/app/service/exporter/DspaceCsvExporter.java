@@ -7,13 +7,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.comparator.LabelComparator;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 
 @Service
-public class DspaceCSVExporter extends AbstractExporter {
+public class DspaceCsvExporter extends AbstractExporter {
 
 	@Override
 	public List<List<String>> extractMetadata(Project project) {

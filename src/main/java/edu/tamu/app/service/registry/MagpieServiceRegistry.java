@@ -64,13 +64,7 @@ public class MagpieServiceRegistry {
             service = (MagpieService) new NALTSuggestor(projectService.getSettingValues("pelicanUrl").size() > 0 ? projectService.getSettingValues("pelicanUrl").get(0) : "", projectService.getSettingValues("subjectLabel").size() > 0 ? projectService.getSettingValues("subjectLabel").get(0) : "");
             break;
         case ARCHIVEMATICA:
-            try {
-                // TODO: create new constructor passing in ProjectRepository
-                service = (MagpieService) new ArchivematicaFilesystemRepository(projectService.getSettingValues("archivematicaDirectoryName").size() > 0 ? projectService.getSettingValues("archivematicaDirectoryName").get(0) : "", projectService.getSettingValues("archivematicaURL").size() > 0 ? projectService.getSettingValues("archivematicaURL").get(0) : "", projectService.getSettingValues("archivematicaUsername").size() > 0 ? projectService.getSettingValues("archivematicaUsername").get(0) : "", projectService.getSettingValues("archivematicaAPIKey").size() > 0 ? projectService.getSettingValues("archivematicaAPIKey").get(0) : "", projectService.getSettingValues("archivematicaTransferSourceLocationUUID").size() > 0 ? projectService.getSettingValues("archivematicaTransferSourceLocationUUID").get(0) : "", projectService.getSettingValues("archivematicaTransferLocationDirectoryName").size() > 0 ? projectService.getSettingValues("archivematicaTransferLocationDirectoryName").get(0) : "");
-            } catch (IOException e) {
-                logger.error("Could not instantiate Archivematica Repository due to IO exception:");
-                e.printStackTrace();
-            }
+        	service = (MagpieService) new ArchivematicaFilesystemRepository((ProjectRepository) projectService);
             break;
         default:
             logger.info("Unidentified service type: " + projectService.getType());

@@ -30,7 +30,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.utilities.CsvUtility;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 public class ArchivematicaFilesystemRepository implements Repository {
@@ -44,40 +46,16 @@ public class ArchivematicaFilesystemRepository implements Repository {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    private String archivematicaTopDirectory;
-
-    private String archivematicaURL;
-
-    private String archivematicaUsername;
-
-    private String archivematicaAPIKey;
-
-    private String archivematicaTransferSourceLocationUUID;
-
-    private String archivematicaTransferLocationDirectoryName;
-
     @Autowired
     private ObjectMapper objectMapper;
+    
+    private ProjectRepository projectRepository;
 
-    public ArchivematicaFilesystemRepository(String archivematicaDirectoryName, String archivematicaURL, String archivematicaUsername, String archivematicaAPIKey, String archivematicaTransferLocationUUID, String archivematicaTransferLocationDirectoryName) throws IOException {
+    private CsvUtility csvUtility;
 
-        // if this is an absolute path (preceded with the file separator) treat
-        // it as such
-        if (archivematicaDirectoryName.startsWith(File.separator)) {
-            archivematicaTopDirectory = archivematicaDirectoryName;
-        } // otherwise, if this is not preceded with the file separator, then it
-          // will be a relative path in the MAGPIE static directory. Perhaps it
-          // could be symlinked to somewhere.
-        else {
-            archivematicaTopDirectory = resourceLoader.getResource("classpath:static").getURL().getPath() + File.separator + mount + File.separator + archivematicaDirectoryName;
-        }
-
-        this.archivematicaURL = archivematicaURL;
-        this.archivematicaUsername = archivematicaUsername;
-        this.archivematicaAPIKey = archivematicaAPIKey;
-        this.archivematicaTransferSourceLocationUUID = archivematicaTransferLocationUUID;
-        this.archivematicaTransferLocationDirectoryName = archivematicaTransferLocationDirectoryName;
-
+    public ArchivematicaFilesystemRepository(ProjectRepository projectRepository) {
+    	this.projectRepository = projectRepository;
+    	this.csvUtility = new CsvUtility(this.projectRepository);
     }
 
     @Override
@@ -88,7 +66,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         File documentDirectory = itemDirectoryName.toFile();
 
         // make the top level container for the transfer package
-        File archivematicaPackageDirectory = new File(archivematicaTopDirectory + File.separator + document.getProject().getName() + "_" + document.getName());
+        File archivematicaPackageDirectory = new File(getArchivematicaTopDirectory() + File.separator + document.getProject().getName() + "_" + document.getName());
 
         System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryName.toString() + " to " + archivematicaPackageDirectory.getCanonicalPath());
 
@@ -108,8 +86,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         if (!objectsSubdirectory.isDirectory())
             objectsSubdirectory.mkdir();
 
-        // make the submissionDocumentation subdirectory in the metadata
-        // subdirectory
+        // make the submissionDocumentation subdirectory in the metadata subdirectory
         File submissionDocumentationSubdirectory = new File(metadataSubdirectory.getPath() + File.separator + "submissionDocumentation");
         if (!submissionDocumentationSubdirectory.isDirectory())
             submissionDocumentationSubdirectory.mkdir();
@@ -129,6 +106,11 @@ public class ArchivematicaFilesystemRepository implements Repository {
             // make the md5hash listing from the tiffs
             addChecksumToListing(tiff, md5Listing);
         }
+        
+        // write the metadata csv in the metadata subdirectory
+        // write the ArchiveMatica CSV for this document
+        this.csvUtility.generateOneArchiveMaticaCSV(document, metadataSubdirectory.getPath());
+
 
         // copy the item directory and tiffs to the objects subdirectory
         for (File tiff : tiffFiles) {
@@ -179,7 +161,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         // create the URL for the REST call
         URL restUrl;
         try {
-            restUrl = new URL("http://" + archivematicaURL + "/api/transfer/start_transfer/?username=" + archivematicaUsername + "&api_key=" + archivematicaAPIKey);
+            restUrl = new URL("http://" + getArchivematicaURL() + "/api/transfer/start_transfer/?username=" + getArchivematicaUsername() + "&api_key=" + getArchivematicaAPIKey());
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             MalformedURLException murle = new MalformedURLException("Failed to initialize URL for Archivematica REST API call - the URL was malformed. {" + e.getMessage() + "}");
@@ -208,7 +190,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         connection.setDoOutput(true);
 
         String itemDirectoryName = document.getProject().getName() + "_" + document.getName();
-        String pathString = archivematicaTransferSourceLocationUUID + ":" + archivematicaTransferLocationDirectoryName + File.separator + itemDirectoryName;
+        String pathString = getArchivematicaTransferSourceLocationUUID() + ":" + getArchivematicaTransferLocationDirectoryName() + File.separator + itemDirectoryName;
         System.out.println("Transfer package path string: " + pathString);
         String encodedPath = Base64Utils.encodeToString(pathString.getBytes());
 
@@ -292,6 +274,41 @@ public class ArchivematicaFilesystemRepository implements Repository {
         return (responseNode.get("message").asText().equals("Copy successful."));
 
     }
+
+    public String getArchivematicaTopDirectory() throws IOException {
+    	String archivematicaDirectoryName = projectRepository.getSettingValues("archivematicaDirectoryName").get(0);
+    	String archivematicaTopDirectory;
+    	// if this is an absolute path (preceded with the file separator) treat it as such
+        if (archivematicaDirectoryName.startsWith(File.separator)) {
+            archivematicaTopDirectory = archivematicaDirectoryName;
+        } // otherwise, if this is not preceded with the file separator, then it
+          // will be a relative path in the MAGPIE static directory. Perhaps it
+          // could be symlinked to somewhere.
+        else {
+            archivematicaTopDirectory = resourceLoader.getResource("classpath:static").getURL().getPath() + File.separator + mount + File.separator + archivematicaDirectoryName;
+        }
+    	return archivematicaTopDirectory;
+    }
+    
+    public String getArchivematicaURL() {
+    	return projectRepository.getSettingValues("archivematicaURL").get(0);
+    }
+
+	public String getArchivematicaUsername() {
+		return projectRepository.getSettingValues("archivematicaUsername").get(0);
+	}
+
+	public String getArchivematicaAPIKey() {
+		return projectRepository.getSettingValues("archivematicaAPIKey").get(0);
+	}
+
+	public String getArchivematicaTransferSourceLocationUUID() {
+		return projectRepository.getSettingValues("archivematicaTransferSourceLocationUUID").get(0);
+	}
+
+	public String getArchivematicaTransferLocationDirectoryName() {
+		return projectRepository.getSettingValues("archivematicaTransferLocationDirectoryName").get(0);
+	}
 
     class OnlyTiff implements FilenameFilter {
         public boolean accept(File dir, String name) {
