@@ -74,7 +74,7 @@ public class ExportController {
      * 
      */
     @ApiMapping("/headers/{format}/{projectName}")
-    @Auth(role = "ROLE_USER")
+    @Auth(role = "ROLE_MANAGER")
     public ApiResponse getMetadataHeaders(@ApiVariable String projectName, @ApiVariable String format) {
         List<String> metadataHeaders = null;
         switch (format) {
@@ -92,7 +92,7 @@ public class ExportController {
     }
 
     @ApiMapping("/spotlight-csv/{project}")
-    @Auth(role = "ROLE_USER")
+    @Auth(role = "ROLE_MANAGER")
     public ApiResponse spotlightCsvExport(@ApiVariable String project) {
         List<List<String>> metadata = spotlightCsvExporter.extractMetadata(projectRepo.findByName(project));
         return new ApiResponse(SUCCESS, metadata);
@@ -108,7 +108,7 @@ public class ExportController {
      * 
      */
     @ApiMapping("/dspace-csv/{project}")
-    @Auth(role = "ROLE_USER")
+    @Auth(role = "ROLE_MANAGER")
     public ApiResponse dspaceCsvExport(@ApiVariable String project) {
         List<List<String>> metadata = dspaceCsvExporter.extractMetadata(projectRepo.findByName(project));
         return new ApiResponse(SUCCESS, metadata);
@@ -128,7 +128,7 @@ public class ExportController {
      * 
      */
     @ApiMapping("/dspace-saf/{project}")
-    @Auth(role = "ROLE_USER")
+    @Auth(role = "ROLE_MANAGER")
     public ApiResponse saf(@ApiVariable String project) throws IOException {
 
         logger.info("Generating SAF for project " + project);
