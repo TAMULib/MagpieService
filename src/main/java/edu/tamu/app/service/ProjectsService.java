@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -285,14 +284,12 @@ public class ProjectsService {
         return false;
     }
 
-    public synchronized Optional<Document> createDocument(File directory) {
-        return createDocument(directory.getParentFile().getName(), getName(directory));
+    public synchronized void createDocument(File directory) {
+        createDocument(directory.getParentFile().getName(), getName(directory));
     }
 
-    public synchronized Optional<Document> createDocument(String projectName, String documentName) {
+    public synchronized void createDocument(String projectName, String documentName) {
 
-    	Optional<Document> document = Optional.empty();
-    	
         logger.info("Creating document " + documentName);
 
         if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
@@ -300,35 +297,35 @@ public class ProjectsService {
 
             String documentPath = String.join(File.separator, mount, "projects", projectName, documentName);
 
-            Document doc = documentRepo.create(project, documentName, documentPath, "Open");
+            Document document = documentRepo.create(project, documentName, documentPath, "Open");
 
             for (MetadataFieldGroup field : getProjectFields(projectName)) {
                 // For headless projects, auto generate metadata
                 if (projectIsHeadless(projectName)) {
                     MetadataFieldValue mfv = new MetadataFieldValue();
                     mfv.setValue(field.getLabel().getProfile().getDefaultValue());
-                    MetadataFieldGroup mfg = metadataFieldGroupRepo.create(doc, field.getLabel());
+                    MetadataFieldGroup mfg = metadataFieldGroupRepo.create(document, field.getLabel());
                     mfg.addValue(mfv);
-                    doc.addField(mfg);
+                    document.addField(mfg);
                 } else {
-                    doc.addField(metadataFieldGroupRepo.create(doc, field.getLabel()));
+                    document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
                 }
             }
 
             // get the Authority Beans and populate document with each Authority
             for (ProjectAuthority authority : project.getAuthorities()) {
-                ((Authority) projectServiceRegistry.getService(authority.getName())).populate(doc);
+                ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
             }
 
-            doc = documentRepo.save(doc);
+            document = documentRepo.save(document);
 
-            project.addDocument(doc);
+            project.addDocument(document);
 
             // For headless projects, attempt to immediately push to registered repositories
             if (projectIsHeadless(projectName)) {
-                for (ProjectRepository repository : doc.getProject().getRepositories()) {
+                for (ProjectRepository repository : document.getProject().getRepositories()) {
                     try {
-                        doc = ((Repository) projectServiceRegistry.getService(repository.getName())).push(doc);
+                        document = ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
                     } catch (IOException e) {
                         logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
                         e.printStackTrace();
@@ -337,17 +334,13 @@ public class ProjectsService {
             }
 
             try {
-                simpMessagingTemplate.convertAndSend("/channel/new-document", new ApiResponse(SUCCESS, doc));
+                simpMessagingTemplate.convertAndSend("/channel/new-document", new ApiResponse(SUCCESS, document));
             } catch (Exception e) {
                 logger.error("Error broadcasting new document", e);
             }
-            
-            document = Optional.of(doc);
 
             projectRepo.save(project);
         }
-
-        return document;
     }
 
     public String getName(File directory) {
