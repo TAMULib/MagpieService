@@ -45,13 +45,10 @@ import edu.tamu.framework.model.ApiResponse;
 
 @Service
 public class ProjectsService {
-
-    @Value("${app.projects.file}")
-    private String initialProjectsFile;
-
-    private static final Logger logger = Logger.getLogger(ProjectsService.class);
-
-    private static final String DEFAULT_PROJECT_KEY = "default";
+	
+	private static final Logger logger = Logger.getLogger(ProjectsService.class);
+	
+	private static final String DEFAULT_PROJECT_KEY = "default";
     private static final String METADATA_KEY = "metadata";
     private static final String REPOSITORIES_KEY = "repositories";
     private static final String AUTHORITIES_KEY = "authorities";
@@ -66,6 +63,15 @@ public class ProjectsService {
     private static final String DEFAULT_KEY = "default";
     private static final String LABEL_KEY = "label";
     private static final String HEADLESS_KEY = "isHeadless";
+
+    @Value("${app.projects.file}")
+    private String initialProjectsFile;
+    
+    @Value("${app.host}")
+    private String host;
+
+    @Value("${app.mount}")
+    private String mount;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -94,12 +100,7 @@ public class ProjectsService {
     @Autowired
     private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
-    @Value("${app.host}")
-    private String host;
-
-    @Value("${app.mount}")
-    private String mount;
-
+    // TODO: initialize projects.json into database and remove this in memory cache
     private JsonNode projectsNode = null;
 
     public JsonNode readProjectsNode() {
@@ -119,11 +120,11 @@ public class ProjectsService {
         return projectsNode;
     }
 
-    public synchronized Project getOrCreateProject(File projectDirectory) {
+    public Project getOrCreateProject(File projectDirectory) {
         return getOrCreateProject(projectDirectory.getName());
     }
 
-    public synchronized Project getOrCreateProject(String projectName) {
+    public Project getOrCreateProject(String projectName) {
         Project project = projectRepo.findByName(projectName);
         if (project == null) {
             project = createProject(projectName);
@@ -131,7 +132,7 @@ public class ProjectsService {
         return project;
     }
 
-    public synchronized Project createProject(String projectName) {
+    public Project createProject(String projectName) {
 
         JsonNode projectNode = getProjectNode(projectName);
 
@@ -226,7 +227,7 @@ public class ProjectsService {
         return profileNode;
     }
 
-    public synchronized List<MetadataFieldGroup> getProjectFields(String projectName) {
+    public List<MetadataFieldGroup> getProjectFields(String projectName) {
 
         List<MetadataFieldGroup> projectFields = new ArrayList<MetadataFieldGroup>();
 
@@ -284,11 +285,11 @@ public class ProjectsService {
         return false;
     }
 
-    public synchronized void createDocument(File directory) {
+    public void createDocument(File directory) {
         createDocument(directory.getParentFile().getName(), directory.getName());
     }
 
-    public synchronized void createDocument(String projectName, String documentName) {
+    public void createDocument(String projectName, String documentName) {
 
         logger.info("Creating document " + documentName);
 
@@ -344,7 +345,7 @@ public class ProjectsService {
     }
 
     public void clear() {
-        projectsNode = null;
+    	projectsNode = null;
     }
 
 }

@@ -72,9 +72,8 @@ public class ProjectFileListener extends AbstractFileListener {
     }
 
     private void createDocument(File directory) {
-        logger.info("Creating document " + directory.getName());
-        
         if (directoryIsReady(directory)) {
+        	logger.info("Creating document " + directory.getName());
         	projectService.createDocument(directory);
         }
     }
@@ -87,6 +86,7 @@ public class ProjectFileListener extends AbstractFileListener {
     @Override
     public void onDirectoryCreate(File directory) {
         if (FileSystemUtility.getWindowsSafePath(directory.getParent()).equals(FileSystemUtility.getWindowsSafePath(getPath()))) {
+        	logger.info("Creating project " + directory.getName());
             createProject(directory);
         } else {
             createDocument(directory);
@@ -140,6 +140,7 @@ public class ProjectFileListener extends AbstractFileListener {
 		String path = document.getDocumentPath() + File.separator + file.getName();
 		String url = host + document.getDocumentPath() + File.separator + file.getName();
 		String mimeType = tika.detect(path);
+		logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
 		Resource resource = new Resource(name, path, url, mimeType);
 		document.addResource(resource);
 		documentRepo.save(document);
