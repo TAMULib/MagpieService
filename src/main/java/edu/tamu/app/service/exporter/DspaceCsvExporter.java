@@ -29,7 +29,7 @@ public class DspaceCsvExporter extends AbstractExporter {
 
             List<String> documentMetadata = new ArrayList<String>();
 
-            documentMetadata.add(document.getName() + ".pdf");
+            documentMetadata.add(document.getResourcesByMimeTypes("application/pdf").get(0).getName());
 
             metadataFields.forEach(field -> {
                 String values = null;
@@ -59,7 +59,7 @@ public class DspaceCsvExporter extends AbstractExporter {
 		Project project = projectRepo.findByName(projectName);
 		
 		List<String> metadataHeaders = performMetadataFieldsExtraction(project);
-		
+
     	metadataHeaders.add("BUNDLE:ORIGINAL");
 
         Collections.sort(metadataHeaders);
