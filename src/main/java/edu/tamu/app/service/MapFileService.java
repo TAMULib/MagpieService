@@ -25,9 +25,11 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.utilities.CsvUtility;
 
 @Service
-public class MapsService {
+public class MapFileService {
 
-    private static final Logger logger = Logger.getLogger(MapsService.class);
+    private static final Logger logger = Logger.getLogger(MapFileService.class);
+    
+    // TODO: get away from hardcoded mappings to projects.json
 
     // TODO: MapService needs to be scoped to a project
     private static final String DISSERTATION_PROJECT_NAME = "taes_misc_publication";
@@ -51,7 +53,7 @@ public class MapsService {
 
     private CsvUtility csvUtility;
 
-    public MapsService() {
+    public MapFileService() {
 
     }
 
