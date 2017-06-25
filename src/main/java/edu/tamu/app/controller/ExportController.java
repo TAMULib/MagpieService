@@ -5,7 +5,6 @@ import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.exporter.DspaceCsvExporter;
@@ -114,6 +114,8 @@ public class ExportController {
         return new ApiResponse(SUCCESS, metadata);
     }
 
+    // TODO: SAF creation should be in a service and not in the controller
+
     /**
      * Websocket endpoint to export saf.
      * 
@@ -127,7 +129,7 @@ public class ExportController {
      */
     @ApiMapping("/dspace-saf/{project}")
     @Auth(role = "ROLE_USER")
-    public ApiResponse saf(@ApiVariable String project) throws FileNotFoundException {
+    public ApiResponse saf(@ApiVariable String project) throws IOException {
 
         logger.info("Generating SAF for project " + project);
 
@@ -166,31 +168,21 @@ public class ExportController {
             File itemDirectory = new File(archiveDirectoryName + "/" + document.getName());
             itemDirectory.mkdir();
 
-            File originDir = null;
-            try {
-                // String documentDirectory = appContext.getResource("classpath:static" + document.getPdfPath()).getFile().getAbsolutePath();
-            	// TODO: get odf file from resource
-            	String documentDirectory = "";
-                documentDirectory = documentDirectory.substring(0, documentDirectory.length() - (document.getName().length() + 5));
-                originDir = new File(documentDirectory);
-                FileUtils.copyDirectory(originDir, itemDirectory);
-            } catch (IOException e) {
-                logger.error("Error copying document directory", e);
-                return new ApiResponse(ERROR, "Error copying document directory");
-            }
-
             PrintStream license = new PrintStream(itemDirectory + "/license.txt");
             license.print("The materials in this collection are hereby licensed.");
             license.flush();
             license.close();
-
+            
+            
             PrintStream manifest = new PrintStream(itemDirectory + "/contents");
-            for (File file : originDir.listFiles()) {
-                // if the file is of type txt, put it in the TEXT bundle.
-                // Otherwise, ORIGINAL is the place to put it.
-                String bundleName = file.getName().endsWith("txt") ? "TEXT" : "ORIGINAL";
-                manifest.print(file.getName() + "\tbundle:" + bundleName + "\tprimary:true\tpermissions:-r 'member'\n");
+            
+            for(Resource resource : document.getResources()) {
+        		FileUtils.copyFileToDirectory(appContext.getResource("classpath:static" + resource.getPath()).getFile(), itemDirectory);
+            	
+            	String bundleName = resource.getMimeType().equals("text/plain") ? "TEXT" : "ORIGINAL";
+                manifest.print(resource.getName() + "\tbundle:" + bundleName + "\tprimary:true\tpermissions:-r 'member'\n");
             }
+
             manifest.print("license.txt\tbundle:LICENSE");
             manifest.flush();
             manifest.close();
