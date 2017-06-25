@@ -10,7 +10,9 @@
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -201,6 +203,12 @@ public class Document extends BaseEntity {
             }
         }
         return targetField;
+    }
+
+    public List<Resource> getResourcesByMimeTypes(String... mimeTypes) {
+        return resources.stream().filter(resource -> {
+        	return Arrays.asList(mimeTypes).contains(resource.getMimeType());
+        }).collect(Collectors.toList());
     }
 
 }
