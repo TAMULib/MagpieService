@@ -3,6 +3,7 @@ package edu.tamu.app.service.suggestor;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.StringBuilder;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.Suggestion;
 
 public class NALTSuggestor implements Suggestor {
@@ -39,16 +41,17 @@ public class NALTSuggestor implements Suggestor {
         List<Suggestion> suggestions = new ArrayList<Suggestion>();
 
         try {
-            File file = File.createTempFile("tempFile", Long.toString(System.nanoTime()));
+            StringBuilder textBuilder = new StringBuilder();
 
-            file.deleteOnExit();
+            for(Resource resource : document.getResourcesByMimeTypes("text/plain")) {
+                File file = File.createTempFile(resource.getName(), Long.toString(System.nanoTime()));
+                file.deleteOnExit();
+                FileUtils.copyURLToFile(new URL(resource.getUrl()), file);
+                textBuilder.append(FileUtils.readFileToString(file, StandardCharsets.UTF_8).toLowerCase());
+                textBuilder.append("\n\n");
+            }
 
-            // TODO: get all text files from resources and concat into one
-            // FileUtils.copyURLToFile(new URL(document.getTxtUri()), file);
-
-            String text = FileUtils.readFileToString(file, StandardCharsets.UTF_8).toLowerCase();
-
-            JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(text)).get("payload");
+            JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(textBuilder.toString())).get("payload");
 
             JsonNode termOccurrenceArrayNode = payloadNode.get("ArrayList<TermOccurrence>") != null ? payloadNode.get("ArrayList<TermOccurrence>") : payloadNode.get("ArrayList");
 
