@@ -1,5 +1,7 @@
 package edu.tamu.app.service.exporter;
 
+import java.io.File;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,33 +40,33 @@ public class SpotlightCsvExporter extends AbstractExporter {
     public List<List<String>> extractMetadata(Project project) {
         List<List<String>> metadata = new ArrayList<List<String>>();
         project.getDocuments().stream().filter(isPublished()).collect(Collectors.<Document>toList()).forEach(document -> {
-            List<MetadataFieldGroup> metadataFields = document.getFields();
-            Collections.sort(metadataFields, new LabelComparator());
-            List<String> documentMetadata = new ArrayList<String>();
-            // TODO: this will not work until we can iterate over the resources to craft all the published urls
-            String publishedUrl = getPublishedUrl(document);
-            documentMetadata.add(0, publishedUrl);
-            metadataFields.forEach(field -> {
-                String values = null;
-                boolean firstPass = true;
-                for (MetadataFieldValue medataFieldValue : field.getValues()) {
-                    if (firstPass) {
-                        values = medataFieldValue.getValue();
-                        firstPass = false;
-                    } else {
-                        values += ", " + medataFieldValue.getValue();
+            document.getResources().stream().forEach(resource -> {
+                List<MetadataFieldGroup> metadataFields = document.getFields();
+                Collections.sort(metadataFields, new LabelComparator());
+                List<String> documentMetadata = new ArrayList<String>();
+                String publishedUrl = getPublishedUrl(document) + File.separator + resource.getName();
+                documentMetadata.add(0, publishedUrl);
+                metadataFields.forEach(field -> {
+                    String values = null;
+                    boolean firstPass = true;
+                    for (MetadataFieldValue medataFieldValue : field.getValues()) {
+                        if (firstPass) {
+                            values = medataFieldValue.getValue();
+                            firstPass = false;
+                        } else {
+                            values += ", " + medataFieldValue.getValue();
+                        }
                     }
-                }
-                String mappedHeader = mapping.get(field.getLabel().getName());
-                if (mappedHeader != null) {
+                    String mappedHeader = mapping.get(field.getLabel().getName());
+                    if (mappedHeader != null) {
+                        documentMetadata.add(values);
+                    }
                     documentMetadata.add(values);
-                }
-                documentMetadata.add(values);
+                });
+                metadata.add(documentMetadata);
             });
-            metadata.add(documentMetadata);
         });
         return metadata;
-
     }
 
     @Override
