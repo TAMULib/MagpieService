@@ -72,7 +72,7 @@ public class ProjectFileListener extends AbstractFileListener {
     }
 
     private void createDocument(File directory) {
-        logger.info("ProjectFileListener is creating document " + directory.getName());
+        logger.info("Creating document " + directory.getName());
         
         if (directoryIsReady(directory)) {
         	projectService.createDocument(directory);
@@ -107,6 +107,7 @@ public class ProjectFileListener extends AbstractFileListener {
     public void onFileCreate(File file) {
     	String documentName = file.getParentFile().getName();
     	String projectName = file.getParentFile().getParentFile().getName();
+    	logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
     	Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
     	addResource(document, file);
     }
@@ -127,7 +128,7 @@ public class ProjectFileListener extends AbstractFileListener {
     }
     
     private boolean isHeadless(File directory) {
-    	return projectService.projectIsHeadless(projectService.getName(directory.getParentFile()));
+    	return projectService.projectIsHeadless(directory.getParentFile().getName());
     }
     
     private String projectDocumentKey(String projectName, String documentName) {

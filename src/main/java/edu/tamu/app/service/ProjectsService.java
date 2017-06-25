@@ -120,7 +120,7 @@ public class ProjectsService {
     }
 
     public synchronized Project getOrCreateProject(File projectDirectory) {
-        return getOrCreateProject(getName(projectDirectory));
+        return getOrCreateProject(projectDirectory.getName());
     }
 
     public synchronized Project getOrCreateProject(String projectName) {
@@ -285,7 +285,7 @@ public class ProjectsService {
     }
 
     public synchronized void createDocument(File directory) {
-        createDocument(directory.getParentFile().getName(), getName(directory));
+        createDocument(directory.getParentFile().getName(), directory.getName());
     }
 
     public synchronized void createDocument(String projectName, String documentName) {
@@ -341,10 +341,6 @@ public class ProjectsService {
 
             projectRepo.save(project);
         }
-    }
-
-    public String getName(File directory) {
-        return directory.getPath().substring(directory.getParent().length() + 1);
     }
 
     public void clear() {
