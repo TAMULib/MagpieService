@@ -34,17 +34,17 @@ public abstract class AbstractFedoraRepository implements Repository {
     protected static final Logger logger = Logger.getLogger(AbstractFedoraRepository.class);
 
     @Value("${app.mount}")
-    protected String mount;
+    private String mount;
 
     @Autowired
-    protected ResourceLoader resourceLoader;
+    private ResourceLoader resourceLoader;
 
     @Autowired
-    protected DocumentRepo documentRepo;
+    private DocumentRepo documentRepo;
 
-    protected ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
 
-    protected Optional<String> transactionalUrl;
+    private Optional<String> transactionalUrl;
 
     public AbstractFedoraRepository(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
@@ -231,24 +231,32 @@ public abstract class AbstractFedoraRepository implements Repository {
         return new URL(path);
     }
 
-    public String getRepoUrl() {
+    protected String getRepoUrl() {
         return projectRepository.getSettingValues("repoUrl").get(0);
     }
 
-    public String getRestPath() {
+    protected String getRestPath() {
         return projectRepository.getSettingValues("restPath").get(0);
     }
 
-    public String getContainerPath() {
+    protected String getContainerPath() {
         return projectRepository.getSettingValues("containerPath").get(0);
     }
 
-    public String getUsername() {
+    protected String getUsername() {
         return projectRepository.getSettingValues("userName").get(0);
     }
 
-    public String getPassword() {
+    protected String getPassword() {
         return projectRepository.getSettingValues("password").get(0);
+    }
+
+    protected ResourceLoader getResourceLoader() {
+        return resourceLoader;
+    }
+
+    protected Optional<String> getTransactionalUrl() {
+        return transactionalUrl;
     }
 
     abstract void prepForPush() throws IOException;

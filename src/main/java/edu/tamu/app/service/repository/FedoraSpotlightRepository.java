@@ -28,7 +28,7 @@ public class FedoraSpotlightRepository extends AbstractFedoraRepository {
 
     protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
 
-        File file = resourceLoader.getResource("classpath:static" + filePath).getFile();
+        File file = getResourceLoader().getResource("classpath:static" + filePath).getFile();
         FileInputStream fileStrm = new FileInputStream(file);
         byte[] fileBytes = IOUtils.toByteArray(fileStrm);
         HttpURLConnection connection = buildFedoraConnection(itemContainerPath, "POST");
