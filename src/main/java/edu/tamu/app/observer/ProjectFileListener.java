@@ -130,11 +130,7 @@ public class ProjectFileListener extends AbstractFileListener {
     private boolean isHeadless(File directory) {
     	return projectService.projectIsHeadless(directory.getParentFile().getName());
     }
-    
-    private String projectDocumentKey(String projectName, String documentName) {
-    	return String.join("-", projectName, documentName);
-    }
-    
+
     private void addResource(Document document, File file) {
     	String name = file.getName();
 		String path = document.getDocumentPath() + File.separator + file.getName();
