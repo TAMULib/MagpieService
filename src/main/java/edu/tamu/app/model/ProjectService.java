@@ -1,7 +1,5 @@
 package edu.tamu.app.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +28,7 @@ public abstract class ProjectService extends BaseEntity {
     @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<ProjectSetting> settings;
-    
+
     public ProjectService() {
         settings = new ArrayList<ProjectSetting>();
     }

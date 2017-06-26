@@ -1,6 +1,5 @@
 package edu.tamu.app.service.registry;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,7 +63,7 @@ public class MagpieServiceRegistry {
             service = (MagpieService) new NALTSuggestor(projectService.getSettingValues("pelicanUrl").size() > 0 ? projectService.getSettingValues("pelicanUrl").get(0) : "", projectService.getSettingValues("subjectLabel").size() > 0 ? projectService.getSettingValues("subjectLabel").get(0) : "");
             break;
         case ARCHIVEMATICA:
-        	service = (MagpieService) new ArchivematicaFilesystemRepository((ProjectRepository) projectService);
+            service = (MagpieService) new ArchivematicaFilesystemRepository((ProjectRepository) projectService);
             break;
         default:
             logger.info("Unidentified service type: " + projectService.getType());

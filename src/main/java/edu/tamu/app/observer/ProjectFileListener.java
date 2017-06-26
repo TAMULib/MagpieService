@@ -1,7 +1,6 @@
 package edu.tamu.app.observer;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
@@ -20,8 +19,8 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @Component
 @Scope("prototype")
 public class ProjectFileListener extends AbstractFileListener {
-	
-	private static final Logger logger = Logger.getLogger(ProjectFileListener.class);
+
+    private static final Logger logger = Logger.getLogger(ProjectFileListener.class);
 
     @Value("${app.document.create.wait}")
     private int documentCreationWait;
@@ -31,13 +30,13 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Value("${app.mount}")
     private String mount;
-    
+
     @Autowired
     private ProjectsService projectService;
-    
+
     @Autowired
     private DocumentRepo documentRepo;
-    
+
     private Tika tika;
 
     public ProjectFileListener(String root, String folder) {
@@ -54,7 +53,7 @@ public class ProjectFileListener extends AbstractFileListener {
     // this is a blocking sleep operation of this listener
     private boolean directoryIsReady(File directory) {
         if (isHeadless(directory)) {
-        	long lastModified = 0L;
+            long lastModified = 0L;
             long oldLastModified = -1L;
             long stableTime = 0L;
             // if a document directory in a headless project hasn't been modified in the last 10 seconds, it's probably ready
@@ -73,8 +72,8 @@ public class ProjectFileListener extends AbstractFileListener {
 
     private void createDocument(File directory) {
         if (directoryIsReady(directory)) {
-        	logger.info("Creating document " + directory.getName());
-        	projectService.createDocument(directory);
+            logger.info("Creating document " + directory.getName());
+            projectService.createDocument(directory);
         }
     }
 
@@ -86,7 +85,7 @@ public class ProjectFileListener extends AbstractFileListener {
     @Override
     public void onDirectoryCreate(File directory) {
         if (FileSystemUtility.getWindowsSafePath(directory.getParent()).equals(FileSystemUtility.getWindowsSafePath(getPath()))) {
-        	logger.info("Creating project " + directory.getName());
+            logger.info("Creating project " + directory.getName());
             createProject(directory);
         } else {
             createDocument(directory);
@@ -105,11 +104,11 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Override
     public void onFileCreate(File file) {
-    	String documentName = file.getParentFile().getName();
-    	String projectName = file.getParentFile().getParentFile().getName();
-    	logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
-    	Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
-    	addResource(document, file);
+        String documentName = file.getParentFile().getName();
+        String projectName = file.getParentFile().getParentFile().getName();
+        logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
+        Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+        addResource(document, file);
     }
 
     @Override
@@ -126,20 +125,20 @@ public class ProjectFileListener extends AbstractFileListener {
     public void onStop(FileAlterationObserver observer) {
 
     }
-    
+
     private boolean isHeadless(File directory) {
-    	return projectService.projectIsHeadless(directory.getParentFile().getName());
+        return projectService.projectIsHeadless(directory.getParentFile().getName());
     }
 
     private void addResource(Document document, File file) {
-    	String name = file.getName();
-		String path = document.getDocumentPath() + File.separator + file.getName();
-		String url = host + document.getDocumentPath() + File.separator + file.getName();
-		String mimeType = tika.detect(path);
-		logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
-		Resource resource = new Resource(name, path, url, mimeType);
-		document.addResource(resource);
-		documentRepo.save(document);
+        String name = file.getName();
+        String path = document.getDocumentPath() + File.separator + file.getName();
+        String url = host + document.getDocumentPath() + File.separator + file.getName();
+        String mimeType = tika.detect(path);
+        logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
+        Resource resource = new Resource(name, path, url, mimeType);
+        document.addResource(resource);
+        documentRepo.save(document);
     }
 
 }
