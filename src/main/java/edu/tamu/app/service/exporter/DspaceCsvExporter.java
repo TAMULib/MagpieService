@@ -16,14 +16,14 @@ import edu.tamu.app.model.Project;
 @Service
 public class DspaceCsvExporter extends AbstractExporter {
 
-	@Override
-	public List<List<String>> extractMetadata(Project project) {
-		
+    @Override
+    public List<List<String>> extractMetadata(Project project) {
+
         List<List<String>> metadata = new ArrayList<List<String>>();
-		
-		project.getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList()).forEach(document -> {
-			
-			List<MetadataFieldGroup> metadataFields = document.getFields();
+
+        project.getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList()).forEach(document -> {
+
+            List<MetadataFieldGroup> metadataFields = document.getFields();
 
             Collections.sort(metadataFields, new LabelComparator());
 
@@ -46,27 +46,27 @@ public class DspaceCsvExporter extends AbstractExporter {
             });
 
             metadata.add(documentMetadata);
-		
-		});
-		
-		return metadata;
-		
-	}
 
-	@Override
-	public List<String> extractMetadataFields(String projectName) {
-		
-		Project project = projectRepo.findByName(projectName);
-		
-		List<String> metadataHeaders = performMetadataFieldsExtraction(project);
+        });
 
-    	metadataHeaders.add("BUNDLE:ORIGINAL");
+        return metadata;
+
+    }
+
+    @Override
+    public List<String> extractMetadataFields(String projectName) {
+
+        Project project = projectRepo.findByName(projectName);
+
+        List<String> metadataHeaders = performMetadataFieldsExtraction(project);
+
+        metadataHeaders.add("BUNDLE:ORIGINAL");
 
         Collections.sort(metadataHeaders);
-        
-		System.out.println("SORTED LIST:" + metadataHeaders);
-        
-		return metadataHeaders;
-	}
+
+        System.out.println("SORTED LIST:" + metadataHeaders);
+
+        return metadataHeaders;
+    }
 
 }

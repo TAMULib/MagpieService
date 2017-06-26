@@ -45,10 +45,10 @@ import edu.tamu.framework.model.ApiResponse;
 
 @Service
 public class ProjectsService {
-	
-	private static final Logger logger = Logger.getLogger(ProjectsService.class);
-	
-	private static final String DEFAULT_PROJECT_KEY = "default";
+
+    private static final Logger logger = Logger.getLogger(ProjectsService.class);
+
+    private static final String DEFAULT_PROJECT_KEY = "default";
     private static final String METADATA_KEY = "metadata";
     private static final String REPOSITORIES_KEY = "repositories";
     private static final String AUTHORITIES_KEY = "authorities";
@@ -66,7 +66,7 @@ public class ProjectsService {
 
     @Value("${app.projects.file}")
     private String initialProjectsFile;
-    
+
     @Value("${app.host}")
     private String host;
 
@@ -345,7 +345,7 @@ public class ProjectsService {
     }
 
     public void clear() {
-    	projectsNode = null;
+        projectsNode = null;
     }
 
 }

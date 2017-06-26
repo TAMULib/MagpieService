@@ -172,14 +172,13 @@ public class ExportController {
             license.print("The materials in this collection are hereby licensed.");
             license.flush();
             license.close();
-            
-            
+
             PrintStream manifest = new PrintStream(itemDirectory + "/contents");
-            
-            for(Resource resource : document.getResources()) {
-        		FileUtils.copyFileToDirectory(appContext.getResource("classpath:static" + resource.getPath()).getFile(), itemDirectory);
-            	
-            	String bundleName = resource.getMimeType().equals("text/plain") ? "TEXT" : "ORIGINAL";
+
+            for (Resource resource : document.getResources()) {
+                FileUtils.copyFileToDirectory(appContext.getResource("classpath:static" + resource.getPath()).getFile(), itemDirectory);
+
+                String bundleName = resource.getMimeType().equals("text/plain") ? "TEXT" : "ORIGINAL";
                 manifest.print(resource.getName() + "\tbundle:" + bundleName + "\tprimary:true\tpermissions:-r 'member'\n");
             }
 

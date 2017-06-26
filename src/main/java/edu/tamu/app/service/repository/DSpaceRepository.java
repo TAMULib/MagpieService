@@ -298,83 +298,83 @@ public class DSpaceRepository implements Repository {
         return responseNode;
     }
 
-	private void addBitstreams(String itemId, Document document) throws IOException {
-		addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("application/pdf")));
-		addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("text/plain"), "TEXT"));
-		addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("image/jpeg", "image/jpg", "image/bmp", "image/gif", "image/png", "image/svg", "image/tiff", "image/jp2")));
-	}
+    private void addBitstreams(String itemId, Document document) throws IOException {
+        addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("application/pdf")));
+        addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("text/plain"), "TEXT"));
+        addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("image/jpeg", "image/jpg", "image/bmp", "image/gif", "image/png", "image/svg", "image/tiff", "image/jp2")));
+    }
 
-	private void addBitstreams(Bitstreams bitstreams) throws IOException {
-		for (Resource resource : bitstreams.getResources()) {
+    private void addBitstreams(Bitstreams bitstreams) throws IOException {
+        for (Resource resource : bitstreams.getResources()) {
 
-			// *************************************
-			// POST file
-			// *************************************
-			// add the bitstream
-			URL addBitstreamUrl;
-			try {
-				// TODO: use name of resource
-				addBitstreamUrl = new URL(getRepoUrl() + "/rest/items/" + bitstreams.getItemId() + "/bitstreams?name=" + resource.getName());
-			} catch (MalformedURLException e) {
-				MalformedURLException murle = new MalformedURLException("Failed to add pdf bitstream; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}");
-				murle.setStackTrace(e.getStackTrace());
-				cleanUpFailedPublish(bitstreams.getItemId());
-				throw murle;
-			}
+            // *************************************
+            // POST file
+            // *************************************
+            // add the bitstream
+            URL addBitstreamUrl;
+            try {
+                // TODO: use name of resource
+                addBitstreamUrl = new URL(getRepoUrl() + "/rest/items/" + bitstreams.getItemId() + "/bitstreams?name=" + resource.getName());
+            } catch (MalformedURLException e) {
+                MalformedURLException murle = new MalformedURLException("Failed to add pdf bitstream; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}");
+                murle.setStackTrace(e.getStackTrace());
+                cleanUpFailedPublish(bitstreams.getItemId());
+                throw murle;
+            }
 
-			File file = resourceLoader.getResource("classpath:static" + resource.getPath()).getFile();
-			FileInputStream stream = new FileInputStream(file);
-			byte[] bytes = IOUtils.toByteArray(stream);
-			stream.close();
+            File file = resourceLoader.getResource("classpath:static" + resource.getPath()).getFile();
+            FileInputStream stream = new FileInputStream(file);
+            byte[] bytes = IOUtils.toByteArray(stream);
+            stream.close();
 
-			ObjectNode bitstreamMetadataJson = null;
-			try {
-				bitstreamMetadataJson = (ObjectNode) doRESTRequest(addBitstreamUrl, "POST", bytes, resource.getMimeType(), "post bitstream");
-			} catch (Exception e) {
-				cleanUpFailedPublish(bitstreams.getItemId());
-				throw e;
-			}
+            ObjectNode bitstreamMetadataJson = null;
+            try {
+                bitstreamMetadataJson = (ObjectNode) doRESTRequest(addBitstreamUrl, "POST", bytes, resource.getMimeType(), "post bitstream");
+            } catch (Exception e) {
+                cleanUpFailedPublish(bitstreams.getItemId());
+                throw e;
+            }
 
-			// *************************************
-			// PUT bitstream metadata
-			// *************************************
-			// put a resource policy for member group access on the pdf bitstream
-			// REST endpoint is PUT /bitstreams/{bitstream uuid} - Update metadata of
-			// bitstream. You must put a Bitstream, does not alter the file/data
-			// Fix up the PDF bitstream metadata to have new policy, etc.
+            // *************************************
+            // PUT bitstream metadata
+            // *************************************
+            // put a resource policy for member group access on the pdf bitstream
+            // REST endpoint is PUT /bitstreams/{bitstream uuid} - Update metadata of
+            // bitstream. You must put a Bitstream, does not alter the file/data
+            // Fix up the PDF bitstream metadata to have new policy, etc.
 
-			String uuid = bitstreamMetadataJson.get("uuid").asText();
+            String uuid = bitstreamMetadataJson.get("uuid").asText();
 
-			ArrayNode policiesNode = bitstreamMetadataJson.putArray("policies");
-			ObjectNode policyNode = objectMapper.createObjectNode();
-			policyNode.put("action", "READ");
-			policyNode.put("groupId", getGroupId());
-			policyNode.put("rpType", "TYPE_CUSTOM");
-			policiesNode.add(policyNode);
+            ArrayNode policiesNode = bitstreamMetadataJson.putArray("policies");
+            ObjectNode policyNode = objectMapper.createObjectNode();
+            policyNode.put("action", "READ");
+            policyNode.put("groupId", getGroupId());
+            policyNode.put("rpType", "TYPE_CUSTOM");
+            policiesNode.add(policyNode);
 
-			if (bitstreams.getBundleName().isPresent()) {
-				bitstreamMetadataJson.put("bundleName", bitstreams.getBundleName().get());
-			}
+            if (bitstreams.getBundleName().isPresent()) {
+                bitstreamMetadataJson.put("bundleName", bitstreams.getBundleName().get());
+            }
 
-			URL addPolicyUrl;
-			try {
-				addPolicyUrl = new URL(getRepoUrl() + "/rest/bitstreams/" + uuid);
-			} catch (MalformedURLException e) {
-				MalformedURLException murle = new MalformedURLException("Failed to update bitstream metadata; the REST URL to PUT the policy was malformed. {" + e.getMessage() + "}");
-				murle.setStackTrace(e.getStackTrace());
-				cleanUpFailedPublish(bitstreams.getItemId());
-				throw murle;
-			}
+            URL addPolicyUrl;
+            try {
+                addPolicyUrl = new URL(getRepoUrl() + "/rest/bitstreams/" + uuid);
+            } catch (MalformedURLException e) {
+                MalformedURLException murle = new MalformedURLException("Failed to update bitstream metadata; the REST URL to PUT the policy was malformed. {" + e.getMessage() + "}");
+                murle.setStackTrace(e.getStackTrace());
+                cleanUpFailedPublish(bitstreams.getItemId());
+                throw murle;
+            }
 
-			try {
-				doRESTRequest(addPolicyUrl, "PUT", bitstreamMetadataJson.toString().getBytes(), "application/json", "update bitstream metadata");
-			} catch (Exception e) {
-				cleanUpFailedPublish(bitstreams.getItemId());
-				throw e;
-			}
+            try {
+                doRESTRequest(addPolicyUrl, "PUT", bitstreamMetadataJson.toString().getBytes(), "application/json", "update bitstream metadata");
+            } catch (Exception e) {
+                cleanUpFailedPublish(bitstreams.getItemId());
+                throw e;
+            }
 
-		}
-	}
+        }
+    }
 
     private String generateItemPostXMLFromDocument(Document document) throws ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -427,7 +427,7 @@ public class DSpaceRepository implements Repository {
             throw murle;
         }
 
-    	doRESTRequest(deleteItemUrl, "DELETE", "".getBytes(), "application/json", "delete item");
+        doRESTRequest(deleteItemUrl, "DELETE", "".getBytes(), "application/json", "delete item");
 
         // logout to kill session
         logout();
@@ -440,38 +440,38 @@ public class DSpaceRepository implements Repository {
         }
     }
 
-	class Bitstreams {
+    class Bitstreams {
 
-		private String itemId;
+        private String itemId;
 
-		private List<Resource> resources;
+        private List<Resource> resources;
 
-		private Optional<String> bundleName;
+        private Optional<String> bundleName;
 
-		public Bitstreams(String itemId, List<Resource> resources) {
-			this.itemId = itemId;
-			this.resources = resources;
-			this.bundleName = Optional.empty();
-		}
+        public Bitstreams(String itemId, List<Resource> resources) {
+            this.itemId = itemId;
+            this.resources = resources;
+            this.bundleName = Optional.empty();
+        }
 
-		public Bitstreams(String itemId, List<Resource> resources, String bundleName) {
-			this(itemId, resources);
-			this.bundleName = Optional.of(bundleName);
-		}
+        public Bitstreams(String itemId, List<Resource> resources, String bundleName) {
+            this(itemId, resources);
+            this.bundleName = Optional.of(bundleName);
+        }
 
-		public String getItemId() {
-			return itemId;
-		}
+        public String getItemId() {
+            return itemId;
+        }
 
-		public List<Resource> getResources() {
-			return resources;
-		}
+        public List<Resource> getResources() {
+            return resources;
+        }
 
-		public Optional<String> getBundleName() {
-			return bundleName;
-		}
+        public Optional<String> getBundleName() {
+            return bundleName;
+        }
 
-	}
+    }
 
     public String getRepoUrl() {
         return projectRepository.getSettingValues("repoUrl").get(0);

@@ -49,7 +49,7 @@ public class MapFileListener extends AbstractFileListener {
     public void onFileCreate(File file) {
         logger.info("Reading map file: " + file.getName());
         try {
-        	mapFileService.readMapFile(file);
+            mapFileService.readMapFile(file);
         } catch (IOException e) {
             logger.error(e);
         }

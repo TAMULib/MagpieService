@@ -28,7 +28,7 @@ import edu.tamu.app.utilities.CsvUtility;
 public class MapFileService {
 
     private static final Logger logger = Logger.getLogger(MapFileService.class);
-    
+
     // TODO: get away from hardcoded mappings to projects.json
 
     // TODO: MapService needs to be scoped to a project

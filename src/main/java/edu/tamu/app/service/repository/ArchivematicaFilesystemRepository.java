@@ -48,14 +48,14 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
     @Autowired
     private ObjectMapper objectMapper;
-    
+
     private ProjectRepository projectRepository;
 
     private CsvUtility csvUtility;
 
     public ArchivematicaFilesystemRepository(ProjectRepository projectRepository) {
-    	this.projectRepository = projectRepository;
-    	this.csvUtility = new CsvUtility(this.projectRepository);
+        this.projectRepository = projectRepository;
+        this.csvUtility = new CsvUtility(this.projectRepository);
     }
 
     @Override
@@ -106,11 +106,10 @@ public class ArchivematicaFilesystemRepository implements Repository {
             // make the md5hash listing from the tiffs
             addChecksumToListing(tiff, md5Listing);
         }
-        
+
         // write the metadata csv in the metadata subdirectory
         // write the ArchiveMatica CSV for this document
         this.csvUtility.generateOneArchiveMaticaCSV(document, metadataSubdirectory.getPath());
-
 
         // copy the item directory and tiffs to the objects subdirectory
         for (File tiff : tiffFiles) {
@@ -276,9 +275,9 @@ public class ArchivematicaFilesystemRepository implements Repository {
     }
 
     public String getArchivematicaTopDirectory() throws IOException {
-    	String archivematicaDirectoryName = projectRepository.getSettingValues("archivematicaDirectoryName").get(0);
-    	String archivematicaTopDirectory;
-    	// if this is an absolute path (preceded with the file separator) treat it as such
+        String archivematicaDirectoryName = projectRepository.getSettingValues("archivematicaDirectoryName").get(0);
+        String archivematicaTopDirectory;
+        // if this is an absolute path (preceded with the file separator) treat it as such
         if (archivematicaDirectoryName.startsWith(File.separator)) {
             archivematicaTopDirectory = archivematicaDirectoryName;
         } // otherwise, if this is not preceded with the file separator, then it
@@ -287,28 +286,28 @@ public class ArchivematicaFilesystemRepository implements Repository {
         else {
             archivematicaTopDirectory = resourceLoader.getResource("classpath:static").getURL().getPath() + File.separator + mount + File.separator + archivematicaDirectoryName;
         }
-    	return archivematicaTopDirectory;
+        return archivematicaTopDirectory;
     }
-    
+
     public String getArchivematicaURL() {
-    	return projectRepository.getSettingValues("archivematicaURL").get(0);
+        return projectRepository.getSettingValues("archivematicaURL").get(0);
     }
 
-	public String getArchivematicaUsername() {
-		return projectRepository.getSettingValues("archivematicaUsername").get(0);
-	}
+    public String getArchivematicaUsername() {
+        return projectRepository.getSettingValues("archivematicaUsername").get(0);
+    }
 
-	public String getArchivematicaAPIKey() {
-		return projectRepository.getSettingValues("archivematicaAPIKey").get(0);
-	}
+    public String getArchivematicaAPIKey() {
+        return projectRepository.getSettingValues("archivematicaAPIKey").get(0);
+    }
 
-	public String getArchivematicaTransferSourceLocationUUID() {
-		return projectRepository.getSettingValues("archivematicaTransferSourceLocationUUID").get(0);
-	}
+    public String getArchivematicaTransferSourceLocationUUID() {
+        return projectRepository.getSettingValues("archivematicaTransferSourceLocationUUID").get(0);
+    }
 
-	public String getArchivematicaTransferLocationDirectoryName() {
-		return projectRepository.getSettingValues("archivematicaTransferLocationDirectoryName").get(0);
-	}
+    public String getArchivematicaTransferLocationDirectoryName() {
+        return projectRepository.getSettingValues("archivematicaTransferLocationDirectoryName").get(0);
+    }
 
     class OnlyTiff implements FilenameFilter {
         public boolean accept(File dir, String name) {
