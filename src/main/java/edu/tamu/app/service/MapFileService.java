@@ -1,5 +1,7 @@
 package edu.tamu.app.service;
 
+import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.enums.ServiceType;
@@ -23,6 +26,7 @@ import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.utilities.CsvUtility;
+import edu.tamu.framework.model.ApiResponse;
 
 @Service
 public class MapFileService {
@@ -43,13 +47,16 @@ public class MapFileService {
     private String mount;
 
     @Autowired
-    private ResourceLoader resourceLoader;
-
-    @Autowired
     private ProjectRepo projectRepo;
 
     @Autowired
     private DocumentRepo documentRepo;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     private CsvUtility csvUtility;
 
@@ -95,11 +102,17 @@ public class MapFileService {
                 updateDoc.setStatus(CHANGE_STATUS);
 
                 // TODO: improve method of retrieving project configurations
-                String publishedUrl = updateDoc.getProject().getRepositories().get(0).getSettingValues("repoUrl") + "/" + documentHandle;
+                String publishedUrl = String.join("/", updateDoc.getProject().getRepositories().get(0).getSettingValues("repoUrl").get(0), updateDoc.getProject().getRepositories().get(0).getSettingValues("repoContextPath").get(0), documentHandle);
 
                 updateDoc.addPublishedLocation(new PublishedLocation(projectRepository, publishedUrl));
 
-                documentRepo.save(updateDoc);
+                updateDoc = documentRepo.save(updateDoc);
+                
+                try {
+                    simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, updateDoc));
+                } catch (Exception e) {
+                    logger.error("Error broadcasting new document", e);
+                }
 
                 logger.info("Setting status of Document: " + updateDoc.getName() + " to " + CHANGE_STATUS);
             } else {
