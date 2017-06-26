@@ -18,6 +18,7 @@ import org.springframework.core.io.ResourceLoader;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
+import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.utilities.FileSystemUtility;
 
@@ -25,33 +26,27 @@ public class CSVAuthority implements Authority {
 
     private static final Logger logger = Logger.getLogger(CSVAuthority.class);
 
-    private String identifier;
+    @Autowired
+    private ResourceLoader resourceLoader;
 
-    private String delimeter;
+    @Autowired
+    private MetadataFieldValueRepo metadataFieldValueRepo;
 
-    private List<String> paths;
-    
     private Map<String, String[]> headers;
 
     private Map<String, Map<String, CSVRecord>> records;
 
-    @Autowired
-    private ResourceLoader resourceLoader;
-    
-    @Autowired
-    private MetadataFieldValueRepo metadataFieldValueRepo;
+    private ProjectAuthority projectAuthority;
 
-    public CSVAuthority(List<String> paths, String identifier, String delimeter) {
-        this.paths = paths;
-        this.identifier = identifier;
-        this.delimeter = delimeter;
+    public CSVAuthority(ProjectAuthority projectAuthority) {
+        this.projectAuthority = projectAuthority;
         headers = new HashMap<String, String[]>();
         records = new HashMap<String, Map<String, CSVRecord>>();
     }
 
     @Override
     public Document populate(Document document) {
-        paths.forEach(path -> {
+        getPaths().forEach(path -> {
             if (this.records.get(path) == null) {
                 cacheRecords(path);
             }
@@ -60,12 +55,12 @@ public class CSVAuthority implements Authority {
             if (record != null) {
                 List<MetadataFieldGroup> mfgs = new ArrayList<MetadataFieldGroup>();
                 for (String header : headers) {
-                    if (header.equals(identifier)) {
+                    if (header.equals(getIdentifier())) {
                         continue;
                     }
                     String cellValue = record.get(header);
                     if (cellValue != null) {
-                        String[] values = cellValue.split(Pattern.quote(delimeter));
+                        String[] values = cellValue.split(Pattern.quote(getDelimeter()));
                         if (values != null) {
                             MetadataFieldGroup mfg = document.getFieldByLabel(header);
                             if (mfg != null) {
@@ -79,8 +74,7 @@ public class CSVAuthority implements Authority {
                                 logger.debug("No MetadataFieldGroup with label: " + header);
                             }
                         }
-                    }
-                    else {
+                    } else {
                         logger.debug("No row with header: " + header);
                     }
                 }
@@ -92,27 +86,27 @@ public class CSVAuthority implements Authority {
 
     private void cacheRecords(String path) {
         logger.info("Caching " + path);
-        try {            
-            CSVParser csvParser;            
+        try {
+            CSVParser csvParser;
             if (this.headers.get(path) == null) {
                 logger.info("Getting headers from " + path);
                 csvParser = getParser(path);
                 this.headers.put(path, getHeaders(csvParser.getRecords().get(0)));
                 csvParser.close();
             }
-            
-            Map<String, CSVRecord> currentRecords = new HashMap<String, CSVRecord>();               
-            csvParser = getParser(path);            
+
+            Map<String, CSVRecord> currentRecords = new HashMap<String, CSVRecord>();
+            csvParser = getParser(path);
             csvParser.getRecords().forEach(record -> {
-                String filename = record.get(identifier);
+                String filename = record.get(getIdentifier());
                 if (filename != null) {
                     currentRecords.put(filename, record);
                 } else {
                     logger.info("Record without filename found!");
                 }
-            });            
+            });
             csvParser.close();
-            
+
             records.put(path, currentRecords);
         } catch (IOException e) {
             e.printStackTrace();
@@ -134,13 +128,24 @@ public class CSVAuthority implements Authority {
     private CSVParser getParser(String path) throws FileNotFoundException, IOException {
         CSVParser csvParser;
         String[] headers = this.headers.get(path);
-        if(headers == null) {
+        if (headers == null) {
             csvParser = new CSVParser(new FileReader(getCsvAbsolutePath(path)), CSVFormat.RFC4180);
-        }
-        else {
+        } else {
             csvParser = new CSVParser(new FileReader(getCsvAbsolutePath(path)), CSVFormat.RFC4180.withHeader(headers));
         }
         return csvParser;
+    }
+
+    public List<String> getPaths() {
+        return projectAuthority.getSettingValues("paths");
+    }
+
+    public String getIdentifier() {
+        return projectAuthority.getSettingValues("identifier").get(0);
+    }
+
+    public String getDelimeter() {
+        return projectAuthority.getSettingValues("delimeter").get(0);
     }
 
 }

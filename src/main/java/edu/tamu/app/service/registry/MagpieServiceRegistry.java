@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ProjectService;
+import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.service.authority.CSVAuthority;
 import edu.tamu.app.service.authority.VoyagerAuthority;
 import edu.tamu.app.service.repository.ArchivematicaFilesystemRepository;
@@ -51,16 +53,13 @@ public class MagpieServiceRegistry {
             service = (MagpieService) new FedoraPCDMRepository((ProjectRepository) projectService);
             break;
         case VOYAGER:
-            // TODO: create new constructor passing in ProjectAuthority
-            service = (MagpieService) new VoyagerAuthority(projectService.getSettingValues("host").size() > 0 ? projectService.getSettingValues("host").get(0) : "", projectService.getSettingValues("port").size() > 0 ? projectService.getSettingValues("port").get(0) : "", projectService.getSettingValues("app").size() > 0 ? projectService.getSettingValues("app").get(0) : "");
+            service = (MagpieService) new VoyagerAuthority((ProjectAuthority) projectService);
             break;
         case CSV:
-            // TODO: create new constructor passing in ProjectAuthority
-            service = (MagpieService) new CSVAuthority(projectService.getSettingValues("paths"), projectService.getSettingValues("identifier").size() > 0 ? projectService.getSettingValues("identifier").get(0) : "filename", projectService.getSettingValues("delimeter").size() > 0 ? projectService.getSettingValues("delimeter").get(0) : "||");
+            service = (MagpieService) new CSVAuthority((ProjectAuthority) projectService);
             break;
         case NALT:
-            // TODO: create new constructor passing in ProjectSuggestor
-            service = (MagpieService) new NALTSuggestor(projectService.getSettingValues("pelicanUrl").size() > 0 ? projectService.getSettingValues("pelicanUrl").get(0) : "", projectService.getSettingValues("subjectLabel").size() > 0 ? projectService.getSettingValues("subjectLabel").get(0) : "");
+            service = (MagpieService) new NALTSuggestor((ProjectSuggestor) projectService);
             break;
         case ARCHIVEMATICA:
             service = (MagpieService) new ArchivematicaFilesystemRepository((ProjectRepository) projectService);
