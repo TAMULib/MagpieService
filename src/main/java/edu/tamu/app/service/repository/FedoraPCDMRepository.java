@@ -115,7 +115,7 @@ public class FedoraPCDMRepository extends FedoraSpotlightRepository {
     }
 
     private String getObjectsUrl() {
-        return String.join("/", transactionalUrl.get(), objectsEndpoint);
+        return String.join("/", getTransactionalUrl().get(), objectsEndpoint);
     }
 
     private void orderPageProxies(ProxyPage[] proxyPages) throws IOException {
