@@ -60,7 +60,7 @@ public class DspaceCsvExporter extends AbstractExporter {
 
         List<String> metadataHeaders = performMetadataFieldsExtraction(project);
 
-        metadataHeaders.add("BUNDLE:ORIGINAL");
+        metadataHeaders.add("bundle:ORIGINAL");
 
         Collections.sort(metadataHeaders);
 
