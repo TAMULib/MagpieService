@@ -22,12 +22,13 @@ public class FedoraSpotlightRepository extends AbstractFedoraRepository {
     }
 
     protected void prepForPush() throws IOException {
+        startTransaction();
         confirmProjectContainerExists();
     }
 
     protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
 
-        File file = getResourceLoader().getResource("classpath:static" + filePath).getFile();
+        File file = resourceLoader.getResource("classpath:static" + filePath).getFile();
         FileInputStream fileStrm = new FileInputStream(file);
         byte[] fileBytes = IOUtils.toByteArray(fileStrm);
         HttpURLConnection connection = buildFedoraConnection(itemContainerPath, "POST");
@@ -54,15 +55,13 @@ public class FedoraSpotlightRepository extends AbstractFedoraRepository {
     protected String createContainer(String containerUrl, String slugName) throws IOException {
         HttpURLConnection connection = buildFedoraConnection(containerUrl, "POST");
         connection.setRequestProperty("Accept", "*/*");
-        if (slugName != null)
+        if (slugName != null) {
             connection.setRequestProperty("slug", slugName);
-
+        }
         int responseCode = connection.getResponseCode();
-
         if (responseCode != 201) {
             throw new IOException("Could not create container. Server responded with " + responseCode);
         }
-
         return connection.getHeaderField("Location");
     }
 
