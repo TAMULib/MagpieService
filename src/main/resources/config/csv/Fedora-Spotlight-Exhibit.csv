@@ -1,5 +1,5 @@
-filename,dc.title,dc.description
-fedora_spotlight_exhibit_0,A Cool Car,This is a cool car with blue ground effects.
-fedora_spotlight_exhibit_1,Lamborghini,Automobili Lamborghini S.p.A. is an Italian brand and manufacturer of luxury supercars based in SantAgata Bolognese, Italy. The company is owned by the Volkswagen Group through its subsidiary Audi.
-fedora_spotlight_exhibit_2,Mustang,The Ford Mustang is an American automobile manufactured by Ford. It was originally based on the platform of the second generation North American Ford Falcon, a compact car.
-fedora_spotlight_exhibit_3,A Vintage Car,This is an old car.
+filename,dc.title,dc.description,dc.attribution
+fedora_spotlight_exhibit_0,A Cool Car,This is a cool car with blue ground effects.,
+fedora_spotlight_exhibit_1,Lamborghini,"Automobili Lamborghini S.p.A. is an Italian brand and manufacturer of luxury supercars based in SantAgata Bolognese, Italy. The company is owned by the Volkswagen Group through its subsidiary Audi.",
+fedora_spotlight_exhibit_2,Mustang,"The Ford Mustang is an American automobile manufactured by Ford. It was originally based on the platform of the second generation North American Ford Falcon, a compact car.",
+fedora_spotlight_exhibit_3,A Vintage Car,This is an old car.,

@@ -7,28 +7,29 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.comparator.LabelComparator;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 
 @Service
-public class SpotlightExporter extends AbstractExporter {
+public class DspaceCsvExporter extends AbstractExporter {
 
-	@Override
-	public List<List<String>> extractMetadata(Project project) {
-		
+    @Override
+    public List<List<String>> extractMetadata(Project project) {
+
         List<List<String>> metadata = new ArrayList<List<String>>();
-		
-		project.getDocuments().stream().filter(isPublished()).collect(Collectors.<Document>toList()).forEach(document -> {
-			
-			List<MetadataFieldGroup> metadataFields = document.getFields();
+
+        project.getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList()).forEach(document -> {
+
+            List<MetadataFieldGroup> metadataFields = document.getFields();
 
             Collections.sort(metadataFields, new LabelComparator());
 
             List<String> documentMetadata = new ArrayList<String>();
 
-            documentMetadata.add(0, document.getPublishedUriString());
+            documentMetadata.add(document.getResourcesByMimeTypes("application/pdf").get(0).getName());
 
             metadataFields.forEach(field -> {
                 String values = null;
@@ -45,26 +46,27 @@ public class SpotlightExporter extends AbstractExporter {
             });
 
             metadata.add(documentMetadata);
-		
-		});
-		
-		return metadata;
-		
-	}
 
-	@Override
-	public List<String> extractMetadataFields(String projectName) {
-		
-		Project project = projectRepo.findByName(projectName);
-		
-		List<String> metadataHeaders = performMetadataFieldsExtraction(project);
+        });
 
-		Collections.sort(metadataHeaders);
-				
-		metadataHeaders.add(0,"url");
-		        
-		return metadataHeaders;
-	}
+        return metadata;
 
+    }
+
+    @Override
+    public List<String> extractMetadataFields(String projectName) {
+
+        Project project = projectRepo.findByName(projectName);
+
+        List<String> metadataHeaders = performMetadataFieldsExtraction(project);
+
+        metadataHeaders.add("bundle:ORIGINAL");
+
+        Collections.sort(metadataHeaders);
+
+        System.out.println("SORTED LIST:" + metadataHeaders);
+
+        return metadataHeaders;
+    }
 
 }

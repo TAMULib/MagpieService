@@ -12,13 +12,13 @@ public class DocumentTest extends AbstractModelTest {
     @Before
     public void setUp() {
         testProject = projectRepo.create("testProject");
-        mockDocument = new Document(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
+        mockDocument = new Document(testProject, "testDocument", "documentPath", "Unassigned");
         assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
     }
 
     @Test
     public void testCreateDocument() {
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         assertEquals("Test Document was not created.", 1, documentRepo.count());
         assertEquals("Expected Test Document was not created.", mockDocument.getName(), testDocument.getName());
     }
@@ -26,14 +26,14 @@ public class DocumentTest extends AbstractModelTest {
     @Test
     public void testFindDocument() {
         assertEquals("Test Document already exists.", null, documentRepo.findByProjectNameAndName(testProject.getName(), "testFile"));
-        documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         testDocument = documentRepo.findByProjectNameAndName(mockDocument.getProject().getName(), mockDocument.getName());
         assertEquals("Test Document was not found.", mockDocument.getName(), testDocument.getName());
     }
 
     @Test
     public void testDeleteDocument() {
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         assertEquals("DocumentRepo is empty.", 1, documentRepo.count());
         documentRepo.delete(testDocument);
         assertEquals("Test Document was not removed.", 0, documentRepo.count());
@@ -41,7 +41,7 @@ public class DocumentTest extends AbstractModelTest {
 
     @Test
     public void testCascadeOnDeleteDocument() {
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         assertEquals("Test Document was not created.", 1, documentRepo.count());
 
         assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
@@ -87,15 +87,11 @@ public class DocumentTest extends AbstractModelTest {
 
     @Test
     public void testDocumentSetters() {
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getTxtUri(), mockDocument.getTxtPath(), mockDocument.getPdfUri(), mockDocument.getPdfPath(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         testDocument.setName("Another name for test Document");
         testDocument.setStatus("Assigned");
         testDocument.setAnnotator("An Annotator");
         testDocument.setNotes("Notes for Test Document");
-        testDocument.setTxtUri("txtUri for Test Document");
-        testDocument.setPdfUri("pdfUri for Test Document");
-        testDocument.setPdfPath("pdfPath for Test Document");
-        testDocument.setTxtPath("txtPath for Test Document");
         assertEquals(" The document name was not modified ", "Another name for test Document", testDocument.getName());
         assertEquals(" The document name was not modified ", "An Annotator", testDocument.getAnnotator());
         assertEquals(" The document name was not modified ", "Notes for Test Document", testDocument.getNotes());

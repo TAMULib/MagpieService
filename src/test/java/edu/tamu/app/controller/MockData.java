@@ -97,9 +97,9 @@ public class MockData {
     protected static List<Suggestion> mockSuggestionList = Arrays.asList(new Suggestion[] { suggestion1, suggestion2, suggestion3 });
 
     // Document
-    protected static Document TEST_DOCUMENT1 = new Document(TEST_PROJECT1, "Doc1 name", "txtUri1", "pdfUri1", "txtPath1", "pdfPath1", "documentPath1", "Unassigned");
-    protected static Document TEST_DOCUMENT2 = new Document(TEST_PROJECT1, "Doc2 name", "txtUri2", "pdfUri2", "txtPath2", "pdfPath2", "documentPath2", "Pending");
-    protected static Document TEST_DOCUMENT3 = new Document(TEST_PROJECT1, "Doc3 name", "txtUri3", "pdfUri3", "txtPath3", "pdfPath3", "documentPath3", "Accepted");
+    protected static Document TEST_DOCUMENT1 = new Document(TEST_PROJECT1, "Doc1 name", "documentPath1", "Unassigned");
+    protected static Document TEST_DOCUMENT2 = new Document(TEST_PROJECT1, "Doc2 name", "documentPath2", "Pending");
+    protected static Document TEST_DOCUMENT3 = new Document(TEST_PROJECT1, "Doc3 name", "documentPath3", "Accepted");
 
     static {
         TEST_DOCUMENT1.setId(1l);
@@ -116,8 +116,6 @@ public class MockData {
             if (document.getName().equals(modifiedDocument.getName())) {
                 document.setProject(modifiedDocument.getProject());
                 document.setName(modifiedDocument.getName());
-                document.setTxtUri(modifiedDocument.getTxtUri());
-                document.setPdfUri(modifiedDocument.getPdfUri());
                 document.setStatus(modifiedDocument.getStatus());
                 returnDocument = document;
                 break;

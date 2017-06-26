@@ -45,7 +45,7 @@ public class ProjectTest extends AbstractModelTest {
         assertEquals("Test Project was not created.", 1, projectRepo.count());
 
         assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
-        testDocument = documentRepo.create(testProject, "testDocument", "txtUri", "pdfUri", "txtPath", "pdfPath", "documentPath", "Unassigned");
+        testDocument = documentRepo.create(testProject, "testDocument", "documentPath", "Unassigned");
 
         assertEquals("Test Document was not created.", 1, documentRepo.count());
 

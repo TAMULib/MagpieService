@@ -1,5 +1,6 @@
 package edu.tamu.app.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -27,6 +28,10 @@ public abstract class ProjectService extends BaseEntity {
     @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<ProjectSetting> settings;
+
+    public ProjectService() {
+        settings = new ArrayList<ProjectSetting>();
+    }
 
     public String getName() {
         return name;

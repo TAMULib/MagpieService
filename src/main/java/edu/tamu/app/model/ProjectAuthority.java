@@ -5,4 +5,8 @@ import javax.persistence.Entity;
 @Entity
 public class ProjectAuthority extends ProjectService {
 
+    public ProjectAuthority() {
+        super();
+    }
+
 }

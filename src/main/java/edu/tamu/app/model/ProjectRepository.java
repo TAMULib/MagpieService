@@ -4,5 +4,9 @@ import javax.persistence.Entity;
 
 @Entity
 public class ProjectRepository extends ProjectService {
+    
+    public ProjectRepository() {
+        super();
+    }
 
 }
