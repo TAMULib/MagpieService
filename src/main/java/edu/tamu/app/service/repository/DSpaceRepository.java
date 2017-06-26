@@ -3,7 +3,6 @@ package edu.tamu.app.service.repository;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -48,11 +47,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.PublishedLocation;
+import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 
 public class DSpaceRepository implements Repository {
@@ -431,13 +430,6 @@ public class DSpaceRepository implements Repository {
 
         // logout to kill session
         logout();
-    }
-
-    // TODO: move to utility class
-    class OnlyTiff implements FilenameFilter {
-        public boolean accept(File dir, String name) {
-            return name.toLowerCase().endsWith(".tif") || name.toLowerCase().endsWith(".tiff");
-        }
     }
 
     class Bitstreams {
