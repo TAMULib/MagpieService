@@ -143,7 +143,6 @@ public class ProjectsService {
             try {
                 repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
                 });
-
             } catch (JsonParseException e) {
                 e.printStackTrace();
             } catch (JsonMappingException e) {
@@ -159,7 +158,6 @@ public class ProjectsService {
             try {
                 authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
                 });
-
             } catch (JsonParseException e) {
                 e.printStackTrace();
             } catch (JsonMappingException e) {
@@ -194,21 +192,21 @@ public class ProjectsService {
         project.getRepositories().forEach(repository -> {
             Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
             if (registeredRepository == null) {
-                projectServiceRegistry.register(repository);
+                projectServiceRegistry.register(project, repository);
             }
         });
 
         project.getAuthorities().forEach(authority -> {
             Authority registeredAuthority = (Authority) projectServiceRegistry.getService(authority.getName());
             if (registeredAuthority == null) {
-                projectServiceRegistry.register(authority);
+                projectServiceRegistry.register(project, authority);
             }
         });
 
         project.getSuggestors().forEach(suggestor -> {
             Suggestor registeredSuggestor = (Suggestor) projectServiceRegistry.getService(suggestor.getName());
             if (registeredSuggestor == null) {
-                projectServiceRegistry.register(suggestor);
+                projectServiceRegistry.register(project, suggestor);
             }
         });
 
@@ -290,9 +288,6 @@ public class ProjectsService {
     }
 
     public void createDocument(String projectName, String documentName) {
-
-        logger.info("Creating document " + documentName);
-
         if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
             final Project project = getOrCreateProject(projectName);
 
