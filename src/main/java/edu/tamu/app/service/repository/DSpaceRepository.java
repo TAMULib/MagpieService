@@ -300,7 +300,7 @@ public class DSpaceRepository implements Repository {
     private void addBitstreams(String itemId, Document document) throws IOException {
         addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("application/pdf")));
         addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("text/plain"), "TEXT"));
-        addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("image/jpeg", "image/jpg", "image/bmp", "image/gif", "image/png", "image/svg", "image/tiff", "image/jp2")));
+        addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("image/jpeg", "image/jpg", "image/jp2", "image/jpx", "image/bmp", "image/gif", "image/png", "image/svg", "image/tif", "image/tiff")));
     }
 
     private void addBitstreams(Bitstreams bitstreams) throws IOException {
