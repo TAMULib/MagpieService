@@ -7,22 +7,30 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.Map;
 
+import org.apache.commons.imaging.ImageInfo;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.tika.Tika;
 import org.fcrepo.vocabulary.LDP;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.ProjectRepository;
 
-public class FedoraPCDMRepository extends FedoraSpotlightRepository {
+public class FedoraPCDMRepository extends AbstractFedoraRepository {
+
+    private Tika tika;
+
     private String membersEndpoint = "members";
     private String objectsEndpoint = "objects";
     private String pagesEndpoint = "pages";
 
     public FedoraPCDMRepository(ProjectRepository projectRepository) {
         super(projectRepository);
+        this.tika = new Tika();
         objectsEndpoint = String.join("_", getContainerPath(), objectsEndpoint);
     }
 
@@ -41,7 +49,7 @@ public class FedoraPCDMRepository extends FedoraSpotlightRepository {
 
         String resourceUri = super.createResource(filePath, resourceContainerPath + File.separator + "files", slugName);
 
-        updateFileMetadata(resourceUri);
+        updateFileMetadata(filePath, resourceUri);
 
         return resourceUri;
     }
@@ -89,8 +97,8 @@ public class FedoraPCDMRepository extends FedoraSpotlightRepository {
         return itemContainerPath;
     }
 
-    protected void updateFileMetadata(String fileUri) throws IOException {
-        executeSparqlUpdate(fileUri + File.separator + "fcr:metadata", buildPCDMFile());
+    protected void updateFileMetadata(String filePath, String fileUri) throws IOException {
+        executeSparqlUpdate(fileUri + File.separator + "fcr:metadata", buildPCDMFile(filePath));
     }
 
     private void verifyPCDMStructures() throws IOException {
@@ -283,8 +291,36 @@ public class FedoraPCDMRepository extends FedoraSpotlightRepository {
         return model;
     }
 
-    private String buildPCDMFile() {
-        String updateQuery = "PREFIX pcdm: <http://pcdm.org/models#>" + "INSERT {" + "<> a pcdm:File" + "} WHERE { }";
+    private String buildPCDMFile(String filePath) throws IOException {
+
+        File imageFile = getResourceLoader().getResource("classpath:static" + filePath).getFile();
+
+        String fileName = imageFile.getName();
+
+        String mimeType = tika.detect(imageFile);
+
+        int height = 0;
+        int width = 0;
+
+        try {
+            ImageInfo imageInfo = Imaging.getImageInfo(imageFile);
+            height = imageInfo.getHeight();
+            width = imageInfo.getWidth();
+        } catch (ImageReadException e) {
+            System.out.println("\n\n\n\nCould not get image info for mime type: " + mimeType + "\n\n\n\n");
+            e.printStackTrace();
+        }
+        
+        String updateQuery = "PREFIX pcdm: <http://pcdm.org/models#> " +
+                             "PREFIX dc: <http://purl.org/dc/elements/1.1/> " +
+                             "PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> " + 
+                             "INSERT {" + 
+                             "<> a pcdm:File . " + 
+                             "<> dc:filename '" + fileName + "' . " +
+                             "<> ebucore:filename '" + fileName + "' . " +
+                             "<> ebucore:height '" + height + "' . " +
+                             "<> ebucore:width '" + width + "' " +
+                             "} WHERE { }";
 
         return updateQuery;
     }
