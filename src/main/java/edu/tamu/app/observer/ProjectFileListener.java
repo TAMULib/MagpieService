@@ -46,7 +46,6 @@ public class ProjectFileListener extends AbstractFileListener {
     }
 
     private void createProject(File directory) {
-        logger.info("ProjectFileListener is creating project " + directory.getName());
         projectService.getOrCreateProject(directory);
     }
 

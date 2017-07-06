@@ -9,37 +9,33 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Optional;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.service.registry.MagpieAuxiliaryService;
 import edu.tamu.app.utilities.CsvUtility;
 import edu.tamu.framework.model.ApiResponse;
 
 @Service
-public class MapFileService {
+@Scope("prototype")
+public class MapFileService implements MagpieAuxiliaryService {
 
     private static final Logger logger = Logger.getLogger(MapFileService.class);
-
-    // TODO: get away from hardcoded mappings to projects.json
-
-    // TODO: MapService needs to be scoped to a project
-    private static final String DISSERTATION_PROJECT_NAME = "taes_misc_publication";
-
-    // TODO: MapService needs to be scoped to a project and repository
-    private static final String DISSERTATION_DSPACE_REPOSITORY_NAME = "DSpace for TAES Misc Publications";
 
     private static final String CHANGE_STATUS = "Published";
 
@@ -53,19 +49,43 @@ public class MapFileService {
     private DocumentRepo documentRepo;
 
     @Autowired
+    private ApplicationContext appContext;
+
+    @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
+    private ProjectRepository projectRepository;
+
+    private Project project;
+
     private CsvUtility csvUtility;
 
-    public MapFileService() {
+    public MapFileService(Project project, ProjectRepository projectRepository) {
+        this.project = project;
+        this.projectRepository = projectRepository;
+    }
 
+    @PostConstruct
+    public void init() {
+        logger.info("Creating project map directory: " + project.getName());
+        try {
+            String mapDirectoryName = String.join("/", appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath(), "maps", project.getName());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Project map directory: " + mapDirectoryName);
+            }
+
+            File mapDirectory = new File(mapDirectoryName);
+            mapDirectory.mkdir();
+        } catch (IOException ioe) {
+            logger.error("Could not create project map directory: " + project.getName());
+        }
     }
 
     public void readMapFile(File file) throws IOException {
-        // read and iterate over mapfile
         if (logger.isDebugEnabled()) {
             logger.debug("The map file is named: " + file.getName());
         }
@@ -76,9 +96,7 @@ public class MapFileService {
 
         logger.info("Reading mapfile: " + file);
 
-        Project dissertationProject = projectRepo.findByName(DISSERTATION_PROJECT_NAME);
-
-        ProjectRepository projectRepository = getProjectRepository(dissertationProject);
+        project = projectRepo.findByName(project.getName());
 
         csvUtility = new CsvUtility(projectRepository);
 
@@ -96,7 +114,7 @@ public class MapFileService {
                 logger.debug("The document name is: " + documentName);
             }
 
-            Document updateDoc = documentRepo.findByProjectNameAndName(DISSERTATION_PROJECT_NAME, documentName);
+            Document updateDoc = documentRepo.findByProjectNameAndName(project.getName(), documentName);
 
             if (updateDoc != null) {
                 updateDoc.setStatus(CHANGE_STATUS);
@@ -107,7 +125,7 @@ public class MapFileService {
                 updateDoc.addPublishedLocation(new PublishedLocation(projectRepository, publishedUrl));
 
                 updateDoc = documentRepo.save(updateDoc);
-                
+
                 try {
                     simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, updateDoc));
                 } catch (Exception e) {
@@ -120,7 +138,7 @@ public class MapFileService {
             }
         }
 
-        unlockProject(dissertationProject);
+        unlockProject(project);
 
         bReader.close();
         sReader.close();
@@ -133,34 +151,18 @@ public class MapFileService {
         }
     }
 
-    private ProjectRepository getProjectRepository(Project project) {
-        Optional<ProjectRepository> dspaceRepository = Optional.empty();
-
-        for (ProjectRepository repository : project.getRepositories()) {
-            if (repository.getType().equals(ServiceType.DSPACE) && repository.getName().equals(DISSERTATION_DSPACE_REPOSITORY_NAME)) {
-                dspaceRepository = Optional.of(repository);
-                break;
-            }
-        }
-
-        if (!dspaceRepository.isPresent()) {
-            throw new RuntimeException("Could not find " + DISSERTATION_DSPACE_REPOSITORY_NAME + " DSpace repository!");
-        }
-        return dspaceRepository.get();
-    }
-
     private void unlockProject(Project project) throws IOException {
-        List<Document> unpublishedDocs = documentRepo.findByProjectNameAndStatus(DISSERTATION_PROJECT_NAME, "Pending");
+        List<Document> unpublishedDocs = documentRepo.findByProjectNameAndStatus(project.getName(), "Pending");
         // unlock project if there are no pending documents
         if (unpublishedDocs.size() == 0) {
             // get the project fresh so the documents we modified above keep their changes
-            project = projectRepo.findByName(DISSERTATION_PROJECT_NAME);
+            project = projectRepo.findByName(project.getName());
             project.setIsLocked(false);
             project = projectRepo.save(project);
             logger.info("Project '" + project.getName() + "' unlocked.");
             generateArchiveMaticaCSV(project.getName());
         } else {
-            logger.info("Project '" + DISSERTATION_PROJECT_NAME + "' was left locked because there was a count of  " + unpublishedDocs.size() + " unpublished document(s).");
+            logger.info("Project '" + project.getName() + "' was left locked because there was a count of  " + unpublishedDocs.size() + " unpublished document(s).");
         }
     }
 

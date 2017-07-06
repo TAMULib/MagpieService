@@ -5,6 +5,7 @@ import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -227,12 +228,7 @@ public class ExportController {
             document.setStatus("Pending");
             document = documentRepo.save(document);
 
-            Map<String, Object> documentMap = new HashMap<String, Object>();
-
-            documentMap.put("document", document);
-            documentMap.put("isNew", "false");
-
-            simpMessagingTemplate.convertAndSend("/channel/documents", new ApiResponse(SUCCESS, documentMap));
+            simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
         }
         exportableProject.setIsLocked(true);
         projectRepo.save(exportableProject);
