@@ -1,7 +1,9 @@
 package edu.tamu.app.service.repository;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -11,6 +13,7 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
@@ -21,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
@@ -37,10 +41,13 @@ public abstract class AbstractFedoraRepository implements Repository {
     private String mount;
 
     @Autowired
+    private DocumentRepo documentRepo;
+
+    @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
-    private DocumentRepo documentRepo;
+    private ConfigurableMimeFileTypeMap configurableMimeFileTypeMap;
 
     private ProjectRepository projectRepository;
 
@@ -148,6 +155,28 @@ public abstract class AbstractFedoraRepository implements Repository {
         }
         updateQuery += "} WHERE { }";
         executeSparqlUpdate(itemContainerUrl, updateQuery);
+    }
+
+    protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
+
+        File file = getResourceLoader().getResource("classpath:static" + filePath).getFile();
+        FileInputStream fileStrm = new FileInputStream(file);
+        byte[] fileBytes = IOUtils.toByteArray(fileStrm);
+        HttpURLConnection connection = buildFedoraConnection(itemContainerPath, "POST");
+        connection.setRequestProperty("CONTENT-TYPE", configurableMimeFileTypeMap.getContentType(file));
+        connection.setRequestProperty("Accept", "*/*");
+
+        if (slug != null) {
+            connection.setRequestProperty("slug", slug);
+        }
+
+        connection.setDoOutput(true);
+
+        OutputStream os = connection.getOutputStream();
+        os.write(fileBytes);
+        os.close();
+
+        return connection.getHeaderField("Location");
     }
 
     protected void executeSparqlUpdate(String uri, String sparqlQuery) throws ClientProtocolException, IOException {
@@ -262,8 +291,6 @@ public abstract class AbstractFedoraRepository implements Repository {
     abstract void prepForPush() throws IOException;
 
     abstract String createItemContainer(String slugName) throws IOException;
-
-    abstract String createResource(String filePath, String resourceContainerPath, String slugName) throws IOException;
 
     abstract String createContainer(String containerUrl, String slugName) throws IOException;
 
