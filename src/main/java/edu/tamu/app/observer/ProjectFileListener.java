@@ -130,14 +130,16 @@ public class ProjectFileListener extends AbstractFileListener {
     }
 
     private void addResource(Document document, File file) {
-        String name = file.getName();
-        String path = document.getDocumentPath() + File.separator + file.getName();
-        String url = host + document.getDocumentPath() + File.separator + file.getName();
-        String mimeType = tika.detect(path);
-        logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
-        Resource resource = new Resource(name, path, url, mimeType);
-        document.addResource(resource);
-        documentRepo.save(document);
+        if (!file.isHidden() && file.isFile()) {
+            String name = file.getName();
+            String path = document.getDocumentPath() + File.separator + file.getName();
+            String url = host + document.getDocumentPath() + File.separator + file.getName();
+            String mimeType = tika.detect(path);
+            logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
+            Resource resource = new Resource(name, path, url, mimeType);
+            document.addResource(resource);
+            documentRepo.save(document);
+        }
     }
 
 }
