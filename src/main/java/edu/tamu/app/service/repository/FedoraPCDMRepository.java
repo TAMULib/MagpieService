@@ -27,6 +27,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     private String membersEndpoint = "members";
     private String objectsEndpoint = "objects";
     private String pagesEndpoint = "pages";
+    private String filesEndpoint = "files";
 
     public FedoraPCDMRepository(ProjectRepository projectRepository) {
         super(projectRepository);
@@ -45,9 +46,9 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     protected String createResource(String filePath, String resourceContainerPath, String slugName) throws IOException {
         generatePutRequest(resourceContainerPath, null, buildPCDMObject(resourceContainerPath));
 
-        generatePutRequest(resourceContainerPath + File.separator + "files", null, buildPCDMFileContainer(resourceContainerPath + File.separator + "files", resourceContainerPath));
+        generatePutRequest(resourceContainerPath + File.separator + filesEndpoint, null, buildPCDMFileContainer(resourceContainerPath + File.separator + filesEndpoint, resourceContainerPath));
 
-        String resourceUri = super.createResource(filePath, resourceContainerPath + File.separator + "files", slugName);
+        String resourceUri = super.createResource(filePath, resourceContainerPath + File.separator + filesEndpoint, slugName);
 
         updateFileMetadata(filePath, resourceUri);
 
