@@ -9,7 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import edu.tamu.app.service.MapsService;
+import edu.tamu.app.service.MapFileService;
+import edu.tamu.app.service.registry.MagpieServiceRegistry;
 
 @Component
 @Scope("prototype")
@@ -18,7 +19,7 @@ public class MapFileListener extends AbstractFileListener {
     private static final Logger logger = Logger.getLogger(MapFileListener.class);
 
     @Autowired
-    private MapsService mapsService;
+    private MagpieServiceRegistry magpieServiceRegistry;
 
     public MapFileListener(String root, String folder) {
         this.root = root;
@@ -47,9 +48,11 @@ public class MapFileListener extends AbstractFileListener {
 
     @Override
     public void onFileCreate(File file) {
-        logger.info("Reading map file: " + file.getName());
+        String projectName = file.getParentFile().getName();
+        logger.info("Reading project " + projectName + " map file: " + file.getName());
         try {
-            mapsService.readMapFile(file);
+            MapFileService mapFileService = (MapFileService) magpieServiceRegistry.getAuxiliaryService(projectName);
+            mapFileService.readMapFile(file);
         } catch (IOException e) {
             logger.error(e);
         }

@@ -168,11 +168,10 @@ public class DocumentController {
 
         for (ProjectRepository repository : document.getProject().getRepositories()) {
             try {
-                ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
+                document = ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
             } catch (IOException e) {
                 logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
                 e.printStackTrace();
-
                 return new ApiResponse(ERROR, "There was an error publishing this item");
             }
         }

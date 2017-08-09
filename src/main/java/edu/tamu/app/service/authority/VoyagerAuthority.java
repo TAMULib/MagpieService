@@ -1,5 +1,5 @@
 /* 
- * VoyagerService.java 
+ * VoyagerAuthority.java 
  * 
  * Version: 
  *     $Id$ 
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
+import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.model.response.marc.VoyagerServiceData;
@@ -39,22 +40,16 @@ public class VoyagerAuthority implements Authority {
 
     private static final Logger logger = Logger.getLogger(VoyagerAuthority.class);
 
-    private String host;
-
-    private String port;
-
-    private String app;
-
     @Autowired
     private HttpUtility httpUtility;
 
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
-    public VoyagerAuthority(String host, String port, String app) {
-        this.host = host;
-        this.port = port;
-        this.app = app;
+    private ProjectAuthority projectAuthority;
+
+    public VoyagerAuthority(ProjectAuthority projectAuthority) {
+        this.projectAuthority = projectAuthority;
     }
 
     @Override
@@ -120,7 +115,7 @@ public class VoyagerAuthority implements Authority {
     }
 
     public VoyagerServiceData fetchMARC(String bibId) throws Exception {
-        String urlString = "http://" + host + ":" + port + "/" + app + "/GetHoldingsService?bibId=" + bibId;
+        String urlString = "http://" + getHost() + ":" + getPort() + "/" + getApp() + "/GetHoldingsService?bibId=" + bibId;
         String xmlResponse = httpUtility.makeHttpRequest(urlString, "GET");
 
         xmlResponse = xmlResponse.replace("ser:", "");
@@ -136,6 +131,18 @@ public class VoyagerAuthority implements Authority {
         JAXBContext jaxbContext = JAXBContext.newInstance(VoyagerServiceData.class);
 
         return (VoyagerServiceData) jaxbContext.createUnmarshaller().unmarshal(xmlInputStream);
+    }
+
+    public String getHost() {
+        return projectAuthority.getSettingValues("host").get(0);
+    }
+
+    public String getPort() {
+        return projectAuthority.getSettingValues("port").get(0);
+    }
+
+    public String getApp() {
+        return projectAuthority.getSettingValues("app").get(0);
     }
 
 }

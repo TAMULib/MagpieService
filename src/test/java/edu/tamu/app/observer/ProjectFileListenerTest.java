@@ -122,6 +122,7 @@ public class ProjectFileListenerTest {
         metadataFieldGroupRepo.deleteAll();
         documentRepo.deleteAll();
         projectRepo.deleteAll();
+
         projectsService.clear();
 
         fileObserverRegistry.dismiss(dissertationFileListener);

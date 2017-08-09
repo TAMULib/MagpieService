@@ -10,7 +10,9 @@
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -53,45 +55,35 @@ public class Document extends BaseEntity {
     private String notes;
 
     @Column(nullable = true)
-    private String txtUri;
-
-    @Column(nullable = true)
-    private String pdfUri;
-
-    @Column(nullable = true)
-    private String pdfPath;
-
-    @Column(nullable = true)
-    private String txtPath;
-    
-    @Column(nullable=true)
     private String documentPath;
-    
-    @Column(nullable = true)
-    private String publishedUriString;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name")
     @JsonIdentityReference(alwaysAsId = true)
     private Project project;
+    
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
+    private List<Resource> resources;
 
-    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<MetadataFieldGroup> fields;
 
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SELECT)
+    private List<PublishedLocation> publishedLocations;
+
     public Document() {
-        publishedUriString = null;
+    	resources = new ArrayList<Resource>();
         fields = new ArrayList<MetadataFieldGroup>();
+        publishedLocations = new ArrayList<PublishedLocation>();
     }
 
-    public Document(Project project, String name, String txtUri, String pdfUri, String txtPath, String pdfPath, String documentPath, String status) {
+    public Document(Project project, String name, String documentPath, String status) {
         this();
         setProject(project);
         setName(name);
-        setTxtUri(txtUri);
-        setPdfUri(pdfUri);
-        setPdfPath(pdfPath);
-        setTxtPath(txtPath);
         setDocumentPath(documentPath);
         setStatus(status);
     }
@@ -128,52 +120,12 @@ public class Document extends BaseEntity {
         this.notes = notes;
     }
 
-    public String getTxtUri() {
-        return txtUri;
-    }
-
-    public void setTxtUri(String txtUri) {
-        this.txtUri = txtUri;
-    }
-
-    public String getPdfUri() {
-        return pdfUri;
-    }
-
-    public void setPdfUri(String pdfUri) {
-        this.pdfUri = pdfUri;
-    }
-
-    public String getPdfPath() {
-        return pdfPath;
-    }
-
-    public void setPdfPath(String pdfPath) {
-        this.pdfPath = pdfPath;
-    }
-
-    public String getTxtPath() {
-        return txtPath;
-    }
-
-    public void setTxtPath(String txtPath) {
-        this.txtPath = txtPath;
-    }
-
     public String getDocumentPath() {
-		return documentPath;
-	}
-
-	public void setDocumentPath(String documentPath) {
-		this.documentPath = documentPath;
-	}
-
-	public String getPublishedUriString() {
-        return publishedUriString;
+        return documentPath;
     }
 
-    public void setPublishedUriString(String publishedUriString) {
-        this.publishedUriString = publishedUriString;
+    public void setDocumentPath(String documentPath) {
+        this.documentPath = documentPath;
     }
 
     public Project getProject() {
@@ -182,6 +134,22 @@ public class Document extends BaseEntity {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+    
+    public List<Resource> getResources() {
+        return resources;
+    }
+
+    public void setResources(List<Resource> resources) {
+        this.resources = resources;
+    }
+
+    public void addResource(Resource resource) {
+    	resources.add(resource);
+    }
+
+    public void removeResource(Resource resource) {
+    	resources.remove(resource);
     }
 
     public List<MetadataFieldGroup> getFields() {
@@ -201,7 +169,29 @@ public class Document extends BaseEntity {
     }
 
     public void clearFields() {
-        fields = new ArrayList<MetadataFieldGroup>();
+        fields.clear();
+    }
+
+    public List<PublishedLocation> getPublishedLocations() {
+        return publishedLocations;
+    }
+
+    public void setPublishedLocations(List<PublishedLocation> publishedLocations) {
+        this.publishedLocations = publishedLocations;
+    }
+
+    public void addPublishedLocation(PublishedLocation publishedLocation) {
+        if (!publishedLocations.contains(publishedLocation)) {
+            publishedLocations.add(publishedLocation);
+        }
+    }
+
+    public void removePublishedLocation(PublishedLocation publishedLocation) {
+        publishedLocations.remove(publishedLocation);
+    }
+
+    public void clearPublishedLocations() {
+        publishedLocations.clear();
     }
 
     public MetadataFieldGroup getFieldByLabel(String labelName) {
@@ -213,6 +203,12 @@ public class Document extends BaseEntity {
             }
         }
         return targetField;
+    }
+
+    public List<Resource> getResourcesByMimeTypes(String... mimeTypes) {
+        return resources.stream().filter(resource -> {
+        	return Arrays.asList(mimeTypes).contains(resource.getMimeType());
+        }).collect(Collectors.toList());
     }
 
 }

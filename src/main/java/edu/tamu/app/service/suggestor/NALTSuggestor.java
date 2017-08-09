@@ -17,20 +17,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.ProjectSuggestor;
+import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.Suggestion;
 
 public class NALTSuggestor implements Suggestor {
 
-    private String subjectLabel;
-
-    private String pelicanTermOccurrenceUrl;
-
     @Autowired
     private ObjectMapper objectMapper;
 
-    public NALTSuggestor(String pelicanTermOccurrenceUrl, String subjectLabel) {
-        this.pelicanTermOccurrenceUrl = pelicanTermOccurrenceUrl;
-        this.subjectLabel = subjectLabel;
+    private ProjectSuggestor projectSuggestor;
+
+    public NALTSuggestor(ProjectSuggestor projectSuggestor) {
+        this.projectSuggestor = projectSuggestor;
     }
 
     @Override
@@ -39,27 +38,29 @@ public class NALTSuggestor implements Suggestor {
         List<Suggestion> suggestions = new ArrayList<Suggestion>();
 
         try {
-            File file = File.createTempFile("tempFile", Long.toString(System.nanoTime()));
+            StringBuilder textBuilder = new StringBuilder();
 
-            file.deleteOnExit();
+            for (Resource resource : document.getResourcesByMimeTypes("text/plain")) {
+                File file = File.createTempFile(resource.getName(), Long.toString(System.nanoTime()));
+                file.deleteOnExit();
+                FileUtils.copyURLToFile(new URL(resource.getUrl()), file);
+                textBuilder.append(FileUtils.readFileToString(file, StandardCharsets.UTF_8).toLowerCase());
+                textBuilder.append("\n\n");
+            }
 
-            FileUtils.copyURLToFile(new URL(document.getTxtUri()), file);
-
-            String text = FileUtils.readFileToString(file, StandardCharsets.UTF_8).toLowerCase();
-
-            JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(text)).get("payload");
+            JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(textBuilder.toString())).get("payload");
 
             JsonNode termOccurrenceArrayNode = payloadNode.get("ArrayList<TermOccurrence>") != null ? payloadNode.get("ArrayList<TermOccurrence>") : payloadNode.get("ArrayList");
 
             if (termOccurrenceArrayNode.isArray()) {
                 for (final JsonNode termOccurrenceNode : termOccurrenceArrayNode) {
-                    Suggestion suggestion = new Suggestion(subjectLabel, termOccurrenceNode.get("term").textValue(), termOccurrenceNode.get("count").asInt());
+                    Suggestion suggestion = new Suggestion(getSubjectLabel(), termOccurrenceNode.get("term").textValue(), termOccurrenceNode.get("count").asInt());
 
                     JsonNode synonymOccurrencesNode = termOccurrenceNode.get("synonyms");
                     if (synonymOccurrencesNode.isArray()) {
 
                         for (final JsonNode synonymOccurrenceNode : synonymOccurrencesNode) {
-                            suggestion.addSynonym(new Suggestion(subjectLabel, synonymOccurrenceNode.get("term").textValue(), synonymOccurrenceNode.get("count").asInt()));
+                            suggestion.addSynonym(new Suggestion(getSubjectLabel(), synonymOccurrenceNode.get("term").textValue(), synonymOccurrenceNode.get("count").asInt()));
                         }
                     }
 
@@ -76,7 +77,7 @@ public class NALTSuggestor implements Suggestor {
 
     private String fetchNALTSuggestions(String text) throws IOException {
 
-        URL pelicanSuggestionUrl = new URL(pelicanTermOccurrenceUrl);
+        URL pelicanSuggestionUrl = new URL(getPelicanUrl());
 
         HttpURLConnection connection = (HttpURLConnection) pelicanSuggestionUrl.openConnection();
 
@@ -96,6 +97,14 @@ public class NALTSuggestor implements Suggestor {
         IOUtils.closeQuietly(connection.getInputStream());
 
         return results;
+    }
+
+    public String getPelicanUrl() {
+        return projectSuggestor.getSettingValues("pelicanUrl").get(0);
+    }
+
+    public String getSubjectLabel() {
+        return projectSuggestor.getSettingValues("subjectLabel").get(0);
     }
 
 }

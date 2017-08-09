@@ -39,11 +39,11 @@ public class Project extends BaseEntity {
     @Column(unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<FieldProfile> profiles;
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     @Fetch(FetchMode.SELECT)
@@ -118,18 +118,19 @@ public class Project extends BaseEntity {
 
     /**
      * Returns all documents considered ready for publishing.
+     * 
      * @return List<Document>
      */
     public List<Document> getPublishableDocuments() {
-    	List<Document> publishableDocuments = new ArrayList<Document>();
-    	for (Document document:this.getDocuments()) {
-    		if (document.getStatus().equals("Accepted")) {
-    			publishableDocuments.add(document);
-    		}
-    	}
+        List<Document> publishableDocuments = new ArrayList<Document>();
+        for (Document document : this.getDocuments()) {
+            if (document.getStatus().equals("Accepted")) {
+                publishableDocuments.add(document);
+            }
+        }
         return publishableDocuments;
     }
-    
+
     public void setDocuments(List<Document> documents) {
         this.documents = documents;
     }
@@ -193,20 +194,20 @@ public class Project extends BaseEntity {
     public void setRepositories(List<ProjectRepository> repositories) {
         this.repositories = repositories;
     }
-    
+
     /**
      * Matches by repositoryId a Repository from the Project's list of Repositories and returns it
-     *  
+     * 
      * @param repositoryId
      * @return ProjectRepository
      */
     public ProjectRepository getRepositoryById(Long repositoryId) {
-    	for (ProjectRepository repository:this.getRepositories()) {
-    		if (repository.getId() == repositoryId) {
-    			return repository;
-    		}
-    	}    	
-    	return null;
+        for (ProjectRepository repository : this.getRepositories()) {
+            if (repository.getId() == repositoryId) {
+                return repository;
+            }
+        }
+        return null;
     }
 
     public void addRepository(ProjectRepository repository) {

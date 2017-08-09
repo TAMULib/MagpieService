@@ -46,9 +46,6 @@ import edu.tamu.framework.model.ApiResponse;
 @Service
 public class ProjectsService {
 
-    @Value("${app.projects.file}")
-    private String initialProjectsFile;
-
     private static final Logger logger = Logger.getLogger(ProjectsService.class);
 
     private static final String DEFAULT_PROJECT_KEY = "default";
@@ -66,6 +63,15 @@ public class ProjectsService {
     private static final String DEFAULT_KEY = "default";
     private static final String LABEL_KEY = "label";
     private static final String HEADLESS_KEY = "isHeadless";
+
+    @Value("${app.projects.file}")
+    private String initialProjectsFile;
+
+    @Value("${app.host}")
+    private String host;
+
+    @Value("${app.mount}")
+    private String mount;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -94,12 +100,7 @@ public class ProjectsService {
     @Autowired
     private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
-    @Value("${app.host}")
-    private String host;
-
-    @Value("${app.mount}")
-    private String mount;
-
+    // TODO: initialize projects.json into database and remove this in memory cache
     private JsonNode projectsNode = null;
 
     public JsonNode readProjectsNode() {
@@ -119,11 +120,11 @@ public class ProjectsService {
         return projectsNode;
     }
 
-    public synchronized Project getOrCreateProject(File projectDirectory) {
-        return getOrCreateProject(getName(projectDirectory));
+    public Project getOrCreateProject(File projectDirectory) {
+        return getOrCreateProject(projectDirectory.getName());
     }
 
-    public synchronized Project getOrCreateProject(String projectName) {
+    public Project getOrCreateProject(String projectName) {
         Project project = projectRepo.findByName(projectName);
         if (project == null) {
             project = createProject(projectName);
@@ -131,7 +132,7 @@ public class ProjectsService {
         return project;
     }
 
-    public synchronized Project createProject(String projectName) {
+    public Project createProject(String projectName) {
 
         JsonNode projectNode = getProjectNode(projectName);
 
@@ -142,7 +143,6 @@ public class ProjectsService {
             try {
                 repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
                 });
-
             } catch (JsonParseException e) {
                 e.printStackTrace();
             } catch (JsonMappingException e) {
@@ -158,7 +158,6 @@ public class ProjectsService {
             try {
                 authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
                 });
-
             } catch (JsonParseException e) {
                 e.printStackTrace();
             } catch (JsonMappingException e) {
@@ -193,21 +192,21 @@ public class ProjectsService {
         project.getRepositories().forEach(repository -> {
             Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
             if (registeredRepository == null) {
-                projectServiceRegistry.register(repository);
+                projectServiceRegistry.register(project, repository);
             }
         });
 
         project.getAuthorities().forEach(authority -> {
             Authority registeredAuthority = (Authority) projectServiceRegistry.getService(authority.getName());
             if (registeredAuthority == null) {
-                projectServiceRegistry.register(authority);
+                projectServiceRegistry.register(project, authority);
             }
         });
 
         project.getSuggestors().forEach(suggestor -> {
             Suggestor registeredSuggestor = (Suggestor) projectServiceRegistry.getService(suggestor.getName());
             if (registeredSuggestor == null) {
-                projectServiceRegistry.register(suggestor);
+                projectServiceRegistry.register(project, suggestor);
             }
         });
 
@@ -226,7 +225,7 @@ public class ProjectsService {
         return profileNode;
     }
 
-    public synchronized List<MetadataFieldGroup> getProjectFields(String projectName) {
+    public List<MetadataFieldGroup> getProjectFields(String projectName) {
 
         List<MetadataFieldGroup> projectFields = new ArrayList<MetadataFieldGroup>();
 
@@ -284,25 +283,17 @@ public class ProjectsService {
         return false;
     }
 
-    public synchronized void createDocument(File directory) {
-        createDocument(directory.getParentFile().getName(), getName(directory));
+    public void createDocument(File directory) {
+        createDocument(directory.getParentFile().getName(), directory.getName());
     }
 
-    public synchronized void createDocument(String projectName, String documentName) {
-
-        logger.info("Creating document " + documentName);
-
+    public void createDocument(String projectName, String documentName) {
         if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
             final Project project = getOrCreateProject(projectName);
 
-            String documentPath = mount + "/projects/" + projectName + "/" + documentName;
-            String pdfPath = documentPath + "/" + documentName + ".pdf";
-            String txtPath = documentPath + "/" + documentName + ".pdf.txt";
+            String documentPath = String.join(File.separator, mount, "projects", projectName, documentName);
 
-            String pdfUri = host + pdfPath;
-            String txtUri = host + txtPath;
-
-            Document document = documentRepo.create(project, documentName, txtUri, pdfUri, txtPath, pdfPath, documentPath, "Open");
+            Document document = documentRepo.create(project, documentName, documentPath, "Open");
 
             for (MetadataFieldGroup field : getProjectFields(projectName)) {
                 // For headless projects, auto generate metadata
@@ -330,7 +321,7 @@ public class ProjectsService {
             if (projectIsHeadless(projectName)) {
                 for (ProjectRepository repository : document.getProject().getRepositories()) {
                     try {
-                        ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
+                        document = ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
                     } catch (IOException e) {
                         logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
                         e.printStackTrace();
@@ -346,10 +337,6 @@ public class ProjectsService {
 
             projectRepo.save(project);
         }
-    }
-
-    public String getName(File directory) {
-        return directory.getPath().substring(directory.getParent().length() + 1);
     }
 
     public void clear() {

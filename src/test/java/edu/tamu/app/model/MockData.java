@@ -16,6 +16,8 @@ public class MockData {
     protected ControlledVocabulary testControlledVocabulary;
 
     protected Document testDocument, mockDocument;
+    
+    protected Resource mockResource1, mockResource2;
 
     protected FieldProfile testProfile;
 
@@ -26,7 +28,7 @@ public class MockData {
     protected MetadataFieldValue testValue;
 
     protected Project testProject, assertProject;
-
+    
     protected Map<String, String> aggieJackToken;
 
     protected long timestamp = new Date().getTime() + (5 * 60 * 1000);
