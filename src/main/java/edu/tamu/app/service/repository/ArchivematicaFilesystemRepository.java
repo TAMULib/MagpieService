@@ -199,7 +199,6 @@ public class ArchivematicaFilesystemRepository implements Repository {
         try {
             os = connection.getOutputStream();
         } catch (IOException e) {
-            e.printStackTrace();
             IOException ioe = new IOException("Could not open output stream to write the post data. {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
