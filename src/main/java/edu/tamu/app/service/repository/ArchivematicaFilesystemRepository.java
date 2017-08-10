@@ -160,7 +160,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         // create the URL for the REST call
         URL restUrl;
         try {
-            restUrl = new URL("http://" + getArchivematicaURL() + "/api/transfer/start_transfer/?username=" + getArchivematicaUsername() + "&api_key=" + getArchivematicaAPIKey());
+            restUrl = new URL(getArchivematicaURL() + "/api/transfer/start_transfer/?username=" + getArchivematicaUsername() + "&api_key=" + getArchivematicaAPIKey());
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             MalformedURLException murle = new MalformedURLException("Failed to initialize URL for Archivematica REST API call - the URL was malformed. {" + e.getMessage() + "}");
@@ -199,6 +199,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         try {
             os = connection.getOutputStream();
         } catch (IOException e) {
+            e.printStackTrace();
             IOException ioe = new IOException("Could not open output stream to write the post data. {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
