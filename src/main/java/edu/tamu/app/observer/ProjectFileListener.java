@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -51,7 +52,9 @@ public class ProjectFileListener extends AbstractFileListener {
 
     // this is a blocking sleep operation of this listener
     private boolean directoryIsReady(File directory) {
-        if (isHeadless(directory)) {
+        boolean directoryReady = false;
+        
+        //if (isHeadless(directory)) {
             long lastModified = 0L;
             long oldLastModified = -1L;
             long stableTime = 0L;
@@ -63,16 +66,30 @@ public class ProjectFileListener extends AbstractFileListener {
                 }
                 oldLastModified = lastModified;
             }
-            return true;
-        } else {
-            return true;
-        }
+            directoryReady = true;
+//        } else {
+//            directoryReady = true;
+//        }
+        
+        return directoryReady;
     }
 
     private void createDocument(File directory) {
         if (directoryIsReady(directory)) {
-            logger.info("Creating document " + directory.getName());
-            projectService.createDocument(directory);
+            IngestType projectIngestFormat = this.hasIngestType(directory.getParentFile());
+            logger.info("Creating document " + directory.getName() + " using ingest type " + projectIngestFormat);
+            switch(projectIngestFormat) {
+            case SAF:
+                projectService.createSAFDocument(directory);
+                break;                
+
+            case STANDARD:
+            default:
+                projectService.createDocument(directory);
+                    
+            
+            }
+            
         }
     }
 
@@ -84,9 +101,12 @@ public class ProjectFileListener extends AbstractFileListener {
     @Override
     public void onDirectoryCreate(File directory) {
         if (FileSystemUtility.getWindowsSafePath(directory.getParent()).equals(FileSystemUtility.getWindowsSafePath(getPath()))) {
-            logger.info("Creating project " + directory.getName());
+            IngestType projectIngestFormat = this.hasIngestType(directory);
+            logger.info("Creating project " + directory.getName() + " of ingest type " + projectIngestFormat.toString() );
             createProject(directory);
         } else {
+            
+            
             createDocument(directory);
         }
     }
@@ -127,6 +147,10 @@ public class ProjectFileListener extends AbstractFileListener {
 
     private boolean isHeadless(File directory) {
         return projectService.projectIsHeadless(directory.getParentFile().getName());
+    }
+    
+    private IngestType hasIngestType(File directory) {
+        return projectService.projectIngestType(directory.getName());
     }
 
     private void addResource(Document document, File file) {
