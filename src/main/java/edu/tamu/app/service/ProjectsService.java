@@ -470,8 +470,16 @@ public class ProjectsService {
             }
                         
 
-            // read contents to add files
-            File file = resourceLoader.getResource("classpath:static" + String.join(File.separator, documentPath, "contents")).getFile();
+            // TODO: we could use the contents file to determine dispositions of the files, but this doesen't map clearly to Fedora
+//            File contentsFile = null;
+//            try {
+//                contentsFile = resourceLoader.getResource("classpath:static" + String.join(File.separator, documentPath, "contents")).getFile();
+//            } catch (IOException e1) {
+//                // TODO Auto-generated catch block
+//                e1.printStackTrace();
+//            }
+            
+            
 
             try {
                 simpMessagingTemplate.convertAndSend("/channel/new-document", new ApiResponse(SUCCESS, document));
