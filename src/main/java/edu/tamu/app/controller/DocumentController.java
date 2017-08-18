@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -110,7 +111,8 @@ public class DocumentController {
             sortDirection = Sort.Direction.DESC;
         }
 
-        Pageable request = new PageRequest(dataNode.get("page").get("number").asInt() - 1, dataNode.get("page").get("size").asInt(), sortDirection, dataNode.get("sort").get("field").asText());
+        Pageable request = new PageRequest(dataNode.get("page").get("number").asInt() - 1,
+                dataNode.get("page").get("size").asInt(), sortDirection, dataNode.get("sort").get("field").asText());
 
         Map<String, String[]> filters = new HashMap<String, String[]>();
 
@@ -144,7 +146,7 @@ public class DocumentController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/save")
+    @ApiMapping(value = "/save", method = RequestMethod.POST)
     @Auth(role = "ROLE_USER")
     public ApiResponse save(@ApiModel Document document) {
         document = documentRepo.fullSave(document);
