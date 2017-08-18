@@ -455,7 +455,7 @@ public class ProjectsService {
                     else {
                         fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, label);
                         fieldProfile.setRepeatable(true);
-                       
+                        fieldProfileRepo.save(fieldProfile);
                     }
                     
                     value = valueNode.getTextContent();
