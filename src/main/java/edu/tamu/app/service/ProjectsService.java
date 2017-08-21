@@ -419,16 +419,16 @@ public class ProjectsService {
                 String label = "";
                 String value = "";
                 if(attributes != null && valueNode.getNodeType() != Node.TEXT_NODE) {
+                    
                     String element = attributes.getNamedItem("element").getNodeValue();
                     String qualifier = attributes.getNamedItem("qualifier").getNodeValue();
-                    System.out.println(attributes.getNamedItem("element").getNodeValue());
-                    
                     label = "dc." +  element + (qualifier.equals("none")? "" : ("."+qualifier) );
-                    
+                    System.out.println("Processing node " + label);
                     
                     FieldProfile fieldProfile = null;
                     //If the project does not have a profile to accomodate this field, make one on it
                     if(!project.hasProfileWithLabel(label)) {
+                        System.out.println("Field " + label + " does not yet exist on the project.");
                         String gloss = label;
                         //TODO:  how to determine if there are multiple values and therefore it should be repeatable?
                         Boolean isRepeatable = false;
@@ -454,16 +454,22 @@ public class ProjectsService {
                     } //If the project has a field profile to accommodate this field, use it 
                     else {
                         fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, label);
-                        fieldProfile.setRepeatable(true);
-                        fieldProfileRepo.save(fieldProfile);
                     }
                     
                     value = valueNode.getTextContent();
                     MetadataFieldLabel mfl = metadataFieldLabelRepo.findByNameAndProfile(label, fieldProfile);
                     MetadataFieldGroup mfg = metadataFieldGroupRepo.findByDocumentAndLabel(document, mfl);
+                    
+                    //if the document doesn't have a field group for this field, then create it
                     if(mfg == null) {
-                        mfg = metadataFieldGroupRepo.create(document, mfl);
+                        mfg = metadataFieldGroupRepo.create(document, mfl);                    
                     }
+                    //otherwise, note that the field is being repeated on this document (and therefore for the project as a whole)
+                    else {
+                        fieldProfile.setRepeatable(true);
+                        fieldProfile = fieldProfileRepo.save(fieldProfile);
+                    }                    
+                    
                     System.out.println("Adding value \""+ value + "\" to field group " + mfg.getLabel().getName());
                     metadataFieldValueRepo.create(value, mfg);                    
                 }
