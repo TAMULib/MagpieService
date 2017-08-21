@@ -2,7 +2,9 @@ package edu.tamu.app.service;
 
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -11,8 +13,10 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.propertyeditors.FileEditor;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -20,7 +24,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 
 //import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilder;
@@ -43,6 +46,7 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ProjectSuggestor;
+import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
@@ -113,13 +117,15 @@ public class ProjectsService {
 
     @Autowired
     private MetadataFieldGroupRepo metadataFieldGroupRepo;
-    
+
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     // TODO: initialize projects.json into database and remove this in memory
     // cache
     private JsonNode projectsNode = null;
+
+    private static Tika tika = new Tika();
 
     public JsonNode readProjectsNode() {
         String json = null;
@@ -395,7 +401,9 @@ public class ProjectsService {
             DocumentBuilder builder;
             try {
                 builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                File file = resourceLoader.getResource("classpath:static" + String.join(File.separator, documentPath, "dublin_core.xml")).getFile();
+                File file = resourceLoader
+                        .getResource("classpath:static" + String.join(File.separator, documentPath, "dublin_core.xml"))
+                        .getFile();
                 dublinCoreDocument = builder.parse(file);
             } catch (IOException e1) {
                 // TODO Auto-generated catch block
@@ -407,30 +415,28 @@ public class ProjectsService {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
-            
-            
+
             Node dublinCoreNode = dublinCoreDocument.getFirstChild();
             NodeList valueNodes = dublinCoreNode.getChildNodes();
-            
-            for(int i = 0; i<valueNodes.getLength(); i++) {
-                System.out.println("Value Node number " + i + "...");
+
+            for (int i = 0; i < valueNodes.getLength(); i++) {
                 Node valueNode = valueNodes.item(i);
                 NamedNodeMap attributes = valueNode.getAttributes();
                 String label = "";
                 String value = "";
-                if(attributes != null && valueNode.getNodeType() != Node.TEXT_NODE) {
-                    
+                if (attributes != null && valueNode.getNodeType() != Node.TEXT_NODE) {
+
                     String element = attributes.getNamedItem("element").getNodeValue();
                     String qualifier = attributes.getNamedItem("qualifier").getNodeValue();
-                    label = "dc." +  element + (qualifier.equals("none")? "" : ("."+qualifier) );
-                    System.out.println("Processing node " + label);
-                    
+                    label = "dc." + element + (qualifier.equals("none") ? "" : ("." + qualifier));
+
                     FieldProfile fieldProfile = null;
-                    //If the project does not have a profile to accomodate this field, make one on it
-                    if(!project.hasProfileWithLabel(label)) {
-                        System.out.println("Field " + label + " does not yet exist on the project.");
+                    // If the project does not have a profile to accommodate
+                    // this field, make one on it
+                    if (!project.hasProfileWithLabel(label)) {
                         String gloss = label;
-                        //TODO:  how to determine if there are multiple values and therefore it should be repeatable?
+                        // TODO: how to determine if there are multiple values
+                        // and therefore it should be repeatable?
                         Boolean isRepeatable = false;
                         Boolean isReadOnly = false;
                         Boolean isHidden = false;
@@ -440,8 +446,8 @@ public class ProjectsService {
 
                         fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
                         if (fieldProfile == null) {
-                            fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired,
-                                    inputType, defaultValue);
+                            fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden,
+                                    isRequired, inputType, defaultValue);
                         }
 
                         MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(label,
@@ -450,42 +456,82 @@ public class ProjectsService {
                             metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
                         }
 
-                        project.addProfile(fieldProfile);                        
-                    } //If the project has a field profile to accommodate this field, use it 
+                        project.addProfile(fieldProfile);
+                    }
+                    // If the project has a field profile to accommodate this
+                    // field, use it
                     else {
                         fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, label);
                     }
-                    
+
                     value = valueNode.getTextContent();
                     MetadataFieldLabel mfl = metadataFieldLabelRepo.findByNameAndProfile(label, fieldProfile);
                     MetadataFieldGroup mfg = metadataFieldGroupRepo.findByDocumentAndLabel(document, mfl);
-                    
-                    //if the document doesn't have a field group for this field, then create it
-                    if(mfg == null) {
-                        mfg = metadataFieldGroupRepo.create(document, mfl);                    
+
+                    // if the document doesn't have a field group for this
+                    // field, then create it
+                    if (mfg == null) {
+                        mfg = metadataFieldGroupRepo.create(document, mfl);
                     }
-                    //otherwise, note that the field is being repeated on this document (and therefore for the project as a whole)
+                    // otherwise, note that the field is being repeated on this
+                    // document (and therefore for the project as a whole)
                     else {
                         fieldProfile.setRepeatable(true);
                         fieldProfile = fieldProfileRepo.save(fieldProfile);
-                    }                    
-                    
-                    System.out.println("Adding value \""+ value + "\" to field group " + mfg.getLabel().getName());
-                    metadataFieldValueRepo.create(value, mfg);                    
+                    }
+
+                    metadataFieldValueRepo.create(value, mfg);
                 }
             }
-                        
 
-            // TODO: we could use the contents file to determine dispositions of the files, but this doesen't map clearly to Fedora
-//            File contentsFile = null;
-//            try {
-//                contentsFile = resourceLoader.getResource("classpath:static" + String.join(File.separator, documentPath, "contents")).getFile();
-//            } catch (IOException e1) {
-//                // TODO Auto-generated catch block
-//                e1.printStackTrace();
-//            }
-            
-            
+            // use the contents file to determine content files
+            // TODO: this throws away a lot of the details of the contents
+            // manifest, but it's unclear how to map it all to Fedora anyway
+            File contentsFile = null;
+            try {
+                contentsFile = resourceLoader
+                        .getResource("classpath:static" + String.join(File.separator, documentPath, "contents"))
+                        .getFile();
+                String line = "";
+
+                if (contentsFile.exists()) {
+                    BufferedReader is = new BufferedReader(new FileReader(contentsFile));
+
+                    while ((line = is.readLine()) != null) {
+                        System.out.println("Got contents line: " + line);
+                        if ("".equals(line.trim()) || line.contains("bundle:THUMBNAIL")) {
+                            continue;
+                        }
+
+                        String filename = line.split("\\t")[0];
+
+                        String filePath = document.getDocumentPath() + File.separator + filename;
+
+                        File file = resourceLoader.getResource("classpath:static" + filePath).getFile();
+
+                        System.out.println("Attempting to add file from contents: " + filePath);
+                        if (file.exists() && file.isFile()) {
+                            String name = file.getName();
+                            String path = document.getDocumentPath() + File.separator + file.getName();
+                            String url = host + document.getDocumentPath() + File.separator + file.getName();
+                            String mimeType = tika.detect(path);
+                            logger.info("Adding resource " + name + " - " + mimeType + " to document "
+                                    + document.getName());
+                            Resource resource = new Resource(name, path, url, mimeType);
+                            document.addResource(resource);
+                            documentRepo.save(document);
+                        } else {
+                            System.out.println("Could not find file " + file.getPath());
+                        }
+
+                    }
+                    is.close();
+
+                }
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
 
             try {
                 simpMessagingTemplate.convertAndSend("/channel/new-document", new ApiResponse(SUCCESS, document));
@@ -500,7 +546,5 @@ public class ProjectsService {
     public void clear() {
         projectsNode = null;
     }
-
-   
 
 }
