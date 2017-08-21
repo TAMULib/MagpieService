@@ -127,9 +127,14 @@ public class ProjectFileListener extends AbstractFileListener {
     public void onFileCreate(File file) {
         String documentName = file.getParentFile().getName();
         String projectName = file.getParentFile().getParentFile().getName();
-        logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
-        Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
-        addResource(document, file);
+        
+        IngestType ingestType = hasIngestType(file.getParentFile().getParentFile());
+        
+        if(! ingestType.equals(IngestType.SAF)) {
+            logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
+            Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+            addResource(document, file);
+        }
     }
 
     @Override
