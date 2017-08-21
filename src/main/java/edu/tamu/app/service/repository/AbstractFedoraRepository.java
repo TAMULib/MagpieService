@@ -31,6 +31,7 @@ import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.PublishedLocation;
+import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 
 public abstract class AbstractFedoraRepository implements Repository {
@@ -66,7 +67,7 @@ public abstract class AbstractFedoraRepository implements Repository {
 
             String itemContainerPath = createItemContainer(document.getName());
 
-            File[] files = getFiles(document.getDocumentPath());
+            File[] files = getFiles(document);
 
             pushFiles(document, itemContainerPath, files);
 
@@ -134,9 +135,13 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     }
 
-    protected File[] getFiles(String directoryPath) throws IOException {
-        File directory = resourceLoader.getResource("classpath:static" + directoryPath).getFile();
-        return directory.listFiles();
+    protected File[] getFiles(Document document) throws IOException {
+        File[] files = new File[document.getResources().size()];
+        int i = 0;
+        for(Resource resource : document.getResources()) {
+            files[i++] = resourceLoader.getResource("classpath:static" + resource.getPath()).getFile();
+        }
+        return files;
     }
 
     /**
