@@ -53,8 +53,9 @@ public class ProjectFileListener extends AbstractFileListener {
     // this is a blocking sleep operation of this listener
     private boolean directoryIsReady(File directory) {
         boolean directoryReady = false;
-        
-        //if (isHeadless(directory)) {
+        IngestType ingestType = hasIngestType(directory.getParentFile());
+        if (isHeadless(directory) || ingestType.equals(IngestType.SAF)) {
+            System.out.println("Waiting for directory " + directory + " to be quiescent, as it is a Headless or SAF-ingest project.");
             long lastModified = 0L;
             long oldLastModified = -1L;
             long stableTime = 0L;
@@ -67,9 +68,10 @@ public class ProjectFileListener extends AbstractFileListener {
                 oldLastModified = lastModified;
             }
             directoryReady = true;
-//        } else {
-//            directoryReady = true;
-//        }
+        } else {
+            System.out.println("Directory " + directory + " of ingest type " + hasIngestType(directory) + " is neither Headless nor SAF-ingest; consider it immediately ready.");
+            directoryReady = true;
+        }
         
         return directoryReady;
     }
