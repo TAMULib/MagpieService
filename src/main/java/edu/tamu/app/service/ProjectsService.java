@@ -519,12 +519,12 @@ public class ProjectsService {
                                     + document.getName());
                             Resource resource = new Resource(name, path, url, mimeType);
                             document.addResource(resource);
-                            documentRepo.save(document);
                         } else {
                             System.out.println("Could not find file " + file.getPath());
                         }
 
                     }
+                    documentRepo.save(document);
                     is.close();
 
                 }
