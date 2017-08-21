@@ -90,8 +90,8 @@
           <artifactId>xom</artifactId>
         </exclusion>
       </exclusions>
-
     </dependency>
+
   </dependencies>
 
   <build>

@@ -1,8 +1,6 @@
 package edu.tamu.app.service.repository;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,8 +8,6 @@ import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import javax.imageio.ImageIO;
 
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
@@ -40,19 +36,19 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         "image/png",
         "image/tiff",
         "image/x-tiff",
+        "image/jp2",
         "image/j2k",
         "image/jpx",
         "image/jpm",
-        "image/jpeg2000",
-        "image/jp2"
+        "image/jpeg2000"
     });
 
     private List<String> jpeg2000MimeTypes = Arrays.asList(new String[] {
+        "image/jp2",
         "image/j2k",
         "image/jpx",
         "image/jpm",
-        "image/jpeg2000",
-        "image/jp2"
+        "image/jpeg2000"
     });
     // @formatter:on
 
@@ -359,30 +355,21 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
             int height = 0;
             int width = 0;
+            try {
+                ImageInfo imageInfo = Imaging.getImageInfo(imageFile);
+                height = imageInfo.getHeight();
+                width = imageInfo.getWidth();
+            } catch (ImageReadException e) {
+                logger.warn("Could not get image info for mime type: " + mimeType);
+            }
 
             if (jpeg2000MimeTypes.contains(mimeType)) {
-
-                BufferedImage bimg = ImageIO.read(new FileInputStream(imageFile));
-
-                if (bimg != null) {
-                    height = bimg.getHeight();
-                    width = bimg.getWidth();
-                } else {
-                    System.out.println("\n\n\n\nCould not get image info for mime type: " + mimeType + "\n\n\n\n");
-                }
-
-            } else {
-                try {
-                    ImageInfo imageInfo = Imaging.getImageInfo(imageFile);
-                    height = imageInfo.getHeight();
-                    width = imageInfo.getWidth();
-                } catch (ImageReadException e) {
-                    System.out.println("\n\n\n\nCould not get image info for mime type: " + mimeType + "\n\n\n\n");
-                    e.printStackTrace();
-                }
+                mimeType = "image/jp2";
             }
+
             // @formatter:off
             queryPredicates = "<> ebucore:filename '" + imageFile.getName() + "' . " +
+                              "<> ebucore:hasMimeType '" + mimeType + "' . " +
                               "<> ebucore:height '" + height + "' . " +
                               "<> ebucore:width '" + width + "' ";
         
