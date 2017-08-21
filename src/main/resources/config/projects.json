@@ -200,7 +200,7 @@
   "postcards":{
     "ingestType":"SAF",
     "repositories": [{
-      "name": "Fedora PCDM",
+      "name": "Fedora PCDM for SAF",
       "type": "FEDORA_PCDM",
       "settings": [{
           "key": "repoUrl",
@@ -243,7 +243,7 @@
    },
   "fedora_pcdm": {
     "repositories": [{
-      "name": "Fedora PCDM",
+      "name": "Fedora PCDM for testing",
       "type": "FEDORA_PCDM",
       "settings": [{
           "key": "repoUrl",

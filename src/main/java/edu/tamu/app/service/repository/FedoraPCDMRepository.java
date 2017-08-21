@@ -1,11 +1,17 @@
 package edu.tamu.app.service.repository;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
@@ -23,6 +29,32 @@ import edu.tamu.app.model.ProjectRepository;
 public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
     private Tika tika;
+
+    // @formatter:off
+    private List<String> imageMimeTypes = Arrays.asList(new String[] {
+        "image/bmp",
+        "image/gif",
+        "image/x-icon",
+        "image/jpeg",
+        "image/pjpeg",
+        "image/png",
+        "image/tiff",
+        "image/x-tiff",
+        "image/j2k",
+        "image/jpx",
+        "image/jpm",
+        "image/jpeg2000",
+        "image/jp2"
+    });
+
+    private List<String> jpeg2000MimeTypes = Arrays.asList(new String[] {
+        "image/j2k",
+        "image/jpx",
+        "image/jpm",
+        "image/jpeg2000",
+        "image/jp2"
+    });
+    // @formatter:on
 
     private String membersEndpoint = "members";
     private String objectsEndpoint = "objects";
@@ -266,7 +298,13 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
     private String buildPCDMItemOrderUpdate(String itemUrl, String firstUrl, String lastUrl) {
         logger.debug("Setting first/last order for PCDM Item at <" + itemUrl + ">");
-        String orderedItemUpdate = "PREFIX iana: <http://www.iana.org/assignments/relation/>" + "INSERT {" + "<> iana:first <" + firstUrl + "> ." + "<> iana:last <" + lastUrl + ">" + "} WHERE {" + "}";
+        // @formatter:off
+        String orderedItemUpdate = "PREFIX iana: <http://www.iana.org/assignments/relation/>" + 
+                                   "INSERT {" +
+                                     "<> iana:first <" + firstUrl + "> ." + 
+                                     "<> iana:last <" + lastUrl + ">" + 
+                                   "} WHERE {" + "}";
+        // @formatter:on
         return orderedItemUpdate;
     }
 
@@ -298,32 +336,60 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
         String fileName = imageFile.getName();
 
-        String mimeType = tika.detect(imageFile);
-
-        int height = 0;
-        int width = 0;
-
-        try {
-            ImageInfo imageInfo = Imaging.getImageInfo(imageFile);
-            height = imageInfo.getHeight();
-            width = imageInfo.getWidth();
-        } catch (ImageReadException e) {
-            System.out.println("\n\n\n\nCould not get image info for mime type: " + mimeType + "\n\n\n\n");
-            e.printStackTrace();
-        }
-        
+        // @formatter:off
         String updateQuery = "PREFIX pcdm: <http://pcdm.org/models#> " +
                              "PREFIX dc: <http://purl.org/dc/elements/1.1/> " +
                              "PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> " + 
                              "INSERT {" + 
                              "<> a pcdm:File . " + 
                              "<> dc:filename '" + fileName + "' . " +
-                             "<> ebucore:filename '" + fileName + "' . " +
-                             "<> ebucore:height '" + height + "' . " +
-                             "<> ebucore:width '" + width + "' " +
+                             getImageMetadata(imageFile) + 
                              "} WHERE { }";
-
+        // @formatter:on
         return updateQuery;
+    }
+
+    private String getImageMetadata(File imageFile) throws IOException {
+
+        String mimeType = tika.detect(imageFile);
+
+        String queryPredicates = "";
+
+        if (imageMimeTypes.contains(mimeType)) {
+
+            int height = 0;
+            int width = 0;
+
+            if (jpeg2000MimeTypes.contains(mimeType)) {
+
+                BufferedImage bimg = ImageIO.read(new FileInputStream(imageFile));
+
+                if (bimg != null) {
+                    height = bimg.getHeight();
+                    width = bimg.getWidth();
+                } else {
+                    System.out.println("\n\n\n\nCould not get image info for mime type: " + mimeType + "\n\n\n\n");
+                }
+
+            } else {
+                try {
+                    ImageInfo imageInfo = Imaging.getImageInfo(imageFile);
+                    height = imageInfo.getHeight();
+                    width = imageInfo.getWidth();
+                } catch (ImageReadException e) {
+                    System.out.println("\n\n\n\nCould not get image info for mime type: " + mimeType + "\n\n\n\n");
+                    e.printStackTrace();
+                }
+            }
+            // @formatter:off
+            queryPredicates = "<> ebucore:filename '" + imageFile.getName() + "' . " +
+                              "<> ebucore:height '" + height + "' . " +
+                              "<> ebucore:width '" + width + "' ";
+        
+            // @formatter:on
+        }
+
+        return queryPredicates;
     }
 
     // intermediary for prepping PCDM Proxy Pages to be pushed to the Fedora repo
