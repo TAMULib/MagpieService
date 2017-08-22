@@ -349,32 +349,14 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
         String mimeType = tika.detect(imageFile);
 
-        String queryPredicates = "";
-
-        if (imageMimeTypes.contains(mimeType)) {
-
-            int height = 0;
-            int width = 0;
-            try {
-                ImageInfo imageInfo = Imaging.getImageInfo(imageFile);
-                height = imageInfo.getHeight();
-                width = imageInfo.getWidth();
-            } catch (ImageReadException e) {
-                logger.warn("Could not get image info for mime type: " + mimeType);
-            }
-
-            if (jpeg2000MimeTypes.contains(mimeType)) {
-                mimeType = "image/jp2";
-            }
-
-            // @formatter:off
-            queryPredicates = "<> ebucore:filename '" + imageFile.getName() + "' . " +
-                              "<> ebucore:hasMimeType '" + mimeType + "' . " +
-                              "<> ebucore:height '" + height + "' . " +
-                              "<> ebucore:width '" + width + "' ";
-        
-            // @formatter:on
+        if (jpeg2000MimeTypes.contains(mimeType)) {
+            mimeType = "image/jp2";
         }
+
+        // @formatter:off
+        String queryPredicates = "<> ebucore:filename '" + imageFile.getName() + "' . " +
+                                 "<> ebucore:hasMimeType '" + mimeType + "' ";
+        // @formatter:on
 
         return queryPredicates;
     }
