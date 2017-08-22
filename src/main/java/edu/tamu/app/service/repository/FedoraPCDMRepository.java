@@ -9,9 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.imaging.ImageInfo;
-import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.Imaging;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -27,22 +24,6 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     private Tika tika;
 
     // @formatter:off
-    private List<String> imageMimeTypes = Arrays.asList(new String[] {
-        "image/bmp",
-        "image/gif",
-        "image/x-icon",
-        "image/jpeg",
-        "image/pjpeg",
-        "image/png",
-        "image/tiff",
-        "image/x-tiff",
-        "image/jp2",
-        "image/j2k",
-        "image/jpx",
-        "image/jpm",
-        "image/jpeg2000"
-    });
-
     private List<String> jpeg2000MimeTypes = Arrays.asList(new String[] {
         "image/jp2",
         "image/j2k",
@@ -353,10 +334,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
             mimeType = "image/jp2";
         }
 
-        // @formatter:off
-        String queryPredicates = "<> ebucore:filename '" + imageFile.getName() + "' . " +
-                                 "<> ebucore:hasMimeType '" + mimeType + "' ";
-        // @formatter:on
+        String queryPredicates = "<> ebucore:filename '" + imageFile.getName() + "' . " + "<> ebucore:hasMimeType '" + mimeType + "' ";
 
         return queryPredicates;
     }
