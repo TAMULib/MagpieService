@@ -384,7 +384,7 @@
         {
           "key": "collectionId",
           "values": [
-            "176"
+            "COLLECTION-UUID"
           ]
         },
         {
@@ -396,7 +396,7 @@
         {
           "key": "email",
           "values": [
-            "sword@oaktrust.library.tamu.edu"
+            "magpie@oaktrust.library.tamu.edu"
           ]
         },
         {

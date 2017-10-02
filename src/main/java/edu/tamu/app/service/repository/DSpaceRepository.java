@@ -143,11 +143,11 @@ public class DSpaceRepository implements Repository {
                 }
             }
 
-            logger.info("Login successful. Authorization cookie: " + getCookieAsString(authCookie.get()));
-
             if (!authCookie.isPresent()) {
                 throw new RuntimeException("Unable to get cookie JSESSIONID from response!");
             }
+
+            logger.info("Login successful. Authorization cookie: " + getCookieAsString(authCookie.get()));
 
         } catch (IOException e) {
             IOException ioe = new IOException("Failed to authenticate to DSpace. {" + e.getMessage() + "}");
@@ -466,28 +466,36 @@ public class DSpaceRepository implements Repository {
     }
 
     public String getRepoUrl() {
-        return projectRepository.getSettingValues("repoUrl").get(0);
+        return getSettingValue("repoUrl");
     }
 
     public String getRepoContextPath() {
-        return projectRepository.getSettingValues("repoContextPath").get(0);
+        return getSettingValue("repoContextPath");
     }
 
     public String getCollectionId() {
-        return projectRepository.getSettingValues("collectionId").get(0);
+        return getSettingValue("collectionId");
     }
 
     public String getGroupId() {
-        return projectRepository.getSettingValues("groupId").get(0);
+        return getSettingValue("groupId");
     }
 
     public String getEmail() {
-        return projectRepository.getSettingValues("email").get(0);
+        return getSettingValue("email");
     }
 
     public String getPassword() {
-        return projectRepository.getSettingValues("password").get(0);
+        return getSettingValue("password");
 
+    }
+
+    private String getSettingValue(String key) {
+        return hasSettingValues(key) ? projectRepository.getSettingValues(key).get(0) : "";
+    }
+
+    private boolean hasSettingValues(String key) {
+        return projectRepository.getSettingValues(key) != null && projectRepository.getSettingValues(key).size() > 0;
     }
 
     private String getCookieAsString(Cookie cookie) {
