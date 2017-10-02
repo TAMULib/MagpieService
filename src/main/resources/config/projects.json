@@ -197,9 +197,53 @@
       }
     ]
   },
+  "postcards":{
+    "ingestType":"SAF",
+    "repositories": [{
+      "name": "Fedora PCDM for SAF",
+      "type": "FEDORA_PCDM",
+      "settings": [{
+          "key": "repoUrl",
+          "values": [
+            "http://localhost:8080"
+          ]
+        },
+        {
+          "key": "restPath",
+          "values": [
+            "fcrepo/rest"
+          ]
+        },
+        {
+          "key": "containerPath",
+          "values": [
+            "world_war_1_postcards"
+          ]
+        },
+        {
+          "key": "userName",
+          "values": [
+            ""
+          ]
+        },
+        {
+          "key": "password",
+          "values": [
+            ""
+          ]
+        }
+      ]
+    }],
+    "authorities":[
+    ],
+    "suggestors":[
+    ],
+    "metadata":[
+    ]
+   },
   "fedora_pcdm": {
     "repositories": [{
-      "name": "Fedora PCDM",
+      "name": "Fedora PCDM for testing",
       "type": "FEDORA_PCDM",
       "settings": [{
           "key": "repoUrl",
@@ -340,7 +384,7 @@
         {
           "key": "collectionId",
           "values": [
-            "176"
+            "COLLECTION-UUID"
           ]
         },
         {
@@ -352,7 +396,7 @@
         {
           "key": "email",
           "values": [
-            "sword@oaktrust.library.tamu.edu"
+            "magpie@oaktrust.library.tamu.edu"
           ]
         },
         {

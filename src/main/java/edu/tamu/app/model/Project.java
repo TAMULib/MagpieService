@@ -222,4 +222,17 @@ public class Project extends BaseEntity {
         setRepositories(new ArrayList<ProjectRepository>());
     }
 
+    public boolean hasProfileWithLabel(String label) {
+        boolean hasIt = false;
+        for(FieldProfile fp : getProfiles()) {
+            for(MetadataFieldLabel fpLabel : fp.getLabels()) {
+                if(fpLabel.getName().equals(label)) {
+                    hasIt = true;
+                    break;
+                }
+            }
+        }
+        return hasIt;
+    }
+
 }
