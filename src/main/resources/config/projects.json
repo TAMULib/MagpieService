@@ -19,7 +19,7 @@
         {
           "key": "archivematicaURL",
           "values": [
-            "archivematica-demo.library.tamu.edu"
+            "https://archivematica-demo.library.tamu.edu"
           ]
         },
         {
