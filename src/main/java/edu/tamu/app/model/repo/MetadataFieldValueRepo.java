@@ -9,13 +9,13 @@
  */
 package edu.tamu.app.model.repo;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.repo.custom.MetadataFieldValueRepoCustom;
+import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
 /**
  * 
@@ -24,7 +24,7 @@ import edu.tamu.app.model.repo.custom.MetadataFieldValueRepoCustom;
  *
  */
 @Repository
-public interface MetadataFieldValueRepo extends JpaRepository<MetadataFieldValue, Long>, MetadataFieldValueRepoCustom {
+public interface MetadataFieldValueRepo extends WeaverRepo<MetadataFieldValue>, MetadataFieldValueRepoCustom {
 
     public MetadataFieldValue findByValueAndField(String value, MetadataFieldGroup field);
 

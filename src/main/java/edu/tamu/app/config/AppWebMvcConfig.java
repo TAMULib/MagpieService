@@ -8,10 +8,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -29,6 +31,8 @@ import edu.tamu.weaver.validation.resolver.WeaverValidatedModelMethodProcessor;
 
 @Configuration
 @AutoConfigureAfter(DispatcherServletAutoConfiguration.class)
+@EntityScan(basePackages = { "edu.tamu.app.model", "edu.tamu.weaver.wro.model" })
+@EnableJpaRepositories(basePackages = { "edu.tamu.app.model.repo", "edu.tamu.weaver.wro.model.repo" })
 public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
