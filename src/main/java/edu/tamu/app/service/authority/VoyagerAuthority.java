@@ -28,7 +28,7 @@ import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.model.response.marc.VoyagerServiceData;
-import edu.tamu.framework.util.HttpUtility;
+import edu.tamu.weaver.utility.HttpUtility;
 
 /**
  * Voyager service. Performs requests with ExLibris Voyager API. All Voyager API responses are xml. The xml is mapped to objects using JAXB.

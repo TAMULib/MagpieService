@@ -1,6 +1,6 @@
 package edu.tamu.app.service;
 
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -29,7 +29,8 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.registry.MagpieAuxiliaryService;
 import edu.tamu.app.utilities.CsvUtility;
-import edu.tamu.framework.model.ApiResponse;
+
+import edu.tamu.weaver.response.ApiResponse;
 
 @Service
 @Scope("prototype")

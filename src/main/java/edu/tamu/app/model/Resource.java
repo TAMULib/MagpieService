@@ -3,7 +3,7 @@ package edu.tamu.app.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
-import edu.tamu.framework.model.BaseEntity;
+import edu.tamu.weaver.data.model.BaseEntity;
 
 @Entity
 public class Resource extends BaseEntity {

@@ -27,8 +27,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.controller.interceptor.AppRestInterceptor;
-import edu.tamu.app.controller.interceptor.AppStompInterceptor;
 import edu.tamu.app.enums.AppRole;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Document;
@@ -44,7 +42,7 @@ import edu.tamu.app.service.exporter.DspaceCsvExporter;
 import edu.tamu.app.service.exporter.SpotlightCsvExporter;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.utilities.FileSystemUtility;
-import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.weaver.response.ApiResponse;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -112,21 +110,15 @@ public abstract class AbstractControllerTest extends MockData {
     @InjectMocks
     protected UserController userController;
 
-    @InjectMocks
-    protected AppStompInterceptor appStompInterceptor;
-
-    @InjectMocks
-    protected AppRestInterceptor appRestInterceptor;
-
     @Spy
     protected ObjectMapper objectMapper;
 
     @Mock
     protected SimpMessagingTemplate simpMessagingTemplate;
 
-    protected static String[] mockAdmins = { TEST_USER1.getUin().toString(), TEST_USER2.getUin().toString() };
+    protected static String[] mockAdmins = { TEST_USER1.getUsername().toString(), TEST_USER2.getUsername().toString() };
 
-    protected static String[] mockManagers = { TEST_USER3.getUin().toString() };
+    protected static String[] mockManagers = { TEST_USER3.getUsername().toString() };
 
     @SuppressWarnings({ "unchecked" })
     @Before
@@ -135,15 +127,11 @@ public abstract class AbstractControllerTest extends MockData {
 
         ReflectionTestUtils.setField(syncService, "mount", "/metadatatool");
 
-        ReflectionTestUtils.setField(appRestInterceptor, "admins", mockAdmins);
-        ReflectionTestUtils.setField(appStompInterceptor, "admins", mockAdmins);
-        ReflectionTestUtils.setField(appStompInterceptor, "managers", mockManagers);
-
         credentials.setEmail("aggieJane@tamu.edu");
         credentials.setFirstName(TEST_USER1.getFirstName());
         credentials.setLastName(TEST_USER1.getLastName());
         credentials.setRole(AppRole.ROLE_ADMIN.toString());
-        credentials.setUin(TEST_USER1.getUin().toString());
+        credentials.setUin(TEST_USER1.getUsername().toString());
         credentials.setNetid("aggieJane@tamu.edu");
 
         // app user

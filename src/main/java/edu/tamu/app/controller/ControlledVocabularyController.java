@@ -9,8 +9,8 @@
  */
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.ERROR;
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.ERROR;
+import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
@@ -20,16 +20,17 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.utilities.FileSystemUtility;
-import edu.tamu.framework.aspect.annotation.ApiMapping;
-import edu.tamu.framework.aspect.annotation.ApiVariable;
-import edu.tamu.framework.aspect.annotation.Auth;
-import edu.tamu.framework.model.ApiResponse;
+
+import edu.tamu.weaver.response.ApiResponse;
 
 /**
  * Document Controller
@@ -38,7 +39,7 @@ import edu.tamu.framework.model.ApiResponse;
  *
  */
 @RestController
-@ApiMapping("/cv")
+@RequestMapping("/cv")
 public class ControlledVocabularyController {
 
     @Autowired
@@ -52,8 +53,8 @@ public class ControlledVocabularyController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/all")
-    @Auth(role = "ROLE_USER")
+    @RequestMapping("/all")
+    @PreAuthorize("hasRole('USER')")
     public ApiResponse getAllControlledVocabulary() {
         URL location = this.getClass().getResource("/config");
         String fullPath = FileSystemUtility.getWindowsSafePathString(location.getPath());
@@ -88,9 +89,9 @@ public class ControlledVocabularyController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/{label}")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse getControlledVocabularyByField(@ApiVariable String label) {
+    @RequestMapping("/{label}")
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse getControlledVocabularyByField(@PathVariable String label) {
         URL location = this.getClass().getResource("/config");
         String fullPath = FileSystemUtility.getWindowsSafePathString(location.getPath());
 

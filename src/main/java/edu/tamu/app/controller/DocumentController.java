@@ -9,8 +9,8 @@
  */
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.ERROR;
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.ERROR;
+import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -24,10 +24,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.tamu.app.model.Document;
@@ -35,12 +40,8 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
-import edu.tamu.framework.aspect.annotation.ApiData;
-import edu.tamu.framework.aspect.annotation.ApiMapping;
-import edu.tamu.framework.aspect.annotation.ApiModel;
-import edu.tamu.framework.aspect.annotation.ApiVariable;
-import edu.tamu.framework.aspect.annotation.Auth;
-import edu.tamu.framework.model.ApiResponse;
+
+import edu.tamu.weaver.response.ApiResponse;
 
 /**
  * Document Controller
@@ -49,7 +50,7 @@ import edu.tamu.framework.model.ApiResponse;
  *
  */
 @RestController
-@ApiMapping("/document")
+@RequestMapping("/document")
 public class DocumentController {
 
     @Autowired
@@ -60,6 +61,9 @@ public class DocumentController {
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private static final Logger logger = Logger.getLogger(DocumentController.class);
 
@@ -69,8 +73,8 @@ public class DocumentController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/all")
-    @Auth(role = "ROLE_USER")
+    @RequestMapping("/all")
+    @PreAuthorize("hasRole('USER')")
     public ApiResponse allDocuments() {
         return new ApiResponse(SUCCESS, documentRepo.findAll());
     }
@@ -84,26 +88,28 @@ public class DocumentController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/get/{projectName}/{documentName}")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse documentByName(@ApiVariable String projectName, @ApiVariable String documentName) {
+    @RequestMapping("/get/{projectName}/{documentName}")
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse documentByName(@PathVariable String projectName, @PathVariable String documentName) {
         return new ApiResponse(SUCCESS, documentRepo.findByProjectNameAndName(projectName, documentName));
     }
 
     /**
      * Endpoint to return a page of documents.
      * 
-     * @param dataNode
-     * @ApiData JsonNode
+     * @param data
+     * @ApiData Map<String, Object>
      * 
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/page")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse pageDocuments(@ApiData JsonNode dataNode) {
+    @RequestMapping("/page")
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse pageDocuments(@RequestBody Map<String, Object>  data) {
 
         Direction sortDirection;
+        
+        JsonNode dataNode = objectMapper.convertValue(data, JsonNode.class);
 
         if (dataNode.get("sort").get("direction").asText().equals("asc")) {
             sortDirection = Sort.Direction.ASC;
@@ -146,9 +152,9 @@ public class DocumentController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping(value = "/save", method = RequestMethod.POST)
-    @Auth(role = "ROLE_USER")
-    public ApiResponse save(@ApiModel Document document) {
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse save(@RequestBody Document document) {
         document = documentRepo.fullSave(document);
         simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
         return new ApiResponse(SUCCESS);
@@ -163,9 +169,9 @@ public class DocumentController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/push/{projectName}/{documentName}")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse push(@ApiVariable String projectName, @ApiVariable String documentName) {
+    @RequestMapping("/push/{projectName}/{documentName}")
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse push(@PathVariable String projectName, @PathVariable String documentName) {
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 
         for (ProjectRepository repository : document.getProject().getRepositories()) {

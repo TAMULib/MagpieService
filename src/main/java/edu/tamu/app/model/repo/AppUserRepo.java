@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.custom.AppUserRepoCustom;
+import edu.tamu.weaver.auth.model.repo.AbstractWeaverUserRepo;
 
 /**
  * User repository.
@@ -22,7 +23,7 @@ import edu.tamu.app.model.repo.custom.AppUserRepoCustom;
  *
  */
 @Repository
-public interface AppUserRepo extends JpaRepository<AppUser, Long>, AppUserRepoCustom {
+public interface AppUserRepo extends AbstractWeaverUserRepo<AppUser>, AppUserRepoCustom {
 
     /**
      * Retrieve user by UIN.

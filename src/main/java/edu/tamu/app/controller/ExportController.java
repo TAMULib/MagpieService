@@ -1,8 +1,8 @@
 package edu.tamu.app.controller;
 
 import static edu.tamu.app.service.exporter.AbstractExporter.isAccepted;
-import static edu.tamu.framework.enums.ApiResponseType.ERROR;
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.ERROR;
+import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.comparator.LabelComparator;
@@ -33,13 +36,11 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.exporter.DspaceCsvExporter;
 import edu.tamu.app.service.exporter.SpotlightCsvExporter;
-import edu.tamu.framework.aspect.annotation.ApiMapping;
-import edu.tamu.framework.aspect.annotation.ApiVariable;
-import edu.tamu.framework.aspect.annotation.Auth;
-import edu.tamu.framework.model.ApiResponse;
+
+import edu.tamu.weaver.response.ApiResponse;
 
 @RestController
-@ApiMapping("/export")
+@RequestMapping("/export")
 public class ExportController {
 
     @Value("${app.mount}")
@@ -74,9 +75,9 @@ public class ExportController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/headers/{format}/{projectName}")
-    @Auth(role = "ROLE_MANAGER")
-    public ApiResponse getMetadataHeaders(@ApiVariable String projectName, @ApiVariable String format) {
+    @RequestMapping("/headers/{format}/{projectName}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse getMetadataHeaders(@PathVariable String projectName, @PathVariable String format) {
         List<String> metadataHeaders = null;
         switch (format) {
         case "spotlight-csv":
@@ -92,9 +93,9 @@ public class ExportController {
         return new ApiResponse(SUCCESS, metadataHeaders);
     }
 
-    @ApiMapping("/spotlight-csv/{project}")
-    @Auth(role = "ROLE_MANAGER")
-    public ApiResponse spotlightCsvExport(@ApiVariable String project) {
+    @RequestMapping("/spotlight-csv/{project}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse spotlightCsvExport(@PathVariable String project) {
         List<List<String>> metadata = spotlightCsvExporter.extractMetadata(projectRepo.findByName(project));
         return new ApiResponse(SUCCESS, metadata);
     }
@@ -108,9 +109,9 @@ public class ExportController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/dspace-csv/{project}")
-    @Auth(role = "ROLE_MANAGER")
-    public ApiResponse dspaceCsvExport(@ApiVariable String project) {
+    @RequestMapping("/dspace-csv/{project}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse dspaceCsvExport(@PathVariable String project) {
         List<List<String>> metadata = dspaceCsvExporter.extractMetadata(projectRepo.findByName(project));
         return new ApiResponse(SUCCESS, metadata);
     }
@@ -128,9 +129,9 @@ public class ExportController {
      * @throws FileNotFoundException
      * 
      */
-    @ApiMapping("/dspace-saf/{project}")
-    @Auth(role = "ROLE_MANAGER")
-    public ApiResponse saf(@ApiVariable String project) throws IOException {
+    @RequestMapping("/dspace-saf/{project}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse saf(@PathVariable String project) throws IOException {
 
         logger.info("Generating SAF for project " + project);
 

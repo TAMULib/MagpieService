@@ -12,9 +12,9 @@
   <description>An application to create metadata for scanned documents.</description>
 
   <parent>
-    <groupId>edu.tamu.weaverframework</groupId>
+    <groupId>edu.tamu.framework</groupId>
     <artifactId>weaver-webservice-parent</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -25,10 +25,39 @@
 
   <dependencies>
     <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-initializer</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
 
-      <groupId>edu.tamu.weaverframework</groupId>
-      <artifactId>weaver-webservice-core</artifactId>
-      <version>1.2.0</version>
+    <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-auth</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-token-provider</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-validation</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-wro</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-reporting</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -73,6 +102,26 @@
         </exclusion>
       </exclusions>
     </dependency>
+    
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.10.19</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+	</dependency>
+	
+	<dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+	
 
   </dependencies>
 

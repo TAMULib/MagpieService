@@ -9,7 +9,7 @@
  */
 package edu.tamu.app.enums;
 
-import edu.tamu.framework.model.IRole;
+import edu.tamu.weaver.user.model.IRole;
 
 public enum AppRole implements IRole {
 

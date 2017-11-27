@@ -23,8 +23,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import edu.tamu.app.enums.AppRole;
-import edu.tamu.framework.model.AbstractCoreUser;
-import edu.tamu.framework.model.IRole;
+import edu.tamu.weaver.user.model.IRole;
+
+import edu.tamu.weaver.auth.model.AbstractWeaverUserDetails;
 
 /**
  * Application User entity.
@@ -33,7 +34,7 @@ import edu.tamu.framework.model.IRole;
  *
  */
 @Entity
-public class AppUser extends AbstractCoreUser {
+public class AppUser extends AbstractWeaverUserDetails {
 
     private static final long serialVersionUID = -322779181704256964L;
 
@@ -59,7 +60,7 @@ public class AppUser extends AbstractCoreUser {
      * 
      */
     public AppUser(String uin) {
-        super(uin);
+        setUsername(uin);
     }
 
     /**
@@ -137,40 +138,10 @@ public class AppUser extends AbstractCoreUser {
         return authorities;
     }
 
-    @Override
-    @JsonIgnore
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getUsername() {
-        return getUin();
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isEnabled() {
-        return true;
-    }
+	@Override
+	@JsonIgnore
+	public String getPassword() {
+		return null;
+	}
 
 }

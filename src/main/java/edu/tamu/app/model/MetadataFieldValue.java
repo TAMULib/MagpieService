@@ -23,8 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import edu.tamu.framework.model.BaseEntity;
-import edu.tamu.framework.resolver.BaseEntityIdResolver;
+import edu.tamu.weaver.data.model.BaseEntity;
 
 /**
  * 
@@ -36,7 +35,7 @@ import edu.tamu.framework.resolver.BaseEntityIdResolver;
 public class MetadataFieldValue extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id", resolver = BaseEntityIdResolver.class)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private MetadataFieldGroup field;
 
