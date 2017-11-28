@@ -76,6 +76,13 @@ public class AppUser extends AbstractWeaverUserDetails {
         setLastName(lastName);
         setRole(AppRole.valueOf(role));
     }
+    
+    public AppUser(AppUser user) {
+    	this(user.getUsername());
+    	setFirstName(user.getFirstName());
+        setLastName(user.getLastName());
+        setRole(user.getRole());
+    }
 
     /**
      * @return the role
