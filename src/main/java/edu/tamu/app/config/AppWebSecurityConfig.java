@@ -4,6 +4,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,24 +20,30 @@ import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Role;
 import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.weaver.auth.config.AuthWebSecurityConfig;
+//import edu.tamu.weaver.filter.AccessControlFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class AppWebSecurityConfig extends AuthWebSecurityConfig<AppUser, AppUserRepo, AppUserDetailsService> {
 	
+//	@Autowired
+//	private AccessControlFilter accessControlFilter;
+	
 	@Value("${app.security.allow-access}")
-	private String cors;
+	 private String[] hosts;
 
 	@Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationZZZSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(cors.split(",")));
+        
+        configuration.setAllowedOrigins(Arrays.asList(hosts));
         configuration.setAllowedMethods(Arrays.asList("GET", "DELETE", "PUT", "POST"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Origin", "Content-Type", "jwt"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Origin", "Content-Type", "x-requested-with", "jwt", "data", "x-forwarded-for"));
         configuration.setExposedHeaders(Arrays.asList("jwt"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**/*", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 	
@@ -61,7 +68,8 @@ public class AppWebSecurityConfig extends AuthWebSecurityConfig<AppUser, AppUser
             .and()
                 .csrf()
                     .disable()
-            .addFilter(tokenAuthorizationFilter());
+            .addFilter(tokenAuthorizationFilter())
+            ;//.addFilter(accessControlFilter);
         // @formatter:on
     }
     

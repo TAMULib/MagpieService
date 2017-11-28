@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration;
@@ -17,6 +18,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -37,6 +39,9 @@ import edu.tamu.weaver.validation.resolver.WeaverValidatedModelMethodProcessor;
 @EnableJpaRepositories(basePackages = { "edu.tamu.app.model.repo", "edu.tamu.weaver.wro.model.repo" })
 public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
 
+	 @Value("${app.security.allow-access}")
+	 private String[] hosts;
+	
 	@Autowired
 	private Environment env;
 
@@ -50,6 +55,18 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
 	public ResourceUrlEncodingFilter resourceUrlEncodingFilter() {
 		return new ResourceUrlEncodingFilter();
 	}
+	
+	@Override
+    public void addCorsMappings(CorsRegistry registry) {
+		
+		registry.addMapping("/**")
+			.allowedOrigins(hosts)
+			.allowCredentials(true)
+			.allowedMethods("GET", "DELETE", "PUT", "POST")
+			.allowedHeaders("Authorization", "Origin", "Content-Type", "x-requested-with", "jwt", "data", "x-forwarded-for");
+//			.exposedHeaders("jwt");
+		
+    }
 
 	@Bean
 	public ConfigurableMimeFileTypeMap configurableMimeFileTypeMap() {
