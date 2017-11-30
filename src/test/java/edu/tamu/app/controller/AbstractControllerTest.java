@@ -27,7 +27,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.enums.AppRole;
+
+import edu.tamu.app.model.Role;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
@@ -130,7 +131,7 @@ public abstract class AbstractControllerTest extends MockData {
         credentials.setEmail("aggieJane@tamu.edu");
         credentials.setFirstName(TEST_USER1.getFirstName());
         credentials.setLastName(TEST_USER1.getLastName());
-        credentials.setRole(AppRole.ROLE_ADMIN.toString());
+        credentials.setRole(Role.ROLE_ADMIN.toString());
         credentials.setUin(TEST_USER1.getUsername().toString());
         credentials.setNetid("aggieJane@tamu.edu");
 

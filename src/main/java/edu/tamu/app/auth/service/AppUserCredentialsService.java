@@ -20,9 +20,6 @@ public class AppUserCredentialsService extends UserCredentialsService<AppUser, A
 
 		AppUser finalUser = null;
 
-		// TODO: check to see if credentials is from basic login or shibboleth
-		// do not create new user from basic login credentials that have no
-		// user!
 		if (!user.isPresent()) {
 
 			Role role = Role.ROLE_USER;
@@ -32,26 +29,24 @@ public class AppUserCredentialsService extends UserCredentialsService<AppUser, A
 			}
 
 			String shibEmail = credentials.getEmail();
+			String shibUin = credentials.getUin();
 
-			for (String email : admins) {
-				if (email.equals(shibEmail)) {
+			for (String uin : admins) {
+				if (uin.equals(shibUin)) {
 					role = Role.ROLE_ADMIN;
 					credentials.setRole(role.toString());
 				}
 			}
 
 			finalUser = userRepo.create(credentials.getUin());
-			finalUser.setUsername(credentials.getEmail());
+			finalUser.setUsername(credentials.getUin());
+			finalUser.setRole(role);
 			finalUser = userRepo.save(finalUser);
+
 		} else {
-
-			// TODO: update only if user properties does not match current
-			// credentials
 			finalUser = user.get();
-			finalUser.setUsername(credentials.getEmail());
-			finalUser = userRepo.save(finalUser);
 		}
-
+		
 		credentials.setRole(finalUser.getRole().toString());
 		credentials.setUin(finalUser.getUsername());
 

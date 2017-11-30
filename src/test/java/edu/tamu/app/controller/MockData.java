@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.tamu.app.enums.AppRole;
+import edu.tamu.app.model.Role;
 import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Document;
@@ -17,7 +17,7 @@ import edu.tamu.weaver.auth.model.Credentials;
 
 public class MockData {
 
-    protected static AppUser TEST_USER1 = new AppUser("123456789", "Jane", "Daniel", AppRole.ROLE_ADMIN.toString());
+    protected static AppUser TEST_USER1 = new AppUser("123456789", "Jane", "Daniel", Role.ROLE_ADMIN.toString());
     protected static AppUser TEST_USER2 = new AppUser("234567891", "Jack", "Daniel", "ROLE_USER");
     protected static AppUser TEST_USER3 = new AppUser("345678912", "Jill", "Daniel", "ROLE_ADMIN");
 
@@ -30,7 +30,7 @@ public class MockData {
     protected static List<AppUser> mockUserList = new ArrayList<AppUser>(Arrays.asList(new AppUser[] { TEST_USER1, TEST_USER2, TEST_USER3 }));
 
     public AppUser createUser(String uin, String firstName, String lastName, String role) {
-        return new AppUser(uin, firstName, lastName, AppRole.ROLE_ADMIN.toString());
+        return new AppUser(uin, firstName, lastName, Role.ROLE_ADMIN.toString());
     }
 
     public AppUser saveAppUser(AppUser appUser) {

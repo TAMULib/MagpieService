@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import edu.tamu.app.enums.AppRole;
+import edu.tamu.app.model.Role;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.weaver.auth.model.Credentials;
 import edu.tamu.weaver.response.ApiStatus;
@@ -34,7 +34,7 @@ public class UserControllerTest extends AbstractControllerTest {
 
     @Test
     public void testUpdateRole() {
-        TEST_USER1.setRole(AppRole.ROLE_ANONYMOUS);
+        TEST_USER1.setRole(Role.ROLE_ANONYMOUS);
         response = userController.updateRole(TEST_USER1);
         assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
         AppUser user = (AppUser) response.getPayload().get("AppUser");

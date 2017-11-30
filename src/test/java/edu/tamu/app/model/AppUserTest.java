@@ -8,7 +8,7 @@ import java.util.Optional;
 import org.junit.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import edu.tamu.app.enums.AppRole;
+import edu.tamu.app.model.Role;
 
 public class AppUserTest extends AbstractModelTest {
 
@@ -47,7 +47,7 @@ public class AppUserTest extends AbstractModelTest {
         assertEquals("Test User 3  was not found.", assertUser.getUsername(), testUser3.getUsername());
         assertUser.setFirstName("Another Jane");
         assertUser.setLastName("Another Daniel");
-        assertUser.setRole(AppRole.ROLE_USER);
+        assertUser.setRole(Role.ROLE_USER);
         userRepo.save(testUser3);
         assertUser = userRepo.findByUsername(testUser3.getUsername()).get();
         assertEquals("Test User 3  firstName was not modified.", assertUser.getFirstName(), testUser3.getFirstName());

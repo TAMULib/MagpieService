@@ -58,14 +58,12 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
 	
 	@Override
     public void addCorsMappings(CorsRegistry registry) {
-		
 		registry.addMapping("/**")
 			.allowedOrigins(hosts)
 			.allowCredentials(true)
 			.allowedMethods("GET", "DELETE", "PUT", "POST")
-			.allowedHeaders("Authorization", "Origin", "Content-Type", "x-requested-with", "jwt", "data", "x-forwarded-for");
-//			.exposedHeaders("jwt");
-		
+			.allowedHeaders("Authorization", "Origin", "Content-Type", "Access-Control-Allow-Origin", "x-requested-with", "jwt", "data", "x-forwarded-for")
+			.exposedHeaders("jwt");
     }
 
 	@Bean

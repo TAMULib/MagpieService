@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import edu.tamu.app.enums.AppRole;
 import edu.tamu.weaver.user.model.IRole;
 
 import edu.tamu.weaver.auth.model.AbstractWeaverUserDetails;
@@ -39,7 +38,7 @@ public class AppUser extends AbstractWeaverUserDetails {
     private static final long serialVersionUID = -322779181704256964L;
 
     @Column(name = "role")
-    private AppRole role;
+    private Role role;
 
     @Column(name = "first_name")
     private String firstName;
@@ -74,7 +73,7 @@ public class AppUser extends AbstractWeaverUserDetails {
         this(uin);
         setFirstName(firstName);
         setLastName(lastName);
-        setRole(AppRole.valueOf(role));
+        setRole(Role.valueOf(role));
     }
     
     public AppUser(AppUser user) {
@@ -87,7 +86,7 @@ public class AppUser extends AbstractWeaverUserDetails {
     /**
      * @return the role
      */
-    @JsonDeserialize(as = AppRole.class)
+    @JsonDeserialize(as = Role.class)
     public IRole getRole() {
         return role;
     }
@@ -96,9 +95,9 @@ public class AppUser extends AbstractWeaverUserDetails {
      * @param role
      *            the role to set
      */
-    @JsonSerialize(as = AppRole.class)
+    @JsonSerialize(as = Role.class)
     public void setRole(IRole role) {
-        this.role = (AppRole) role;
+        this.role = (Role) role;
     }
 
     /**
