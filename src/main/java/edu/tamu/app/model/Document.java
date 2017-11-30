@@ -28,6 +28,7 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import edu.tamu.weaver.data.model.BaseEntity;
@@ -40,6 +41,7 @@ import edu.tamu.weaver.data.model.BaseEntity;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "project_id" }))
+@JsonIgnoreProperties(value = { "project" }, allowGetters = true)
 public class Document extends BaseEntity {
 
     @Column(nullable = false)
