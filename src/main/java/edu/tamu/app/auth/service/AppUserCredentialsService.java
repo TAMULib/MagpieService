@@ -28,7 +28,6 @@ public class AppUserCredentialsService extends UserCredentialsService<AppUser, A
 				credentials.setRole(role.toString());
 			}
 
-			String shibEmail = credentials.getEmail();
 			String shibUin = credentials.getUin();
 
 			for (String uin : admins) {
@@ -46,7 +45,7 @@ public class AppUserCredentialsService extends UserCredentialsService<AppUser, A
 		} else {
 			finalUser = user.get();
 		}
-		
+
 		credentials.setRole(finalUser.getRole().toString());
 		credentials.setUin(finalUser.getUsername());
 
