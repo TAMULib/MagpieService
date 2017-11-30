@@ -16,11 +16,11 @@ public class AppUserCredentialsService extends UserCredentialsService<AppUser, A
 	@Override
 	public synchronized AppUser updateUserByCredentials(Credentials credentials) {
 
-		Optional<AppUser> user = userRepo.findByUsername(credentials.getUin());
+		Optional<AppUser> optionalUser = userRepo.findByUsername(credentials.getUin());
 
-		AppUser finalUser = null;
+		AppUser user = null;
 
-		if (!user.isPresent()) {
+		if (!optionalUser.isPresent()) {
 
 			Role role = Role.ROLE_USER;
 
@@ -37,19 +37,48 @@ public class AppUserCredentialsService extends UserCredentialsService<AppUser, A
 				}
 			}
 
-			finalUser = userRepo.create(credentials.getUin());
-			finalUser.setUsername(credentials.getUin());
-			finalUser.setRole(role);
-			finalUser = userRepo.save(finalUser);
+			user = userRepo.create(credentials.getUin());
+			user.setUsername(credentials.getUin());
+			user.setRole(role);
+			user.setFirstName(credentials.getFirstName());
+			user.setLastName(credentials.getLastName());
+			user = userRepo.save(user);
 
 		} else {
-			finalUser = user.get();
+			user = optionalUser.get();
+			
+			boolean changed = false;
+			
+			if(credentials.getUin() != user.getUsername()) {
+				user.setUsername(credentials.getUin());
+				changed=true;
+			}
+			
+			if(credentials.getFirstName() != user.getFirstName()) {
+				user.setFirstName(credentials.getFirstName());
+				changed=true;
+			}
+			
+			if(credentials.getLastName() != user.getLastName()) {
+				user.setLastName(credentials.getLastName());
+				changed=true;
+			}
+			
+			if(credentials.getRole() != credentials.getRole().toString()) {
+				user.setRole(Role.valueOf(credentials.getRole()));
+				changed=true;
+			}
+			
+			if(changed) {
+				user = userRepo.save(user);
+			}
+			
 		}
 
-		credentials.setRole(finalUser.getRole().toString());
-		credentials.setUin(finalUser.getUsername());
+		credentials.setRole(user.getRole().toString());
+		credentials.setUin(user.getUsername());
 
-		return finalUser;
+		return user;
 
 	}
 
