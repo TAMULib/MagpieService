@@ -28,9 +28,9 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import edu.tamu.app.resolver.ProjectByNameResolver;
 import edu.tamu.weaver.data.model.BaseEntity;
 
 /**
@@ -41,7 +41,6 @@ import edu.tamu.weaver.data.model.BaseEntity;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "project_id" }))
-@JsonIgnoreProperties(value = { "project" }, allowGetters = true)
 public class Document extends BaseEntity {
 
     @Column(nullable = false)
@@ -60,10 +59,10 @@ public class Document extends BaseEntity {
     private String documentPath;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, property = "name")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, resolver = ProjectByNameResolver.class, property = "name")
     @JsonIdentityReference(alwaysAsId = true)
     private Project project;
-    
+
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<Resource> resources;
@@ -77,7 +76,7 @@ public class Document extends BaseEntity {
     private List<PublishedLocation> publishedLocations;
 
     public Document() {
-    	resources = new ArrayList<Resource>();
+        resources = new ArrayList<Resource>();
         fields = new ArrayList<MetadataFieldGroup>();
         publishedLocations = new ArrayList<PublishedLocation>();
     }
@@ -137,7 +136,7 @@ public class Document extends BaseEntity {
     public void setProject(Project project) {
         this.project = project;
     }
-    
+
     public List<Resource> getResources() {
         return resources;
     }
@@ -147,11 +146,11 @@ public class Document extends BaseEntity {
     }
 
     public void addResource(Resource resource) {
-    	resources.add(resource);
+        resources.add(resource);
     }
 
     public void removeResource(Resource resource) {
-    	resources.remove(resource);
+        resources.remove(resource);
     }
 
     public List<MetadataFieldGroup> getFields() {
@@ -209,7 +208,7 @@ public class Document extends BaseEntity {
 
     public List<Resource> getResourcesByMimeTypes(String... mimeTypes) {
         return resources.stream().filter(resource -> {
-        	return Arrays.asList(mimeTypes).contains(resource.getMimeType());
+            return Arrays.asList(mimeTypes).contains(resource.getMimeType());
         }).collect(Collectors.toList());
     }
 
