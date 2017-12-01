@@ -11,6 +11,7 @@ import edu.tamu.app.model.MetadataFieldGroup;
  *
  */
 public class LabelComparator implements Comparator<MetadataFieldGroup> {
+
     /**
      * Compare labels of MetadataFieldImpl
      * 
@@ -25,4 +26,5 @@ public class LabelComparator implements Comparator<MetadataFieldGroup> {
     public int compare(MetadataFieldGroup mfg1, MetadataFieldGroup mfg2) {
         return mfg1.getLabel().getName().compareTo(mfg2.getLabel().getName());
     }
+
 }

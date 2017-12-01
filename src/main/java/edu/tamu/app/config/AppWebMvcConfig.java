@@ -41,34 +41,24 @@ import edu.tamu.weaver.validation.resolver.WeaverValidatedModelMethodProcessor;
 @EnableJpaRepositories(basePackages = { "edu.tamu.app.model.repo", "edu.tamu.weaver.wro.model.repo" })
 public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
 
-	 @Value("${app.security.allow-access}")
-	 private String[] hosts;
-	
-	@Autowired
-	private Environment env;
+    @Value("${app.security.allow-access}")
+    private String[] hosts;
 
-	@Autowired
-	private List<HttpMessageConverter<?>> converters;
+    @Autowired
+    private Environment env;
 
-	@Autowired
-	private AppUserRepo appUserRepo;
+    @Autowired
+    private List<HttpMessageConverter<?>> converters;
 
-	@Bean
-	public ResourceUrlEncodingFilter resourceUrlEncodingFilter() {
-		return new ResourceUrlEncodingFilter();
-	}
-	
-	@Override
-    public void addCorsMappings(CorsRegistry registry) {
-		registry.addMapping("/**")
-			.allowedOrigins(hosts)
-			.allowCredentials(true)
-			.allowedMethods("GET", "DELETE", "PUT", "POST")
-			.allowedHeaders("Authorization", "Origin", "Content-Type", "Access-Control-Allow-Origin", "x-requested-with", "jwt", "data", "x-forwarded-for")
-			.exposedHeaders("jwt");
+    @Autowired
+    private AppUserRepo appUserRepo;
+
+    @Bean
+    public ResourceUrlEncodingFilter resourceUrlEncodingFilter() {
+        return new ResourceUrlEncodingFilter();
     }
-	
-	@Bean
+
+    @Bean
     public ServletRegistrationBean h2servletRegistration() {
         ServletRegistrationBean registrationBean = new ServletRegistrationBean(new WebServlet());
         registrationBean.addUrlMappings("/admin/h2console/*");
@@ -76,42 +66,54 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
         return registrationBean;
     }
 
-	@Bean
-	public ConfigurableMimeFileTypeMap configurableMimeFileTypeMap() {
-		return new ConfigurableMimeFileTypeMap();
-	}
+    @Bean
+    public ConfigurableMimeFileTypeMap configurableMimeFileTypeMap() {
+        return new ConfigurableMimeFileTypeMap();
+    }
 
-	/**
-	 * Executor Service configuration.
-	 * 
-	 * @return ExecutorSevice
-	 * 
-	 */
-	@Bean(name = "executorService")
-	private static ExecutorService configureExecutorService() {
-		ExecutorService executorService = new ThreadPoolExecutor(10, 25, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(25));
-		return executorService;
-	}
+    /**
+     * Executor Service configuration.
+     * 
+     * @return ExecutorSevice
+     * 
+     */
+    @Bean(name = "executorService")
+    private static ExecutorService configureExecutorService() {
+        ExecutorService executorService = new ThreadPoolExecutor(10, 25, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(25));
+        return executorService;
+    }
 
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		boolean devMode = this.env.acceptsProfiles("dev");
-		boolean useResourceCache = !devMode;
-		Integer cachePeriod = devMode ? 0 : null;
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        // @formatter:off
+        registry.addMapping("/**")
+                .allowedOrigins(hosts)
+                .allowCredentials(false)
+                .allowedMethods("GET", "DELETE", "PUT", "POST")
+                .allowedHeaders("Origin", "Content-Type", "Access-Control-Allow-Origin", "x-requested-with", "jwt", "data", "x-forwarded-for")
+                .exposedHeaders("jwt");
+        // @formatter:on
+    }
 
-		registry.addResourceHandler("/**")
-				.addResourceLocations("classpath:/static/")
-				.setCachePeriod(cachePeriod)
-				.resourceChain(useResourceCache)
-				.addResolver(new VersionResourceResolver().addContentVersionStrategy("/**"))
-				.addTransformer(new AppCacheManifestTransformer());
-	}
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        boolean devMode = this.env.acceptsProfiles("dev");
+        boolean useResourceCache = !devMode;
+        Integer cachePeriod = devMode ? 0 : null;
+        // @formatter:off
+        registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/static/")
+                .setCachePeriod(cachePeriod)
+                .resourceChain(useResourceCache)
+                .addResolver(new VersionResourceResolver().addContentVersionStrategy("/**")).addTransformer(new AppCacheManifestTransformer());
+        // @formatter:on
+    }
 
-	@Override
-	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-		argumentResolvers.add(new WeaverValidatedModelMethodProcessor(converters));
-		argumentResolvers.add(new WeaverCredentialsArgumentResolver());
-		argumentResolvers.add(new WeaverUserArgumentResolver<AppUser, AppUserRepo>(appUserRepo));
-	}
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        argumentResolvers.add(new WeaverValidatedModelMethodProcessor(converters));
+        argumentResolvers.add(new WeaverCredentialsArgumentResolver());
+        argumentResolvers.add(new WeaverUserArgumentResolver<AppUser, AppUserRepo>(appUserRepo));
+    }
 
 }

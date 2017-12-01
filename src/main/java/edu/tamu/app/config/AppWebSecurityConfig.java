@@ -2,17 +2,11 @@ package edu.tamu.app.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-import java.util.Arrays;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import edu.tamu.app.auth.service.AppUserDetailsService;
 import edu.tamu.app.model.AppUser;
@@ -24,10 +18,10 @@ import edu.tamu.weaver.auth.config.AuthWebSecurityConfig;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class AppWebSecurityConfig extends AuthWebSecurityConfig<AppUser, AppUserRepo, AppUserDetailsService> {
-	
-	@Value("${app.security.allow-access}")
-	 private String[] hosts;
-	
+
+    @Value("${app.security.allow-access}")
+    private String[] hosts;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
@@ -51,8 +45,6 @@ public class AppWebSecurityConfig extends AuthWebSecurityConfig<AppUser, AppUser
             .addFilter(tokenAuthorizationFilter());
         // @formatter:on
     }
-    
-    
 
     @Override
     protected String buildRoleHierarchy() {

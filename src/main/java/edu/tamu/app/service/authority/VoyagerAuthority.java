@@ -41,9 +41,6 @@ public class VoyagerAuthority implements Authority {
     private static final Logger logger = Logger.getLogger(VoyagerAuthority.class);
 
     @Autowired
-    private HttpUtility httpUtility;
-
-    @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     private ProjectAuthority projectAuthority;
@@ -116,7 +113,7 @@ public class VoyagerAuthority implements Authority {
 
     public VoyagerServiceData fetchMARC(String bibId) throws Exception {
         String urlString = "http://" + getHost() + ":" + getPort() + "/" + getApp() + "/GetHoldingsService?bibId=" + bibId;
-        String xmlResponse = httpUtility.makeHttpRequest(urlString, "GET");
+        String xmlResponse = HttpUtility.makeHttpRequest(urlString, "GET");
 
         xmlResponse = xmlResponse.replace("ser:", "");
         xmlResponse = xmlResponse.replace("hol:", "");
