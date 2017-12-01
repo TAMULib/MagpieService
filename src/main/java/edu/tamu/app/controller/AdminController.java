@@ -52,7 +52,7 @@ public class AdminController {
     public ApiResponse syncDocuments() throws IOException {
         logger.info("Syncronizing projects with database.");
         syncService.sync();
-        return new ApiResponse(SUCCESS);
+        return new ApiResponse(SUCCESS, "Syncronized projects with database.");
     }
 
 }
