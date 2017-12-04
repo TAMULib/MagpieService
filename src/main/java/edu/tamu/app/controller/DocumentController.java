@@ -61,7 +61,7 @@ public class DocumentController {
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
-    
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -105,10 +105,10 @@ public class DocumentController {
      */
     @RequestMapping("/page")
     @PreAuthorize("hasRole('USER')")
-    public ApiResponse pageDocuments(@RequestBody Map<String, Object>  data) {
+    public ApiResponse pageDocuments(@RequestBody Map<String, Object> data) {
 
         Direction sortDirection;
-        
+
         JsonNode dataNode = objectMapper.convertValue(data, JsonNode.class);
 
         if (dataNode.get("sort").get("direction").asText().equals("asc")) {
@@ -117,8 +117,7 @@ public class DocumentController {
             sortDirection = Sort.Direction.DESC;
         }
 
-        Pageable request = new PageRequest(dataNode.get("page").get("number").asInt() - 1,
-                dataNode.get("page").get("size").asInt(), sortDirection, dataNode.get("sort").get("field").asText());
+        Pageable request = new PageRequest(dataNode.get("page").get("number").asInt() - 1, dataNode.get("page").get("size").asInt(), sortDirection, dataNode.get("sort").get("field").asText());
 
         Map<String, String[]> filters = new HashMap<String, String[]>();
 

@@ -76,9 +76,9 @@ public class DocumentRepoImpl extends AbstractWeaverRepoImpl<Document, DocumentR
         return documentRepo.save(document);
     }
 
-	@Override
-	protected String getChannel() {
-		return "/channel/update-document";
-	}
+    @Override
+    protected String getChannel() {
+        return "/channel/update-document";
+    }
 
 }

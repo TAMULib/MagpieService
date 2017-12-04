@@ -1,3 +1,12 @@
+/* 
+ * Resource.java 
+ * 
+ * Version: 
+ *     $Id$ 
+ * 
+ * Revisions: 
+ *     $Log$ 
+ */
 package edu.tamu.app.model;
 
 import javax.persistence.CascadeType;
@@ -19,7 +28,7 @@ import edu.tamu.weaver.data.resolver.BaseEntityIdResolver;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "document_id" }))
 public class Resource extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, optional = false)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, resolver = BaseEntityIdResolver.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Document document;

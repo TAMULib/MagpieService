@@ -374,17 +374,19 @@
       "settings": [{
           "key": "repoUrl",
           "values": [
-            "http://localhost:8080"
+            "http://jcreel.tamu.edu:8080"
           ]
         },
         {
           "key": "repoContextPath",
-          "values": []
+          "values": [
+            "xmlui"
+          ]
         },
         {
           "key": "collectionId",
           "values": [
-            "COLLECTION-UUID"
+            "6fb28117-bd8e-4f4d-b198-f33e78461f84"
           ]
         },
         {
@@ -396,13 +398,13 @@
         {
           "key": "email",
           "values": [
-            "magpie@oaktrust.library.tamu.edu"
+            "jcreel@tamu.edu"
           ]
         },
         {
           "key": "password",
           "values": [
-            ""
+            "pineapple"
           ]
         }
       ]
@@ -436,7 +438,7 @@
       "settings": [{
           "key": "pelicanUrl",
           "values": [
-            "http://localhost:9001/nalt/suggestions"
+            "http://janus.evans.tamu.edu:9001/nalt/suggestions"
           ]
         },
         {

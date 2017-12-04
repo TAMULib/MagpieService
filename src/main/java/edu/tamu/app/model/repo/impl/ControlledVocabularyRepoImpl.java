@@ -36,10 +36,9 @@ public class ControlledVocabularyRepoImpl extends AbstractWeaverRepoImpl<Control
         return cv;
     }
 
-	@Override
-	protected String getChannel() {
-		// TODO Auto-generated method stub
-		return "/channel/cv";
-	}
+    @Override
+    protected String getChannel() {
+        return "/channel/cv";
+    }
 
 }

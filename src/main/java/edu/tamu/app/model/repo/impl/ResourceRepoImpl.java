@@ -47,7 +47,7 @@ public class ResourceRepoImpl extends AbstractWeaverRepoImpl<Resource, ResourceR
 
     @Override
     protected String getChannel() {
-        return "/channel/update-resource";
+        return "/channel/resource";
     }
 
 }

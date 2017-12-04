@@ -57,7 +57,7 @@ public abstract class AbstractModelTest extends MockData {
 
     @Before
     public void setUp() {
-        aggieJackToken = new HashMap<>();
+        aggieJackToken = new HashMap<String, Object>();
         aggieJackToken.put("lastName", "Daniels");
         aggieJackToken.put("firstName", "Jack");
         aggieJackToken.put("netid", "aggiejack");
@@ -73,10 +73,11 @@ public abstract class AbstractModelTest extends MockData {
     @After
     public void cleanUp() {
         controlledVocabularyRepo.deleteAll();
+        resourceRepo.deleteAll();
         documentRepo.deleteAll();
-        metadataFieldGroupRepo.deleteAll();
         metadataFieldLabelRepo.deleteAll();
         metadataFieldValueRepo.deleteAll();
+        metadataFieldGroupRepo.deleteAll();
         projectFieldProfileRepo.deleteAll();
         projectRepo.deleteAll();
         userRepo.deleteAll();

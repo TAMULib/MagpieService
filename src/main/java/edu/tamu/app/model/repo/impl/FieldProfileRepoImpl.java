@@ -40,7 +40,7 @@ public class FieldProfileRepoImpl extends AbstractWeaverRepoImpl<FieldProfile, F
 
 	@Override
 	protected String getChannel() {
-		return null;
+		return "/channel/field-profile";
 	}
 
 }

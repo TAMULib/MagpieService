@@ -34,10 +34,11 @@ public class AppUserTest extends AbstractModelTest {
 
     @Test
     public void testDeleteUser() {
-        userRepo.save(testUser1);
+        testUser1 = userRepo.save(testUser1);
+        Long id = testUser1.getId();
         assertEquals("User repository is empty.", 1, userRepo.findAll().size());
         userRepo.delete(testUser1);
-        assertNull("Test User was not removed.", userRepo.findByUsername(uin).get());
+        assertNull("Test User was not removed.", userRepo.findOne(id));
     }
 
     @Test
