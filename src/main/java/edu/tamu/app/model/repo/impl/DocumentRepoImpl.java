@@ -49,7 +49,7 @@ public class DocumentRepoImpl extends AbstractWeaverRepoImpl<Document, DocumentR
     public synchronized Document create(Project project, String name, String documentPath, String status) {
         Document document = documentRepo.findByProjectNameAndName(project.getName(), name);
         if (document == null) {
-            document = documentRepo.save(new Document(project, name, documentPath, status));
+            document = documentRepo.create(new Document(project, name, documentPath, status));
         }
         return document;
     }
@@ -73,12 +73,12 @@ public class DocumentRepoImpl extends AbstractWeaverRepoImpl<Document, DocumentR
             mfgs.add(mfg);
         }
         document.setFields(mfgs);
-        return documentRepo.save(document);
+        return documentRepo.update(document);
     }
 
 	@Override
 	protected String getChannel() {
-		return "/channel/update-document";
+		return "/channel/document";
 	}
 
 }
