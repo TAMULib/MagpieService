@@ -67,18 +67,17 @@ public abstract class AbstractModelTest extends MockData {
 
         assertEquals("User repository is not empty.", 0, userRepo.findAll().size());
         assertEquals("ControlledVocabularyRepo is not empty.", 0, controlledVocabularyRepo.count());
-
     }
 
     @After
     public void cleanUp() {
         controlledVocabularyRepo.deleteAll();
-        resourceRepo.deleteAll();
-        documentRepo.deleteAll();
-        metadataFieldLabelRepo.deleteAll();
         metadataFieldValueRepo.deleteAll();
+        metadataFieldLabelRepo.deleteAll();
         metadataFieldGroupRepo.deleteAll();
         projectFieldProfileRepo.deleteAll();
+        resourceRepo.deleteAll();
+        documentRepo.deleteAll();
         projectRepo.deleteAll();
         userRepo.deleteAll();
     }
