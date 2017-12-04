@@ -21,6 +21,7 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -38,6 +39,9 @@ public abstract class AbstractModelTest extends MockData {
 
     @Autowired
     protected DocumentRepo documentRepo;
+
+    @Autowired
+    protected ResourceRepo resourceRepo;
 
     @Autowired
     protected MetadataFieldGroupRepo metadataFieldGroupRepo;

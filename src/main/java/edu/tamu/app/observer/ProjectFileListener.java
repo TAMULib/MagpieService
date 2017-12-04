@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.Document;
-import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.ProjectsService;
 import edu.tamu.app.utilities.FileSystemUtility;
 
@@ -37,6 +37,9 @@ public class ProjectFileListener extends AbstractFileListener {
 
     @Autowired
     private DocumentRepo documentRepo;
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     private Tika tika;
 
@@ -72,7 +75,7 @@ public class ProjectFileListener extends AbstractFileListener {
             System.out.println("Directory " + directory + " of ingest type " + hasIngestType(directory) + " is neither Headless nor SAF-ingest; consider it immediately ready.");
             directoryReady = true;
         }
-        
+
         return directoryReady;
     }
 
@@ -80,18 +83,17 @@ public class ProjectFileListener extends AbstractFileListener {
         if (directoryIsReady(directory)) {
             IngestType projectIngestFormat = this.hasIngestType(directory.getParentFile());
             logger.info("Creating document " + directory.getName() + " using ingest type " + projectIngestFormat);
-            switch(projectIngestFormat) {
+            switch (projectIngestFormat) {
             case SAF:
                 projectService.createSAFDocument(directory);
-                break;                
+                break;
 
             case STANDARD:
             default:
                 projectService.createDocument(directory);
-                    
-            
+
             }
-            
+
         }
     }
 
@@ -104,11 +106,10 @@ public class ProjectFileListener extends AbstractFileListener {
     public void onDirectoryCreate(File directory) {
         if (FileSystemUtility.getWindowsSafePath(directory.getParent()).equals(FileSystemUtility.getWindowsSafePath(getPath()))) {
             IngestType projectIngestFormat = this.hasIngestType(directory);
-            logger.info("Creating project " + directory.getName() + " of ingest type " + projectIngestFormat.toString() );
+            logger.info("Creating project " + directory.getName() + " of ingest type " + projectIngestFormat.toString());
             createProject(directory);
         } else {
-            
-            
+
             createDocument(directory);
         }
     }
@@ -127,10 +128,10 @@ public class ProjectFileListener extends AbstractFileListener {
     public void onFileCreate(File file) {
         String documentName = file.getParentFile().getName();
         String projectName = file.getParentFile().getParentFile().getName();
-        
+
         IngestType ingestType = hasIngestType(file.getParentFile().getParentFile());
-        
-        if(! ingestType.equals(IngestType.SAF)) {
+
+        if (!ingestType.equals(IngestType.SAF)) {
             logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
             Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
             addResource(document, file);
@@ -155,7 +156,7 @@ public class ProjectFileListener extends AbstractFileListener {
     private boolean isHeadless(File directory) {
         return projectService.projectIsHeadless(directory.getParentFile().getName());
     }
-    
+
     private IngestType hasIngestType(File directory) {
         return projectService.projectIngestType(directory.getName());
     }
@@ -167,9 +168,7 @@ public class ProjectFileListener extends AbstractFileListener {
             String url = host + document.getDocumentPath() + File.separator + file.getName();
             String mimeType = tika.detect(path);
             logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
-            Resource resource = new Resource(name, path, url, mimeType);
-            document.addResource(resource);
-            documentRepo.save(document);
+            resourceRepo.create(document, name, path, url, mimeType);
         }
     }
 

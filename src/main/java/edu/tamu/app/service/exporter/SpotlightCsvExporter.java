@@ -1,7 +1,6 @@
 package edu.tamu.app.service.exporter;
 
 import java.io.File;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,6 +10,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.comparator.LabelComparator;
@@ -20,9 +20,13 @@ import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.PublishedLocation;
+import edu.tamu.app.model.repo.ResourceRepo;
 
 @Service
 public class SpotlightCsvExporter extends AbstractExporter {
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     // TODO: get away from hardcoded mapping to projects.json
     private static final String SPOTLIGHT_REPOSITORY_NAME = "Fedora Spotlight";
@@ -40,7 +44,7 @@ public class SpotlightCsvExporter extends AbstractExporter {
     public List<List<String>> extractMetadata(Project project) {
         List<List<String>> metadata = new ArrayList<List<String>>();
         project.getDocuments().stream().filter(isPublished()).collect(Collectors.<Document>toList()).forEach(document -> {
-            document.getResources().stream().forEach(resource -> {
+            resourceRepo.findAllByDocumentName(document.getName()).stream().forEach(resource -> {
                 List<MetadataFieldGroup> metadataFields = document.getFields();
                 Collections.sort(metadataFields, new LabelComparator());
                 List<String> documentMetadata = new ArrayList<String>();

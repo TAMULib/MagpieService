@@ -53,6 +53,7 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 
 public class DSpaceRepository implements Repository {
 
@@ -66,6 +67,9 @@ public class DSpaceRepository implements Repository {
 
     @Autowired
     private DocumentRepo documentRepo;
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     @Value("${app.mount}")
     private String mount;
@@ -130,6 +134,10 @@ public class DSpaceRepository implements Repository {
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
             nameValuePairs.add(new BasicNameValuePair("email", getEmail()));
             nameValuePairs.add(new BasicNameValuePair("password", getPassword()));
+
+            System.out.println("\n\n" + getEmail() + "\n\n");
+
+            System.out.println("\n\n" + getPassword() + "\n\n");
 
             HttpPost httpPost = new HttpPost(getRepoUrl() + "/rest/login");
 
@@ -298,9 +306,9 @@ public class DSpaceRepository implements Repository {
     }
 
     private void addBitstreams(String itemId, Document document) throws IOException {
-        addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("application/pdf")));
-        addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("text/plain"), "TEXT"));
-        addBitstreams(new Bitstreams(itemId, document.getResourcesByMimeTypes("image/jpeg", "image/jpg", "image/jp2", "image/jpx", "image/bmp", "image/gif", "image/png", "image/svg", "image/tif", "image/tiff")));
+        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentNameAndMimeType(document.getName(), "application/pdf")));
+        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentNameAndMimeType(document.getName(), "text/plain"), "TEXT"));
+        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentNameAndMimeType(document.getName(), "image/jpeg", "image/jpg", "image/jp2", "image/jpx", "image/bmp", "image/gif", "image/png", "image/svg", "image/tif", "image/tiff")));
     }
 
     private void addBitstreams(Bitstreams bitstreams) throws IOException {

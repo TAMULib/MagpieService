@@ -10,9 +10,7 @@
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -63,10 +61,6 @@ public class Document extends BaseEntity {
     @JsonIdentityReference(alwaysAsId = true)
     private Project project;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @Fetch(FetchMode.SELECT)
-    private List<Resource> resources;
-
     @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<MetadataFieldGroup> fields;
@@ -76,7 +70,6 @@ public class Document extends BaseEntity {
     private List<PublishedLocation> publishedLocations;
 
     public Document() {
-        resources = new ArrayList<Resource>();
         fields = new ArrayList<MetadataFieldGroup>();
         publishedLocations = new ArrayList<PublishedLocation>();
     }
@@ -137,22 +130,6 @@ public class Document extends BaseEntity {
         this.project = project;
     }
 
-    public List<Resource> getResources() {
-        return resources;
-    }
-
-    public void setResources(List<Resource> resources) {
-        this.resources = resources;
-    }
-
-    public void addResource(Resource resource) {
-        resources.add(resource);
-    }
-
-    public void removeResource(Resource resource) {
-        resources.remove(resource);
-    }
-
     public List<MetadataFieldGroup> getFields() {
         return fields;
     }
@@ -204,12 +181,6 @@ public class Document extends BaseEntity {
             }
         }
         return targetField;
-    }
-
-    public List<Resource> getResourcesByMimeTypes(String... mimeTypes) {
-        return resources.stream().filter(resource -> {
-            return Arrays.asList(mimeTypes).contains(resource.getMimeType());
-        }).collect(Collectors.toList());
     }
 
 }

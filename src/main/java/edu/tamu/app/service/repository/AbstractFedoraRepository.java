@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,6 +34,7 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 
 public abstract class AbstractFedoraRepository implements Repository {
 
@@ -43,6 +45,9 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     @Autowired
     private DocumentRepo documentRepo;
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -136,9 +141,10 @@ public abstract class AbstractFedoraRepository implements Repository {
     }
 
     protected File[] getFiles(Document document) throws IOException {
-        File[] files = new File[document.getResources().size()];
+        List<Resource> resources = resourceRepo.findAllByDocumentName(document.getName());
+        File[] files = new File[resources.size()];
         int i = 0;
-        for(Resource resource : document.getResources()) {
+        for (Resource resource : resources) {
             files[i++] = resourceLoader.getResource("classpath:static" + resource.getPath()).getFile();
         }
         return files;
