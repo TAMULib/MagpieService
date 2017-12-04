@@ -135,10 +135,6 @@ public class DSpaceRepository implements Repository {
             nameValuePairs.add(new BasicNameValuePair("email", getEmail()));
             nameValuePairs.add(new BasicNameValuePair("password", getPassword()));
 
-            System.out.println("\n\n" + getEmail() + "\n\n");
-
-            System.out.println("\n\n" + getPassword() + "\n\n");
-
             HttpPost httpPost = new HttpPost(getRepoUrl() + "/rest/login");
 
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
