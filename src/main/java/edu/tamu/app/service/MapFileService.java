@@ -1,7 +1,5 @@
 package edu.tamu.app.service;
 
-import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.Document;
@@ -29,8 +26,6 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.registry.MagpieAuxiliaryService;
 import edu.tamu.app.utilities.CsvUtility;
-
-import edu.tamu.weaver.response.ApiResponse;
 
 @Service
 @Scope("prototype")
@@ -54,9 +49,6 @@ public class MapFileService implements MagpieAuxiliaryService {
 
     @Autowired
     private ResourceLoader resourceLoader;
-
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
 
     private ProjectRepository projectRepository;
 
@@ -125,13 +117,7 @@ public class MapFileService implements MagpieAuxiliaryService {
 
                 updateDoc.addPublishedLocation(new PublishedLocation(projectRepository, publishedUrl));
 
-                updateDoc = documentRepo.save(updateDoc);
-
-                try {
-                    simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, updateDoc));
-                } catch (Exception e) {
-                    logger.error("Error broadcasting new document", e);
-                }
+                updateDoc = documentRepo.update(updateDoc);
 
                 logger.info("Setting status of Document: " + updateDoc.getName() + " to " + CHANGE_STATUS);
             } else {

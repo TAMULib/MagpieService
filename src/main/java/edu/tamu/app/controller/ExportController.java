@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +35,6 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.exporter.DspaceCsvExporter;
 import edu.tamu.app.service.exporter.SpotlightCsvExporter;
-
 import edu.tamu.weaver.response.ApiResponse;
 
 @RestController
@@ -60,9 +58,6 @@ public class ExportController {
 
     @Autowired
     private ApplicationContext appContext;
-
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
 
     private static final Logger logger = Logger.getLogger(MetadataController.class);
 
@@ -227,12 +222,11 @@ public class ExportController {
                 printStream.close();
             }
             document.setStatus("Pending");
-            document = documentRepo.save(document);
+            document = documentRepo.update(document);
 
-            simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
         }
         exportableProject.setIsLocked(true);
-        projectRepo.save(exportableProject);
+        projectRepo.update(exportableProject);
         return new ApiResponse(SUCCESS, "Your SAF has been written to the server filesystem at " + archiveDirectoryName + ".");
     }
 

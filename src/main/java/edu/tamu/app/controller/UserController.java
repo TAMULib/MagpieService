@@ -12,7 +12,6 @@ package edu.tamu.app.controller;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,9 +35,6 @@ public class UserController {
 
     @Autowired
     private AppUserRepo userRepo;
-
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
 
     /**
      * Websocket endpoint to request credentials.
@@ -79,8 +75,7 @@ public class UserController {
     @RequestMapping("/update")
     @PreAuthorize("hasRole('USER')")
     public ApiResponse updateRole(@RequestBody AppUser user) {
-        user = userRepo.save(user);
-        simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
+        user = userRepo.update(user);
         return new ApiResponse(SUCCESS, user);
     }
 
@@ -97,7 +92,6 @@ public class UserController {
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse delete(@RequestBody AppUser user) throws Exception {
         userRepo.delete(user);
-        simpMessagingTemplate.convertAndSend("/channel/user", new ApiResponse(SUCCESS, userRepo.findAll()));
         return new ApiResponse(SUCCESS);
     }
 

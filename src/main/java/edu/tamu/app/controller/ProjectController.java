@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,16 +19,12 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
-
 import edu.tamu.weaver.response.ApiResponse;
 
 @RestController
 @RequestMapping("/project")
 public class ProjectController {
 	
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
-
     @Autowired
     private ProjectRepo projectRepo;
     
@@ -70,7 +65,6 @@ public class ProjectController {
     		for (Document document: publishableDocuments) {
     			try {
     				repositoryService.push(document);
-    		        simpMessagingTemplate.convertAndSend("/channel/document", new ApiResponse(SUCCESS, document));
     			} catch (IOException e) {
                     logger.error("Exception thrown attempting to batch push "+document.getName()+" to " + publishRepository.getName() + "!", e);
                     e.printStackTrace();

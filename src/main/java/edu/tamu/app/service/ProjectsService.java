@@ -210,12 +210,6 @@ public class ProjectsService {
 
         Project project = projectRepo.create(projectName, repositories, authorities, suggestors);
 
-        try {
-            simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
-        } catch (Exception e) {
-            logger.error("Error broadcasting new project", e);
-        }
-
         project.getRepositories().forEach(repository -> {
             Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
             if (registeredRepository == null) {
@@ -300,7 +294,7 @@ public class ProjectsService {
         }
 
         if (newProject) {
-            projectRepo.save(project);
+            projectRepo.update(project);
         }
 
         return projectFields;
@@ -374,14 +368,9 @@ public class ProjectsService {
                     }
                 }
             }
+            documentRepo.broadcast(document);
 
-            try {
-                simpMessagingTemplate.convertAndSend("/channel/new-document", new ApiResponse(SUCCESS, document));
-            } catch (Exception e) {
-                logger.error("Error broadcasting new document", e);
-            }
-
-            projectRepo.save(project);
+            projectRepo.update(project);
         }
     }
 
@@ -530,12 +519,7 @@ public class ProjectsService {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
-
-            try {
-                simpMessagingTemplate.convertAndSend("/channel/new-document", new ApiResponse(SUCCESS, document));
-            } catch (Exception e) {
-                logger.error("Error broadcasting new document", e);
-            }
+            documentRepo.broadcast(document);
 
             projectRepo.save(project);
         }
