@@ -9,9 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.h2.server.web.WebServlet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +34,6 @@ import edu.tamu.weaver.validation.resolver.WeaverValidatedModelMethodProcessor;
 
 @EnableWebMvc
 @Configuration
-@AutoConfigureAfter(DispatcherServletAutoConfiguration.class)
 @EntityScan(basePackages = { "edu.tamu.app.model", "edu.tamu.weaver.wro.model" })
 @EnableJpaRepositories(basePackages = { "edu.tamu.app.model.repo", "edu.tamu.weaver.wro.model.repo" })
 public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
