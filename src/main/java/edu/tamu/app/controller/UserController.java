@@ -75,9 +75,7 @@ public class UserController {
     @RequestMapping("/update")
     @PreAuthorize("hasRole('USER')")
     public ApiResponse update(@RequestBody AppUser user) {
-        System.out.println("\n\n\n" + user + "\n\n\n");
         user = userRepo.update(user);
-        System.out.println("\n\n\n" + user + "\n\n\n");
         return new ApiResponse(SUCCESS, user);
     }
 
