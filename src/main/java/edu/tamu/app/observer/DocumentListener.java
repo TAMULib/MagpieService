@@ -71,17 +71,19 @@ public class DocumentListener extends AbstractFileListener {
 
     @Override
     public void onFileCreate(File file) {
-        String documentName = file.getParentFile().getName();
-        String projectName = project.getName();
+        if (!file.isHidden() && file.isFile()) {
+            String documentName = file.getParentFile().getName();
+            String projectName = project.getName();
 
-        IngestType ingestType = project.getIngestType();
+            IngestType ingestType = project.getIngestType();
 
-        if (!ingestType.equals(IngestType.SAF)) {
-            executor.submit(() -> {
-                logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
-                Document document = documentFactory.getOrCreateDocument(projectName, documentName);
-                addResource(document, file);
-            });
+            if (!ingestType.equals(IngestType.SAF)) {
+                executor.submit(() -> {
+                    logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
+                    Document document = documentFactory.getOrCreateDocument(projectName, documentName);
+                    addResource(document, file);
+                });
+            }
         }
     }
 
@@ -110,14 +112,12 @@ public class DocumentListener extends AbstractFileListener {
     }
 
     private void addResource(Document document, File file) {
-        if (!file.isHidden() && file.isFile()) {
-            String name = file.getName();
-            String path = document.getDocumentPath() + File.separator + file.getName();
-            String url = host + document.getDocumentPath() + File.separator + file.getName();
-            String mimeType = tika.detect(path);
-            logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
-            resourceRepo.create(document, name, path, url, mimeType);
-        }
+        String name = file.getName();
+        String path = document.getDocumentPath() + File.separator + file.getName();
+        String url = host + document.getDocumentPath() + File.separator + file.getName();
+        String mimeType = tika.detect(path);
+        logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
+        resourceRepo.create(document, name, path, url, mimeType);
     }
 
     // this is a blocking sleep operation of this listener
