@@ -74,7 +74,7 @@ public class UserController {
      */
     @RequestMapping("/update")
     @PreAuthorize("hasRole('USER')")
-    public ApiResponse updateRole(@RequestBody AppUser user) {
+    public ApiResponse update(@RequestBody AppUser user) {
         user = userRepo.update(user);
         return new ApiResponse(SUCCESS, user);
     }

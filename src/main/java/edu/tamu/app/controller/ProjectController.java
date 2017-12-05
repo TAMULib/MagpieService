@@ -24,14 +24,14 @@ import edu.tamu.weaver.response.ApiResponse;
 @RestController
 @RequestMapping("/project")
 public class ProjectController {
-	
+
+    private static final Logger logger = Logger.getLogger(ProjectController.class);
+
     @Autowired
     private ProjectRepo projectRepo;
-    
+
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
-    
-    private static final Logger logger = Logger.getLogger(DocumentController.class);
 
     /**
      * Endpoint to return list of projects.
@@ -44,7 +44,7 @@ public class ProjectController {
     public ApiResponse getProjects() {
         return new ApiResponse(SUCCESS, projectRepo.findAll());
     }
-    
+
     /**
      * Endpoint for batch publishing to a given repository all Accepted documents of a project
      * 
@@ -52,30 +52,30 @@ public class ProjectController {
      * @param repositoryId
      * @return ApiResponse
      */
-    
+
     @RequestMapping("/batchpublish/project/{projectId}/repository/{repositoryId}")
     @PreAuthorize("hasRole('USER')")
     public ApiResponse publishBatch(@PathVariable Long projectId, @PathVariable Long repositoryId) {
-    	Project project = projectRepo.read(projectId);
-    	ProjectRepository publishRepository = project.getRepositoryById(repositoryId);
-    	if (publishRepository != null) {
-    		Repository repositoryService = (Repository) projectServiceRegistry.getService(publishRepository.getName());
-    		List<Document> publishableDocuments = project.getPublishableDocuments();
-    		boolean errorFlag = false;
-    		for (Document document: publishableDocuments) {
-    			try {
-    				repositoryService.push(document);
-    			} catch (IOException e) {
-                    logger.error("Exception thrown attempting to batch push "+document.getName()+" to " + publishRepository.getName() + "!", e);
+        Project project = projectRepo.read(projectId);
+        ProjectRepository publishRepository = project.getRepositoryById(repositoryId);
+        if (publishRepository != null) {
+            Repository repositoryService = (Repository) projectServiceRegistry.getService(publishRepository.getName());
+            List<Document> publishableDocuments = project.getPublishableDocuments();
+            boolean errorFlag = false;
+            for (Document document : publishableDocuments) {
+                try {
+                    repositoryService.push(document);
+                } catch (IOException e) {
+                    logger.error("Exception thrown attempting to batch push " + document.getName() + " to " + publishRepository.getName() + "!", e);
                     e.printStackTrace();
                     errorFlag = true;
-    			}
-    		}
-    		if (errorFlag == false) {
-    			return new ApiResponse(SUCCESS, "Your batch of "+publishableDocuments.size()+" items(s) was successfully published");
-    		}
-    	}
-    	return new ApiResponse(ERROR,"There was an error with the batch publish");
+                }
+            }
+            if (errorFlag == false) {
+                return new ApiResponse(SUCCESS, "Your batch of " + publishableDocuments.size() + " items(s) was successfully published");
+            }
+        }
+        return new ApiResponse(ERROR, "There was an error with the batch publish");
     }
 
 }

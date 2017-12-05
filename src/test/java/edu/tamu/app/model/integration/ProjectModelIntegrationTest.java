@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.AbstractModelTest;
 import edu.tamu.app.model.Document;
@@ -23,7 +24,7 @@ public class ProjectModelIntegrationTest extends AbstractModelTest {
 
     @Test
     public void testProjectRepository() {
-        testProject = projectRepo.create("testProject");
+        testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
 
         projectRepository = new ProjectRepository();
         projectRepository.setName("Test Repository");
@@ -57,7 +58,7 @@ public class ProjectModelIntegrationTest extends AbstractModelTest {
     @Test
     public void testDocumentPublishedLocation() {
         testProjectDocument();
-        
+
         PublishedLocation publishedLocation = new PublishedLocation(testProject.getRepositories().get(0), "http://localhost:9000/fcrepo/rest/collection/resource/test.jpg");
 
         testDocument.addPublishedLocation(publishedLocation);

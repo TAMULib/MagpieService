@@ -42,6 +42,8 @@ import edu.tamu.weaver.response.ApiResponse;
 @RequestMapping("/export")
 public class ExportController {
 
+    private static final Logger logger = Logger.getLogger(ExportController.class);
+
     @Value("${app.mount}")
     private String mount;
 
@@ -62,8 +64,6 @@ public class ExportController {
 
     @Autowired
     private ApplicationContext appContext;
-
-    private static final Logger logger = Logger.getLogger(MetadataController.class);
 
     /**
      * Endpoint to return metadata headers for given project.
@@ -229,8 +229,10 @@ public class ExportController {
             document = documentRepo.update(document);
 
         }
-        exportableProject.setIsLocked(true);
+
+        exportableProject.setLocked(true);
         projectRepo.update(exportableProject);
+
         return new ApiResponse(SUCCESS, "Your SAF has been written to the server filesystem at " + archiveDirectoryName + ".");
     }
 

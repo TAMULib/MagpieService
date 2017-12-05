@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.model.Project;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 /**
@@ -35,7 +36,10 @@ public class SyncService {
     private ResourceLoader resourceLoader;
 
     @Autowired
-    private ProjectsService projectsService;
+    private ProjectFactory projectFactory;
+
+    @Autowired
+    private DocumentFactory documentFactory;
 
     @Value("${app.mount}")
     private String mount;
@@ -63,7 +67,7 @@ public class SyncService {
 
             String projectName = projectPath.getFileName().toString();
 
-            projectsService.getOrCreateProject(projectName);
+            Project project = projectFactory.getOrCreateProject(projectName);
 
             List<Path> documents = FileSystemUtility.fileList(projectPath.toString());
 
@@ -71,7 +75,7 @@ public class SyncService {
 
                 String documentName = documentPath.getFileName().toString();
 
-                projectsService.createDocument(projectName, documentName);
+                documentFactory.createDocument(project, documentName);
 
             });
         }

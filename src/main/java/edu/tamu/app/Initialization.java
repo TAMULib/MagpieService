@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import edu.tamu.app.observer.FileMonitorManager;
 import edu.tamu.app.observer.FileObserverRegistry;
 import edu.tamu.app.observer.MapFileListener;
-import edu.tamu.app.observer.ProjectFileListener;
+import edu.tamu.app.observer.ProjectListener;
 import edu.tamu.app.service.SyncService;
 import edu.tamu.app.utilities.FileSystemUtility;
 
@@ -72,7 +72,7 @@ public class Initialization implements CommandLineRunner {
             }
         }
 
-        fileObserverRegistry.register(new ProjectFileListener(projectPath.toString(), "projects"));
+        fileObserverRegistry.register(new ProjectListener(projectPath.toString(), "projects"));
         fileObserverRegistry.register(new MapFileListener(projectPath.toString(), "maps"));
 
         fileMonitorManager.start();
