@@ -18,6 +18,8 @@ public class FlatMARC {
     private String dc_description = "";
     private String dc_description_abstract = "";
     private String thesis_degree_grantor = "";
+    private String dc_contributor_advisor = "";
+    private String dc_identifier_uri = "";
 
     public FlatMARC(VoyagerServiceData voyagerServiceData) {
 
@@ -26,7 +28,7 @@ public class FlatMARC {
             Datafield[] dataField = voyagerServiceData.getServiceData().getHoldingsRecord().getBibRecord().getMarcRecord().getDatafield();
 
             for (Datafield df : dataField) {
-
+                
                 // dc.creator
                 if (df.getTag().equals("100")) {
                     Subfield[] subFields = df.getSubfield();
@@ -145,10 +147,50 @@ public class FlatMARC {
                     }
                 }
 
+                // advisors
+                if (df.getTag().equals("700")) {
+                    Subfield[] subFields = df.getSubfield();
+                    String temp;
+                    for (Subfield subField : subFields) {                    	
+                        if (subField.getCode().equals("a")) {
+                            temp = scrubField(".", subField.getValue());
+                            if (temp.length() > 0) {
+                                dc_contributor_advisor += temp;
+                            }
+                        }
+                    }
+                }
+
+                //handle uri
+                if (df.getTag().equals("856") && dc_identifier_uri.length() == 0) {
+                    Subfield[] subFields = df.getSubfield();
+                    for (Subfield subField : subFields) {
+                    	if (subField.getCode().equals("u")) {
+                    		dc_identifier_uri = subField.getValue();
+                    	}
+                    }
+                }                
+
             }
 
         }
 
+    }
+    
+    public String getIdentifierUri() {
+    	return dc_identifier_uri;
+    }
+    
+    public void setIdentifierUri(String handleUri) {
+    	dc_identifier_uri = handleUri;
+    }
+    
+    public String getAdvisor() {
+    	return dc_contributor_advisor;
+    }
+    
+    public void setAdvisor(String advisor) {
+    	dc_contributor_advisor = advisor;
     }
 
     public String getCreator() {
