@@ -37,7 +37,7 @@
         {
           "key": "archivematicaTransferSourceLocationUUID",
           "values": [
-            "f2cbd3ac-295e-4b3a-90f1-d4ef6e285663"
+            ""
           ]
         }
       ]
@@ -374,12 +374,14 @@
       "settings": [{
           "key": "repoUrl",
           "values": [
-            "https://dspacepre1.library.tamu.edu"
+            "http://localhost:8080"
           ]
         },
         {
           "key": "repoContextPath",
-          "values": []
+          "values": [
+            "xmlui"
+          ]
         },
         {
           "key": "collectionId",

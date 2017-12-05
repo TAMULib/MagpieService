@@ -33,6 +33,7 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.exporter.DspaceCsvExporter;
 import edu.tamu.app.service.exporter.SpotlightCsvExporter;
 import edu.tamu.weaver.response.ApiResponse;
@@ -49,6 +50,9 @@ public class ExportController {
 
     @Autowired
     private DocumentRepo documentRepo;
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     @Autowired
     private DspaceCsvExporter dspaceCsvExporter;
@@ -172,7 +176,7 @@ public class ExportController {
 
             PrintStream manifest = new PrintStream(itemDirectory + "/contents");
 
-            for (Resource resource : document.getResources()) {
+            for (Resource resource : resourceRepo.findAllByDocumentName(document.getName())) {
                 FileUtils.copyFileToDirectory(appContext.getResource("classpath:static" + resource.getPath()).getFile(), itemDirectory);
 
                 String bundleName = resource.getMimeType().equals("text/plain") ? "TEXT" : "ORIGINAL";

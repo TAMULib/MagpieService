@@ -53,7 +53,9 @@ public class MetadataFieldValue extends BaseEntity {
         }
     }
 
-    public MetadataFieldValue() {}
+    public MetadataFieldValue() {
+
+    }
 
     public MetadataFieldValue(MetadataFieldGroup field) {
         this();

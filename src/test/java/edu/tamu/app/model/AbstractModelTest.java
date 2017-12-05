@@ -21,6 +21,7 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -40,6 +41,9 @@ public abstract class AbstractModelTest extends MockData {
     protected DocumentRepo documentRepo;
 
     @Autowired
+    protected ResourceRepo resourceRepo;
+
+    @Autowired
     protected MetadataFieldGroupRepo metadataFieldGroupRepo;
 
     @Autowired
@@ -53,7 +57,7 @@ public abstract class AbstractModelTest extends MockData {
 
     @Before
     public void setUp() {
-        aggieJackToken = new HashMap<>();
+        aggieJackToken = new HashMap<String, Object>();
         aggieJackToken.put("lastName", "Daniels");
         aggieJackToken.put("firstName", "Jack");
         aggieJackToken.put("netid", "aggiejack");
@@ -63,17 +67,17 @@ public abstract class AbstractModelTest extends MockData {
 
         assertEquals("User repository is not empty.", 0, userRepo.findAll().size());
         assertEquals("ControlledVocabularyRepo is not empty.", 0, controlledVocabularyRepo.count());
-
     }
 
     @After
     public void cleanUp() {
         controlledVocabularyRepo.deleteAll();
-        documentRepo.deleteAll();
-        metadataFieldGroupRepo.deleteAll();
-        metadataFieldLabelRepo.deleteAll();
         metadataFieldValueRepo.deleteAll();
+        metadataFieldLabelRepo.deleteAll();
+        metadataFieldGroupRepo.deleteAll();
         projectFieldProfileRepo.deleteAll();
+        resourceRepo.deleteAll();
+        documentRepo.deleteAll();
         projectRepo.deleteAll();
         userRepo.deleteAll();
     }

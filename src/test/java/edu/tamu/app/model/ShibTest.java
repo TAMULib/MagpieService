@@ -10,7 +10,7 @@ public class ShibTest extends AbstractModelTest {
 
     @Test
     public void testCreateShib() {
-        Credentials shib = new Credentials();
+        Credentials shib = new Credentials(aggieJackToken);
         assertEquals("Last name did not match.", "Daniels", shib.getLastName());
         assertEquals("First name did not match.", "Jack", shib.getFirstName());
         assertEquals("Netid did not match.", "aggiejack", shib.getNetid());
