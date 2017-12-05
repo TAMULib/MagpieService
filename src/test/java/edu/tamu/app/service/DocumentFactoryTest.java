@@ -53,7 +53,7 @@ public class DocumentFactoryTest {
     @Test
     public void testCreateDocument() throws IOException {
         projectFactory.getOrCreateProject("default");
-        documentFactory.createDocument("default", "default");
+        documentFactory.getOrCreateDocument("default", "default");
 
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
         assertNotNull("The default project was not created!", projectRepo.findByName("default"));

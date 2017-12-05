@@ -1,6 +1,8 @@
 package edu.tamu.app.observer;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
@@ -11,13 +13,14 @@ import org.springframework.beans.factory.annotation.Value;
 import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.DocumentFactory;
 
 public class DocumentListener extends AbstractFileListener {
 
     private static final Logger logger = Logger.getLogger(DocumentListener.class);
+
+    private static ExecutorService executor = null;
 
     @Value("${app.document.create.wait}")
     private int documentCreationWait;
@@ -32,9 +35,6 @@ public class DocumentListener extends AbstractFileListener {
     private DocumentFactory documentFactory;
 
     @Autowired
-    private DocumentRepo documentRepo;
-
-    @Autowired
     private ResourceRepo resourceRepo;
 
     private Project project;
@@ -45,6 +45,7 @@ public class DocumentListener extends AbstractFileListener {
         super(root, folder);
         this.project = project;
         this.tika = new Tika();
+        executor = Executors.newCachedThreadPool();
     }
 
     @Override
@@ -76,9 +77,11 @@ public class DocumentListener extends AbstractFileListener {
         IngestType ingestType = project.getIngestType();
 
         if (!ingestType.equals(IngestType.SAF)) {
-            logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
-            Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
-            addResource(document, file);
+            executor.submit(() -> {
+                logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
+                Document document = documentFactory.getOrCreateDocument(projectName, documentName);
+                addResource(document, file);
+            });
         }
     }
 
@@ -98,8 +101,11 @@ public class DocumentListener extends AbstractFileListener {
     }
 
     private void createDocument(File directory) {
-        if (directoryIsReady(directory)) {
-            documentFactory.createDocument(directory);
+        if (waitOnDirectoryReady()) {
+            executor.submit(() -> {
+                waitOnDirectory(directory);
+                documentFactory.getOrCreateDocument(directory);
+            });
         }
     }
 
@@ -115,29 +121,23 @@ public class DocumentListener extends AbstractFileListener {
     }
 
     // this is a blocking sleep operation of this listener
-    private boolean directoryIsReady(File directory) {
-        boolean directoryReady = false;
-        IngestType ingestType = project.getIngestType();
-        if (project.isHeadless() || ingestType.equals(IngestType.SAF)) {
-            System.out.println("Waiting for directory " + directory + " to be quiescent, as it is a Headless or SAF-ingest project.");
-            long lastModified = 0L;
-            long oldLastModified = -1L;
-            long stableTime = 0L;
-            // if a document directory in a headless project hasn't been modified in the last 10 seconds, it's probably ready
-            while ((oldLastModified < lastModified) || (oldLastModified == lastModified) && (System.currentTimeMillis() - stableTime) < documentCreationWait) {
-                lastModified = directory.lastModified();
-                if ((lastModified != oldLastModified) || stableTime == 0L) {
-                    stableTime = System.currentTimeMillis();
-                }
-                oldLastModified = lastModified;
+    private void waitOnDirectory(File directory) {
+        System.out.println("Waiting for directory " + directory + " to be quiescent, as it is a Headless or SAF-ingest project.");
+        long lastModified = 0L;
+        long oldLastModified = -1L;
+        long stableTime = 0L;
+        // if a document directory in a headless project hasn't been modified in the last 10 seconds, it's probably ready
+        while ((oldLastModified < lastModified) || (oldLastModified == lastModified) && (System.currentTimeMillis() - stableTime) < documentCreationWait) {
+            lastModified = directory.lastModified();
+            if ((lastModified != oldLastModified) || stableTime == 0L) {
+                stableTime = System.currentTimeMillis();
             }
-            directoryReady = true;
-        } else {
-            System.out.println("Directory " + directory + " of ingest type " + ingestType + " is neither Headless nor SAF-ingest; consider it immediately ready.");
-            directoryReady = true;
+            oldLastModified = lastModified;
         }
+    }
 
-        return directoryReady;
+    private boolean waitOnDirectoryReady() {
+        return project.isHeadless() || project.getIngestType().equals(IngestType.SAF);
     }
 
 }

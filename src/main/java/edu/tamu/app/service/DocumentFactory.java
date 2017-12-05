@@ -90,30 +90,34 @@ public class DocumentFactory {
 
     private static Tika tika = new Tika();
 
-    public void createDocument(File directory) {
-        createDocument(directory.getParentFile().getName(), directory.getName());
+    public Document getOrCreateDocument(File directory) {
+        return getOrCreateDocument(directory.getParentFile().getName(), directory.getName());
     }
 
-    public void createDocument(String projectName, String documentName) {
-        if ((documentRepo.findByProjectNameAndName(projectName, documentName) == null)) {
+    public Document getOrCreateDocument(String projectName, String documentName) {
+        Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+        if (document == null) {
             Project project = projectRepo.findByName(projectName);
-            createDocument(project, documentName);
+            document = createDocument(project, documentName);
         }
+        return document;
     }
 
-    public void createDocument(Project project, String documentName) {
+    public Document createDocument(Project project, String documentName) {
+        Document document;
         switch (project.getIngestType()) {
         case SAF:
-            createSAFDocument(project, documentName);
+            document = createSAFDocument(project, documentName);
             break;
         case STANDARD:
         default:
-            createStandardDocument(project, documentName);
+            document = createStandardDocument(project, documentName);
             break;
         }
+        return document;
     }
 
-    public void createStandardDocument(Project project, String documentName) {
+    public Document createStandardDocument(Project project, String documentName) {
 
         String documentPath = String.join(File.separator, mount, "projects", project.getName(), documentName);
 
@@ -160,9 +164,10 @@ public class DocumentFactory {
         }
 
         projectRepo.save(project);
+        return document;
     }
 
-    public void createSAFDocument(Project project, String documentName) {
+    public Document createSAFDocument(Project project, String documentName) {
 
         String documentPath = String.join(File.separator, mount, "projects", project.getName(), documentName);
 
@@ -305,6 +310,7 @@ public class DocumentFactory {
         }
 
         projectRepo.save(project);
+        return document;
     }
 
 }
