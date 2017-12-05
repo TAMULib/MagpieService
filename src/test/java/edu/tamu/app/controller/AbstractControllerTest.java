@@ -196,7 +196,7 @@ public abstract class AbstractControllerTest extends MockData {
             }
         });
 
-        when(projectRepo.findOne(any(Long.class))).then(new Answer<Project>() {
+        when(projectRepo.read(any(Long.class))).then(new Answer<Project>() {
             @Override
             public Project answer(InvocationOnMock invocation) throws Throwable {
                 return findProjectById((Long) invocation.getArguments()[0]);

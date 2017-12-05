@@ -61,7 +61,7 @@ public class ProjectController {
     @RequestMapping("/batchpublish/project/{projectId}/repository/{repositoryId}")
     @PreAuthorize("hasRole('USER')")
     public ApiResponse publishBatch(@PathVariable Long projectId, @PathVariable Long repositoryId) {
-    	Project project = projectRepo.findOne(projectId);
+    	Project project = projectRepo.read(projectId);
     	ProjectRepository publishRepository = project.getRepositoryById(repositoryId);
     	if (publishRepository != null) {
     		Repository repositoryService = (Repository) projectServiceRegistry.getService(publishRepository.getName());
