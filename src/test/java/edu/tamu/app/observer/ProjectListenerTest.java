@@ -23,13 +23,12 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.service.ProjectsService;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = WebServerInit.class)
-public class ProjectFileListenerTest {
+public class ProjectListenerTest {
 
     @Value("${app.mount}")
     private String mount;
@@ -42,9 +41,6 @@ public class ProjectFileListenerTest {
 
     @Autowired
     private FileObserverRegistry fileObserverRegistry;
-
-    @Autowired
-    private ProjectsService projectsService;
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -64,7 +60,7 @@ public class ProjectFileListenerTest {
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
-    private ProjectFileListener dissertationFileListener;
+    private ProjectListener dissertationFileListener;
 
     private String projectsPath;
 
@@ -75,7 +71,7 @@ public class ProjectFileListenerTest {
         String projectsPath = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/projects");
 
         FileSystemUtility.createDirectory(projectsPath);
-        dissertationFileListener = new ProjectFileListener(mountPath, "projects");
+        dissertationFileListener = new ProjectListener(mountPath, "projects");
         fileObserverRegistry.register(dissertationFileListener);
         fileMonitorManager.start();
 
@@ -99,12 +95,15 @@ public class ProjectFileListenerTest {
         String documentPath = disseratationsPath + "/dissertation_0";
 
         FileSystemUtility.createDirectory(disseratationsPath);
+
+        // wait for the file monitor to pick up the newly created directory
+        Thread.sleep(2500);
+
         FileSystemUtility.createDirectory(documentPath);
         FileSystemUtility.createFile(documentPath, "dissertation.pdf");
         FileSystemUtility.createFile(documentPath, "dissertation.pdf.txt");
 
         // wait for the file monitor to pick up the newly created directory and files
-        // wait until timer to expire
         Thread.sleep(2500);
 
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
@@ -122,8 +121,6 @@ public class ProjectFileListenerTest {
         metadataFieldGroupRepo.deleteAll();
         documentRepo.deleteAll();
         projectRepo.deleteAll();
-
-        projectsService.clear();
 
         fileObserverRegistry.dismiss(dissertationFileListener);
         fileMonitorManager.stop();

@@ -19,6 +19,7 @@ public class FileMonitorManager {
     private FileAlterationMonitor monitor;
 
     public FileMonitorManager() {
+
     }
 
     @PostConstruct

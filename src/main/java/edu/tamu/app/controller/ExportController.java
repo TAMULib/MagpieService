@@ -234,7 +234,7 @@ public class ExportController {
 
             simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
         }
-        exportableProject.setIsLocked(true);
+        exportableProject.setLocked(true);
         projectRepo.save(exportableProject);
         return new ApiResponse(SUCCESS, "Your SAF has been written to the server filesystem at " + archiveDirectoryName + ".");
     }

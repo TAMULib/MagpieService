@@ -6,13 +6,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.enums.InputType;
 
 public class MetadataFieldValueTest extends AbstractModelTest {
 
     @Before
     public void setUp() {
-        testProject = projectRepo.create("testProject");
+        testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
         testDocument = documentRepo.create(testProject, "testDocument", "documentPath", "Unassigned");

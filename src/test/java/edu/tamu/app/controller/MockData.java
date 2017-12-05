@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.tamu.app.model.Role;
+import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Document;
@@ -12,6 +12,7 @@ import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.Role;
 import edu.tamu.app.model.Suggestion;
 import edu.tamu.weaver.auth.model.Credentials;
 
@@ -49,9 +50,9 @@ public class MockData {
     protected Credentials credentials = new Credentials();
 
     // Project
-    protected static Project TEST_PROJECT1 = new Project("Project Name 1");
-    protected static Project TEST_PROJECT2 = new Project("Project Name 2");
-    protected static Project TEST_PROJECT3 = new Project("Project Name 3");
+    protected static Project TEST_PROJECT1 = new Project("Project Name 1", IngestType.STANDARD, false);
+    protected static Project TEST_PROJECT2 = new Project("Project Name 2", IngestType.STANDARD, false);
+    protected static Project TEST_PROJECT3 = new Project("Project Name 3", IngestType.STANDARD, false);
 
     static {
         TEST_PROJECT1.setId(1l);
@@ -64,7 +65,7 @@ public class MockData {
     public Project saveProject(Project modifiedProject) {
         for (Project project : mockProjectList) {
             if (project.getName().equals(modifiedProject.getName())) {
-                project.setIsLocked(modifiedProject.getIsLocked());
+                project.setLocked(modifiedProject.isLocked());
                 project.setName(modifiedProject.getName());
             }
         }

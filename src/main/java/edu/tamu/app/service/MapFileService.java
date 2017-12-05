@@ -29,7 +29,6 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.registry.MagpieAuxiliaryService;
 import edu.tamu.app.utilities.CsvUtility;
-
 import edu.tamu.weaver.response.ApiResponse;
 
 @Service
@@ -158,7 +157,7 @@ public class MapFileService implements MagpieAuxiliaryService {
         if (unpublishedDocs.size() == 0) {
             // get the project fresh so the documents we modified above keep their changes
             project = projectRepo.findByName(project.getName());
-            project.setIsLocked(false);
+            project.setLocked(false);
             project = projectRepo.save(project);
             logger.info("Project '" + project.getName() + "' unlocked.");
             generateArchiveMaticaCSV(project.getName());

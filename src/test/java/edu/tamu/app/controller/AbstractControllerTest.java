@@ -27,17 +27,17 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
-import edu.tamu.app.model.Role;
+import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.Role;
 import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.service.ProjectsService;
+import edu.tamu.app.service.ProjectFactory;
 import edu.tamu.app.service.SyncService;
 import edu.tamu.app.service.exporter.DspaceCsvExporter;
 import edu.tamu.app.service.exporter.SpotlightCsvExporter;
@@ -79,7 +79,7 @@ public abstract class AbstractControllerTest extends MockData {
     protected SpotlightCsvExporter spotlightExporter;
 
     @Mock
-    protected ProjectsService projectsService;
+    protected ProjectFactory projectsService;
 
     @Mock
     protected MagpieServiceRegistry projectServiceRegistry;
@@ -98,7 +98,7 @@ public abstract class AbstractControllerTest extends MockData {
 
     @InjectMocks
     protected MetadataController metadataController;
-    
+
     @InjectMocks
     protected ExportController exportController;
 
@@ -161,7 +161,7 @@ public abstract class AbstractControllerTest extends MockData {
                 return saveDocument((Document) invocation.getArguments()[0]);
             }
         });
-        
+
         when(documentRepo.fullSave(any(Document.class))).then(new Answer<Document>() {
             @Override
             public Document answer(InvocationOnMock invocation) throws Throwable {
@@ -189,7 +189,7 @@ public abstract class AbstractControllerTest extends MockData {
         // project
         when(projectRepo.findAll()).thenReturn(mockProjectList);
 
-        when(projectRepo.create(any(String.class), (List<ProjectRepository>) any(List.class), any(List.class), any(List.class))).then(new Answer<Project>() {
+        when(projectRepo.create(any(String.class), any(IngestType.class), any(Boolean.class), (List<ProjectRepository>) any(List.class), any(List.class), any(List.class))).then(new Answer<Project>() {
             @Override
             public Project answer(InvocationOnMock invocation) throws Throwable {
                 return TEST_PROJECT1;

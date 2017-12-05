@@ -15,11 +15,12 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import edu.tamu.app.WebServerInit;
+import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.FieldProfile;
@@ -60,12 +61,12 @@ public class CsvUtilityTest {
     private Project testProject;
 
     private Document mockDocument;
-    
+
     private CsvUtility csvUtility;
 
     @Test
     public void testGenerateOneArchiveMaticaCSV() throws IOException {
-        testProject = projectRepo.create("testProject");
+        testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         mockDocument = documentRepo.create(testProject, "testDocument", "documentPath", "Unassigned");
 
         FieldProfile profile = projectFieldProfileRepo.create(testProject, "Date Created", false, false, false, false, InputType.TEXT, null);
@@ -76,7 +77,7 @@ public class CsvUtilityTest {
         dateCreatedFieldGroup.addValue(dateCreatedValue);
 
         mockDocument.addField(dateCreatedFieldGroup);
-        
+
         csvUtility = new CsvUtility();
 
         List<List<String>> csvContents = csvUtility.generateOneArchiveMaticaCSV(mockDocument, "temp");

@@ -28,7 +28,6 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-
 import edu.tamu.weaver.response.ApiResponse;
 
 /**
@@ -63,7 +62,7 @@ public class MetadataController {
     @PreAuthorize("hasRole('USER')")
     public ApiResponse unlockProject(@PathVariable String projectToUnlock) {
         Project project = projectRepo.findByName(projectToUnlock);
-        project.setIsLocked(false);
+        project.setLocked(false);
         projectRepo.save(project);
         return new ApiResponse(SUCCESS);
     }
