@@ -4,6 +4,7 @@ target/
 .settings
 .classpath
 .factorypath
+.springBeans
 .project/*
 .settings/*
 bin/
