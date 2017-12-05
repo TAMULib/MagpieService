@@ -51,6 +51,8 @@ import edu.tamu.weaver.response.ApiResponse;
 @RequestMapping("/document")
 public class DocumentController {
 
+    private static final Logger logger = Logger.getLogger(DocumentController.class);
+
     @Autowired
     private DocumentRepo documentRepo;
 
@@ -59,8 +61,6 @@ public class DocumentController {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    private static final Logger logger = Logger.getLogger(DocumentController.class);
 
     /**
      * Endpoint to return all documents.
@@ -177,7 +177,7 @@ public class DocumentController {
             }
         }
 
-        return new ApiResponse(SUCCESS, "Your item has been successfully published");
+        return new ApiResponse(SUCCESS, "Your item has been successfully published", document);
     }
 
 }

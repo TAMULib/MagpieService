@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.service.ProjectsService;
+import edu.tamu.app.service.ProjectFactory;
 
 public abstract class AbstractExporter implements Exporter {
 
@@ -17,7 +17,7 @@ public abstract class AbstractExporter implements Exporter {
     protected ProjectRepo projectRepo;
 
     @Autowired
-    protected ProjectsService projectsService;
+    protected ProjectFactory projectsService;
 
     public static Predicate<Document> isPublished() {
         return d -> d.getStatus().equals("Published");

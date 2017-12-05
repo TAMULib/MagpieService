@@ -144,7 +144,7 @@ public class MapFileService implements MagpieAuxiliaryService {
         if (unpublishedDocs.size() == 0) {
             // get the project fresh so the documents we modified above keep their changes
             project = projectRepo.findByName(project.getName());
-            project.setIsLocked(false);
+            project.setLocked(false);
             project = projectRepo.save(project);
             logger.info("Project '" + project.getName() + "' unlocked.");
             generateArchiveMaticaCSV(project.getName());
