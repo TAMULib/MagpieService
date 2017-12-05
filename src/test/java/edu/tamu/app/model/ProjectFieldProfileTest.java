@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.tamu.app.enums.InputType;
 
@@ -48,6 +49,7 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
     }
 
     @Test
+    @Transactional
     public void testDeleteProjectFieldProfile() {
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());

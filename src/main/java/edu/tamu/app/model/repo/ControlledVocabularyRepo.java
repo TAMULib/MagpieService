@@ -9,11 +9,11 @@
  */
 package edu.tamu.app.model.repo;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.ControlledVocabulary;
 import edu.tamu.app.model.repo.custom.ControlledVocabularyRepoCustom;
+import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
 /**
  *
@@ -22,7 +22,7 @@ import edu.tamu.app.model.repo.custom.ControlledVocabularyRepoCustom;
  *
  */
 @Repository
-public interface ControlledVocabularyRepo extends JpaRepository<ControlledVocabulary, Long>, ControlledVocabularyRepoCustom {
+public interface ControlledVocabularyRepo extends WeaverRepo<ControlledVocabulary>, ControlledVocabularyRepoCustom {
 
     public ControlledVocabulary create(String name);
 

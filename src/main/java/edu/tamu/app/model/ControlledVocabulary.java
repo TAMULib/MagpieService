@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import edu.tamu.framework.model.BaseEntity;
+import edu.tamu.weaver.data.model.BaseEntity;
 
 /**
  * 

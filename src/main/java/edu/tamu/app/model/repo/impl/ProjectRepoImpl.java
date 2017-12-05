@@ -19,6 +19,7 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
+import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 /**
  *
@@ -26,7 +27,7 @@ import edu.tamu.app.model.repo.custom.ProjectRepoCustom;
  * @author
  *
  */
-public class ProjectRepoImpl implements ProjectRepoCustom {
+public class ProjectRepoImpl extends AbstractWeaverRepoImpl<Project, ProjectRepo> implements ProjectRepoCustom {
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -37,7 +38,7 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
         if (project == null) {
             project = new Project(name);
         }
-        return projectRepo.save(project);
+        return projectRepo.create(project);
     }
 
     @Override
@@ -49,7 +50,12 @@ public class ProjectRepoImpl implements ProjectRepoCustom {
         project.setRepositories(repositories);
         project.setAuthorities(authorities);
         project.setSuggestors(suggestors);
-        return projectRepo.save(project);
+        return projectRepo.create(project);
     }
+
+	@Override
+	protected String getChannel() {
+		return "/channel/project";
+	}
 
 }

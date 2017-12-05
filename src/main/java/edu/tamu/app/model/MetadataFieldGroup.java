@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import edu.tamu.framework.model.BaseEntity;
+import edu.tamu.weaver.data.model.BaseEntity;
 
 /**
  * 
@@ -47,7 +47,7 @@ public class MetadataFieldGroup extends BaseEntity {
     @JsonIdentityReference(alwaysAsId = true)
     private Document document;
 
-    @OneToMany(mappedBy = "field", fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "field", fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<MetadataFieldValue> values;
 
@@ -98,13 +98,13 @@ public class MetadataFieldGroup extends BaseEntity {
     }
 
     public void clearValues() {
-        values = new ArrayList<MetadataFieldValue>();
+        values.clear();
     }
-    
+
     public boolean containsValue(String value) {
         boolean containsValue = false;
-        for(MetadataFieldValue metadataFieldValue : values) {
-            if(metadataFieldValue.getValue().equals(value)) {
+        for (MetadataFieldValue metadataFieldValue : values) {
+            if (metadataFieldValue.getValue().equals(value)) {
                 containsValue = true;
                 break;
             }

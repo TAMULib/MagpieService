@@ -1,12 +1,15 @@
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.Document;
@@ -15,13 +18,11 @@ import edu.tamu.app.model.Suggestion;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.suggestor.Suggestor;
-import edu.tamu.framework.aspect.annotation.ApiMapping;
-import edu.tamu.framework.aspect.annotation.ApiVariable;
-import edu.tamu.framework.aspect.annotation.Auth;
-import edu.tamu.framework.model.ApiResponse;
+
+import edu.tamu.weaver.response.ApiResponse;
 
 @RestController
-@ApiMapping("/suggest")
+@RequestMapping("/suggest")
 public class SuggestionController {
 
     @Autowired
@@ -31,9 +32,9 @@ public class SuggestionController {
     private MagpieServiceRegistry projectServiceRegistry;
 
     // TODO: handle exception gracefully
-    @ApiMapping("/{projectName}/{documentName}")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse getSuggestions(@ApiVariable String projectName, @ApiVariable String documentName) throws IOException {
+    @RequestMapping("/{projectName}/{documentName}")
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse getSuggestions(@PathVariable String projectName, @PathVariable String documentName) throws IOException {
 
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 

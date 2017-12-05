@@ -29,7 +29,7 @@ public class MockData {
 
     protected Project testProject, assertProject;
     
-    protected Map<String, String> aggieJackToken;
+    protected Map<String, Object> aggieJackToken;
 
     protected long timestamp = new Date().getTime() + (5 * 60 * 1000);
 

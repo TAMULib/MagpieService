@@ -26,6 +26,7 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
 import edu.tamu.app.model.repo.specification.DocumentSpecification;
+import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 /**
  *
@@ -33,7 +34,7 @@ import edu.tamu.app.model.repo.specification.DocumentSpecification;
  * @author
  *
  */
-public class DocumentRepoImpl implements DocumentRepoCustom {
+public class DocumentRepoImpl extends AbstractWeaverRepoImpl<Document, DocumentRepo> implements DocumentRepoCustom {
 
     @Autowired
     private DocumentRepo documentRepo;
@@ -48,7 +49,7 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
     public synchronized Document create(Project project, String name, String documentPath, String status) {
         Document document = documentRepo.findByProjectNameAndName(project.getName(), name);
         if (document == null) {
-            document = documentRepo.save(new Document(project, name, documentPath, status));
+            document = documentRepo.create(new Document(project, name, documentPath, status));
         }
         return document;
     }
@@ -72,7 +73,12 @@ public class DocumentRepoImpl implements DocumentRepoCustom {
             mfgs.add(mfg);
         }
         document.setFields(mfgs);
-        return documentRepo.save(document);
+        return documentRepo.update(document);
     }
+
+	@Override
+	protected String getChannel() {
+		return "/channel/document";
+	}
 
 }

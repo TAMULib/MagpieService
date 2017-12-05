@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.tamu.app.enums.InputType;
 
@@ -32,6 +33,7 @@ public class DocumentTest extends AbstractModelTest {
     }
 
     @Test
+    @Transactional
     public void testDeleteDocument() {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         assertEquals("DocumentRepo is empty.", 1, documentRepo.count());
@@ -40,6 +42,7 @@ public class DocumentTest extends AbstractModelTest {
     }
 
     @Test
+    @Transactional
     public void testCascadeOnDeleteDocument() {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
         assertEquals("Test Document was not created.", 1, documentRepo.count());

@@ -22,9 +22,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import edu.tamu.app.enums.AppRole;
-import edu.tamu.framework.model.AbstractCoreUser;
-import edu.tamu.framework.model.IRole;
+import edu.tamu.weaver.user.model.IRole;
+
+import edu.tamu.weaver.auth.model.AbstractWeaverUserDetails;
 
 /**
  * Application User entity.
@@ -33,12 +33,12 @@ import edu.tamu.framework.model.IRole;
  *
  */
 @Entity
-public class AppUser extends AbstractCoreUser {
+public class AppUser extends AbstractWeaverUserDetails {
 
     private static final long serialVersionUID = -322779181704256964L;
 
     @Column(name = "role")
-    private AppRole role;
+    private Role role;
 
     @Column(name = "first_name")
     private String firstName;
@@ -59,7 +59,7 @@ public class AppUser extends AbstractCoreUser {
      * 
      */
     public AppUser(String uin) {
-        super(uin);
+        setUsername(uin);
     }
 
     /**
@@ -73,13 +73,20 @@ public class AppUser extends AbstractCoreUser {
         this(uin);
         setFirstName(firstName);
         setLastName(lastName);
-        setRole(AppRole.valueOf(role));
+        setRole(Role.valueOf(role));
+    }
+    
+    public AppUser(AppUser user) {
+    	this(user.getUsername());
+    	setFirstName(user.getFirstName());
+        setLastName(user.getLastName());
+        setRole(user.getRole());
     }
 
     /**
      * @return the role
      */
-    @JsonDeserialize(as = AppRole.class)
+    @JsonDeserialize(as = Role.class)
     public IRole getRole() {
         return role;
     }
@@ -88,9 +95,9 @@ public class AppUser extends AbstractCoreUser {
      * @param role
      *            the role to set
      */
-    @JsonSerialize(as = AppRole.class)
+    @JsonSerialize(as = Role.class)
     public void setRole(IRole role) {
-        this.role = (AppRole) role;
+        this.role = (Role) role;
     }
 
     /**
@@ -137,40 +144,10 @@ public class AppUser extends AbstractCoreUser {
         return authorities;
     }
 
-    @Override
-    @JsonIgnore
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getUsername() {
-        return getUin();
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isEnabled() {
-        return true;
-    }
+	@Override
+	@JsonIgnore
+	public String getPassword() {
+		return null;
+	}
 
 }

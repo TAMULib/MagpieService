@@ -38,8 +38,7 @@ public class MetadataFieldLabelTest extends AbstractModelTest {
     }
 
     @Test
-    @Transactional // TODO: figure out why metadata field label will not delete without
-                   // transactional!
+    @Transactional
     public void testDeleteMetadataFieldLabel() {
         metadataFieldLabelRepo.create("test", testProfile);
         assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
