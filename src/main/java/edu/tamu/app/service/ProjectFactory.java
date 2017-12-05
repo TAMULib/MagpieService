@@ -1,7 +1,5 @@
 package edu.tamu.app.service;
 
-import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -38,7 +35,6 @@ import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
 import edu.tamu.app.service.suggestor.Suggestor;
 import edu.tamu.app.utilities.FileSystemUtility;
-import edu.tamu.weaver.response.ApiResponse;
 
 @Service
 public class ProjectFactory {
@@ -65,20 +61,11 @@ public class ProjectFactory {
     @Value("${app.projects.file}")
     private String initialProjectsFile;
 
-    @Value("${app.host}")
-    private String host;
-
-    @Value("${app.mount}")
-    private String mount;
-
     @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
@@ -184,12 +171,6 @@ public class ProjectFactory {
         }
 
         Project project = projectRepo.create(projectName, ingestType, headless, repositories, authorities, suggestors);
-
-        try {
-            simpMessagingTemplate.convertAndSend("/channel/project", new ApiResponse(SUCCESS, projectRepo.findAll()));
-        } catch (Exception e) {
-            logger.error("Error broadcasting new project", e);
-        }
 
         project.getRepositories().forEach(repository -> {
             Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());

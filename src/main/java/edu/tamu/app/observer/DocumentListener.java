@@ -6,14 +6,12 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
-import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.DocumentFactory;
 
 public class DocumentListener extends AbstractFileListener {
@@ -25,26 +23,14 @@ public class DocumentListener extends AbstractFileListener {
     @Value("${app.document.create.wait}")
     private int documentCreationWait;
 
-    @Value("${app.host}")
-    private String host;
-
-    @Value("${app.mount}")
-    private String mount;
-
     @Autowired
     private DocumentFactory documentFactory;
 
-    @Autowired
-    private ResourceRepo resourceRepo;
-
     private Project project;
-
-    private Tika tika;
 
     public DocumentListener(Project project, String root, String folder) {
         super(root, folder);
         this.project = project;
-        this.tika = new Tika();
         executor = Executors.newCachedThreadPool();
     }
 
@@ -81,7 +67,7 @@ public class DocumentListener extends AbstractFileListener {
                 executor.submit(() -> {
                     logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
                     Document document = documentFactory.getOrCreateDocument(projectName, documentName);
-                    addResource(document, file);
+                    documentFactory.addResource(document, file);
                 });
             }
         }
@@ -109,15 +95,6 @@ public class DocumentListener extends AbstractFileListener {
                 documentFactory.getOrCreateDocument(directory);
             });
         }
-    }
-
-    private void addResource(Document document, File file) {
-        String name = file.getName();
-        String path = document.getDocumentPath() + File.separator + file.getName();
-        String url = host + document.getDocumentPath() + File.separator + file.getName();
-        String mimeType = tika.detect(path);
-        logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
-        resourceRepo.create(document, name, path, url, mimeType);
     }
 
     // this is a blocking sleep operation of this listener

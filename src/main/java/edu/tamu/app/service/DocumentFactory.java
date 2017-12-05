@@ -96,6 +96,15 @@ public class DocumentFactory {
         return document;
     }
 
+    public void addResource(Document document, File file) {
+        String name = file.getName();
+        String path = document.getDocumentPath() + File.separator + file.getName();
+        String url = host + document.getDocumentPath() + File.separator + file.getName();
+        String mimeType = tika.detect(path);
+        logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
+        resourceRepo.create(document, name, path, url, mimeType);
+    }
+
     public Document createDocument(Project project, String documentName) {
         Document document;
         switch (project.getIngestType()) {
@@ -110,7 +119,7 @@ public class DocumentFactory {
         return document;
     }
 
-    public Document createStandardDocument(Project project, String documentName) {
+    private Document createStandardDocument(Project project, String documentName) {
 
         String documentPath = String.join(File.separator, mount, "projects", project.getName(), documentName);
 
@@ -156,7 +165,7 @@ public class DocumentFactory {
         return document;
     }
 
-    public Document createSAFDocument(Project project, String documentName) {
+    private Document createSAFDocument(Project project, String documentName) {
 
         String documentPath = String.join(File.separator, mount, "projects", project.getName(), documentName);
 
