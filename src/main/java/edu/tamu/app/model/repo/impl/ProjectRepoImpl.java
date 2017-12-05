@@ -39,7 +39,7 @@ public class ProjectRepoImpl extends AbstractWeaverRepoImpl<Project, ProjectRepo
         if (project == null) {
             project = new Project(name, ingestType, headless);
         }
-        return projectRepo.save(project);
+        return projectRepo.create(project);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class ProjectRepoImpl extends AbstractWeaverRepoImpl<Project, ProjectRepo
         project.setRepositories(repositories);
         project.setAuthorities(authorities);
         project.setSuggestors(suggestors);
-        return projectRepo.save(project);
+        return projectRepo.create(project);
     }
 
     @Override

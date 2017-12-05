@@ -46,7 +46,7 @@ public class DocumentControllerTest extends AbstractControllerTest {
         assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
         assertEquals(" The document was not published ", "Your item has been successfully published", response.getMeta().getMessage());
         Document document = (Document) response.getPayload().get("Document");
-        assertEquals(" The document has a different document document name ", TEST_DOCUMENT1.getName(), document.getName());
+        assertEquals(" The document has a different document name ", TEST_DOCUMENT1.getName(), document.getName());
         assertEquals(" The document has a differnt project name ", TEST_PROJECT1.getName(), document.getProject().getName());
     }
 

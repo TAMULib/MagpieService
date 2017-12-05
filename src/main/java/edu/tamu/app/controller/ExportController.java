@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +42,8 @@ import edu.tamu.weaver.response.ApiResponse;
 @RequestMapping("/export")
 public class ExportController {
 
+    private static final Logger logger = Logger.getLogger(ExportController.class);
+
     @Value("${app.mount}")
     private String mount;
 
@@ -63,11 +64,6 @@ public class ExportController {
 
     @Autowired
     private ApplicationContext appContext;
-
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
-
-    private static final Logger logger = Logger.getLogger(MetadataController.class);
 
     /**
      * Endpoint to return metadata headers for given project.
@@ -230,12 +226,13 @@ public class ExportController {
                 printStream.close();
             }
             document.setStatus("Pending");
-            document = documentRepo.save(document);
+            document = documentRepo.update(document);
 
-            simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
         }
+
         exportableProject.setLocked(true);
-        projectRepo.save(exportableProject);
+        projectRepo.update(exportableProject);
+
         return new ApiResponse(SUCCESS, "Your SAF has been written to the server filesystem at " + archiveDirectoryName + ".");
     }
 

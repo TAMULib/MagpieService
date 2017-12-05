@@ -144,6 +144,13 @@ public abstract class AbstractControllerTest extends MockData {
                 return saveAppUser((AppUser) invocation.getArguments()[0]);
             }
         });
+        
+        when(userRepo.update(any(AppUser.class))).then(new Answer<AppUser>() {
+            @Override
+            public AppUser answer(InvocationOnMock invocation) throws Throwable {
+                return saveAppUser((AppUser) invocation.getArguments()[0]);
+            }
+        });
 
         when(userRepo.create(any(String.class), any(String.class), any(String.class), any(String.class))).then(new Answer<AppUser>() {
             @Override
@@ -196,7 +203,7 @@ public abstract class AbstractControllerTest extends MockData {
             }
         });
 
-        when(projectRepo.findOne(any(Long.class))).then(new Answer<Project>() {
+        when(projectRepo.read(any(Long.class))).then(new Answer<Project>() {
             @Override
             public Project answer(InvocationOnMock invocation) throws Throwable {
                 return findProjectById((Long) invocation.getArguments()[0]);

@@ -23,7 +23,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,7 +39,6 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
-
 import edu.tamu.weaver.response.ApiResponse;
 
 /**
@@ -53,8 +51,7 @@ import edu.tamu.weaver.response.ApiResponse;
 @RequestMapping("/document")
 public class DocumentController {
 
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private static final Logger logger = Logger.getLogger(DocumentController.class);
 
     @Autowired
     private DocumentRepo documentRepo;
@@ -64,8 +61,6 @@ public class DocumentController {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    private static final Logger logger = Logger.getLogger(DocumentController.class);
 
     /**
      * Endpoint to return all documents.
@@ -155,7 +150,6 @@ public class DocumentController {
     @PreAuthorize("hasRole('USER')")
     public ApiResponse save(@RequestBody Document document) {
         document = documentRepo.fullSave(document);
-        simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
         return new ApiResponse(SUCCESS);
     }
 
@@ -182,8 +176,6 @@ public class DocumentController {
                 return new ApiResponse(ERROR, "There was an error publishing this item");
             }
         }
-
-        simpMessagingTemplate.convertAndSend("/channel/update-document", new ApiResponse(SUCCESS, document));
 
         return new ApiResponse(SUCCESS, "Your item has been successfully published", document);
     }
