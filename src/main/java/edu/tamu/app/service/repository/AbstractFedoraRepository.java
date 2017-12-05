@@ -84,7 +84,7 @@ public abstract class AbstractFedoraRepository implements Repository {
 
         document.setStatus("Published");
 
-        return documentRepo.save(document);
+        return documentRepo.update(document);
     }
 
     protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
