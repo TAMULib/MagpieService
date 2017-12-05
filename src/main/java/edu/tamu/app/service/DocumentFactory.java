@@ -1,7 +1,5 @@
 package edu.tamu.app.service;
 
-import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -16,7 +14,6 @@ import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -42,7 +39,6 @@ import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.authority.Authority;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
-import edu.tamu.weaver.response.ApiResponse;
 
 @Service
 public class DocumentFactory {
@@ -78,9 +74,6 @@ public class DocumentFactory {
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
-
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -157,13 +150,9 @@ public class DocumentFactory {
             }
         }
 
-        try {
-            simpMessagingTemplate.convertAndSend("/channel/new-document", new ApiResponse(SUCCESS, document));
-        } catch (Exception e) {
-            logger.error("Error broadcasting new document", e);
-        }
+        documentRepo.broadcast(document);
 
-        projectRepo.save(project);
+        projectRepo.update(project);
         return document;
     }
 
@@ -298,18 +287,13 @@ public class DocumentFactory {
                 is.close();
 
             }
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        try {
-            simpMessagingTemplate.convertAndSend("/channel/new-document", new ApiResponse(SUCCESS, document));
-        } catch (Exception e) {
-            logger.error("Error broadcasting new document", e);
-        }
+        documentRepo.broadcast(document);
 
-        projectRepo.save(project);
+        projectRepo.update(project);
         return document;
     }
 

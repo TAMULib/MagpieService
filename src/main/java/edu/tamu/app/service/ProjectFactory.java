@@ -271,7 +271,7 @@ public class ProjectFactory {
         }
 
         if (newProject) {
-            projectRepo.save(project);
+            projectRepo.update(project);
         }
 
         return projectFields;
