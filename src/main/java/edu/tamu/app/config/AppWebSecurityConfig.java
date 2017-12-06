@@ -2,7 +2,6 @@ package edu.tamu.app.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,9 +18,6 @@ import edu.tamu.weaver.auth.config.AuthWebSecurityConfig;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class AppWebSecurityConfig extends AuthWebSecurityConfig<AppUser, AppUserRepo, AppUserDetailsService> {
 
-    @Value("${app.security.allow-access}")
-    private String[] hosts;
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
@@ -36,7 +32,7 @@ public class AppWebSecurityConfig extends AuthWebSecurityConfig<AppUser, AppUser
             .and()
                 .headers()
                     .frameOptions()
-                    .disable()
+                        .disable()
             .and()
             	.cors()
             .and()
