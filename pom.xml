@@ -193,6 +193,7 @@
           </dependency>
         </dependencies>
         <configuration>
+          <includeEmptyDirectories>true</includeEmptyDirectories>
           <failOnMissingWebXml>false</failOnMissingWebXml>
           <webResources>
             <webResource>
@@ -207,10 +208,7 @@
               </excludes>
             </webResource>
             <webResource>
-              <filtering>false</filtering>
               <directory>src/main/resources</directory>
-              <targetPath>WEB-INF/classes</targetPath>
-              <exclude>application.properties</exclude>
             </webResource>
           </webResources>
         </configuration>
@@ -228,12 +226,12 @@
           </dependency>
         </dependencies>
         <configuration>
+          <includeEmptyDirectories>true</includeEmptyDirectories>
           <failOnMissingWebXml>false</failOnMissingWebXml>
           <webResources>
             <webResource>
               <filtering>true</filtering>
               <directory>src/main/resources</directory>
-              <targetPath>WEB-INF</targetPath>
               <includes>
                 <include>application.properties</include>
               </includes>
@@ -242,10 +240,7 @@
               </excludes>
             </webResource>
             <webResource>
-              <filtering>false</filtering>
               <directory>src/main/resources</directory>
-              <targetPath>WEB-INF/classes</targetPath>
-              <exclude>application.properties</exclude>
             </webResource>
           </webResources>
         </configuration>
