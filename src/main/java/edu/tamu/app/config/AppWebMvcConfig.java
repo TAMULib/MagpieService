@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
@@ -22,9 +21,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.resource.AppCacheManifestTransformer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
-import org.springframework.web.servlet.resource.VersionResourceResolver;
 
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
@@ -40,9 +37,6 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
 
     @Value("${app.security.allow-access}")
     private String[] hosts;
-
-    @Autowired
-    private Environment env;
 
     @Autowired
     private List<HttpMessageConverter<?>> converters;
@@ -76,8 +70,7 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
      */
     @Bean(name = "executorService")
     private static ExecutorService configureExecutorService() {
-        ExecutorService executorService = new ThreadPoolExecutor(10, 25, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(25));
-        return executorService;
+        return new ThreadPoolExecutor(10, 25, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(25));
     }
 
     @Override
@@ -94,16 +87,7 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        boolean devMode = this.env.acceptsProfiles("dev");
-        boolean useResourceCache = !devMode;
-        Integer cachePeriod = devMode ? 0 : null;
-        // @formatter:off
-        registry.addResourceHandler("/**")
-                .addResourceLocations("classpath:/static/")
-                .setCachePeriod(cachePeriod)
-                .resourceChain(useResourceCache)
-                .addResolver(new VersionResourceResolver().addContentVersionStrategy("/**")).addTransformer(new AppCacheManifestTransformer());
-        // @formatter:on
+        registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
     }
 
     @Override
