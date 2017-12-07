@@ -31,7 +31,7 @@ public class DocumentListener extends AbstractFileListener {
     public DocumentListener(Project project, String root, String folder) {
         super(root, folder);
         this.project = project;
-        executor = Executors.newCachedThreadPool();
+        executor = Executors.newFixedThreadPool(10);
     }
 
     @Override
