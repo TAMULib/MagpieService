@@ -19,6 +19,7 @@ public class FlatMARC {
     private String dc_description_abstract = "";
     private String thesis_degree_grantor = "";
     private String dc_contributor_advisor = "";
+    private List<String> dc_contributor_committeeMember = new ArrayList<String>();
     private String dc_identifier_uri = "";
 
     public FlatMARC(VoyagerServiceData voyagerServiceData) {
@@ -28,7 +29,7 @@ public class FlatMARC {
             Datafield[] dataField = voyagerServiceData.getServiceData().getHoldingsRecord().getBibRecord().getMarcRecord().getDatafield();
 
             for (Datafield df : dataField) {
-                
+
                 // dc.creator
                 if (df.getTag().equals("100")) {
                     Subfield[] subFields = df.getSubfield();
@@ -147,50 +148,75 @@ public class FlatMARC {
                     }
                 }
 
-                // advisors
+                // The 700 field can contain committe chairs and committee
+                // members
                 if (df.getTag().equals("700")) {
+
                     Subfield[] subFields = df.getSubfield();
                     String temp;
-                    for (Subfield subField : subFields) {                    	
-                        if (subField.getCode().equals("a")) {
-                            temp = scrubField(".", subField.getValue());
-                            if (temp.length() > 0) {
-                                dc_contributor_advisor += temp;
+                    for (Subfield prospectiveAdvisorDescriptionSubField : subFields) {
+                        if (prospectiveAdvisorDescriptionSubField.getCode().equals("e")) {
+                            String advisorDescription = prospectiveAdvisorDescriptionSubField.getValue();
+                            for (Subfield prospectiveAdvisorNameSubField : subFields) {
+                                // advisors (chair)
+                                if (prospectiveAdvisorDescriptionSubField.getCode().equals("a") && advisorDescription.contains("supervisor")) {
+                                    temp = scrubField(".", prospectiveAdvisorNameSubField.getValue());
+                                    if (temp.length() > 0) {
+                                        dc_contributor_advisor += temp;
+                                    }
+                                }
+                                // advisors (member)
+                                else if (prospectiveAdvisorDescriptionSubField.getCode().equals("a") && advisorDescription.contains("member")) {
+                                    temp = scrubField(".", prospectiveAdvisorNameSubField.getValue());
+                                    if (temp.length() > 0) {
+                                        dc_contributor_committeeMember.add(temp);
+                                    }
+                                }
+
                             }
+
                         }
                     }
                 }
 
-                //handle uri
+                // handle uri
                 if (df.getTag().equals("856") && dc_identifier_uri.length() == 0) {
                     Subfield[] subFields = df.getSubfield();
                     for (Subfield subField : subFields) {
-                    	if (subField.getCode().equals("u")) {
-                    		dc_identifier_uri = subField.getValue();
-                    	}
+                        if (subField.getCode().equals("u")) {
+                            dc_identifier_uri = subField.getValue();
+                        }
                     }
-                }                
+                }
 
             }
 
         }
 
     }
-    
+
     public String getIdentifierUri() {
-    	return dc_identifier_uri;
+        return dc_identifier_uri;
     }
-    
+
     public void setIdentifierUri(String handleUri) {
-    	dc_identifier_uri = handleUri;
+        dc_identifier_uri = handleUri;
     }
-    
+
     public String getAdvisor() {
-    	return dc_contributor_advisor;
+        return dc_contributor_advisor;
     }
-    
+
     public void setAdvisor(String advisor) {
-    	dc_contributor_advisor = advisor;
+        dc_contributor_advisor = advisor;
+    }
+
+    public List<String> getCommitteMembers() {
+        return dc_contributor_committeeMember;
+    }
+
+    public void setCommitteeMembers(List<String> committeeMembers) {
+        this.dc_contributor_committeeMember = committeeMembers;
     }
 
     public String getCreator() {
@@ -273,8 +299,8 @@ public class FlatMARC {
         return sanatize(scrubbable);
     }
 
-    private String sanatize(String sinatizable) {
-        return sinatizable.replaceAll("\"", "");
+    private String sanatize(String sanitizable) {
+        return sanitizable.replaceAll("\"", "");
     }
 
     private String rightTrim(int length, String trimmable) {
