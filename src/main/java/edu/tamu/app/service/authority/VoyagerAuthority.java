@@ -113,6 +113,7 @@ public class VoyagerAuthority implements Authority {
 
     public VoyagerServiceData fetchMARC(String bibId) throws Exception {
         String urlString = "http://" + getHost() + ":" + getPort() + "/" + getApp() + "/GetHoldingsService?bibId=" + bibId;
+        logger.info("Fetching marc for bibid " + bibId + " at URL: " + urlString);
         String xmlResponse = HttpUtility.makeHttpRequest(urlString, "GET");
 
         xmlResponse = xmlResponse.replace("ser:", "");
