@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
@@ -159,9 +160,11 @@ public abstract class AbstractFedoraRepository implements Repository {
      */
     private void updateMetadata(Document document, String itemContainerUrl) throws IOException {
         String updateQuery = "PREFIX dc: <http://purl.org/dc/elements/1.1/>" + "INSERT {";
+        String cleanValue = null;
         for (MetadataFieldGroup group : document.getFields()) {
             for (MetadataFieldValue value : group.getValues()) {
-                updateQuery += "<> " + group.getLabel().getName().replace('.', ':') + " \"" + value.getValue() + "\" . ";
+                cleanValue = StringEscapeUtils.escapeXml11(value.getValue());
+                updateQuery += "<> " + group.getLabel().getName().replace('.', ':') + " \"" + cleanValue + "\" . ";
             }
         }
         updateQuery += "} WHERE { }";
