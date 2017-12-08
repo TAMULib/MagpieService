@@ -159,14 +159,14 @@ public class FlatMARC {
                             String advisorDescription = prospectiveAdvisorDescriptionSubField.getValue();
                             for (Subfield prospectiveAdvisorNameSubField : subFields) {
                                 // advisors (chair)
-                                if (prospectiveAdvisorDescriptionSubField.getCode().equals("a") && advisorDescription.contains("supervisor")) {
+                                if (prospectiveAdvisorNameSubField.getCode().equals("a") && advisorDescription.contains("supervisor")) {
                                     temp = scrubField(".", prospectiveAdvisorNameSubField.getValue());
                                     if (temp.length() > 0) {
                                         dc_contributor_advisor += temp;
                                     }
                                 }
                                 // advisors (member)
-                                else if (prospectiveAdvisorDescriptionSubField.getCode().equals("a") && advisorDescription.contains("member")) {
+                                else if (prospectiveAdvisorNameSubField.getCode().equals("a") && advisorDescription.contains("member")) {
                                     temp = scrubField(".", prospectiveAdvisorNameSubField.getValue());
                                     if (temp.length() > 0) {
                                         dc_contributor_committeeMember.add(temp);
