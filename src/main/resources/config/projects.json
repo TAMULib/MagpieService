@@ -83,6 +83,12 @@
         "inputType": "TEXT"
       },
       {
+        "label": "dc.identifier.uri",
+        "gloss": "URI",
+        "readOnly": true,
+        "inputType": "TEXT"
+      },
+      {
         "label": "dc.contributor.advisor",
         "gloss": "Committee Chair",
         "repeatable": true,
