@@ -154,6 +154,7 @@ public class FlatMARC {
 
                     Subfield[] subFields = df.getSubfield();
                     String temp;
+
                     for (Subfield prospectiveAdvisorDescriptionSubField : subFields) {
                         if (prospectiveAdvisorDescriptionSubField.getCode().equals("e")) {
                             String advisorDescription = prospectiveAdvisorDescriptionSubField.getValue();
@@ -161,6 +162,9 @@ public class FlatMARC {
                                 // advisors (chair)
                                 if (prospectiveAdvisorNameSubField.getCode().equals("a") && advisorDescription.contains("supervisor")) {
                                     temp = scrubField(".", prospectiveAdvisorNameSubField.getValue());
+
+                                    temp = scrubField(",", temp);
+
                                     if (temp.length() > 0) {
                                         dc_contributor_advisor += temp;
                                     }
@@ -168,6 +172,9 @@ public class FlatMARC {
                                 // advisors (member)
                                 else if (prospectiveAdvisorNameSubField.getCode().equals("a") && advisorDescription.contains("member")) {
                                     temp = scrubField(".", prospectiveAdvisorNameSubField.getValue());
+
+                                    temp = scrubField(",", temp);
+
                                     if (temp.length() > 0) {
                                         dc_contributor_committeeMember.add(temp);
                                     }
@@ -291,6 +298,17 @@ public class FlatMARC {
         this.thesis_degree_grantor = thesis_degree_grantor;
     }
 
+    /**
+     * Removes the scrubber string from the end of the scrubbable string. Used
+     * to clean up trailing puncutation, etc. coming off the MARC values
+     * 
+     * @param scrubber
+     *            the trailing string to scrub
+     * @param scrubbable
+     *            the string that needs a scrubbing
+     * @return
+     *            the nicely scrubbed resulting string
+     */
     private String scrubField(String scrubber, String scrubbable) {
         scrubbable = scrubbable.trim();
         if (scrubbable.endsWith(scrubber)) {
