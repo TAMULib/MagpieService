@@ -4,14 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.transaction.annotation.Transactional;
 
+import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.enums.InputType;
 
 public class MetadataFieldGroupTest extends AbstractModelTest {
 
     @Before
     public void setUp() {
-        testProject = projectRepo.create("testProject");
+        testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
         testDocument = documentRepo.create(testProject, "testDocument", "documentPath", "Unassigned");
@@ -35,6 +37,7 @@ public class MetadataFieldGroupTest extends AbstractModelTest {
     }
 
     @Test
+    @Transactional
     public void testDeleteMetadataField() {
         testFieldGroup = metadataFieldGroupRepo.create(testDocument, testLabel);
         assertEquals("Document repository is empty.", 1, metadataFieldGroupRepo.count());
@@ -43,6 +46,7 @@ public class MetadataFieldGroupTest extends AbstractModelTest {
     }
 
     @Test
+    @Transactional
     public void testCascadeOnDeleteMetadataField() {
 
         testFieldGroup = metadataFieldGroupRepo.create(testDocument, testLabel);

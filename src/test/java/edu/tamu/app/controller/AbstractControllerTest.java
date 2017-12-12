@@ -27,24 +27,23 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.controller.interceptor.AppRestInterceptor;
-import edu.tamu.app.controller.interceptor.AppStompInterceptor;
-import edu.tamu.app.enums.AppRole;
+import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.Role;
 import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.app.service.ProjectsService;
+import edu.tamu.app.service.ProjectFactory;
 import edu.tamu.app.service.SyncService;
 import edu.tamu.app.service.exporter.DspaceCsvExporter;
 import edu.tamu.app.service.exporter.SpotlightCsvExporter;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.utilities.FileSystemUtility;
-import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.weaver.response.ApiResponse;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -80,7 +79,7 @@ public abstract class AbstractControllerTest extends MockData {
     protected SpotlightCsvExporter spotlightExporter;
 
     @Mock
-    protected ProjectsService projectsService;
+    protected ProjectFactory projectsService;
 
     @Mock
     protected MagpieServiceRegistry projectServiceRegistry;
@@ -99,7 +98,7 @@ public abstract class AbstractControllerTest extends MockData {
 
     @InjectMocks
     protected MetadataController metadataController;
-    
+
     @InjectMocks
     protected ExportController exportController;
 
@@ -112,21 +111,15 @@ public abstract class AbstractControllerTest extends MockData {
     @InjectMocks
     protected UserController userController;
 
-    @InjectMocks
-    protected AppStompInterceptor appStompInterceptor;
-
-    @InjectMocks
-    protected AppRestInterceptor appRestInterceptor;
-
     @Spy
     protected ObjectMapper objectMapper;
 
     @Mock
     protected SimpMessagingTemplate simpMessagingTemplate;
 
-    protected static String[] mockAdmins = { TEST_USER1.getUin().toString(), TEST_USER2.getUin().toString() };
+    protected static String[] mockAdmins = { TEST_USER1.getUsername().toString(), TEST_USER2.getUsername().toString() };
 
-    protected static String[] mockManagers = { TEST_USER3.getUin().toString() };
+    protected static String[] mockManagers = { TEST_USER3.getUsername().toString() };
 
     @SuppressWarnings({ "unchecked" })
     @Before
@@ -135,21 +128,24 @@ public abstract class AbstractControllerTest extends MockData {
 
         ReflectionTestUtils.setField(syncService, "mount", "/metadatatool");
 
-        ReflectionTestUtils.setField(appRestInterceptor, "admins", mockAdmins);
-        ReflectionTestUtils.setField(appStompInterceptor, "admins", mockAdmins);
-        ReflectionTestUtils.setField(appStompInterceptor, "managers", mockManagers);
-
         credentials.setEmail("aggieJane@tamu.edu");
         credentials.setFirstName(TEST_USER1.getFirstName());
         credentials.setLastName(TEST_USER1.getLastName());
-        credentials.setRole(AppRole.ROLE_ADMIN.toString());
-        credentials.setUin(TEST_USER1.getUin().toString());
+        credentials.setRole(Role.ROLE_ADMIN.toString());
+        credentials.setUin(TEST_USER1.getUsername().toString());
         credentials.setNetid("aggieJane@tamu.edu");
 
         // app user
         when(userRepo.findAll()).thenReturn(mockUserList);
 
         when(userRepo.save(any(AppUser.class))).then(new Answer<AppUser>() {
+            @Override
+            public AppUser answer(InvocationOnMock invocation) throws Throwable {
+                return saveAppUser((AppUser) invocation.getArguments()[0]);
+            }
+        });
+        
+        when(userRepo.update(any(AppUser.class))).then(new Answer<AppUser>() {
             @Override
             public AppUser answer(InvocationOnMock invocation) throws Throwable {
                 return saveAppUser((AppUser) invocation.getArguments()[0]);
@@ -172,7 +168,7 @@ public abstract class AbstractControllerTest extends MockData {
                 return saveDocument((Document) invocation.getArguments()[0]);
             }
         });
-        
+
         when(documentRepo.fullSave(any(Document.class))).then(new Answer<Document>() {
             @Override
             public Document answer(InvocationOnMock invocation) throws Throwable {
@@ -200,14 +196,14 @@ public abstract class AbstractControllerTest extends MockData {
         // project
         when(projectRepo.findAll()).thenReturn(mockProjectList);
 
-        when(projectRepo.create(any(String.class), (List<ProjectRepository>) any(List.class), any(List.class), any(List.class))).then(new Answer<Project>() {
+        when(projectRepo.create(any(String.class), any(IngestType.class), any(Boolean.class), (List<ProjectRepository>) any(List.class), any(List.class), any(List.class))).then(new Answer<Project>() {
             @Override
             public Project answer(InvocationOnMock invocation) throws Throwable {
                 return TEST_PROJECT1;
             }
         });
 
-        when(projectRepo.findOne(any(Long.class))).then(new Answer<Project>() {
+        when(projectRepo.read(any(Long.class))).then(new Answer<Project>() {
             @Override
             public Project answer(InvocationOnMock invocation) throws Throwable {
                 return findProjectById((Long) invocation.getArguments()[0]);

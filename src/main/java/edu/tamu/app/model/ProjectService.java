@@ -14,7 +14,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import edu.tamu.app.enums.ServiceType;
-import edu.tamu.framework.model.BaseEntity;
+import edu.tamu.weaver.data.model.BaseEntity;
 
 @MappedSuperclass
 public abstract class ProjectService extends BaseEntity {

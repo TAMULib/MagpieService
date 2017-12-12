@@ -6,6 +6,11 @@ public abstract class AbstractFileListener implements FileListener {
 
     protected String folder;
 
+    public AbstractFileListener(String root, String folder) {
+        this.root = root;
+        this.folder = folder;
+    }
+
     /**
      * @return the root
      */

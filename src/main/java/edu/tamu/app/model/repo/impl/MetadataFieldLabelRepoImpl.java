@@ -15,6 +15,7 @@ import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
+import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 /**
  *
@@ -22,7 +23,7 @@ import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
  * @author
  *
  */
-public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom {
+public class MetadataFieldLabelRepoImpl extends AbstractWeaverRepoImpl<MetadataFieldLabel, MetadataFieldLabelRepo> implements MetadataFieldLabelRepoCustom {
 
     @Autowired
     private MetadataFieldLabelRepo metadataFieldLabelRepo;
@@ -35,5 +36,10 @@ public class MetadataFieldLabelRepoImpl implements MetadataFieldLabelRepoCustom 
         }
         return metadataFieldLabel;
     }
+
+	@Override
+	protected String getChannel() {
+		return "/channel/metadata-field-label";
+	}
 
 }

@@ -55,9 +55,9 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     protected String createResource(String filePath, String resourceContainerPath, String slugName) throws IOException {
         generatePutRequest(resourceContainerPath, null, buildPCDMObject(resourceContainerPath));
 
-        generatePutRequest(resourceContainerPath + File.separator + filesEndpoint, null, buildPCDMFileContainer(resourceContainerPath + File.separator + filesEndpoint, resourceContainerPath));
+        generatePutRequest(resourceContainerPath + "/" + filesEndpoint, null, buildPCDMFileContainer(resourceContainerPath + "/" + filesEndpoint, resourceContainerPath));
 
-        String resourceUri = super.createResource(filePath, resourceContainerPath + File.separator + filesEndpoint, slugName);
+        String resourceUri = super.createResource(filePath, resourceContainerPath + "/" + filesEndpoint, slugName);
 
         updateFileMetadata(filePath, resourceUri);
 
@@ -67,13 +67,13 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     @Override
     protected String createItemContainer(String slugName) throws FileNotFoundException, IOException {
         // Create the item container
-        String desiredItemUrl = getObjectsUrl() + File.separator + slugName;
+        String desiredItemUrl = getObjectsUrl() + "/" + slugName;
         String actualItemUrl = generatePutRequest(desiredItemUrl, null, buildPCDMObject(desiredItemUrl));
-        generatePutRequest(getMembersUrl() + File.separator + slugName + "Proxy", null, buildPCDMItemProxy(getMembersUrl() + File.separator + slugName + "Proxy", actualItemUrl + File.separator));
+        generatePutRequest(getMembersUrl() + "/" + slugName + "Proxy", null, buildPCDMItemProxy(getMembersUrl() + "/" + slugName + "Proxy", actualItemUrl + "/"));
         // Create a pages container within the item container
-        generatePutRequest(actualItemUrl + File.separator + pagesEndpoint + File.separator, null, buildPCDMDirectContainer(actualItemUrl + File.separator + pagesEndpoint, actualItemUrl));
+        generatePutRequest(actualItemUrl + "/" + pagesEndpoint + "/", null, buildPCDMDirectContainer(actualItemUrl + "/" + pagesEndpoint, actualItemUrl));
         // Set up the container that will hold the page order proxies
-        generatePutRequest(actualItemUrl + File.separator + "orderProxies", null, buildPCDMOrderProxy(actualItemUrl + File.separator + "orderProxies", actualItemUrl));
+        generatePutRequest(actualItemUrl + "/" + "orderProxies", null, buildPCDMOrderProxy(actualItemUrl + "/" + "orderProxies", actualItemUrl));
 
         return actualItemUrl;
     }
@@ -92,9 +92,9 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         int x = 0;
         for (File file : files) {
             if (file.isFile() && !file.isHidden()) {
-                String pagePath = itemContainerPath + File.separator + pagesEndpoint + File.separator + "page_" + x;
-                createResource(document.getDocumentPath() + File.separator + file.getName(), pagePath, file.getName());
-                proxyPages[x] = new ProxyPage(itemContainerPath + File.separator + "orderProxies" + File.separator + "page_" + x + "_proxy", pagePath, itemContainerPath);
+                String pagePath = itemContainerPath + "/" + pagesEndpoint + "/" + "page_" + x;
+                createResource(document.getDocumentPath() + "/" + file.getName(), pagePath, file.getName());
+                proxyPages[x] = new ProxyPage(itemContainerPath + "/" + "orderProxies" + "/" + "page_" + x + "_proxy", pagePath, itemContainerPath);
                 generatePutRequest(proxyPages[x].getProxyUrl(), null, buildPCDMPageProxy(proxyPages[x].getProxyUrl(), proxyPages[x].getProxyInUrl(), proxyPages[x].getProxyForUrl()));
             }
             x++;
@@ -108,7 +108,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     }
 
     protected void updateFileMetadata(String filePath, String fileUri) throws IOException {
-        executeSparqlUpdate(fileUri + File.separator + "fcr:metadata", buildPCDMFile(filePath));
+        executeSparqlUpdate(fileUri + "/" + "fcr:metadata", buildPCDMFile(filePath));
     }
 
     private void verifyPCDMStructures() throws IOException {

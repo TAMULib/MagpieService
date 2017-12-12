@@ -6,14 +6,10 @@ import java.io.IOException;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import edu.tamu.app.service.MapFileService;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 
-@Component
-@Scope("prototype")
 public class MapFileListener extends AbstractFileListener {
 
     private static final Logger logger = Logger.getLogger(MapFileListener.class);
@@ -22,8 +18,7 @@ public class MapFileListener extends AbstractFileListener {
     private MagpieServiceRegistry magpieServiceRegistry;
 
     public MapFileListener(String root, String folder) {
-        this.root = root;
-        this.folder = folder;
+        super(root, folder);
     }
 
     @Override

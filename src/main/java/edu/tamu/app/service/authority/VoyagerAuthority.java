@@ -28,7 +28,7 @@ import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.response.marc.FlatMARC;
 import edu.tamu.app.model.response.marc.VoyagerServiceData;
-import edu.tamu.framework.util.HttpUtility;
+import edu.tamu.weaver.utility.HttpUtility;
 
 /**
  * Voyager service. Performs requests with ExLibris Voyager API. All Voyager API responses are xml. The xml is mapped to objects using JAXB.
@@ -39,9 +39,6 @@ import edu.tamu.framework.util.HttpUtility;
 public class VoyagerAuthority implements Authority {
 
     private static final Logger logger = Logger.getLogger(VoyagerAuthority.class);
-
-    @Autowired
-    private HttpUtility httpUtility;
 
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
@@ -116,7 +113,8 @@ public class VoyagerAuthority implements Authority {
 
     public VoyagerServiceData fetchMARC(String bibId) throws Exception {
         String urlString = "http://" + getHost() + ":" + getPort() + "/" + getApp() + "/GetHoldingsService?bibId=" + bibId;
-        String xmlResponse = httpUtility.makeHttpRequest(urlString, "GET");
+        logger.info("Fetching marc for bibid " + bibId + " at URL: " + urlString);
+        String xmlResponse = HttpUtility.makeHttpRequest(urlString, "GET");
 
         xmlResponse = xmlResponse.replace("ser:", "");
         xmlResponse = xmlResponse.replace("hol:", "");

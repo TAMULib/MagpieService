@@ -16,6 +16,7 @@ import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.custom.FieldProfileRepoCustom;
+import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 /**
  *
@@ -23,7 +24,7 @@ import edu.tamu.app.model.repo.custom.FieldProfileRepoCustom;
  * @author
  *
  */
-public class FieldProfileRepoImpl implements FieldProfileRepoCustom {
+public class FieldProfileRepoImpl extends AbstractWeaverRepoImpl<FieldProfile, FieldProfileRepo> implements FieldProfileRepoCustom {
 
     @Autowired
     private FieldProfileRepo fieldProfileRepo;
@@ -36,5 +37,10 @@ public class FieldProfileRepoImpl implements FieldProfileRepoCustom {
         }
         return fieldProfile;
     }
+
+	@Override
+	protected String getChannel() {
+		return "/channel/field-profile";
+	}
 
 }

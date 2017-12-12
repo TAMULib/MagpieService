@@ -4,14 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.transaction.annotation.Transactional;
 
+import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.enums.InputType;
 
 public class MetadataFieldValueTest extends AbstractModelTest {
 
     @Before
     public void setUp() {
-        testProject = projectRepo.create("testProject");
+        testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
         testDocument = documentRepo.create(testProject, "testDocument", "documentPath", "Unassigned");
@@ -42,6 +44,7 @@ public class MetadataFieldValueTest extends AbstractModelTest {
     }
 
     @Test
+    @Transactional
     public void testDeleteMetadataFieldValue() {
         testValue = metadataFieldValueRepo.create("test", testFieldGroup);
         assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
@@ -50,6 +53,7 @@ public class MetadataFieldValueTest extends AbstractModelTest {
     }
 
     @Test
+    @Transactional
     public void testCascadeOnDeleteMetadataFieldValue() {
 
         testControlledVocabulary = controlledVocabularyRepo.create("test");
@@ -65,6 +69,8 @@ public class MetadataFieldValueTest extends AbstractModelTest {
         metadataFieldValueRepo.delete(testValue);
 
         assertEquals("Test MetadataFieldValue was not deleted.", 0, metadataFieldValueRepo.count());
+
+        assertEquals("Test MetadataFieldGroup was deleted.", 1, metadataFieldGroupRepo.count());
 
         assertEquals("Test ControlledVocabulary was deleted.", 1, controlledVocabularyRepo.count());
     }

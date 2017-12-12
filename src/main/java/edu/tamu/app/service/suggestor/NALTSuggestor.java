@@ -20,8 +20,12 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.Suggestion;
+import edu.tamu.app.model.repo.ResourceRepo;
 
 public class NALTSuggestor implements Suggestor {
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -40,7 +44,7 @@ public class NALTSuggestor implements Suggestor {
         try {
             StringBuilder textBuilder = new StringBuilder();
 
-            for (Resource resource : document.getResourcesByMimeTypes("text/plain")) {
+            for (Resource resource : resourceRepo.findAllByDocumentNameAndMimeType(document.getName(), "text/plain")) {
                 File file = File.createTempFile(resource.getName(), Long.toString(System.nanoTime()));
                 file.deleteOnExit();
                 FileUtils.copyURLToFile(new URL(resource.getUrl()), file);

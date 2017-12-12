@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.comparator.LabelComparator;
@@ -12,9 +13,13 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.repo.ResourceRepo;
 
 @Service
 public class DspaceCsvExporter extends AbstractExporter {
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     @Override
     public List<List<String>> extractMetadata(Project project) {
@@ -29,7 +34,7 @@ public class DspaceCsvExporter extends AbstractExporter {
 
             List<String> documentMetadata = new ArrayList<String>();
 
-            documentMetadata.add(document.getResourcesByMimeTypes("application/pdf").get(0).getName());
+            documentMetadata.add(resourceRepo.findAllByDocumentNameAndMimeType(document.getName(), "application/pdf").get(0).getName());
 
             metadataFields.forEach(field -> {
                 String values = null;

@@ -9,7 +9,7 @@
  */
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +18,9 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.MetadataFieldGroup;
@@ -25,10 +28,7 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
-import edu.tamu.framework.aspect.annotation.ApiMapping;
-import edu.tamu.framework.aspect.annotation.ApiVariable;
-import edu.tamu.framework.aspect.annotation.Auth;
-import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.weaver.response.ApiResponse;
 
 /**
  * Metadata Field Controller
@@ -37,7 +37,7 @@ import edu.tamu.framework.model.ApiResponse;
  *
  */
 @RestController
-@ApiMapping("/metadata")
+@RequestMapping("/metadata")
 public class MetadataController {
 
     @Autowired
@@ -58,11 +58,11 @@ public class MetadataController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/unlock/{projectToUnlock}")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse unlockProject(@ApiVariable String projectToUnlock) {
+    @RequestMapping("/unlock/{projectToUnlock}")
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse unlockProject(@PathVariable String projectToUnlock) {
         Project project = projectRepo.findByName(projectToUnlock);
-        project.setIsLocked(false);
+        project.setLocked(false);
         projectRepo.save(project);
         return new ApiResponse(SUCCESS);
     }
@@ -76,9 +76,9 @@ public class MetadataController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/status/{status}")
-    @Auth(role = "ROLE_USER")
-    public ApiResponse published(@ApiVariable String status) {
+    @RequestMapping("/status/{status}")
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse published(@PathVariable String status) {
         List<List<String>> metadata = new ArrayList<List<String>>();
         documentRepo.findByStatus(status).forEach(document -> {
             new TreeSet<MetadataFieldGroup>(document.getFields()).forEach(field -> {
@@ -99,8 +99,8 @@ public class MetadataController {
      * @return ApiResponse
      * 
      */
-    @ApiMapping("/all")
-    @Auth(role = "ROLE_USER")
+    @RequestMapping("/all")
+    @PreAuthorize("hasRole('USER')")
     public ApiResponse all() {
         Map<String, List<MetadataFieldGroup>> metadataMap = new HashMap<String, List<MetadataFieldGroup>>();
         metadataMap.put("list", metadataFieldGroupRepo.findAll());

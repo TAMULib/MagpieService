@@ -121,7 +121,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
         if (startedTransfer) {
             document.setStatus("Published");
-            documentRepo.save(document);
+            documentRepo.update(document);
         } else {
 
         }
