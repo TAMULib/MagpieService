@@ -163,7 +163,7 @@ public abstract class AbstractFedoraRepository implements Repository {
         String cleanValue = null;
         for (MetadataFieldGroup group : document.getFields()) {
             for (MetadataFieldValue value : group.getValues()) {
-                cleanValue = StringEscapeUtils.escapeXml11(value.getValue());
+                cleanValue = StringEscapeUtils.escapeJava(value.getValue());
                 updateQuery += "<> " + group.getLabel().getName().replace('.', ':') + " \"" + cleanValue + "\" . ";
             }
         }
