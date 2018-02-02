@@ -10,10 +10,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
@@ -33,6 +35,7 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 
 public abstract class AbstractFedoraRepository implements Repository {
 
@@ -43,6 +46,9 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     @Autowired
     private DocumentRepo documentRepo;
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -84,14 +90,14 @@ public abstract class AbstractFedoraRepository implements Repository {
 
         document.setStatus("Published");
 
-        return documentRepo.save(document);
+        return documentRepo.update(document);
     }
 
     protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
         String itemPath = null;
         for (File file : files) {
             if (file.isFile() && !file.isHidden()) {
-                itemPath = createResource(document.getDocumentPath() + File.separator + file.getName(), itemContainerPath, file.getName());
+                itemPath = createResource(document.getDocumentPath() + "/" + file.getName(), itemContainerPath, file.getName());
             }
         }
         return itemPath;
@@ -136,9 +142,10 @@ public abstract class AbstractFedoraRepository implements Repository {
     }
 
     protected File[] getFiles(Document document) throws IOException {
-        File[] files = new File[document.getResources().size()];
+        List<Resource> resources = resourceRepo.findAllByDocumentName(document.getName());
+        File[] files = new File[resources.size()];
         int i = 0;
-        for(Resource resource : document.getResources()) {
+        for (Resource resource : resources) {
             files[i++] = resourceLoader.getResource("classpath:static" + resource.getPath()).getFile();
         }
         return files;
@@ -153,9 +160,11 @@ public abstract class AbstractFedoraRepository implements Repository {
      */
     private void updateMetadata(Document document, String itemContainerUrl) throws IOException {
         String updateQuery = "PREFIX dc: <http://purl.org/dc/elements/1.1/>" + "INSERT {";
+        String cleanValue = null;
         for (MetadataFieldGroup group : document.getFields()) {
             for (MetadataFieldValue value : group.getValues()) {
-                updateQuery += "<> " + group.getLabel().getName().replace('.', ':') + " \"" + value.getValue() + "\" . ";
+                cleanValue = StringEscapeUtils.escapeJava(value.getValue());
+                updateQuery += "<> " + group.getLabel().getName().replace('.', ':') + " \"" + cleanValue + "\" . ";
             }
         }
         updateQuery += "} WHERE { }";

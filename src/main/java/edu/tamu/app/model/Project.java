@@ -15,6 +15,8 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 
@@ -25,7 +27,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import edu.tamu.framework.model.BaseEntity;
+import edu.tamu.app.enums.IngestType;
+import edu.tamu.weaver.data.model.BaseEntity;
 
 /**
  * 
@@ -61,7 +64,14 @@ public class Project extends BaseEntity {
     @Fetch(FetchMode.SELECT)
     private List<ProjectRepository> repositories;
 
-    private Boolean isLocked = false;
+    @Enumerated(EnumType.STRING)
+    private IngestType ingestType;
+
+    @Column
+    private boolean locked = false;
+
+    @Column
+    private boolean headless = false;
 
     public Project() {
         setProfiles(new ArrayList<FieldProfile>());
@@ -71,17 +81,11 @@ public class Project extends BaseEntity {
         setRepositories(new ArrayList<ProjectRepository>());
     }
 
-    public Project(String name) {
+    public Project(String name, IngestType ingestType, boolean headless) {
         this();
         this.name = name;
-    }
-
-    public Boolean getIsLocked() {
-        return this.isLocked;
-    }
-
-    public void setIsLocked(Boolean status) {
-        this.isLocked = status;
+        this.ingestType = ingestType;
+        this.headless = headless;
     }
 
     public String getName() {
@@ -108,8 +112,28 @@ public class Project extends BaseEntity {
         profiles.remove(profile);
     }
 
-    public void clearProfiles() {
-        setProfiles(new ArrayList<FieldProfile>());
+    public IngestType getIngestType() {
+        return ingestType;
+    }
+
+    public void setIngestType(IngestType ingestType) {
+        this.ingestType = ingestType;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public boolean isHeadless() {
+        return headless;
+    }
+
+    public void setHeadless(boolean headless) {
+        this.headless = headless;
     }
 
     public List<Document> getDocuments() {
@@ -224,9 +248,9 @@ public class Project extends BaseEntity {
 
     public boolean hasProfileWithLabel(String label) {
         boolean hasIt = false;
-        for(FieldProfile fp : getProfiles()) {
-            for(MetadataFieldLabel fpLabel : fp.getLabels()) {
-                if(fpLabel.getName().equals(label)) {
+        for (FieldProfile fp : getProfiles()) {
+            for (MetadataFieldLabel fpLabel : fp.getLabels()) {
+                if (fpLabel.getName().equals(label)) {
                     hasIt = true;
                     break;
                 }

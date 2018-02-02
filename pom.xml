@@ -12,9 +12,9 @@
   <description>An application to create metadata for scanned documents.</description>
 
   <parent>
-    <groupId>edu.tamu.weaverframework</groupId>
+    <groupId>edu.tamu.framework</groupId>
     <artifactId>weaver-webservice-parent</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -23,12 +23,62 @@
 
   <packaging>war</packaging>
 
-  <dependencies>
-    <dependency>
+  <repositories>
 
-      <groupId>edu.tamu.weaverframework</groupId>
-      <artifactId>weaver-webservice-core</artifactId>
-      <version>1.2.0</version>
+    <repository>
+      <id>tamu-releases</id>
+      <url>https://maven.library.tamu.edu/content/repositories/releases</url>
+    </repository>
+
+    <repository>
+      <id>tamu-snapshots</id>
+      <url>https://maven.library.tamu.edu/content/repositories/snapshots</url>
+    </repository>
+
+    <repository>
+      <id>apache.snapshots</id>
+      <name>Apache Development Snapshot Repository</name>
+      <url>https://repository.apache.org/content/repositories/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+
+  </repositories>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-auth</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-token-provider</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-validation</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-wro</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.tamu.framework</groupId>
+      <artifactId>weaver-reporting</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -47,6 +97,12 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-rdf-simple</artifactId>
       <version>0.3.0-incubating</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>1.1</version>
     </dependency>
 
     <dependency>
@@ -74,57 +130,151 @@
       </exclusions>
     </dependency>
 
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.10.19</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+
   </dependencies>
 
   <build>
+
     <finalName>ROOT</finalName>
+
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
+
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>edu.tamu.app.WebServerInit</mainClass>
+          <addResources>false</addResources>
+        </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <configuration>
+          <includeEmptyDirs>true</includeEmptyDirs>
+          <delimiters>
+            <delimiter>@</delimiter>
+          </delimiters>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.20.1</version>
+        <configuration>
+          <useSystemClassLoader>false</useSystemClassLoader>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
+        <version>3.2.0</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-filtering</artifactId>
+            <version>3.1.1</version>
+          </dependency>
+        </dependencies>
         <configuration>
+          <includeEmptyDirectories>true</includeEmptyDirectories>
           <failOnMissingWebXml>false</failOnMissingWebXml>
+          <webResources>
+            <webResource>
+              <filtering>true</filtering>
+              <directory>src/main/resources</directory>
+              <targetPath>WEB-INF</targetPath>
+              <includes>
+                <include>application.properties</include>
+              </includes>
+              <excludes>
+                <exclude>**/*.xls</exclude>
+              </excludes>
+            </webResource>
+            <webResource>
+              <directory>src/main/resources</directory>
+            </webResource>
+          </webResources>
         </configuration>
       </plugin>
-    </plugins>
-  </build>
 
-  <repositories>
-    <repository>
-      <id>tamu-releases</id>
-      <url>https://maven.library.tamu.edu/content/repositories/releases</url>
-    </repository>
-    <repository>
-      <id>tamu-snapshots</id>
-      <url>https://maven.library.tamu.edu/content/repositories/snapshots</url>
-    </repository>
-    <repository>
-      <id>apache.snapshots</id>
-      <name>Apache Development Snapshot Repository</name>
-      <url>https://repository.apache.org/content/repositories/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-filtering</artifactId>
+            <version>3.1.1</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <includeEmptyDirectories>true</includeEmptyDirectories>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+          <webResources>
+            <webResource>
+              <filtering>true</filtering>
+              <directory>src/main/resources</directory>
+              <includes>
+                <include>application.properties</include>
+              </includes>
+              <excludes>
+                <exclude>**/*.xls</exclude>
+              </excludes>
+            </webResource>
+            <webResource>
+              <directory>src/main/resources</directory>
+            </webResource>
+          </webResources>
+        </configuration>
+      </plugin>
+
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>application.properties</include>
+        </includes>
+        <excludes>
+          <exclude>**/*.jks</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+
+  </build>
 
   <reporting>
     <plugins>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -133,6 +283,7 @@
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
@@ -144,6 +295,8 @@
           </formats>
         </configuration>
       </plugin>
+
     </plugins>
   </reporting>
+
 </project>

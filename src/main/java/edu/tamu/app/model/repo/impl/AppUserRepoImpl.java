@@ -9,11 +9,14 @@
  */
 package edu.tamu.app.model.repo.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.app.model.repo.custom.AppUserRepoCustom;
+import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 /**
  * Implementaiton of the user repository.
@@ -21,7 +24,7 @@ import edu.tamu.app.model.repo.custom.AppUserRepoCustom;
  * @author
  *
  */
-public class AppUserRepoImpl implements AppUserRepoCustom {
+public class AppUserRepoImpl extends AbstractWeaverRepoImpl<AppUser, AppUserRepo> implements AppUserRepoCustom {
 
     @Autowired
     private AppUserRepo userRepo;
@@ -36,11 +39,8 @@ public class AppUserRepoImpl implements AppUserRepoCustom {
      */
     @Override
     public synchronized AppUser create(String uin) {
-        AppUser user = userRepo.findByUin(uin);
-        if (user == null) {
-            user = userRepo.save(new AppUser(uin));
-        }
-        return user;
+    	Optional<AppUser> user = userRepo.findByUsername(uin);
+        return user.isPresent() ? user.get() : userRepo.save(new AppUser(uin));
     }
 
     /**
@@ -48,11 +48,13 @@ public class AppUserRepoImpl implements AppUserRepoCustom {
      */
     @Override
     public synchronized AppUser create(String uin, String firstName, String lastName, String role) {
-        AppUser user = userRepo.findByUin(uin);
-        if (user == null) {
-            user = userRepo.save(new AppUser(uin, firstName, lastName, role));
-        }
-        return user;
+        Optional<AppUser> user = userRepo.findByUsername(uin);
+        return user.isPresent() ? user.get() : userRepo.save(new AppUser(uin, firstName, lastName, role));
     }
+
+	@Override
+	protected String getChannel() {
+		return "/channel/user";
+	}
 
 }

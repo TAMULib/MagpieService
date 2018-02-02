@@ -18,6 +18,9 @@ public class FlatMARC {
     private String dc_description = "";
     private String dc_description_abstract = "";
     private String thesis_degree_grantor = "";
+    private String dc_contributor_advisor = "";
+    private List<String> dc_contributor_committeeMember = new ArrayList<String>();
+    private String dc_identifier_uri = "";
 
     public FlatMARC(VoyagerServiceData voyagerServiceData) {
 
@@ -145,10 +148,82 @@ public class FlatMARC {
                     }
                 }
 
+                // The 700 field can contain committe chairs and committee
+                // members
+                if (df.getTag().equals("700")) {
+
+                    Subfield[] subFields = df.getSubfield();
+                    String temp;
+
+                    for (Subfield prospectiveAdvisorDescriptionSubField : subFields) {
+                        if (prospectiveAdvisorDescriptionSubField.getCode().equals("e")) {
+                            String advisorDescription = prospectiveAdvisorDescriptionSubField.getValue();
+                            for (Subfield prospectiveAdvisorNameSubField : subFields) {
+                                // advisors (chair)
+                                if (prospectiveAdvisorNameSubField.getCode().equals("a") && advisorDescription.contains("supervisor")) {
+                                    temp = scrubField(".", prospectiveAdvisorNameSubField.getValue());
+
+                                    temp = scrubField(",", temp);
+
+                                    if (temp.length() > 0) {
+                                        dc_contributor_advisor += temp;
+                                    }
+                                }
+                                // advisors (member)
+                                else if (prospectiveAdvisorNameSubField.getCode().equals("a") && advisorDescription.contains("member")) {
+                                    temp = scrubField(".", prospectiveAdvisorNameSubField.getValue());
+
+                                    temp = scrubField(",", temp);
+
+                                    if (temp.length() > 0) {
+                                        dc_contributor_committeeMember.add(temp);
+                                    }
+                                }
+
+                            }
+
+                        }
+                    }
+                }
+
+                // handle uri
+                if (df.getTag().equals("856") && dc_identifier_uri.length() == 0) {
+                    Subfield[] subFields = df.getSubfield();
+                    for (Subfield subField : subFields) {
+                        if (subField.getCode().equals("u")) {
+                            dc_identifier_uri = subField.getValue();
+                        }
+                    }
+                }
+
             }
 
         }
 
+    }
+
+    public String getIdentifierUri() {
+        return dc_identifier_uri;
+    }
+
+    public void setIdentifierUri(String handleUri) {
+        dc_identifier_uri = handleUri;
+    }
+
+    public String getAdvisor() {
+        return dc_contributor_advisor;
+    }
+
+    public void setAdvisor(String advisor) {
+        dc_contributor_advisor = advisor;
+    }
+
+    public List<String> getCommitteMembers() {
+        return dc_contributor_committeeMember;
+    }
+
+    public void setCommitteeMembers(List<String> committeeMembers) {
+        this.dc_contributor_committeeMember = committeeMembers;
     }
 
     public String getCreator() {
@@ -223,6 +298,17 @@ public class FlatMARC {
         this.thesis_degree_grantor = thesis_degree_grantor;
     }
 
+    /**
+     * Removes the scrubber string from the end of the scrubbable string. Used
+     * to clean up trailing puncutation, etc. coming off the MARC values
+     * 
+     * @param scrubber
+     *            the trailing string to scrub
+     * @param scrubbable
+     *            the string that needs a scrubbing
+     * @return
+     *            the nicely scrubbed resulting string
+     */
     private String scrubField(String scrubber, String scrubbable) {
         scrubbable = scrubbable.trim();
         if (scrubbable.endsWith(scrubber)) {
@@ -231,8 +317,8 @@ public class FlatMARC {
         return sanatize(scrubbable);
     }
 
-    private String sanatize(String sinatizable) {
-        return sinatizable.replaceAll("\"", "");
+    private String sanatize(String sanitizable) {
+        return sanitizable.replaceAll("\"", "");
     }
 
     private String rightTrim(int length, String trimmable) {

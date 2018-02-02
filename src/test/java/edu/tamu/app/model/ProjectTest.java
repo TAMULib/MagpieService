@@ -4,44 +4,43 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import edu.tamu.app.enums.IngestType;
+
 public class ProjectTest extends AbstractModelTest {
 
     @Test
     public void testSaveProject() {
-        assertProject = projectRepo.create("testProject");
+        assertProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         assertEquals("Test Project was not created.", 1, projectRepo.count());
         assertEquals("Expected Test Project was not created.", "testProject", assertProject.getName());
     }
 
     @Test
     public void testDuplicateProject() {
-        projectRepo.create("testProject");
-        projectRepo.create("testProject");
+        projectRepo.create("testProject", IngestType.STANDARD, false);
+        projectRepo.create("testProject", IngestType.STANDARD, false);
         assertEquals("Duplicate Test Project was created.", 1, projectRepo.count());
     }
 
     @Test
     public void testFindProject() {
-        projectRepo.create("testProject");
+        testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         assertEquals("Test Project was not created.", 1, projectRepo.count());
-
-        assertProject = projectRepo.findByName("testProject");
-
-        assertEquals("Test Project was not found.", "testProject", assertProject.getName());
+        testProject = projectRepo.findByName("testProject");
+        assertEquals("Test Project was not found.", "testProject", testProject.getName());
     }
 
     @Test
     public void testDeleteProject() {
-        assertProject = projectRepo.create("testProject");
+        testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         assertEquals("Test Project was not created.", 1, projectRepo.count());
-        projectRepo.delete(assertProject);
+        projectRepo.delete(testProject);
         assertEquals("Test Project was not deleted.", 0, projectRepo.count());
     }
 
     @Test
     public void testCascadeOnDeleteProject() {
-
-        testProject = projectRepo.create("testProject");
+        testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         assertEquals("Test Project was not created.", 1, projectRepo.count());
 
         assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
@@ -58,7 +57,6 @@ public class ProjectTest extends AbstractModelTest {
         projectRepo.delete(testProject);
 
         assertEquals("Test Document was not deleted.", 0, documentRepo.count());
-
     }
 
 }

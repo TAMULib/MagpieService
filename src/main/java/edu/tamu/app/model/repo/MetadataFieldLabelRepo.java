@@ -9,12 +9,12 @@
  */
 package edu.tamu.app.model.repo;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
+import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
 /**
  * 
@@ -23,7 +23,7 @@ import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
  *
  */
 @Repository
-public interface MetadataFieldLabelRepo extends JpaRepository<MetadataFieldLabel, Long>, MetadataFieldLabelRepoCustom {
+public interface MetadataFieldLabelRepo extends WeaverRepo<MetadataFieldLabel>, MetadataFieldLabelRepoCustom {
 
     public MetadataFieldLabel findByNameAndProfile(String name, FieldProfile profile);
 
