@@ -107,6 +107,8 @@ public class ProjectFactory {
         Project project = projectRepo.findByName(projectName);
         if (project == null) {
             project = createProject(projectName);
+        } else {
+            registerListeners(project);
         }
         return project;
     }
@@ -172,6 +174,13 @@ public class ProjectFactory {
 
         Project project = projectRepo.create(projectName, ingestType, headless, repositories, authorities, suggestors);
 
+        registerListeners(project);
+
+        return project;
+    }
+
+    private void registerListeners(Project project) {
+
         project.getRepositories().forEach(repository -> {
             Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
             if (registeredRepository == null) {
@@ -193,7 +202,6 @@ public class ProjectFactory {
             }
         });
 
-        return project;
     }
 
     public JsonNode getProjectNode(String projectName) {

@@ -9,6 +9,7 @@
  */
 package edu.tamu.app.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.enums.IngestType;
+import edu.tamu.app.model.Document;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.utilities.FileSystemUtility;
 
@@ -65,17 +68,38 @@ public class SyncService {
 
         for (Path projectPath : projects) {
 
+            logger.info("Found project: " + projectPath);
+
             String projectName = projectPath.getFileName().toString();
 
             Project project = projectFactory.getOrCreateProject(projectName);
 
-            List<Path> documents = FileSystemUtility.fileList(projectPath.toString());
+            List<Path> documents = FileSystemUtility.directoryList(projectPath.toString());
 
             documents.parallelStream().forEach(documentPath -> {
 
+                logger.info("Found document: " + documentPath);
+
                 String documentName = documentPath.getFileName().toString();
 
-                documentFactory.createDocument(project, documentName);
+                Document document = documentFactory.getOrCreateDocument(projectName, documentName);
+
+                if (!project.getIngestType().equals(IngestType.SAF)) {
+
+                    List<Path> resources = FileSystemUtility.fileList(documentPath.toString());
+
+                    for (Path resourcePath : resources) {
+
+                        logger.info("Found resource: " + resourcePath);
+
+                        File file = resourcePath.toFile();
+                        if (file.isFile() && !file.isHidden()) {
+                            documentFactory.addResource(document, file);
+                        }
+
+                    }
+
+                }
 
             });
         }
