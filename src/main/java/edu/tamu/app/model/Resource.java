@@ -9,6 +9,8 @@
  */
 package edu.tamu.app.model;
 
+import static edu.tamu.app.Initialization.HOST;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,21 +42,17 @@ public class Resource extends BaseEntity {
     private String path;
 
     @Column(nullable = false)
-    private String url;
-
-    @Column(nullable = false)
     private String mimeType;
 
     public Resource() {
 
     }
 
-    public Resource(Document document, String name, String path, String url, String mimeType) {
+    public Resource(Document document, String name, String path, String mimeType) {
         this();
         this.document = document;
         this.name = name;
         this.path = path;
-        this.url = url;
         this.mimeType = mimeType;
     }
 
@@ -83,11 +81,7 @@ public class Resource extends BaseEntity {
     }
 
     public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
+        return HOST + path;
     }
 
     public String getMimeType() {

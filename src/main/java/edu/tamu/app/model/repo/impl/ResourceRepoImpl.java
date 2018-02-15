@@ -33,10 +33,10 @@ public class ResourceRepoImpl extends AbstractWeaverRepoImpl<Resource, ResourceR
     private ResourceRepo resourceRepo;
 
     @Override
-    public synchronized Resource create(Document document, String name, String path, String url, String mimeType) {
+    public synchronized Resource create(Document document, String name, String path, String mimeType) {
         Resource resource = resourceRepo.findByDocumentNameAndName(document.getName(), name);
         if (resource == null) {
-            resource = resourceRepo.save(new Resource(document, name, path, url, mimeType));
+            resource = resourceRepo.save(new Resource(document, name, path, mimeType));
         }
         return resource;
     }

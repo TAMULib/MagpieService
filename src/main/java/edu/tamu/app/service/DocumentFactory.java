@@ -99,10 +99,9 @@ public class DocumentFactory {
     public void addResource(Document document, File file) {
         String name = file.getName();
         String path = document.getDocumentPath() + File.separator + file.getName();
-        String url = host + document.getDocumentPath() + File.separator + file.getName();
         String mimeType = tika.detect(path);
         logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
-        resourceRepo.create(document, name, path, url, mimeType);
+        resourceRepo.create(document, name, path, mimeType);
     }
 
     public Document createDocument(Project project, String documentName) {
@@ -283,10 +282,9 @@ public class DocumentFactory {
                     if (file.exists() && file.isFile()) {
                         String name = file.getName();
                         String path = document.getDocumentPath() + File.separator + file.getName();
-                        String url = host + document.getDocumentPath() + File.separator + file.getName();
                         String mimeType = tika.detect(path);
                         logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
-                        resourceRepo.create(document, name, path, url, mimeType);
+                        resourceRepo.create(document, name, path, mimeType);
                     } else {
                         System.out.println("Could not find file " + file.getPath());
                     }

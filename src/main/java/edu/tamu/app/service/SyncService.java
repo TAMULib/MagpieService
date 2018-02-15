@@ -99,6 +99,8 @@ public class SyncService {
 
                     }
 
+                } else {
+                    logger.info("SAF ingest type cannot sync resources at this time. Please use listener.");
                 }
 
             });

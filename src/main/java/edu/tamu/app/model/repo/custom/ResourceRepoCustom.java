@@ -22,8 +22,8 @@ import edu.tamu.app.model.Resource;
  */
 public interface ResourceRepoCustom {
 
-    public Resource create(Document document, String name, String path, String url, String mimeType);
-    
+    public Resource create(Document document, String name, String path, String mimeType);
+
     public List<Resource> findAllByDocumentNameAndMimeType(String documentName, String... mimeTypes);
 
 }
