@@ -2,6 +2,7 @@ package edu.tamu.app.observer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
@@ -45,11 +46,16 @@ public class MapFileListener extends AbstractFileListener {
     public void onFileCreate(File file) {
         String projectName = file.getParentFile().getName();
         logger.info("Reading project " + projectName + " map file: " + file.getName());
-        try {
-            MapFileService mapFileService = (MapFileService) magpieServiceRegistry.getAuxiliaryService(projectName);
-            mapFileService.readMapFile(file);
-        } catch (IOException e) {
-            logger.error(e);
+
+        Optional<MapFileService> mapFileService = Optional.ofNullable((MapFileService) magpieServiceRegistry.getAuxiliaryService(projectName));
+        if (mapFileService.isPresent()) {
+            try {
+                mapFileService.get().readMapFile(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            logger.warn("Unable to find map file service in the registry!");
         }
     }
 
