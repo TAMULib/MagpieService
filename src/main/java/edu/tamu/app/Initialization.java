@@ -27,6 +27,11 @@ public class Initialization implements CommandLineRunner {
 
     private static final Logger logger = Logger.getLogger(Initialization.class);
 
+    public static String HOST;
+
+    @Value("${app.host}")
+    private String host;
+
     @Value("${app.mount.root}")
     private String root;
 
@@ -79,6 +84,12 @@ public class Initialization implements CommandLineRunner {
 
         syncService.sync();
 
+        setHost(host);
+
+    }
+
+    private void setHost(String host) {
+        HOST = host;
     }
 
 }

@@ -17,8 +17,8 @@ public class DocumentModelIntegrationTest extends AbstractModelTest {
     @Before
     public void setUp() {
         mockDocument = new Document(testProject, "testDocument", "documentPath", "Unassigned");
-        mockResource1 = new Resource(mockDocument, "testResource1", "resourcePath1", "resourceUrl1", "mime/type1");
-        mockResource2 = new Resource(mockDocument, "testResource2", "resourcePath2", "resourceUrl2", "mime/type2");
+        mockResource1 = new Resource(mockDocument, "testResource1", "resourcePath1", "mime/type1");
+        mockResource2 = new Resource(mockDocument, "testResource2", "resourcePath2", "mime/type2");
     }
 
     @Test
@@ -27,9 +27,9 @@ public class DocumentModelIntegrationTest extends AbstractModelTest {
 
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
 
-        resourceRepo.create(new Resource(testDocument, mockResource1.getName(), mockResource1.getPath(), mockResource1.getUrl(), mockResource1.getMimeType()));
+        resourceRepo.create(new Resource(testDocument, mockResource1.getName(), mockResource1.getPath(), mockResource1.getMimeType()));
 
-        resourceRepo.create(new Resource(testDocument, mockResource2.getName(), mockResource2.getPath(), mockResource2.getUrl(), mockResource2.getMimeType()));
+        resourceRepo.create(new Resource(testDocument, mockResource2.getName(), mockResource2.getPath(), mockResource2.getMimeType()));
 
         List<Resource> testResources = resourceRepo.findAllByDocumentName(testDocument.getName());
         assertEquals("Test Document did not have the expected number of resources!", 2, testResources.size());
