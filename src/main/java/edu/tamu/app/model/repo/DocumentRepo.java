@@ -1,12 +1,3 @@
-/* 
- * DocumentRepo.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo;
 
 import java.util.List;
@@ -21,12 +12,6 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
 import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
-/**
- * 
- * 
- * @author
- *
- */
 @Repository
 public interface DocumentRepo extends WeaverRepo<Document>, DocumentRepoCustom, JpaSpecificationExecutor<Document> {
 

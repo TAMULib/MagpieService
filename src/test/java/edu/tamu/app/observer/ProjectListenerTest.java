@@ -3,6 +3,7 @@ package edu.tamu.app.observer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.After;
@@ -30,11 +31,8 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @SpringBootTest(classes = WebServerInit.class)
 public class ProjectListenerTest {
 
-    @Value("${app.mount}")
-    private String mount;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
+    @Value("${app.assets.path}")
+    private String assetsPath;
 
     @Autowired
     private FileMonitorManager fileMonitorManager;
@@ -60,18 +58,20 @@ public class ProjectListenerTest {
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
+    @Autowired
+    private ResourceLoader resourceLoader;
+
     private ProjectListener dissertationFileListener;
 
     private String projectsPath;
 
     @Before
     public void setup() throws Exception {
-        String mountPath = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath());
-        projectsPath = mountPath + "/projects";
-        String projectsPath = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/projects");
+        String assetsFullPath = resourceLoader.getResource(assetsPath).getURI().getPath();
+        projectsPath = assetsFullPath + File.separator + "projects";
 
         FileSystemUtility.createDirectory(projectsPath);
-        dissertationFileListener = new ProjectListener(mountPath, "projects");
+        dissertationFileListener = new ProjectListener(assetsFullPath, "projects");
         fileObserverRegistry.register(dissertationFileListener);
         fileMonitorManager.start();
 
@@ -80,7 +80,7 @@ public class ProjectListenerTest {
 
     @Test
     public void testNewProject() throws IOException, InterruptedException {
-        String disseratationsPath = projectsPath + "/dissertation";
+        String disseratationsPath = projectsPath + File.separator + "dissertation";
         FileSystemUtility.createDirectory(disseratationsPath);
 
         // wait for the file monitor to pick up the newly created directory
@@ -91,8 +91,8 @@ public class ProjectListenerTest {
 
     @Test
     public void testNewDocument() throws IOException, InterruptedException {
-        String disseratationsPath = projectsPath + "/dissertation";
-        String documentPath = disseratationsPath + "/dissertation_0";
+        String disseratationsPath = projectsPath + File.separator + "dissertation";
+        String documentPath = disseratationsPath + File.separator + "dissertation_0";
 
         FileSystemUtility.createDirectory(disseratationsPath);
 

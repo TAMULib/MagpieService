@@ -1,12 +1,3 @@
-/* 
- * MetadataFieldGroupRepo.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo;
 
 import java.util.List;
@@ -19,12 +10,6 @@ import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.repo.custom.MetadataFieldGroupRepoCustom;
 import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
-/**
- * 
- * 
- * @author
- *
- */
 @Repository
 public interface MetadataFieldGroupRepo extends WeaverRepo<MetadataFieldGroup>, MetadataFieldGroupRepoCustom {
 

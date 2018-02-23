@@ -1,29 +1,14 @@
-/* 
- * ProjectFieldProfileRepoImpl.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.FieldProfile;
+import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.custom.FieldProfileRepoCustom;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
-/**
- *
- * 
- * @author
- *
- */
 public class FieldProfileRepoImpl extends AbstractWeaverRepoImpl<FieldProfile, FieldProfileRepo> implements FieldProfileRepoCustom {
 
     @Autowired
@@ -38,9 +23,9 @@ public class FieldProfileRepoImpl extends AbstractWeaverRepoImpl<FieldProfile, F
         return fieldProfile;
     }
 
-	@Override
-	protected String getChannel() {
-		return "/channel/field-profile";
-	}
+    @Override
+    protected String getChannel() {
+        return "/channel/field-profile";
+    }
 
 }

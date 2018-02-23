@@ -309,7 +309,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
     private String buildPCDMFile(String filePath) throws IOException {
 
-        File imageFile = getResourceLoader().getResource("classpath:static" + filePath).getFile();
+        File imageFile = new File(filePath);
 
         String fileName = imageFile.getName();
 

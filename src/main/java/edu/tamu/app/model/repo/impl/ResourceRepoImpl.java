@@ -1,12 +1,3 @@
-/* 
- * ResourceRepoImpl.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo.impl;
 
 import java.util.Arrays;
@@ -21,12 +12,6 @@ import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.model.repo.custom.ResourceRepoCustom;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
-/**
- *
- * 
- * @author
- *
- */
 public class ResourceRepoImpl extends AbstractWeaverRepoImpl<Resource, ResourceRepo> implements ResourceRepoCustom {
 
     @Autowired

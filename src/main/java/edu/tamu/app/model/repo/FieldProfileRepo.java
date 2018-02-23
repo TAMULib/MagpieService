@@ -1,30 +1,15 @@
-/* 
- * FieldProfileRepo.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo;
 
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.FieldProfile;
+import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.custom.FieldProfileRepoCustom;
 import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
-/**
- * 
- * 
- * @author
- *
- */
 @Repository
 public interface FieldProfileRepo extends WeaverRepo<FieldProfile>, FieldProfileRepoCustom {
 

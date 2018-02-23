@@ -1,12 +1,3 @@
-/* 
- * Document.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
@@ -31,12 +22,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import edu.tamu.app.resolver.ProjectByNameResolver;
 import edu.tamu.weaver.data.model.BaseEntity;
 
-/**
- * 
- * 
- * @author
- *
- */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "project_id" }))
 public class Document extends BaseEntity {

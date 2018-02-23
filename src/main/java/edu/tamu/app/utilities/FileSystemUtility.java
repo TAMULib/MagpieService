@@ -59,7 +59,7 @@ public class FileSystemUtility {
         }
         return fileNames;
     }
-    
+
     public static List<String> fileListAsStrings(String directory) {
         List<String> fileNames = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(getWindowsSafePath(directory))) {

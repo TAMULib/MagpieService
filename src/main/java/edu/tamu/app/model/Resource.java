@@ -1,12 +1,3 @@
-/* 
- * Resource.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model;
 
 import static edu.tamu.app.Initialization.HOST;

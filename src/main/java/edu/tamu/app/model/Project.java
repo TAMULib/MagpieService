@@ -1,12 +1,3 @@
-/* 
- * Project.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
@@ -27,15 +18,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import edu.tamu.app.enums.IngestType;
 import edu.tamu.weaver.data.model.BaseEntity;
 
-/**
- * 
- * 
- * @author
- *
- */
 @Entity
 public class Project extends BaseEntity {
 

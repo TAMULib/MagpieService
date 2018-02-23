@@ -1,12 +1,3 @@
-/* 
- * ResourceRepo.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo;
 
 import java.util.List;
@@ -17,12 +8,6 @@ import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.custom.ResourceRepoCustom;
 import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
-/**
- * 
- * 
- * @author
- *
- */
 @Repository
 public interface ResourceRepo extends WeaverRepo<Resource>, ResourceRepoCustom {
 

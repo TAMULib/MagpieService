@@ -1,12 +1,3 @@
-/* 
- * MetadataFieldValueRepoImpl.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +9,6 @@ import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.custom.MetadataFieldValueRepoCustom;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
-/**
- *
- * 
- * @author
- *
- */
 public class MetadataFieldValueRepoImpl extends AbstractWeaverRepoImpl<MetadataFieldValue, MetadataFieldValueRepo> implements MetadataFieldValueRepoCustom {
 
     @Autowired
@@ -56,9 +41,9 @@ public class MetadataFieldValueRepoImpl extends AbstractWeaverRepoImpl<MetadataF
         return metadataFieldValue;
     }
 
-	@Override
-	protected String getChannel() {
-		return "/channel/metadata-field-value";
-	}
+    @Override
+    protected String getChannel() {
+        return "/channel/metadata-field-value";
+    }
 
 }

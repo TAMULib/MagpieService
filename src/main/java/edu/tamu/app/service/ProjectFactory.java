@@ -18,9 +18,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.enums.IngestType;
-import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.FieldProfile;
+import edu.tamu.app.model.IngestType;
+import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
@@ -85,7 +85,7 @@ public class ProjectFactory {
     public JsonNode readProjectsNode() {
         String json = null;
         try {
-            json = new String(Files.readAllBytes(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:config").getURL().getPath() + "/" + initialProjectsFile)));
+            json = new String(Files.readAllBytes(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:config").getURL().getPath() + File.separator + initialProjectsFile)));
         } catch (IOException e) {
             logger.error("Error reading metadata json file", e);
         }

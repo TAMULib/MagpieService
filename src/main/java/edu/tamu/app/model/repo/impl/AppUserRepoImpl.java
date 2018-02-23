@@ -1,12 +1,3 @@
-/* 
- * UserRepoImpl.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo.impl;
 
 import java.util.Optional;
@@ -18,12 +9,6 @@ import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.app.model.repo.custom.AppUserRepoCustom;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
-/**
- * Implementaiton of the user repository.
- * 
- * @author
- *
- */
 public class AppUserRepoImpl extends AbstractWeaverRepoImpl<AppUser, AppUserRepo> implements AppUserRepoCustom {
 
     @Autowired
@@ -39,7 +24,7 @@ public class AppUserRepoImpl extends AbstractWeaverRepoImpl<AppUser, AppUserRepo
      */
     @Override
     public synchronized AppUser create(String uin) {
-    	Optional<AppUser> user = userRepo.findByUsername(uin);
+        Optional<AppUser> user = userRepo.findByUsername(uin);
         return user.isPresent() ? user.get() : userRepo.save(new AppUser(uin));
     }
 
@@ -52,9 +37,9 @@ public class AppUserRepoImpl extends AbstractWeaverRepoImpl<AppUser, AppUserRepo
         return user.isPresent() ? user.get() : userRepo.save(new AppUser(uin, firstName, lastName, role));
     }
 
-	@Override
-	protected String getChannel() {
-		return "/channel/user";
-	}
+    @Override
+    protected String getChannel() {
+        return "/channel/user";
+    }
 
 }

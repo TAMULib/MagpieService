@@ -20,10 +20,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.WebServerInit;
-import edu.tamu.app.enums.IngestType;
-import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.FieldProfile;
+import edu.tamu.app.model.IngestType;
+import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;

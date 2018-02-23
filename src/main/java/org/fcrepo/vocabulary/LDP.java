@@ -23,6 +23,7 @@ import org.apache.commons.rdf.simple.SimpleRDF;
 
 /**
  * RDF Terms from the LDP Vocabulary
+ * 
  * @author acoburn
  */
 public class LDP {
@@ -75,4 +76,5 @@ public class LDP {
     private LDP() {
         // prevent instantiation
     }
+
 }

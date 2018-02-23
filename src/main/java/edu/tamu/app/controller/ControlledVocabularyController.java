@@ -1,12 +1,3 @@
-/* 
- * ControlledVocabularyController.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.controller;
 
 import static edu.tamu.weaver.response.ApiStatus.ERROR;
@@ -14,6 +5,7 @@ import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
@@ -29,7 +21,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.utilities.FileSystemUtility;
-
 import edu.tamu.weaver.response.ApiResponse;
 
 /**
@@ -62,7 +53,7 @@ public class ControlledVocabularyController {
         String json = null;
 
         try {
-            json = new String(readAllBytes(get(fullPath + "/cv.json")));
+            json = new String(readAllBytes(get(fullPath + File.separator + "cv.json")));
         } catch (IOException e2) {
             e2.printStackTrace();
         }
@@ -98,7 +89,7 @@ public class ControlledVocabularyController {
         String json = null;
 
         try {
-            json = new String(readAllBytes(get(fullPath + "/cv.json")));
+            json = new String(readAllBytes(get(fullPath + File.separator + "cv.json")));
         } catch (IOException e2) {
             logger.error("Error reading cv json", e2);
             return new ApiResponse(ERROR, "Error reading cv json");

@@ -1,12 +1,3 @@
-/* 
- * DocumentRepoImpl.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo.impl;
 
 import java.util.ArrayList;
@@ -28,12 +19,6 @@ import edu.tamu.app.model.repo.custom.DocumentRepoCustom;
 import edu.tamu.app.model.repo.specification.DocumentSpecification;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
-/**
- *
- * 
- * @author
- *
- */
 public class DocumentRepoImpl extends AbstractWeaverRepoImpl<Document, DocumentRepo> implements DocumentRepoCustom {
 
     @Autowired
@@ -76,9 +61,9 @@ public class DocumentRepoImpl extends AbstractWeaverRepoImpl<Document, DocumentR
         return documentRepo.update(document);
     }
 
-	@Override
-	protected String getChannel() {
-		return "/channel/document";
-	}
+    @Override
+    protected String getChannel() {
+        return "/channel/document";
+    }
 
 }

@@ -7,9 +7,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.AbstractModelTest;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Resource;
 
 public class DocumentModelIntegrationTest extends AbstractModelTest {
