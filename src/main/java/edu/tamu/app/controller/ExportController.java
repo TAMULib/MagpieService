@@ -1,5 +1,6 @@
 package edu.tamu.app.controller;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
 import static edu.tamu.app.service.exporter.AbstractExporter.isAccepted;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
@@ -17,13 +18,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.tamu.app.Initialization;
 import edu.tamu.app.comparator.LabelComparator;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
@@ -57,9 +56,6 @@ public class ExportController {
 
     @Autowired
     private SpotlightCsvExporter spotlightCsvExporter;
-
-    @Autowired
-    private ApplicationContext appContext;
 
     /**
      * Endpoint to return metadata headers for given project.
@@ -135,7 +131,7 @@ public class ExportController {
         Project exportableProject = projectRepo.findByName(project);
         List<Document> documents = exportableProject.getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
 
-        String directory = Initialization.ASSETS_PATH + File.separator + "exports";
+        String directory = ASSETS_PATH + File.separator + "exports";
 
         String archiveDirectoryName = directory + File.separator + project + "-" + System.currentTimeMillis();
 
@@ -167,7 +163,7 @@ public class ExportController {
             PrintStream manifest = new PrintStream(itemDirectory + File.separator + "contents");
 
             for (Resource resource : resourceRepo.findAllByDocumentName(document.getName())) {
-                FileUtils.copyFileToDirectory(appContext.getResource("classpath:static" + resource.getPath()).getFile(), itemDirectory);
+                FileUtils.copyFileToDirectory(new File(ASSETS_PATH + File.separator + resource.getPath()), itemDirectory);
 
                 String bundleName = resource.getMimeType().equals("text/plain") ? "TEXT" : "ORIGINAL";
                 manifest.print(resource.getName() + "\tbundle:" + bundleName + "\tprimary:true\tpermissions:-r 'member'\n");

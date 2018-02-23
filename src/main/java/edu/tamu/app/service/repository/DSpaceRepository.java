@@ -1,5 +1,7 @@
 package edu.tamu.app.service.repository;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -317,7 +319,7 @@ public class DSpaceRepository implements Repository {
                 throw murle;
             }
 
-            File file = new File(resource.getPath());
+            File file = new File(ASSETS_PATH + File.separator + resource.getPath());
             FileInputStream stream = new FileInputStream(file);
             byte[] bytes = IOUtils.toByteArray(stream);
             stream.close();

@@ -17,7 +17,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -60,9 +59,6 @@ public abstract class AbstractControllerTest extends MockData {
 
     @Mock
     protected MetadataFieldGroupRepo metadataFieldGroupRepo;
-
-    @Mock
-    protected ApplicationContext appContext;
 
     @Spy
     protected static FileSystemUtility fileSystemUtility;

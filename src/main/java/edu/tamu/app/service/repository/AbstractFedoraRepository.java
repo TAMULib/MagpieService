@@ -1,5 +1,7 @@
 package edu.tamu.app.service.repository;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -138,7 +140,7 @@ public abstract class AbstractFedoraRepository implements Repository {
         File[] files = new File[resources.size()];
         int i = 0;
         for (Resource resource : resources) {
-            files[i++] = new File(resource.getPath());
+            files[i++] = new File(ASSETS_PATH + File.separator + resource.getPath());
         }
         return files;
     }

@@ -20,7 +20,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import edu.tamu.app.Initialization;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.InputType;
@@ -93,7 +92,7 @@ public class DocumentFactory {
         String path = document.getDocumentPath() + File.separator + file.getName();
         String mimeType = tika.detect(path);
         logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
-        resourceRepo.create(document, name, path.replace(ASSETS_PATH, ""), mimeType);
+        resourceRepo.create(document, name, path, mimeType);
     }
 
     public Document createDocument(Project project, String documentName) throws SAXException, IOException, ParserConfigurationException {
@@ -112,7 +111,7 @@ public class DocumentFactory {
 
     private Document createStandardDocument(Project project, String documentName) {
 
-        String documentPath = String.join(File.separator, Initialization.ASSETS_PATH, "projects", project.getName(), documentName);
+        String documentPath = String.join(File.separator, ASSETS_PATH, "projects", project.getName(), documentName);
 
         edu.tamu.app.model.Document document = documentRepo.create(project, documentName, documentPath, "Open");
 
@@ -158,7 +157,7 @@ public class DocumentFactory {
 
     private Document createSAFDocument(Project project, String documentName) throws SAXException, IOException, ParserConfigurationException {
 
-        String documentPath = String.join(File.separator, Initialization.ASSETS_PATH, "projects", project.getName(), documentName);
+        String documentPath = String.join(File.separator, ASSETS_PATH, "projects", project.getName(), documentName);
 
         Document document = documentRepo.create(project, documentName, documentPath, "Open");
 
