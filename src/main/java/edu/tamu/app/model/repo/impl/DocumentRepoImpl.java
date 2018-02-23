@@ -1,7 +1,5 @@
 package edu.tamu.app.model.repo.impl;
 
-import static edu.tamu.app.Initialization.ASSETS_PATH;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +34,7 @@ public class DocumentRepoImpl extends AbstractWeaverRepoImpl<Document, DocumentR
     public synchronized Document create(Project project, String name, String path, String status) {
         Document document = documentRepo.findByProjectNameAndName(project.getName(), name);
         if (document == null) {
-            document = documentRepo.create(new Document(project, name, path.replace(ASSETS_PATH, ""), status));
+            document = documentRepo.create(new Document(project, name, path, status));
         }
         return document;
     }

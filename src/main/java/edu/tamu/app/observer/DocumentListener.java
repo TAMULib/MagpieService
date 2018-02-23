@@ -74,11 +74,7 @@ public class DocumentListener extends AbstractFileListener {
                     try {
                         document = documentFactory.getOrCreateDocument(projectName, documentName);
                         documentFactory.addResource(document, file);
-                    } catch (SAXException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ParserConfigurationException e) {
+                    } catch (SAXException | IOException | ParserConfigurationException e) {
                         e.printStackTrace();
                     }
                 });

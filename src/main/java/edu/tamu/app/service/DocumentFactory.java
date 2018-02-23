@@ -113,7 +113,7 @@ public class DocumentFactory {
 
         String documentPath = String.join(File.separator, ASSETS_PATH, "projects", project.getName(), documentName);
 
-        edu.tamu.app.model.Document document = documentRepo.create(project, documentName, documentPath.replace(ASSETS_PATH, ""), "Open");
+        edu.tamu.app.model.Document document = documentRepo.create(project, documentName, documentPath, "Open");
 
         for (MetadataFieldGroup field : projectFactory.getProjectFields(project.getName())) {
             // For headless projects, auto generate metadata
@@ -159,7 +159,7 @@ public class DocumentFactory {
 
         String documentPath = String.join(File.separator, ASSETS_PATH, "projects", project.getName(), documentName);
 
-        Document document = documentRepo.create(project, documentName, documentPath.replace(ASSETS_PATH, ""), "Open");
+        Document document = documentRepo.create(project, documentName, documentPath, "Open");
 
         // read dublin_core.xml and create the fields and their values
         // TODO: read other schemata's xml files as well

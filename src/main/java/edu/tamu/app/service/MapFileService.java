@@ -99,7 +99,7 @@ public class MapFileService implements MagpieAuxiliaryService {
                 updateDoc.setStatus(CHANGE_STATUS);
 
                 // TODO: improve method of retrieving project configurations
-                String publishedUrl = String.join(File.separator, updateDoc.getProject().getRepositories().get(0).getSettingValues("repoUrl").get(0), updateDoc.getProject().getRepositories().get(0).getSettingValues("repoContextPath").get(0), documentHandle);
+                String publishedUrl = String.join("/", updateDoc.getProject().getRepositories().get(0).getSettingValues("repoUrl").get(0), updateDoc.getProject().getRepositories().get(0).getSettingValues("repoContextPath").get(0), documentHandle);
 
                 updateDoc.addPublishedLocation(new PublishedLocation(projectRepository, publishedUrl));
 
