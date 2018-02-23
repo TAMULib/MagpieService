@@ -37,7 +37,6 @@ public class ProjectController {
      * Endpoint to return list of projects.
      * 
      * @return ApiResponse
-     * 
      */
     @RequestMapping("/all")
     @PreAuthorize("hasRole('USER')")
@@ -50,9 +49,9 @@ public class ProjectController {
      * 
      * @param projectId
      * @param repositoryId
+     * 
      * @return ApiResponse
      */
-
     @RequestMapping("/batchpublish/project/{projectId}/repository/{repositoryId}")
     @PreAuthorize("hasRole('USER')")
     public ApiResponse publishBatch(@PathVariable Long projectId, @PathVariable Long repositoryId) {

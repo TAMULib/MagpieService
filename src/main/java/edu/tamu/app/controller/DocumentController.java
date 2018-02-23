@@ -1,12 +1,3 @@
-/* 
- * DocumentController.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.controller;
 
 import static edu.tamu.weaver.response.ApiStatus.ERROR;

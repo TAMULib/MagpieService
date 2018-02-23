@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.tamu.app.enums.IngestType;
-import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.FieldProfile;
+import edu.tamu.app.model.IngestType;
+import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;

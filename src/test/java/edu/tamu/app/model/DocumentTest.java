@@ -6,9 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.tamu.app.enums.IngestType;
-import edu.tamu.app.enums.InputType;
-
 public class DocumentTest extends AbstractModelTest {
 
     @Before
@@ -20,7 +17,7 @@ public class DocumentTest extends AbstractModelTest {
 
     @Test
     public void testCreateDocument() {
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
         assertEquals("Test Document was not created.", 1, documentRepo.count());
         assertEquals("Expected Test Document was not created.", mockDocument.getName(), testDocument.getName());
     }
@@ -28,7 +25,7 @@ public class DocumentTest extends AbstractModelTest {
     @Test
     public void testFindDocument() {
         assertEquals("Test Document already exists.", null, documentRepo.findByProjectNameAndName(testProject.getName(), "testFile"));
-        documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
         testDocument = documentRepo.findByProjectNameAndName(mockDocument.getProject().getName(), mockDocument.getName());
         assertEquals("Test Document was not found.", mockDocument.getName(), testDocument.getName());
     }
@@ -36,7 +33,7 @@ public class DocumentTest extends AbstractModelTest {
     @Test
     @Transactional
     public void testDeleteDocument() {
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
         assertEquals("DocumentRepo is empty.", 1, documentRepo.count());
         documentRepo.delete(testDocument);
         assertEquals("Test Document was not removed.", 0, documentRepo.count());
@@ -45,7 +42,7 @@ public class DocumentTest extends AbstractModelTest {
     @Test
     @Transactional
     public void testCascadeOnDeleteDocument() {
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
         assertEquals("Test Document was not created.", 1, documentRepo.count());
 
         assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
@@ -91,7 +88,7 @@ public class DocumentTest extends AbstractModelTest {
 
     @Test
     public void testDocumentSetters() {
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
         testDocument.setName("Another name for test Document");
         testDocument.setStatus("Assigned");
         testDocument.setAnnotator("An Annotator");

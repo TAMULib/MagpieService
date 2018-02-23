@@ -7,9 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.tamu.app.enums.IngestType;
-import edu.tamu.app.enums.InputType;
-
 public class MetadataFieldLabelTest extends AbstractModelTest {
 
     @Before

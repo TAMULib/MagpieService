@@ -1,5 +1,7 @@
 package edu.tamu.app.service.repository;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,8 +24,6 @@ import java.util.List;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Base64Utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,18 +33,11 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.utilities.CsvUtility;
-import edu.tamu.app.utilities.FileSystemUtility;
 
 public class ArchivematicaFilesystemRepository implements Repository {
 
-    @Value("${app.mount}")
-    private String mount;
-
     @Autowired
     private DocumentRepo documentRepo;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -61,14 +54,14 @@ public class ArchivematicaFilesystemRepository implements Repository {
     @Override
     public Document push(Document document) throws IOException {
 
-        Path itemDirectoryName = FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:static").getURL().getPath() + document.getDocumentPath());
+        String itemDirectoryPath = ASSETS_PATH + File.separator + document.getPath();
 
-        File documentDirectory = itemDirectoryName.toFile();
+        File documentDirectory = new File(itemDirectoryPath);
 
         // make the top level container for the transfer package
         File archivematicaPackageDirectory = new File(getArchivematicaTopDirectory() + File.separator + document.getProject().getName() + "_" + document.getName());
 
-        System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryName.toString() + " to " + archivematicaPackageDirectory.getCanonicalPath());
+        System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryPath + " to " + archivematicaPackageDirectory.getCanonicalPath());
 
         if (!archivematicaPackageDirectory.isDirectory())
             archivematicaPackageDirectory.mkdir();
@@ -281,10 +274,9 @@ public class ArchivematicaFilesystemRepository implements Repository {
         if (archivematicaDirectoryName.startsWith(File.separator)) {
             archivematicaTopDirectory = archivematicaDirectoryName;
         } // otherwise, if this is not preceded with the file separator, then it
-          // will be a relative path in the MAGPIE static directory. Perhaps it
-          // could be symlinked to somewhere.
+          // will be a relative path in the MAGPIE static directory.
         else {
-            archivematicaTopDirectory = resourceLoader.getResource("classpath:static").getURL().getPath() + File.separator + mount + File.separator + archivematicaDirectoryName;
+            archivematicaTopDirectory = ASSETS_PATH + File.separator + archivematicaDirectoryName;
         }
         return archivematicaTopDirectory;
     }

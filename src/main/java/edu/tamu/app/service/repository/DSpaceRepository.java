@@ -1,5 +1,7 @@
 package edu.tamu.app.service.repository;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,8 +39,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
 import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -60,9 +60,6 @@ public class DSpaceRepository implements Repository {
     private static final Logger logger = Logger.getLogger(DSpaceRepository.class);
 
     @Autowired
-    private ResourceLoader resourceLoader;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -70,9 +67,6 @@ public class DSpaceRepository implements Repository {
 
     @Autowired
     private ResourceRepo resourceRepo;
-
-    @Value("${app.mount}")
-    private String mount;
 
     private ProjectRepository projectRepository;
 
@@ -325,7 +319,7 @@ public class DSpaceRepository implements Repository {
                 throw murle;
             }
 
-            File file = resourceLoader.getResource("classpath:static" + resource.getPath()).getFile();
+            File file = new File(ASSETS_PATH + File.separator + resource.getPath());
             FileInputStream stream = new FileInputStream(file);
             byte[] bytes = IOUtils.toByteArray(stream);
             stream.close();

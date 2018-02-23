@@ -1,12 +1,3 @@
-/* 
- * MetadataFieldLabelRepoImpl.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +8,6 @@ import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.custom.MetadataFieldLabelRepoCustom;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
-/**
- *
- * 
- * @author
- *
- */
 public class MetadataFieldLabelRepoImpl extends AbstractWeaverRepoImpl<MetadataFieldLabel, MetadataFieldLabelRepo> implements MetadataFieldLabelRepoCustom {
 
     @Autowired
@@ -37,9 +22,9 @@ public class MetadataFieldLabelRepoImpl extends AbstractWeaverRepoImpl<MetadataF
         return metadataFieldLabel;
     }
 
-	@Override
-	protected String getChannel() {
-		return "/channel/metadata-field-label";
-	}
+    @Override
+    protected String getChannel() {
+        return "/channel/metadata-field-label";
+    }
 
 }

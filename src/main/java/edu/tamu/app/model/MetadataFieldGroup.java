@@ -1,12 +1,3 @@
-/* 
- * MetadataFields.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
@@ -29,12 +20,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import edu.tamu.weaver.data.model.BaseEntity;
 
-/**
- * 
- * 
- * @author
- *
- */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "label_id", "document_id" }))
 public class MetadataFieldGroup extends BaseEntity {

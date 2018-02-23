@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import edu.tamu.app.enums.IngestType;
-
 public class ProjectTest extends AbstractModelTest {
 
     @Test

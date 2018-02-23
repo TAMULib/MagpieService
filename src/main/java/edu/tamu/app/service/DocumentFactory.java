@@ -1,5 +1,7 @@
 package edu.tamu.app.service;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -12,17 +14,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Logger;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import edu.tamu.app.enums.InputType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.FieldProfile;
+import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
@@ -44,12 +44,6 @@ import edu.tamu.app.service.repository.Repository;
 public class DocumentFactory {
 
     private static final Logger logger = Logger.getLogger(DocumentFactory.class);
-
-    @Value("${app.host}")
-    private String host;
-
-    @Value("${app.mount}")
-    private String mount;
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -76,18 +70,15 @@ public class DocumentFactory {
     private MagpieServiceRegistry projectServiceRegistry;
 
     @Autowired
-    private ResourceLoader resourceLoader;
-
-    @Autowired
     private ProjectFactory projectFactory;
 
     private static Tika tika = new Tika();
 
-    public Document getOrCreateDocument(File directory) {
+    public Document getOrCreateDocument(File directory) throws SAXException, IOException, ParserConfigurationException {
         return getOrCreateDocument(directory.getParentFile().getName(), directory.getName());
     }
 
-    public Document getOrCreateDocument(String projectName, String documentName) {
+    public Document getOrCreateDocument(String projectName, String documentName) throws SAXException, IOException, ParserConfigurationException {
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
         if (document == null) {
             Project project = projectRepo.findByName(projectName);
@@ -98,13 +89,13 @@ public class DocumentFactory {
 
     public void addResource(Document document, File file) {
         String name = file.getName();
-        String path = document.getDocumentPath() + File.separator + file.getName();
+        String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
         String mimeType = tika.detect(path);
         logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
         resourceRepo.create(document, name, path, mimeType);
     }
 
-    public Document createDocument(Project project, String documentName) {
+    public Document createDocument(Project project, String documentName) throws SAXException, IOException, ParserConfigurationException {
         Document document;
         switch (project.getIngestType()) {
         case SAF:
@@ -120,7 +111,7 @@ public class DocumentFactory {
 
     private Document createStandardDocument(Project project, String documentName) {
 
-        String documentPath = String.join(File.separator, mount, "projects", project.getName(), documentName);
+        String documentPath = String.join(File.separator, ASSETS_PATH, "projects", project.getName(), documentName);
 
         edu.tamu.app.model.Document document = documentRepo.create(project, documentName, documentPath, "Open");
 
@@ -164,30 +155,19 @@ public class DocumentFactory {
         return document;
     }
 
-    private Document createSAFDocument(Project project, String documentName) {
+    private Document createSAFDocument(Project project, String documentName) throws SAXException, IOException, ParserConfigurationException {
 
-        String documentPath = String.join(File.separator, mount, "projects", project.getName(), documentName);
+        String documentPath = String.join(File.separator, ASSETS_PATH, "projects", project.getName(), documentName);
 
         Document document = documentRepo.create(project, documentName, documentPath, "Open");
 
         // read dublin_core.xml and create the fields and their values
         // TODO: read other schemata's xml files as well
-        org.w3c.dom.Document dublinCoreDocument = null;
-        DocumentBuilder builder;
-        try {
-            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            File file = resourceLoader.getResource("classpath:static" + String.join(File.separator, documentPath, "dublin_core.xml")).getFile();
-            dublinCoreDocument = builder.parse(file);
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (ParserConfigurationException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (SAXException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
+
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+
+        File dublinCoreFile = new File(String.join(File.separator, documentPath, "dublin_core.xml"));
+        org.w3c.dom.Document dublinCoreDocument = builder.parse(dublinCoreFile);
 
         Node dublinCoreNode = dublinCoreDocument.getFirstChild();
         NodeList valueNodes = dublinCoreNode.getChildNodes();
@@ -260,33 +240,33 @@ public class DocumentFactory {
         // manifest, but it's unclear how to map it all to Fedora anyway
         File contentsFile = null;
         try {
-            contentsFile = resourceLoader.getResource("classpath:static" + String.join(File.separator, documentPath, "contents")).getFile();
+            contentsFile = new File(String.join(File.separator, documentPath, "contents"));
             String line = "";
 
             if (contentsFile.exists()) {
                 BufferedReader is = new BufferedReader(new FileReader(contentsFile));
 
                 while ((line = is.readLine()) != null) {
-                    System.out.println("Got contents line: " + line);
+                    logger.info("Got contents line: " + line);
                     if ("".equals(line.trim()) || line.contains("bundle:THUMBNAIL")) {
                         continue;
                     }
 
                     String filename = line.split("\\t")[0];
 
-                    String filePath = document.getDocumentPath() + File.separator + filename;
+                    String filePath = ASSETS_PATH + File.separator + document.getPath() + File.separator + filename;
 
-                    File file = resourceLoader.getResource("classpath:static" + filePath).getFile();
+                    File file = new File(filePath);
 
-                    System.out.println("Attempting to add file from contents: " + filePath);
+                    logger.info("Attempting to add file from contents: " + filePath);
                     if (file.exists() && file.isFile()) {
                         String name = file.getName();
-                        String path = document.getDocumentPath() + File.separator + file.getName();
+                        String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
                         String mimeType = tika.detect(path);
                         logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
                         resourceRepo.create(document, name, path, mimeType);
                     } else {
-                        System.out.println("Could not find file " + file.getPath());
+                        logger.warn("Could not find file " + file.getPath());
                     }
 
                 }

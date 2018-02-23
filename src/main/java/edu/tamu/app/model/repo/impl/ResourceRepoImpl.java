@@ -1,13 +1,6 @@
-/* 
- * ResourceRepoImpl.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model.repo.impl;
+
+import static edu.tamu.app.Initialization.ASSETS_PATH;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,12 +14,6 @@ import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.model.repo.custom.ResourceRepoCustom;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
-/**
- *
- * 
- * @author
- *
- */
 public class ResourceRepoImpl extends AbstractWeaverRepoImpl<Resource, ResourceRepo> implements ResourceRepoCustom {
 
     @Autowired
@@ -36,7 +23,7 @@ public class ResourceRepoImpl extends AbstractWeaverRepoImpl<Resource, ResourceR
     public synchronized Resource create(Document document, String name, String path, String mimeType) {
         Resource resource = resourceRepo.findByDocumentNameAndName(document.getName(), name);
         if (resource == null) {
-            resource = resourceRepo.save(new Resource(document, name, path, mimeType));
+            resource = resourceRepo.save(new Resource(document, name, path.replace(ASSETS_PATH, ""), mimeType));
         }
         return resource;
     }

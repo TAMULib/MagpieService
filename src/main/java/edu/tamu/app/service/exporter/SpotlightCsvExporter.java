@@ -14,12 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.comparator.LabelComparator;
-import edu.tamu.app.enums.ServiceType;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.PublishedLocation;
+import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ResourceRepo;
 
 @Service

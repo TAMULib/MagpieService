@@ -1,12 +1,3 @@
-/* 
- * MetadataFieldLabel.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model;
 
 import javax.persistence.CascadeType;
@@ -19,12 +10,6 @@ import javax.persistence.UniqueConstraint;
 
 import edu.tamu.weaver.data.model.BaseEntity;
 
-/**
- * 
- * 
- * @author
- *
- */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "profile_id" }))
 public class MetadataFieldLabel extends BaseEntity {
@@ -47,16 +32,16 @@ public class MetadataFieldLabel extends BaseEntity {
     public String getName() {
         return name;
     }
-    
+
     public String getUnqualifiedName() {
         String nameToReturn = name;
         String[] parts = name.split("\\.");
-        if(parts.length == 3) {
+        if (parts.length == 3) {
             nameToReturn = parts[0] + "." + parts[1];
         }
-        
+
         return nameToReturn;
-        
+
     }
 
     public void setName(String name) {
@@ -70,7 +55,5 @@ public class MetadataFieldLabel extends BaseEntity {
     public void setProfile(FieldProfile profile) {
         this.profile = profile;
     }
-    
-    
 
 }

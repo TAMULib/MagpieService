@@ -1,16 +1,11 @@
 package edu.tamu.app;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
@@ -22,27 +17,20 @@ import edu.tamu.app.service.SyncService;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 @Component
-@Profile(value = { "!test" })
 public class Initialization implements CommandLineRunner {
 
-    private static final Logger logger = Logger.getLogger(Initialization.class);
-
     public static String HOST;
+
+    public static String ASSETS_PATH;
 
     @Value("${app.host}")
     private String host;
 
-    @Value("${app.mount.root}")
-    private String root;
+    @Value("${app.assets.path}")
+    private String assetsPath;
 
-    @Value("${app.mount}")
-    private String mount;
-
-    @Value("${app.symlink.create}")
-    private String link;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
+    @Value("${app.assets.folders}")
+    private String[] assetsFolders;
 
     @Autowired
     private SyncService syncService;
@@ -53,43 +41,38 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     private FileObserverRegistry fileObserverRegistry;
 
+    @Autowired
+    private ResourceLoader resourceLoader;
+
     @Override
     public void run(String... args) throws Exception {
 
-        Path projectPath = FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()).toAbsolutePath();
+        setHost(host);
 
-        if (link.equals("true")) {
-            try {
-                logger.info("Attempting to delete directory: " + projectPath.toString());
-                FileUtils.deleteDirectory(projectPath.toFile());
-            } catch (IOException e) {
-                logger.error("\nDIRECTORY DOES NOT EXIST\n", e);
-            }
+        setAssetsPath(assetsPath);
 
-            try {
-                Path mountPath = FileSystemUtility.getWindowsSafePath(root + mount).toAbsolutePath();
-                logger.info("Attempting to symlink directory: " + projectPath.toString() + " to " + mountPath.toString());
-                Files.createSymbolicLink(projectPath, mountPath);
-            } catch (FileAlreadyExistsException e) {
-                logger.error("\nSYMLINK ALREADY EXISTS\n", e);
-            } catch (IOException e) {
-                logger.error("\nFAILED TO CREATE SYMLINK!!!\n", e);
-            }
+        for (String folder : assetsFolders) {
+            FileSystemUtility.createDirectory(ASSETS_PATH + File.separator + folder);
         }
 
-        fileObserverRegistry.register(new ProjectListener(projectPath.toString(), "projects"));
-        fileObserverRegistry.register(new MapFileListener(projectPath.toString(), "maps"));
+        fileObserverRegistry.register(new ProjectListener(ASSETS_PATH, "projects"));
+        fileObserverRegistry.register(new MapFileListener(ASSETS_PATH, "maps"));
 
         fileMonitorManager.start();
 
         syncService.sync();
-
-        setHost(host);
-
     }
 
     private void setHost(String host) {
         HOST = host;
+    }
+
+    private void setAssetsPath(String host) {
+        try {
+            ASSETS_PATH = resourceLoader.getResource(assetsPath).getURI().getPath();
+        } catch (IOException e) {
+            ASSETS_PATH = assetsPath;
+        }
     }
 
 }

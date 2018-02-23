@@ -1,5 +1,7 @@
 package edu.tamu.app.service.repository;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,8 +26,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
 import edu.tamu.app.model.Document;
@@ -41,17 +41,11 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     protected static final Logger logger = Logger.getLogger(AbstractFedoraRepository.class);
 
-    @Value("${app.mount}")
-    private String mount;
-
     @Autowired
     private DocumentRepo documentRepo;
 
     @Autowired
     private ResourceRepo resourceRepo;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
 
     @Autowired
     private ConfigurableMimeFileTypeMap configurableMimeFileTypeMap;
@@ -97,7 +91,7 @@ public abstract class AbstractFedoraRepository implements Repository {
         String itemPath = null;
         for (File file : files) {
             if (file.isFile() && !file.isHidden()) {
-                itemPath = createResource(document.getDocumentPath() + "/" + file.getName(), itemContainerPath, file.getName());
+                itemPath = createResource(ASSETS_PATH + File.separator + document.getPath() + "/" + file.getName(), itemContainerPath, file.getName());
             }
         }
         return itemPath;
@@ -141,12 +135,12 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     }
 
-    protected File[] getFiles(Document document) throws IOException {
+    protected File[] getFiles(Document document) {
         List<Resource> resources = resourceRepo.findAllByDocumentName(document.getName());
         File[] files = new File[resources.size()];
         int i = 0;
         for (Resource resource : resources) {
-            files[i++] = resourceLoader.getResource("classpath:static" + resource.getPath()).getFile();
+            files[i++] = new File(ASSETS_PATH + File.separator + resource.getPath());
         }
         return files;
     }
@@ -173,7 +167,7 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
 
-        File file = getResourceLoader().getResource("classpath:static" + filePath).getFile();
+        File file = new File(filePath);
         FileInputStream fileStrm = new FileInputStream(file);
         byte[] fileBytes = IOUtils.toByteArray(fileStrm);
         HttpURLConnection connection = buildFedoraConnection(itemContainerPath, "POST");
@@ -292,10 +286,6 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     protected String getPassword() {
         return projectRepository.getSettingValues("password").get(0);
-    }
-
-    protected ResourceLoader getResourceLoader() {
-        return resourceLoader;
     }
 
     protected Optional<String> getTransactionalUrl() {

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.xml.sax.SAXException;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -25,7 +28,7 @@ import edu.tamu.app.model.repo.ProjectRepo;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = WebServerInit.class)
 public class DocumentFactoryTest {
-    
+
     @Autowired
     private ProjectFactory projectFactory;
 
@@ -51,7 +54,7 @@ public class DocumentFactoryTest {
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Test
-    public void testCreateDocument() throws IOException {
+    public void testCreateDocument() throws IOException, SAXException, ParserConfigurationException {
         projectFactory.getOrCreateProject("default");
         documentFactory.getOrCreateDocument("default", "default");
 

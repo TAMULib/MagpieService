@@ -1,12 +1,3 @@
-/* 
- * AppUser.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
@@ -22,15 +13,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import edu.tamu.weaver.user.model.IRole;
-
 import edu.tamu.weaver.auth.model.AbstractWeaverUserDetails;
+import edu.tamu.weaver.user.model.IRole;
 
 /**
  * Application User entity.
  * 
- * @author
- *
  */
 @Entity
 public class AppUser extends AbstractWeaverUserDetails {
@@ -75,10 +63,10 @@ public class AppUser extends AbstractWeaverUserDetails {
         setLastName(lastName);
         setRole(Role.valueOf(role));
     }
-    
+
     public AppUser(AppUser user) {
-    	this(user.getUsername());
-    	setFirstName(user.getFirstName());
+        this(user.getUsername());
+        setFirstName(user.getFirstName());
         setLastName(user.getLastName());
         setRole(user.getRole());
     }
@@ -144,10 +132,10 @@ public class AppUser extends AbstractWeaverUserDetails {
         return authorities;
     }
 
-	@Override
-	@JsonIgnore
-	public String getPassword() {
-		return null;
-	}
+    @Override
+    @JsonIgnore
+    public String getPassword() {
+        return null;
+    }
 
 }

@@ -7,9 +7,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.AbstractModelTest;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Resource;
 
 public class DocumentModelIntegrationTest extends AbstractModelTest {
@@ -25,7 +25,7 @@ public class DocumentModelIntegrationTest extends AbstractModelTest {
     public void testCreateDocumentResources() {
         testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
 
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
 
         resourceRepo.create(new Resource(testDocument, mockResource1.getName(), mockResource1.getPath(), mockResource1.getMimeType()));
 

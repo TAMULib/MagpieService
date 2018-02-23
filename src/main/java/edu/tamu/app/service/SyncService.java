@@ -1,27 +1,21 @@
-/* 
- * SyncService.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.service;
+
+import static edu.tamu.app.Initialization.ASSETS_PATH;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.xml.sax.SAXException;
 
-import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.utilities.FileSystemUtility;
 
@@ -36,16 +30,10 @@ public class SyncService {
     private static final Logger logger = Logger.getLogger(SyncService.class);
 
     @Autowired
-    private ResourceLoader resourceLoader;
-
-    @Autowired
     private ProjectFactory projectFactory;
 
     @Autowired
     private DocumentFactory documentFactory;
-
-    @Value("${app.mount}")
-    private String mount;
 
     public SyncService() {
 
@@ -56,13 +44,7 @@ public class SyncService {
             logger.debug("Running Sync Service");
         }
 
-        String directory = null;
-        try {
-            directory = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath()) + "/projects/";
-        } catch (IOException e) {
-            logger.error("Unable to load projects directory!");
-            throw e;
-        }
+        String directory = ASSETS_PATH + File.separator + "projects";
 
         List<Path> projects = FileSystemUtility.directoryList(directory);
 
@@ -82,25 +64,35 @@ public class SyncService {
 
                 String documentName = documentPath.getFileName().toString();
 
-                Document document = documentFactory.getOrCreateDocument(projectName, documentName);
+                Document document;
+                try {
+                    document = documentFactory.getOrCreateDocument(projectName, documentName);
 
-                if (!project.getIngestType().equals(IngestType.SAF)) {
+                    if (!project.getIngestType().equals(IngestType.SAF)) {
 
-                    List<Path> resources = FileSystemUtility.fileList(documentPath.toString());
+                        List<Path> resources = FileSystemUtility.fileList(documentPath.toString());
 
-                    for (Path resourcePath : resources) {
+                        for (Path resourcePath : resources) {
 
-                        logger.info("Found resource: " + resourcePath);
+                            logger.info("Found resource: " + resourcePath);
 
-                        File file = resourcePath.toFile();
-                        if (file.isFile() && !file.isHidden()) {
-                            documentFactory.addResource(document, file);
+                            File file = resourcePath.toFile();
+                            if (file.isFile() && !file.isHidden()) {
+                                documentFactory.addResource(document, file);
+                            }
+
                         }
 
+                    } else {
+                        logger.info("SAF ingest type cannot sync resources at this time. Please use listener.");
                     }
 
-                } else {
-                    logger.info("SAF ingest type cannot sync resources at this time. Please use listener.");
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
                 }
 
             });

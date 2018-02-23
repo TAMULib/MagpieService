@@ -1,7 +1,7 @@
 package edu.tamu.app.controller;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
 import static edu.tamu.app.service.exporter.AbstractExporter.isAccepted;
-import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.io.File;
@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,9 +42,6 @@ public class ExportController {
 
     private static final Logger logger = Logger.getLogger(ExportController.class);
 
-    @Value("${app.mount}")
-    private String mount;
-
     @Autowired
     private ProjectRepo projectRepo;
 
@@ -61,9 +56,6 @@ public class ExportController {
 
     @Autowired
     private SpotlightCsvExporter spotlightCsvExporter;
-
-    @Autowired
-    private ApplicationContext appContext;
 
     /**
      * Endpoint to return metadata headers for given project.
@@ -139,15 +131,9 @@ public class ExportController {
         Project exportableProject = projectRepo.findByName(project);
         List<Document> documents = exportableProject.getDocuments().stream().filter(isAccepted()).collect(Collectors.<Document>toList());
 
-        String directory = "";
-        try {
-            directory = appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath() + "/exports/";
-        } catch (IOException e) {
-            logger.error("Error building exports directory", e);
-            return new ApiResponse(ERROR, "Error building exports directory");
-        }
+        String directory = ASSETS_PATH + File.separator + "exports";
 
-        String archiveDirectoryName = directory + project + System.currentTimeMillis();
+        String archiveDirectoryName = directory + File.separator + project + "-" + System.currentTimeMillis();
 
         if (logger.isDebugEnabled()) {
             logger.debug("Archive Directory: " + archiveDirectoryName);
@@ -166,18 +152,18 @@ public class ExportController {
             }
 
             // create a directory
-            File itemDirectory = new File(archiveDirectoryName + "/" + document.getName());
+            File itemDirectory = new File(archiveDirectoryName + File.separator + document.getName());
             itemDirectory.mkdir();
 
-            PrintStream license = new PrintStream(itemDirectory + "/license.txt");
+            PrintStream license = new PrintStream(itemDirectory + File.separator + "license.txt");
             license.print("The materials in this collection are hereby licensed.");
             license.flush();
             license.close();
 
-            PrintStream manifest = new PrintStream(itemDirectory + "/contents");
+            PrintStream manifest = new PrintStream(itemDirectory + File.separator + "contents");
 
             for (Resource resource : resourceRepo.findAllByDocumentName(document.getName())) {
-                FileUtils.copyFileToDirectory(appContext.getResource("classpath:static" + resource.getPath()).getFile(), itemDirectory);
+                FileUtils.copyFileToDirectory(new File(ASSETS_PATH + File.separator + resource.getPath()), itemDirectory);
 
                 String bundleName = resource.getMimeType().equals("text/plain") ? "TEXT" : "ORIGINAL";
                 manifest.print(resource.getName() + "\tbundle:" + bundleName + "\tprimary:true\tpermissions:-r 'member'\n");

@@ -1,5 +1,7 @@
 package edu.tamu.app.service;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,10 +14,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.Document;
@@ -35,20 +34,11 @@ public class MapFileService implements MagpieAuxiliaryService {
 
     private static final String CHANGE_STATUS = "Published";
 
-    @Value("${app.mount}")
-    private String mount;
-
     @Autowired
     private ProjectRepo projectRepo;
 
     @Autowired
     private DocumentRepo documentRepo;
-
-    @Autowired
-    private ApplicationContext appContext;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
 
     private ProjectRepository projectRepository;
 
@@ -64,18 +54,14 @@ public class MapFileService implements MagpieAuxiliaryService {
     @PostConstruct
     public void init() {
         logger.info("Creating project map directory: " + project.getName());
-        try {
-            String mapDirectoryName = String.join("/", appContext.getResource("classpath:static" + mount).getFile().getAbsolutePath(), "maps", project.getName());
+        String mapDirectoryName = String.join(File.separator, ASSETS_PATH, "maps", project.getName());
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Project map directory: " + mapDirectoryName);
-            }
-
-            File mapDirectory = new File(mapDirectoryName);
-            mapDirectory.mkdir();
-        } catch (IOException ioe) {
-            logger.error("Could not create project map directory: " + project.getName());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Project map directory: " + mapDirectoryName);
         }
+
+        File mapDirectory = new File(mapDirectoryName);
+        mapDirectory.mkdir();
     }
 
     public void readMapFile(File file) throws IOException {
@@ -155,9 +141,9 @@ public class MapFileService implements MagpieAuxiliaryService {
 
     private void generateArchiveMaticaCSV(String projectName) throws IOException {
         logger.info("Writing Archivematica CSV for: " + projectName);
-        String directory = resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/archivematica/";
+        String directory = ASSETS_PATH + File.separator + "archivematica";
 
-        String archiveDirectoryName = directory + projectName;
+        String archiveDirectoryName = directory + File.separator + projectName;
 
         List<Document> documents = documentRepo.findByProjectNameAndStatus(projectName, "Published");
 
@@ -167,7 +153,7 @@ public class MapFileService implements MagpieAuxiliaryService {
         }
 
         for (Document document : documents) {
-            String itemDirectoryName = archiveDirectoryName + "/" + document.getName();
+            String itemDirectoryName = archiveDirectoryName + File.separator + document.getName();
             csvUtility.generateOneArchiveMaticaCSV(document, itemDirectoryName);
         }
     }

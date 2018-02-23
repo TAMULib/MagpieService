@@ -13,7 +13,6 @@ import javax.persistence.OneToMany;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import edu.tamu.app.enums.ServiceType;
 import edu.tamu.weaver.data.model.BaseEntity;
 
 @MappedSuperclass

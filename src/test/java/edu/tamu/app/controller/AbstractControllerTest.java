@@ -17,19 +17,16 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.Role;
@@ -63,17 +60,11 @@ public abstract class AbstractControllerTest extends MockData {
     @Mock
     protected MetadataFieldGroupRepo metadataFieldGroupRepo;
 
-    @Mock
-    protected ApplicationContext appContext;
-
     @Spy
     protected static FileSystemUtility fileSystemUtility;
 
     @Mock
     protected DspaceCsvExporter dspaceCSVExporter;
-
-    @Mock
-    protected ResourceLoader resourceLoader;
 
     @Mock
     protected SpotlightCsvExporter spotlightExporter;
@@ -126,8 +117,6 @@ public abstract class AbstractControllerTest extends MockData {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        ReflectionTestUtils.setField(syncService, "mount", "/metadatatool");
-
         credentials.setEmail("aggieJane@tamu.edu");
         credentials.setFirstName(TEST_USER1.getFirstName());
         credentials.setLastName(TEST_USER1.getLastName());
@@ -144,7 +133,7 @@ public abstract class AbstractControllerTest extends MockData {
                 return saveAppUser((AppUser) invocation.getArguments()[0]);
             }
         });
-        
+
         when(userRepo.update(any(AppUser.class))).then(new Answer<AppUser>() {
             @Override
             public AppUser answer(InvocationOnMock invocation) throws Throwable {

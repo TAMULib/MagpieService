@@ -5,7 +5,7 @@ import java.util.Comparator;
 import edu.tamu.app.model.MetadataFieldGroup;
 
 /**
- * Class for comparing MetadataFieldImpl by label.
+ * Class for comparing MetadataFieldGroup by name.
  * 
  * @author
  *
@@ -13,7 +13,7 @@ import edu.tamu.app.model.MetadataFieldGroup;
 public class LabelComparator implements Comparator<MetadataFieldGroup> {
 
     /**
-     * Compare labels of MetadataFieldImpl
+     * Compare name of MetadataFieldGroup
      * 
      * @param mfg1
      *            MetadataFieldGroup

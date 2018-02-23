@@ -1,12 +1,3 @@
-/* 
- * ControlledVocabulary.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model;
 
 import java.io.UnsupportedEncodingException;
@@ -28,12 +19,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import edu.tamu.weaver.data.model.BaseEntity;
 
-/**
- * 
- * 
- * @author
- *
- */
 @Entity
 public class ControlledVocabulary extends BaseEntity {
 

@@ -1,16 +1,20 @@
 package edu.tamu.app.observer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.xml.sax.SAXException;
 
-import edu.tamu.app.enums.IngestType;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.service.DocumentFactory;
 
@@ -66,8 +70,13 @@ public class DocumentListener extends AbstractFileListener {
             if (!ingestType.equals(IngestType.SAF)) {
                 executor.submit(() -> {
                     logger.info("Adding file " + file.getName() + " to " + documentName + " in project " + projectName);
-                    Document document = documentFactory.getOrCreateDocument(projectName, documentName);
-                    documentFactory.addResource(document, file);
+                    Document document;
+                    try {
+                        document = documentFactory.getOrCreateDocument(projectName, documentName);
+                        documentFactory.addResource(document, file);
+                    } catch (SAXException | IOException | ParserConfigurationException e) {
+                        e.printStackTrace();
+                    }
                 });
             }
         }
@@ -92,14 +101,18 @@ public class DocumentListener extends AbstractFileListener {
         if (waitOnDirectoryReady()) {
             executor.submit(() -> {
                 waitOnDirectory(directory);
-                documentFactory.getOrCreateDocument(directory);
+                try {
+                    documentFactory.getOrCreateDocument(directory);
+                } catch (SAXException | IOException | ParserConfigurationException e) {
+                    e.printStackTrace();
+                }
             });
         }
     }
 
     // this is a blocking sleep operation of this listener
     private void waitOnDirectory(File directory) {
-        System.out.println("Waiting for directory " + directory + " to be quiescent, as it is a Headless or SAF-ingest project.");
+        logger.info("Waiting for directory " + directory + " to be quiescent, as it is a Headless or SAF-ingest project.");
         long lastModified = 0L;
         long oldLastModified = -1L;
         long stableTime = 0L;

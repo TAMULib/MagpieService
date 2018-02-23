@@ -1,12 +1,3 @@
-/* 
- * ProjectFieldProfile.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
- */
 package edu.tamu.app.model;
 
 import java.util.HashSet;
@@ -26,15 +17,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import edu.tamu.app.enums.InputType;
 import edu.tamu.weaver.data.model.BaseEntity;
 
-/**
- * 
- * 
- * @author
- *
- */
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "gloss", "project_id" }) })
 public class FieldProfile extends BaseEntity {

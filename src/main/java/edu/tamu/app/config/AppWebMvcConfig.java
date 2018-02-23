@@ -1,5 +1,6 @@
 package edu.tamu.app.config;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.h2.server.web.WebServlet;
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
@@ -34,11 +36,17 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
     @Value("${app.security.allow-access}")
     private String[] hosts;
 
+    @Value("${app.assets.path}")
+    private String assetsPath;
+
     @Autowired
     private List<HttpMessageConverter<?>> converters;
 
     @Autowired
     private AppUserRepo appUserRepo;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @Bean
     public ResourceUrlEncodingFilter resourceUrlEncodingFilter() {
@@ -72,7 +80,13 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
+        String assetsFullPath;
+        try {
+            assetsFullPath = resourceLoader.getResource(assetsPath).getURI().getPath();
+        } catch (IOException e) {
+            assetsFullPath = assetsPath;
+        }
+        registry.addResourceHandler("/**").addResourceLocations("file:" + assetsFullPath + "/");
     }
 
     @Override

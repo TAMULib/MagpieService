@@ -1,18 +1,17 @@
 package edu.tamu.app.observer;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -23,6 +22,7 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 @ActiveProfiles("test")
@@ -30,23 +30,14 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @SpringBootTest(classes = WebServerInit.class)
 public class ProjectListenerTest {
 
-    @Value("${app.mount}")
-    private String mount;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
-
-    @Autowired
-    private FileMonitorManager fileMonitorManager;
-
-    @Autowired
-    private FileObserverRegistry fileObserverRegistry;
-
     @Autowired
     private ProjectRepo projectRepo;
 
     @Autowired
     private DocumentRepo documentRepo;
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     @Autowired
     private FieldProfileRepo fieldProfileRepo;
@@ -60,57 +51,36 @@ public class ProjectListenerTest {
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
-    private ProjectListener dissertationFileListener;
-
-    private String projectsPath;
-
-    @Before
-    public void setup() throws Exception {
-        String mountPath = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath());
-        projectsPath = mountPath + "/projects";
-        String projectsPath = FileSystemUtility.getWindowsSafePathString(resourceLoader.getResource("classpath:static" + mount).getURL().getPath() + "/projects");
-
-        FileSystemUtility.createDirectory(projectsPath);
-        dissertationFileListener = new ProjectListener(mountPath, "projects");
-        fileObserverRegistry.register(dissertationFileListener);
-        fileMonitorManager.start();
-
-        assertEquals("The project repo has the incorrect number of projects!", 0, projectRepo.count());
-    }
-
     @Test
-    public void testNewProject() throws IOException, InterruptedException {
-        String disseratationsPath = projectsPath + "/dissertation";
+    public void testListeners() throws IOException, InterruptedException {
+        String projectsPath = ASSETS_PATH + File.separator + "projects";
+        String disseratationsPath = projectsPath + File.separator + "test";
         FileSystemUtility.createDirectory(disseratationsPath);
 
         // wait for the file monitor to pick up the newly created directory
         Thread.sleep(2500);
 
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
-    }
+        assertNotNull("The test project was not created!", projectRepo.findByName("test"));
 
-    @Test
-    public void testNewDocument() throws IOException, InterruptedException {
-        String disseratationsPath = projectsPath + "/dissertation";
-        String documentPath = disseratationsPath + "/dissertation_0";
-
-        FileSystemUtility.createDirectory(disseratationsPath);
-
-        // wait for the file monitor to pick up the newly created directory
-        Thread.sleep(2500);
-
+        String documentPath = disseratationsPath + File.separator + "test_0";
         FileSystemUtility.createDirectory(documentPath);
-        FileSystemUtility.createFile(documentPath, "dissertation.pdf");
-        FileSystemUtility.createFile(documentPath, "dissertation.pdf.txt");
+        FileSystemUtility.createFile(documentPath, "test.pdf");
+        FileSystemUtility.createFile(documentPath, "test.pdf.txt");
 
         // wait for the file monitor to pick up the newly created directory and files
         Thread.sleep(2500);
 
-        assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
-        assertNotNull("The dissertation project was not created!", projectRepo.findByName("dissertation"));
-
         assertEquals("The document repo has the incorrect number of documents!", 1, documentRepo.count());
-        assertNotNull("The dissertation_0 document was not created!", documentRepo.findByProjectNameAndName("dissertation", "dissertation_0"));
+        assertNotNull("The test_0 document was not created!", documentRepo.findByProjectNameAndName("test", "test_0"));
+
+        assertEquals("The resource repo has the incorrect number of resrouces!", 2, resourceRepo.count());
+
+        assertNotNull("The test.pdf resource was not created!", resourceRepo.findByDocumentNameAndName("test_0", "test.pdf"));
+        assertNotNull("The test.pdf.txt resource was not created!", resourceRepo.findByDocumentNameAndName("test_0", "test.pdf.txt"));
+
+        FileSystemUtility.deleteDirectory(disseratationsPath);
+        FileSystemUtility.deleteDirectory(projectsPath);
     }
 
     @After
@@ -119,12 +89,8 @@ public class ProjectListenerTest {
         metadataFieldValueRepo.deleteAll();
         metadataFieldLabelRepo.deleteAll();
         metadataFieldGroupRepo.deleteAll();
+        resourceRepo.deleteAll();
         documentRepo.deleteAll();
         projectRepo.deleteAll();
-
-        fileObserverRegistry.dismiss(dissertationFileListener);
-        fileMonitorManager.stop();
-
-        FileSystemUtility.deleteDirectory(projectsPath);
     }
 }
