@@ -40,7 +40,7 @@ public class NALTSuggestor implements Suggestor {
     public List<Suggestion> suggest(Document document) {
 
         List<Suggestion> suggestions = new ArrayList<Suggestion>();
-
+        // TODO: throw exception and handle using controller advice
         try {
             StringBuilder textBuilder = new StringBuilder();
 
