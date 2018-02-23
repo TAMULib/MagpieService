@@ -91,7 +91,7 @@ public abstract class AbstractFedoraRepository implements Repository {
         String itemPath = null;
         for (File file : files) {
             if (file.isFile() && !file.isHidden()) {
-                itemPath = createResource(document.getDocumentPath() + "/" + file.getName(), itemContainerPath, file.getName());
+                itemPath = createResource(ASSETS_PATH + File.separator + document.getPath() + "/" + file.getName(), itemContainerPath, file.getName());
             }
         }
         return itemPath;

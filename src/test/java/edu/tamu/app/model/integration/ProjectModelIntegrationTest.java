@@ -44,14 +44,14 @@ public class ProjectModelIntegrationTest extends AbstractModelTest {
     public void testProjectDocument() {
         testProjectRepository();
 
-        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getDocumentPath(), mockDocument.getStatus());
+        testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
 
         testProject = projectRepo.findByName("testProject");
 
         assertNotNull("Test Project did not have the expected document!", testProject.getDocuments().get(0));
 
         assertEquals("Test Project did not have the expected document name!", mockDocument.getName(), testProject.getDocuments().get(0).getName());
-        assertEquals("Test Project did not have the expected document path!", mockDocument.getDocumentPath(), testProject.getDocuments().get(0).getDocumentPath());
+        assertEquals("Test Project did not have the expected document path!", mockDocument.getPath(), testProject.getDocuments().get(0).getPath());
         assertEquals("Test Project did not have the expected document status!", mockDocument.getStatus(), testProject.getDocuments().get(0).getStatus());
     }
 

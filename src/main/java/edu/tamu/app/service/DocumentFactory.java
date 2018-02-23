@@ -89,7 +89,7 @@ public class DocumentFactory {
 
     public void addResource(Document document, File file) {
         String name = file.getName();
-        String path = document.getDocumentPath() + File.separator + file.getName();
+        String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
         String mimeType = tika.detect(path);
         logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
         resourceRepo.create(document, name, path, mimeType);
@@ -113,7 +113,7 @@ public class DocumentFactory {
 
         String documentPath = String.join(File.separator, ASSETS_PATH, "projects", project.getName(), documentName);
 
-        edu.tamu.app.model.Document document = documentRepo.create(project, documentName, documentPath, "Open");
+        edu.tamu.app.model.Document document = documentRepo.create(project, documentName, documentPath.replace(ASSETS_PATH, ""), "Open");
 
         for (MetadataFieldGroup field : projectFactory.getProjectFields(project.getName())) {
             // For headless projects, auto generate metadata
@@ -159,7 +159,7 @@ public class DocumentFactory {
 
         String documentPath = String.join(File.separator, ASSETS_PATH, "projects", project.getName(), documentName);
 
-        Document document = documentRepo.create(project, documentName, documentPath, "Open");
+        Document document = documentRepo.create(project, documentName, documentPath.replace(ASSETS_PATH, ""), "Open");
 
         // read dublin_core.xml and create the fields and their values
         // TODO: read other schemata's xml files as well
@@ -254,14 +254,14 @@ public class DocumentFactory {
 
                     String filename = line.split("\\t")[0];
 
-                    String filePath = document.getDocumentPath() + File.separator + filename;
+                    String filePath = ASSETS_PATH + File.separator + document.getPath() + File.separator + filename;
 
                     File file = new File(filePath);
 
                     logger.info("Attempting to add file from contents: " + filePath);
                     if (file.exists() && file.isFile()) {
                         String name = file.getName();
-                        String path = document.getDocumentPath() + File.separator + file.getName();
+                        String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
                         String mimeType = tika.detect(path);
                         logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
                         resourceRepo.create(document, name, path, mimeType);

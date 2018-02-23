@@ -3,11 +3,9 @@ package edu.tamu.app;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
@@ -16,12 +14,10 @@ import edu.tamu.app.observer.FileObserverRegistry;
 import edu.tamu.app.observer.MapFileListener;
 import edu.tamu.app.observer.ProjectListener;
 import edu.tamu.app.service.SyncService;
+import edu.tamu.app.utilities.FileSystemUtility;
 
 @Component
-@Profile(value = { "!test" })
 public class Initialization implements CommandLineRunner {
-
-    private static final Logger logger = Logger.getLogger(Initialization.class);
 
     public static String HOST;
 
@@ -56,7 +52,7 @@ public class Initialization implements CommandLineRunner {
         setAssetsPath(assetsPath);
 
         for (String folder : assetsFolders) {
-            createDirectory(ASSETS_PATH, folder);
+            FileSystemUtility.createDirectory(ASSETS_PATH + File.separator + folder);
         }
 
         fileObserverRegistry.register(new ProjectListener(ASSETS_PATH, "projects"));
@@ -76,19 +72,6 @@ public class Initialization implements CommandLineRunner {
             ASSETS_PATH = resourceLoader.getResource(assetsPath).getURI().getPath();
         } catch (IOException e) {
             ASSETS_PATH = assetsPath;
-        }
-    }
-
-    private void createDirectory(String path, String name) {
-        String fullPath = path + File.separator + name;
-        File directory = new File(fullPath);
-
-        if (!directory.exists()) {
-            if (directory.mkdirs()) {
-                logger.info(fullPath + " folder created");
-            } else {
-                logger.error("Failed to create " + fullPath);
-            }
         }
     }
 

@@ -1,5 +1,7 @@
 package edu.tamu.app.service.repository;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -93,7 +95,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         for (File file : files) {
             if (file.isFile() && !file.isHidden()) {
                 String pagePath = itemContainerPath + "/" + pagesEndpoint + "/" + "page_" + x;
-                createResource(document.getDocumentPath() + "/" + file.getName(), pagePath, file.getName());
+                createResource(ASSETS_PATH + File.separator + document.getPath() + "/" + file.getName(), pagePath, file.getName());
                 proxyPages[x] = new ProxyPage(itemContainerPath + "/" + "orderProxies" + "/" + "page_" + x + "_proxy", pagePath, itemContainerPath);
                 generatePutRequest(proxyPages[x].getProxyUrl(), null, buildPCDMPageProxy(proxyPages[x].getProxyUrl(), proxyPages[x].getProxyInUrl(), proxyPages[x].getProxyForUrl()));
             }

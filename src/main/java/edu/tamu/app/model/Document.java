@@ -39,7 +39,7 @@ public class Document extends BaseEntity {
     private String notes;
 
     @Column(nullable = true)
-    private String documentPath;
+    private String path;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, optional = false)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, resolver = ProjectByNameResolver.class, property = "name")
@@ -59,11 +59,11 @@ public class Document extends BaseEntity {
         publishedLocations = new ArrayList<PublishedLocation>();
     }
 
-    public Document(Project project, String name, String documentPath, String status) {
+    public Document(Project project, String name, String path, String status) {
         this();
         setProject(project);
         setName(name);
-        setDocumentPath(documentPath);
+        setPath(path);
         setStatus(status);
     }
 
@@ -99,12 +99,12 @@ public class Document extends BaseEntity {
         this.notes = notes;
     }
 
-    public String getDocumentPath() {
-        return documentPath;
+    public String getPath() {
+        return path;
     }
 
-    public void setDocumentPath(String documentPath) {
-        this.documentPath = documentPath;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public Project getProject() {

@@ -33,7 +33,6 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.utilities.CsvUtility;
-import edu.tamu.app.utilities.FileSystemUtility;
 
 public class ArchivematicaFilesystemRepository implements Repository {
 
@@ -55,14 +54,14 @@ public class ArchivematicaFilesystemRepository implements Repository {
     @Override
     public Document push(Document document) throws IOException {
 
-        Path itemDirectoryName = FileSystemUtility.getWindowsSafePath(document.getDocumentPath());
+        String itemDirectoryPath = ASSETS_PATH + File.separator + document.getPath();
 
-        File documentDirectory = itemDirectoryName.toFile();
+        File documentDirectory = new File(itemDirectoryPath);
 
         // make the top level container for the transfer package
         File archivematicaPackageDirectory = new File(getArchivematicaTopDirectory() + File.separator + document.getProject().getName() + "_" + document.getName());
 
-        System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryName.toString() + " to " + archivematicaPackageDirectory.getCanonicalPath());
+        System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryPath + " to " + archivematicaPackageDirectory.getCanonicalPath());
 
         if (!archivematicaPackageDirectory.isDirectory())
             archivematicaPackageDirectory.mkdir();
