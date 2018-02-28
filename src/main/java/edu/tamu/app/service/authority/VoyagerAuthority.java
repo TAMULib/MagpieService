@@ -22,7 +22,8 @@ import edu.tamu.app.model.response.marc.VoyagerServiceData;
 import edu.tamu.weaver.utility.HttpUtility;
 
 /**
- * Voyager service. Performs requests with ExLibris Voyager API. All Voyager API responses are xml. The xml is mapped to objects using JAXB.
+ * Voyager service. Performs requests with ExLibris Voyager API. All Voyager API
+ * responses are xml. The xml is mapped to objects using JAXB.
  * 
  * @author
  *
@@ -106,6 +107,8 @@ public class VoyagerAuthority implements Authority {
         String urlString = "http://" + getHost() + ":" + getPort() + "/" + getApp() + "/GetHoldingsService?bibId=" + bibId;
         logger.info("Fetching marc for bibid " + bibId + " at URL: " + urlString);
         String xmlResponse = HttpUtility.makeHttpRequest(urlString, "GET");
+
+        logger.debug("Received the following XML from Voyager\n***\n " + xmlResponse + "\n***\n\n");
 
         xmlResponse = xmlResponse.replace("ser:", "");
         xmlResponse = xmlResponse.replace("hol:", "");
