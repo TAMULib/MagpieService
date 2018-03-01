@@ -72,7 +72,6 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
             MetadataFieldValue mfv = new MetadataFieldValue();
             mfv.setValue(mfg.getLabel().getProfile().getDefaultValue());
             mfg.addValue(mfv);
-            document.addField(mfg);
         }
         return documentRepo.save(document);
     }
