@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVFormat;
@@ -66,6 +67,10 @@ public class CSVAuthority implements Authority {
                             if (mfg != null) {
                                 for (String value : values) {
                                     if (!mfg.containsValue(value)) {
+                                        Optional<String> defaultValue = Optional.of(mfg.getLabel().getProfile().getDefaultValue());
+                                        if (value.length() == 0 && defaultValue.isPresent()) {
+                                            value = defaultValue.get();
+                                        }
                                         mfg.addValue(metadataFieldValueRepo.create(value, mfg));
                                     }
                                 }

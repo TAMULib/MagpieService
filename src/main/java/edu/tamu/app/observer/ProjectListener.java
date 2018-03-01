@@ -34,8 +34,13 @@ public class ProjectListener extends AbstractFileListener {
         if (FileSystemUtility.getWindowsSafePath(directory.getParent()).equals(FileSystemUtility.getWindowsSafePath(getPath()))) {
             logger.info("Creating project: " + directory.getName());
             Project project = projectFactory.getOrCreateProject(directory);
-            logger.info("Registering project document listener: " + directory.getPath());
-            fileObserverRegistry.register(new DocumentListener(project, directory.getParent(), directory.getName()));
+            if (project.isHeadless()) {
+                logger.info("Registering headless document listener: " + directory.getPath());
+                fileObserverRegistry.register(new HeadlessDocumentListener(directory.getParent(), directory.getName()));
+            } else {
+                logger.info("Registering standard document listener: " + directory.getPath());
+                fileObserverRegistry.register(new StandardDocumentListener(directory.getParent(), directory.getName()));
+            }
         }
     }
 

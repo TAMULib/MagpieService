@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 /**
@@ -28,6 +29,9 @@ import edu.tamu.app.utilities.FileSystemUtility;
 public class SyncService {
 
     private static final Logger logger = Logger.getLogger(SyncService.class);
+
+    @Autowired
+    private DocumentRepo documentRepo;
 
     @Autowired
     private ProjectFactory projectFactory;
@@ -64,27 +68,29 @@ public class SyncService {
 
                 String documentName = documentPath.getFileName().toString();
 
-                Document document;
+                Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+
                 try {
-                    document = documentFactory.getOrCreateDocument(projectName, documentName);
+                    if (document == null) {
+                        document = documentFactory.createDocument(documentPath.toFile());
+                        if (!project.getIngestType().equals(IngestType.SAF)) {
 
-                    if (!project.getIngestType().equals(IngestType.SAF)) {
+                            List<Path> resources = FileSystemUtility.fileList(documentPath.toString());
 
-                        List<Path> resources = FileSystemUtility.fileList(documentPath.toString());
+                            for (Path resourcePath : resources) {
 
-                        for (Path resourcePath : resources) {
+                                logger.info("Found resource: " + resourcePath);
 
-                            logger.info("Found resource: " + resourcePath);
+                                File file = resourcePath.toFile();
+                                if (file.isFile() && !file.isHidden()) {
+                                    documentFactory.addResource(document, file);
+                                }
 
-                            File file = resourcePath.toFile();
-                            if (file.isFile() && !file.isHidden()) {
-                                documentFactory.addResource(document, file);
                             }
 
+                        } else {
+                            logger.info("SAF ingest type cannot sync resources at this time. Please use listener.");
                         }
-
-                    } else {
-                        logger.info("SAF ingest type cannot sync resources at this time. Please use listener.");
                     }
 
                 } catch (SAXException e) {

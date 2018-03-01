@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,15 +21,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import edu.tamu.app.exception.DocumentNotFoundException;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
-import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
-import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
@@ -38,12 +39,15 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.authority.Authority;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
-import edu.tamu.app.service.repository.Repository;
 
 @Service
 public class DocumentFactory {
 
+    private static final String PROJECTS_FOLDER_NAME = "projects";
+
     private static final Logger logger = Logger.getLogger(DocumentFactory.class);
+
+    private final static Tika tika = new Tika();
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -72,30 +76,43 @@ public class DocumentFactory {
     @Autowired
     private ProjectFactory projectFactory;
 
-    private static Tika tika = new Tika();
-
-    public Document getOrCreateDocument(File directory) throws SAXException, IOException, ParserConfigurationException {
-        return getOrCreateDocument(directory.getParentFile().getName(), directory.getName());
+    public Document createDocument(File directory) throws SAXException, IOException, ParserConfigurationException {
+        return createDocument(directory.getParentFile().getName(), directory.getName());
     }
 
-    public Document getOrCreateDocument(String projectName, String documentName) throws SAXException, IOException, ParserConfigurationException {
+    private Document createDocument(String projectName, String documentName) throws SAXException, IOException, ParserConfigurationException {
+        Project project = projectRepo.findByName(projectName);
+        return createDocument(project, documentName);
+    }
+
+    public Document addResource(File file) throws DocumentNotFoundException {
+        String documentName = file.getParentFile().getName();
+        String projectName = file.getParentFile().getParentFile().getName();
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
         if (document == null) {
-            Project project = projectRepo.findByName(projectName);
-            document = createDocument(project, documentName);
+            throw new DocumentNotFoundException(projectName, documentName);
+        }
+        return addResource(document, file);
+    }
+
+    public Document addResource(Document document, File file) {
+        String resourceName = file.getName();
+        String documentName = file.getParentFile().getName();
+        String projectName = file.getParentFile().getParentFile().getName();
+        String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
+        String mimeType = tika.detect(path);
+        logger.info("Adding resource " + resourceName + " - " + mimeType + " to document " + document.getName());
+        Resource resource = resourceRepo.findByDocumentNameAndName(documentName, resourceName);
+        if (resource == null) {
+            resourceRepo.create(document, resourceName, path, mimeType);
+            document = documentRepo.findByProjectNameAndName(projectName, documentName);
+        } else {
+            logger.info("Reource " + resourceName + " already exists for document " + documentName);
         }
         return document;
     }
 
-    public void addResource(Document document, File file) {
-        String name = file.getName();
-        String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
-        String mimeType = tika.detect(path);
-        logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
-        resourceRepo.create(document, name, path, mimeType);
-    }
-
-    public Document createDocument(Project project, String documentName) throws SAXException, IOException, ParserConfigurationException {
+    private Document createDocument(Project project, String documentName) throws SAXException, IOException, ParserConfigurationException {
         Document document;
         switch (project.getIngestType()) {
         case SAF:
@@ -110,54 +127,42 @@ public class DocumentFactory {
     }
 
     private Document createStandardDocument(Project project, String documentName) {
-
-        String documentPath = String.join(File.separator, ASSETS_PATH, "projects", project.getName(), documentName);
-
-        edu.tamu.app.model.Document document = documentRepo.create(project, documentName, documentPath, "Open");
-
-        for (MetadataFieldGroup field : projectFactory.getProjectFields(project.getName())) {
-            // For headless projects, auto generate metadata
-            if (project.isHeadless()) {
-                MetadataFieldValue mfv = new MetadataFieldValue();
-                mfv.setValue(field.getLabel().getProfile().getDefaultValue());
-                MetadataFieldGroup mfg = metadataFieldGroupRepo.create(document, field.getLabel());
-                mfg.addValue(mfv);
-                document.addField(mfg);
-            } else {
-                document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
-            }
-        }
-
-        // get the Authority Beans and populate document with each Authority
-        for (ProjectAuthority authority : project.getAuthorities()) {
-            ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
-        }
-
-        document = documentRepo.save(document);
-
+        String projectName = project.getName();
+        String documentPath = getDocumentPath(projectName, documentName);
+        logger.info("Creating standard document at " + documentPath);
+        Document document = documentRepo.create(project, documentName, documentPath, "Open");
+        document = addMetadataFields(document, project.getName());
+        document = applyAutorities(document, project.getAuthorities());
+        document = documentRepo.update(document);
         project.addDocument(document);
-
-        // For headless projects, attempt to immediately push to registered repositories
-        if (project.isHeadless()) {
-            for (ProjectRepository repository : document.getProject().getRepositories()) {
-                try {
-                    document = ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
-                } catch (IOException e) {
-                    logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        documentRepo.broadcast(document);
-
         projectRepo.update(project);
+        return document;
+    }
+
+    private String getDocumentPath(String projectName, String documentName) {
+        return String.join(File.separator, ASSETS_PATH, PROJECTS_FOLDER_NAME, projectName, documentName);
+    }
+
+    private Document addMetadataFields(Document document, String projectName) {
+        for (MetadataFieldGroup field : projectFactory.getProjectFields(projectName)) {
+            logger.info("Adding field " + field.getLabel().getName() + " to document " + document.getName());
+            document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
+        }
+        return document;
+    }
+
+    private Document applyAutorities(Document document, List<ProjectAuthority> authorities) {
+        for (ProjectAuthority authority : authorities) {
+            document = ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
+        }
         return document;
     }
 
     private Document createSAFDocument(Project project, String documentName) throws SAXException, IOException, ParserConfigurationException {
 
-        String documentPath = String.join(File.separator, ASSETS_PATH, "projects", project.getName(), documentName);
+        String documentPath = getDocumentPath(project.getName(), documentName);
+
+        logger.info("Creating SAF document at " + documentPath);
 
         Document document = documentRepo.create(project, documentName, documentPath, "Open");
 

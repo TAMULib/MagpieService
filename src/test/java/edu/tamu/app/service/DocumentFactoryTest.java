@@ -3,6 +3,7 @@ package edu.tamu.app.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -56,7 +57,7 @@ public class DocumentFactoryTest {
     @Test
     public void testCreateDocument() throws IOException, SAXException, ParserConfigurationException {
         projectFactory.getOrCreateProject("default");
-        documentFactory.getOrCreateDocument("default", "default");
+        documentFactory.createDocument(new File("default/default"));
 
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
         assertNotNull("The default project was not created!", projectRepo.findByName("default"));

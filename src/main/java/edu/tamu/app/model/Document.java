@@ -41,12 +41,12 @@ public class Document extends BaseEntity {
     @Column(nullable = true)
     private String path;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, resolver = ProjectByNameResolver.class, property = "name")
     @JsonIdentityReference(alwaysAsId = true)
     private Project project;
 
-    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
+    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<MetadataFieldGroup> fields;
 

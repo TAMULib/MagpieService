@@ -85,11 +85,13 @@ public class CsvUtility {
             String values = "";
             boolean firstPass = true;
             for (MetadataFieldValue medataFieldValue : field.getValues()) {
-                if (firstPass) {
-                    values = medataFieldValue.getValue();
-                    firstPass = false;
-                } else {
-                    values += "||" + medataFieldValue.getValue();
+                if (medataFieldValue.getValue().trim().length() > 0) {
+                    if (firstPass) {
+                        values = medataFieldValue.getValue();
+                        firstPass = false;
+                    } else {
+                        values += "||" + medataFieldValue.getValue();
+                    }
                 }
             }
             map.put(field.getLabel().getUnqualifiedName(), values);

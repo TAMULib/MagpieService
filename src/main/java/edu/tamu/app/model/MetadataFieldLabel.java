@@ -1,6 +1,5 @@
 package edu.tamu.app.model;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,7 +16,7 @@ public class MetadataFieldLabel extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private FieldProfile profile;
 
     public MetadataFieldLabel() {
