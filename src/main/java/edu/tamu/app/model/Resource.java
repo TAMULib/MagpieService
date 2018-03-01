@@ -2,7 +2,6 @@ package edu.tamu.app.model;
 
 import static edu.tamu.app.Initialization.HOST;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,7 +20,7 @@ import edu.tamu.weaver.data.resolver.BaseEntityIdResolver;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "document_id" }))
 public class Resource extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, resolver = BaseEntityIdResolver.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Document document;

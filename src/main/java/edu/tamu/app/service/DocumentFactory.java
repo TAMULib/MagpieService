@@ -131,8 +131,8 @@ public class DocumentFactory {
         String documentPath = getDocumentPath(projectName, documentName);
         logger.info("Creating standard document at " + documentPath);
         Document document = documentRepo.create(project, documentName, documentPath, "Open");
-        addMetadataFields(document, project.getName());
-        applyAutorities(document, project.getAuthorities());
+        document = addMetadataFields(document, project.getName());
+        document = applyAutorities(document, project.getAuthorities());
         document = documentRepo.update(document);
         project.addDocument(document);
         projectRepo.update(project);
@@ -143,16 +143,19 @@ public class DocumentFactory {
         return String.join(File.separator, ASSETS_PATH, PROJECTS_FOLDER_NAME, projectName, documentName);
     }
 
-    private void addMetadataFields(Document document, String projectName) {
+    private Document addMetadataFields(Document document, String projectName) {
         for (MetadataFieldGroup field : projectFactory.getProjectFields(projectName)) {
+            logger.info("Adding field " + field.getLabel().getName() + " to document " + document.getName());
             document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
         }
+        return document;
     }
 
-    private void applyAutorities(Document document, List<ProjectAuthority> authorities) {
+    private Document applyAutorities(Document document, List<ProjectAuthority> authorities) {
         for (ProjectAuthority authority : authorities) {
-            ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
+            document = ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
         }
+        return document;
     }
 
     private Document createSAFDocument(Project project, String documentName) throws SAXException, IOException, ParserConfigurationException {
