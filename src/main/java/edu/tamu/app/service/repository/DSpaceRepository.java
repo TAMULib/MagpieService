@@ -194,6 +194,7 @@ public class DSpaceRepository implements Repository {
     }
 
     private JsonNode doRESTRequest(URL restUrl, String method, byte[] postData, String contentTypeString, String taskDescription) throws IOException {
+        logger.info("Making this REST request of DSpace: "+ taskDescription);
         // set up the connection for the REST call
         HttpURLConnection connection;
         try {
@@ -219,6 +220,8 @@ public class DSpaceRepository implements Repository {
         connection.setRequestProperty("Content-Length", String.valueOf(postData.length));
 
         connection.setRequestProperty("Cookie", getCookieAsString(authCookie.get()));
+        
+        logger.info("Attempting to connect to DSpace with Cookie = " + connection.getRequestProperty("Cookie"));
 
         connection.setDoOutput(true);
 
