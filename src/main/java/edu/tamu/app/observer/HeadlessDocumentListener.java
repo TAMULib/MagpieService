@@ -34,6 +34,7 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
         super(root, folder);
     }
 
+    @Override
     protected CompletableFuture<Document> createDocument(File directory) {
         return CompletableFuture.supplyAsync(() -> {
             Document document = null;
@@ -49,6 +50,13 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
             }
             return document;
         }, executor);
+    }
+
+    @Override
+    protected void addResource(File file) {
+        String documentName = file.getParentFile().getName();
+        List<String> documentPendingResources = pendingResources.get(documentName);
+        documentPendingResources.add(file.getAbsolutePath());
     }
 
     // this is a blocking sleep operation of this listener
@@ -86,12 +94,6 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
             }
         }
         return document;
-    }
-
-    protected void addResource(File file) {
-        String documentName = file.getParentFile().getName();
-        List<String> documentPendingResources = pendingResources.get(documentName);
-        documentPendingResources.add(file.getAbsolutePath());
     }
 
 }
