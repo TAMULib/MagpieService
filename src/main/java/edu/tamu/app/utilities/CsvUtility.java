@@ -1,14 +1,19 @@
 package edu.tamu.app.utilities;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.log4j.Logger;
 
 import edu.tamu.app.model.Document;
@@ -33,28 +38,22 @@ public class CsvUtility {
     }
 
     public void generateCsvFile(List<List<String>> csvContents, String csvFileName) throws IOException {
-        if (csvContents.size() > 0) {
-            FileWriter fileWriter = new FileWriter(csvFileName);
-            fileWriter.append(generateCsv(csvContents));
-            fileWriter.flush();
-            fileWriter.close();
+        if(csvContents.size() > 0) {
+            BufferedWriter writer = Files.newBufferedWriter(Paths.get(csvFileName));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
+            
+            for(List<String> row : csvContents) {
+                csvPrinter.printRecord(row);
+            }
+            
+            csvPrinter.flush();
+            csvPrinter.close();
             if (logger.isDebugEnabled()) {
                 logger.debug("Generated CSV file: " + csvFileName);
             }
         }
     }
 
-    private String generateCsv(List<List<String>> csvContents) {
-        String csv = "";
-        for (List<String> row : csvContents) {
-            for (String value : row) {
-                csv += "\"" + value + "\",";
-            }
-            csv = csv.substring(0, csv.length() - 1);
-            csv += "\n";
-        }
-        return csv;
-    }
 
     public List<List<String>> documentToList(Document document) throws IOException {
 
