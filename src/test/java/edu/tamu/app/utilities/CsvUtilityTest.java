@@ -63,6 +63,9 @@ public class CsvUtilityTest {
     private Document mockDocument;
 
     private CsvUtility csvUtility;
+    
+    static final String dateValue = "1962";
+    static final String abstractValue = "The emergence of an idea champion is an essential ingredient in the process of strategic change. The idea champion provides energy to move the system, yet \"we know practically nothing about this activity\" (Daft & Bradshow, 1980: 55). The purpose of this research is to examine varieties of the championship process to discover effective paths to strategy innovation and emergent strategic leadership. The research pits two competing persuasion-based, process oriented methods of influencing change. According to credit building theory (Hollander, 1960), an individual must build credits by initial conformity to group opinion in order to successfully influence innovation later. According to conversion theory (Moscovici, 1980), an individual achieves influence by consistently and resolutely not conforming from the outset, thereby eroding group consensus. The research also pits two competing influence tactics, praise and criticism. 129 top managers from the local business community participated in roundtable discussions during which a confederate advocated a new and unpopular strategic direction. In the 2 x 2 experimental design, the advocate's method (credit building or conversion) and tactic (praise or criticism) varied. The fates of an idea and its advocate are not necessarily intertwined. Consequently, managers' behavioral and resource allocation intentions toward the new strategy and managers' appraisals of the advocate's leadership abilities constituted major classes of dependent variables. Measurements were taken immediately after the discussion and several weeks later. Employing each manager's initial opinion toward the new strategy as the covariate, repeated measures multivariate analyses were conducted. The results were surprising. No main effect differences were found. But, the results disclosed a significant and durable interaction effect. The combination of credit building with criticism and conversion with praise were the effective paths to strategy innovation and emergent strategic leadership. Attempts to identify personal characteristics of early subscribers to the new strategy were fruitless. Where significant outcomes are wrought, it is (1) agreers who criticize or (2) disagreers who praise who forge them. The findings illuminate the construction of a new model of lone wolf influence emphasizing simultaneous give and take as the key to effective strategic championship.";
 
     @Test
     public void testGenerateOneArchiveMaticaCSV() throws IOException {
@@ -72,19 +75,49 @@ public class CsvUtilityTest {
         FieldProfile profile = projectFieldProfileRepo.create(testProject, "Date Created", false, false, false, false, InputType.TEXT, null);
         MetadataFieldLabel dateCreatedLabel = metadataFieldLabelRepo.create("dc.date.created", profile);
         MetadataFieldGroup dateCreatedFieldGroup = metadataFieldGroupRepo.create(mockDocument, dateCreatedLabel);
-        MetadataFieldValue dateCreatedValue = metadataFieldValueRepo.create("1962", dateCreatedFieldGroup);
+        MetadataFieldValue dateCreatedValue = metadataFieldValueRepo.create(dateValue, dateCreatedFieldGroup);
+        
+        FieldProfile descriptionProfile = projectFieldProfileRepo.create(testProject, "Description", false, false, false, false, InputType.TEXT, null);
+        MetadataFieldLabel descriptionLabel = metadataFieldLabelRepo.create("dc.description.abstract", descriptionProfile);
+        MetadataFieldGroup descriptionFieldGroup = metadataFieldGroupRepo.create(mockDocument, descriptionLabel);
+        MetadataFieldValue descriptionValue = metadataFieldValueRepo.create(abstractValue, descriptionFieldGroup);
+        
+        
+        
 
+        descriptionFieldGroup.addValue(descriptionValue);
         dateCreatedFieldGroup.addValue(dateCreatedValue);
 
         mockDocument.addField(dateCreatedFieldGroup);
+        mockDocument.addField(descriptionFieldGroup);
 
         csvUtility = new CsvUtility();
 
         List<List<String>> csvContents = csvUtility.generateOneArchiveMaticaCSV(mockDocument, "temp");
-
-        assertEquals("The parts column was incorrect.", csvContents.get(1).get(0), "objects/testDocument");
-        assertEquals("The dc.date.created was incorrect.", csvContents.get(1).get(1), "1962");
-
+        
+        assertEquals("There were the wrong number of column headings in the CSV.", 3, csvContents.get(0).size());
+        assertTrue("The column headings were missing the parts heading.", csvContents.get(0).contains("parts"));
+        assertTrue("The column headings were missing the description heading.", csvContents.get(0).contains("dc.description"));
+        assertTrue("The column headings were missing the date heading.", csvContents.get(0).contains("dc.date"));
+        
+        
+        int i = 0;
+        for(String columnHeading : csvContents.get(0)) {
+            
+            switch (columnHeading) {
+                case "parts":
+                    assertEquals("The parts column was incorrect.", "objects/testDocument", csvContents.get(1).get(i));
+                    break;
+                case "description":
+                    assertEquals("The description column was incorrect", abstractValue, csvContents.get(1).get(i));
+                    break;
+                case "date":
+                    assertEquals("The date column was incorrect", dateValue, csvContents.get(1).get(i));
+                    break;
+            }
+            i++;
+        }
+        
         Path path = Paths.get("temp");
 
         assertTrue("temp path is not a directory", Files.isDirectory(path));
@@ -96,6 +129,8 @@ public class CsvUtilityTest {
         });
 
         // TODO: assert values of csv file are as expected
+        
+        
         FileUtils.deleteDirectory(new File("temp"));
     }
 
