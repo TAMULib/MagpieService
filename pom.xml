@@ -169,17 +169,6 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <configuration>
-          <includeEmptyDirs>true</includeEmptyDirs>
-          <delimiters>
-            <delimiter>@</delimiter>
-          </delimiters>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.20.1</version>
         <configuration>
@@ -203,18 +192,11 @@
           <failOnMissingWebXml>false</failOnMissingWebXml>
           <webResources>
             <webResource>
-              <filtering>true</filtering>
               <directory>src/main/resources</directory>
-              <targetPath>WEB-INF</targetPath>
-              <includes>
-                <include>application.properties</include>
-              </includes>
               <excludes>
-                <exclude>**/*.xls</exclude>
+                <exclude>application.properties</exclude>
+                <exclude>banner.txt</exclude>
               </excludes>
-            </webResource>
-            <webResource>
-              <directory>src/main/resources</directory>
             </webResource>
           </webResources>
         </configuration>
@@ -236,17 +218,11 @@
           <failOnMissingWebXml>false</failOnMissingWebXml>
           <webResources>
             <webResource>
-              <filtering>true</filtering>
               <directory>src/main/resources</directory>
-              <includes>
-                <include>application.properties</include>
-              </includes>
               <excludes>
-                <exclude>**/*.xls</exclude>
+                <exclude>application.properties</exclude>
+                <exclude>banner.txt</exclude>
               </excludes>
-            </webResource>
-            <webResource>
-              <directory>src/main/resources</directory>
             </webResource>
           </webResources>
         </configuration>
