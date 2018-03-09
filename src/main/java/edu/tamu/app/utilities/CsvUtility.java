@@ -38,14 +38,14 @@ public class CsvUtility {
     }
 
     public void generateCsvFile(List<List<String>> csvContents, String csvFileName) throws IOException {
-        if(csvContents.size() > 0) {
+        if (csvContents.size() > 0) {
             BufferedWriter writer = Files.newBufferedWriter(Paths.get(csvFileName));
             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT);
-            
-            for(List<String> row : csvContents) {
+
+            for (List<String> row : csvContents) {
                 csvPrinter.printRecord(row);
             }
-            
+
             csvPrinter.flush();
             csvPrinter.close();
             if (logger.isDebugEnabled()) {
@@ -54,18 +54,19 @@ public class CsvUtility {
         }
     }
 
-
     public List<List<String>> documentToList(Document document) throws IOException {
 
         List<List<String>> csvContents = new ArrayList<List<String>>();
 
-        String[] elements = { "title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "language", "relation", "coverage", "rights" };
+        String[] elements = { "title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "language", "relation", "coverage",
+                "rights" };
 
-        Map<String, String> map = new HashMap<String, String>();
+        List<Metadatum> map = new ArrayList<Metadatum>();
+        // Map<String, String> map = new HashMap<String, String>();
         if (projectRepository.isPresent()) {
             Optional<String> publishedUrl = getPublishedUrl(document);
             if (publishedUrl.isPresent()) {
-                map.put("dc.identifier", publishedUrl.get());
+                map.add(new Metadatum("dc.identifier", publishedUrl.get()));
             } else {
                 logger.info("Unable to find Project Repositories published URL!");
             }
@@ -93,7 +94,7 @@ public class CsvUtility {
                     }
                 }
             }
-            map.put(field.getLabel().getUnqualifiedName(), values);
+            map.add(new Metadatum(field.getLabel().getUnqualifiedName(), values));
         });
 
         // The first row is the "parts" field and all the metadata keys/labels
@@ -101,9 +102,9 @@ public class CsvUtility {
         csvRow.add("parts");
         for (int i = 0; i < elements.length; i++) {
             // writing the element
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                if (entry.getKey().contains(elements[i])) {
-                    csvRow.add(entry.getKey());
+            for (Metadatum metadatum : map) {
+                if (metadatum.getLabel().contains(elements[i])) {
+                    csvRow.add(metadatum.getLabel());
                 }
             }
         }
@@ -114,13 +115,13 @@ public class CsvUtility {
 
         // writing the data values
         for (int i = 0; i < elements.length; i++) {
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                if (entry.getKey().contains(elements[i])) {
+            for (Metadatum metadatum : map) {
+                if (metadatum.getLabel().contains(elements[i])) {
 
-                    if (entry.getKey().contains("parts")) {
-                        map.put(entry.getKey(), "objects/" + document.getName());
+                    if (metadatum.getLabel().contains("parts")) {
+                        metadatum.setValue("objects/" + document.getName());
                     }
-                    csvRow.add(entry.getValue());
+                    csvRow.add(metadatum.getValue());
                 }
             }
         }
@@ -153,5 +154,31 @@ public class CsvUtility {
             }
         }
         return publishedUrl;
+    }
+
+    private class Metadatum {
+        private String label;
+        private String value;
+
+        public Metadatum(String label, String value) {
+            this.label = label;
+            this.value = value;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
     }
 }
