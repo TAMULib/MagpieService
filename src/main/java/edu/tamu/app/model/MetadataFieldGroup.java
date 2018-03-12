@@ -32,7 +32,7 @@ public class MetadataFieldGroup extends BaseEntity {
     @JsonIdentityReference(alwaysAsId = true)
     private Document document;
 
-    @OneToMany(mappedBy = "field", fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval = true)
+    @OneToMany(mappedBy = "field", fetch = FetchType.EAGER, cascade = { CascadeType.ALL })
     @Fetch(FetchMode.SELECT)
     private List<MetadataFieldValue> values;
 
