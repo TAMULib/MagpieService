@@ -79,7 +79,8 @@ public class ArchivematicaFilesystemRepository implements Repository {
         if (!objectsSubdirectory.isDirectory())
             objectsSubdirectory.mkdir();
 
-        // make the submissionDocumentation subdirectory in the metadata subdirectory
+        // make the submissionDocumentation subdirectory in the metadata
+        // subdirectory
         File submissionDocumentationSubdirectory = new File(metadataSubdirectory.getPath() + File.separator + "submissionDocumentation");
         if (!submissionDocumentationSubdirectory.isDirectory())
             submissionDocumentationSubdirectory.mkdir();
@@ -218,7 +219,8 @@ public class ArchivematicaFilesystemRepository implements Repository {
             br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
         } catch (IOException e) {
-            IOException ioe = new IOException("Could not get input stream for a response from the connection of the post request. Response message was \"" + connection.getResponseMessage() + "\" with this exception thrown: {" + e.getMessage() + "}");
+            IOException ioe = new IOException("Could not get input stream for a response from the connection of the post request. Response message was \"" + connection.getResponseMessage()
+                    + "\" with this exception thrown: {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
@@ -270,7 +272,8 @@ public class ArchivematicaFilesystemRepository implements Repository {
     public String getArchivematicaTopDirectory() throws IOException {
         String archivematicaDirectoryName = projectRepository.getSettingValues("archivematicaDirectoryName").get(0);
         String archivematicaTopDirectory;
-        // if this is an absolute path (preceded with the file separator) treat it as such
+        // if this is an absolute path (preceded with the file separator) treat
+        // it as such
         if (archivematicaDirectoryName.startsWith(File.separator)) {
             archivematicaTopDirectory = archivematicaDirectoryName;
         } // otherwise, if this is not preceded with the file separator, then it
