@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -313,8 +314,7 @@ public class DSpaceRepository implements Repository {
             // add the bitstream
             URL addBitstreamUrl;
             try {
-                // TODO: use name of resource
-                addBitstreamUrl = new URL(getRepoUrl() + "/rest/items/" + bitstreams.getItemId() + "/bitstreams?name=" + resource.getName());
+                addBitstreamUrl = new URL(getRepoUrl() + "/rest/items/" + bitstreams.getItemId() + "/bitstreams?name=" + URLEncoder.encode(resource.getName(), java.nio.charset.StandardCharsets.UTF_8.toString()));
             } catch (MalformedURLException e) {
                 MalformedURLException murle = new MalformedURLException("Failed to add pdf bitstream; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}");
                 murle.setStackTrace(e.getStackTrace());
