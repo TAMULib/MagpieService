@@ -4,16 +4,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ProjectSetting;
 import edu.tamu.app.model.ServiceType;
-import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ProjectRepositoryRepo;
 import edu.tamu.app.model.repo.custom.ProjectRepositoryRepoCustom;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
-public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<Project, ProjectRepo> implements ProjectRepositoryRepoCustom {
+public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRepository, ProjectRepositoryRepo> implements ProjectRepositoryRepoCustom {
 
     @Autowired
     private ProjectRepositoryRepo projectRepositoryRepo;
