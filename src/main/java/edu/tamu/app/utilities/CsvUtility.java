@@ -27,8 +27,8 @@ public class CsvUtility {
     private static final Logger logger = Logger.getLogger(CsvUtility.class);
 
     private Optional<ProjectRepository> projectRepository;
-    
-    //TODO:
+
+    // TODO:
     private List<String> prioritizedLabels = null;
 
     public CsvUtility() {
@@ -64,6 +64,8 @@ public class CsvUtility {
         String[] elements = { "title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "language", "relation", "coverage",
                 "rights" };
 
+        String[] preferredElements = { "dc.date.created" };
+
         Map<String, List<String>> allMetadataKVPairsOnDocument = new HashMap<String, List<String>>();
 
         if (projectRepository.isPresent()) {
@@ -71,7 +73,7 @@ public class CsvUtility {
             if (publishedUrl.isPresent()) {
                 List<String> identifierList = new ArrayList<String>();
                 identifierList.add(publishedUrl.get());
-                
+
                 allMetadataKVPairsOnDocument.put("dc.identifier", identifierList);
             } else {
                 logger.info("Document has not been published to its Project Repository.");
@@ -85,29 +87,46 @@ public class CsvUtility {
         logger.info("Processing metadata fields from document " + document.getName());
 
         // First, compile the map of each key value pair. Identical keys are to
-        // be repeated, except where there is a PRIORITIZED label that will take precedence and overwrite all others
+        // be repeated, except where there is a PRIORITIZED label that will take
+        // precedence and overwrite all others
+        List<String> fieldsNotToOverwrite = new ArrayList<String>();
+
         metadataFields.forEach(field -> {
             for (MetadataFieldValue metadataFieldValue : field.getValues()) {
-                //TODO: if field.getLabel().getQualifiedName() is PRIORITIZED, then we will put it's value on top of what's there, overwriting.
-                
-                //else (if field.getLabel().getQualifiedName() isn't), then we will add it's value to the list present on for the corresponding key (i.e. unqualified label). 
-                
                 if (metadataFieldValue.getValue().trim().length() > 0) {
-                    
-                    if(allMetadataKVPairsOnDocument.containsKey(field.getLabel().getUnqualifiedName())) {
-                        allMetadataKVPairsOnDocument.get(field.getLabel().getUnqualifiedName()).add(metadataFieldValue.getValue());   
-                    } else {
+
+                    // if field.getLabel().getQualifiedName() is PRIORITIZED,
+                    // then we will put it's value on top of what's there, overwriting.
+                    // what's more, we'll remember, and we won't let anything else overwrite it later.
+                    boolean fieldIsPreferred = false;
+                    for (String elementName : preferredElements) {
+                        if (field.getLabel().getName().equals(elementName)) {
+                            fieldIsPreferred = true;
+                            fieldsNotToOverwrite.add(field.getLabel().getUnqualifiedName());
+                            break;
+                        }
+                    }
+
+                    //put a new list with the single value under the key in case it's preferred or there's nothing there yet anyway
+                    if (fieldIsPreferred || !allMetadataKVPairsOnDocument.containsKey(field.getLabel().getUnqualifiedName())) {
                         List<String> firstValue = new ArrayList<String>();
                         firstValue.add(metadataFieldValue.getValue());
-                        allMetadataKVPairsOnDocument.put(field.getLabel().getUnqualifiedName() , firstValue);
+                        allMetadataKVPairsOnDocument.put(field.getLabel().getUnqualifiedName(), firstValue);
                     }
+                    //otherwise, append to the existing list, unless it is not to be overwritten as it contains a preferred field
+                    else if (allMetadataKVPairsOnDocument.containsKey(field.getLabel().getUnqualifiedName()) && !fieldsNotToOverwrite.contains(field.getLabel().getUnqualifiedName())) {
+                        allMetadataKVPairsOnDocument.get(field.getLabel().getUnqualifiedName()).add(metadataFieldValue.getValue());
+                    }
+
                 }
             }
         });
 
         // Second, add the header row. This has the "parts" field and all the
         // metadata keys/labels
-        //Have to turn our keySet of labels into a list, as we need order guaranteed when making the first row (lables) and the second row (values)
+        // Have to turn our keySet of labels into a list, as we need order
+        // guaranteed when making the first row (lables) and the second row
+        // (values)
         String labels[] = allMetadataKVPairsOnDocument.keySet().toArray(new String[0]);
         ArrayList<String> csvRow = new ArrayList<String>();
         csvRow.add("parts");
@@ -115,8 +134,9 @@ public class CsvUtility {
             // writing the element
             for (String label : labels) {
                 if (label.contains(elements[i])) {
-                    //have to add a cell for every single occurrence of a value with the label
-                    for(int k = 0; k < allMetadataKVPairsOnDocument.get(label).size(); k++)
+                    // have to add a cell for every single occurrence of a value
+                    // with the label
+                    for (int k = 0; k < allMetadataKVPairsOnDocument.get(label).size(); k++)
                         csvRow.add(label);
                 }
             }
@@ -132,12 +152,11 @@ public class CsvUtility {
                 if (label.contains(elements[i])) {
                     if (label.contains("parts")) {
                         csvRow.add("objects/" + document.getName());
-                    }
-                    else {
-                    
-                    for(int k = 0; k < allMetadataKVPairsOnDocument.get(label).size(); k++) {
-                        
-                        csvRow.add(allMetadataKVPairsOnDocument.get(label).get(k));
+                    } else {
+
+                        for (int k = 0; k < allMetadataKVPairsOnDocument.get(label).size(); k++) {
+
+                            csvRow.add(allMetadataKVPairsOnDocument.get(label).get(k));
                         }
                     }
                 }
