@@ -27,6 +27,9 @@ public class CsvUtility {
     private static final Logger logger = Logger.getLogger(CsvUtility.class);
 
     private Optional<ProjectRepository> projectRepository;
+    
+    //TODO:
+    private List<String> prioritizedLabels = null;
 
     public CsvUtility() {
         this.projectRepository = Optional.empty();
@@ -61,46 +64,60 @@ public class CsvUtility {
         String[] elements = { "title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "language", "relation", "coverage",
                 "rights" };
 
-        List<Metadatum> allMetadataKVPairsOnDocument = new ArrayList<Metadatum>();
+        Map<String, List<String>> allMetadataKVPairsOnDocument = new HashMap<String, List<String>>();
 
         if (projectRepository.isPresent()) {
             Optional<String> publishedUrl = getPublishedUrl(document);
             if (publishedUrl.isPresent()) {
-                allMetadataKVPairsOnDocument.add(new Metadatum("dc.identifier", publishedUrl.get()));
+                List<String> identifierList = new ArrayList<String>();
+                identifierList.add(publishedUrl.get());
+                
+                allMetadataKVPairsOnDocument.put("dc.identifier", identifierList);
             } else {
-                logger.info("Unable to find Project Repositories published URL!");
+                logger.info("Document has not been published to its Project Repository.");
             }
 
         } else {
             logger.info("No Project Repository specified!");
         }
 
-        // map.put("dc.source","");
-        // map.put("dc.relation","");
-        // map.put("dc.coverage","");
-
         List<MetadataFieldGroup> metadataFields = document.getFields();
+        logger.info("Processing metadata fields from document " + document.getName());
 
-        // First, compile the list of each key value pair. Identical keys are to
-        // be repeated.
+        // First, compile the map of each key value pair. Identical keys are to
+        // be repeated, except where there is a PRIORITIZED label that will take precedence and overwrite all others
         metadataFields.forEach(field -> {
-            for (MetadataFieldValue medataFieldValue : field.getValues()) {
-                if (medataFieldValue.getValue().trim().length() > 0) {
-                    allMetadataKVPairsOnDocument.add(new Metadatum(field.getLabel().getUnqualifiedName(), medataFieldValue.getValue()));
+            for (MetadataFieldValue metadataFieldValue : field.getValues()) {
+                //TODO: if field.getLabel().getQualifiedName() is PRIORITIZED, then we will put it's value on top of what's there, overwriting.
+                
+                //else (if field.getLabel().getQualifiedName() isn't), then we will add it's value to the list present on for the corresponding key (i.e. unqualified label). 
+                
+                if (metadataFieldValue.getValue().trim().length() > 0) {
+                    
+                    if(allMetadataKVPairsOnDocument.containsKey(field.getLabel().getUnqualifiedName())) {
+                        allMetadataKVPairsOnDocument.get(field.getLabel().getUnqualifiedName()).add(metadataFieldValue.getValue());   
+                    } else {
+                        List<String> firstValue = new ArrayList<String>();
+                        firstValue.add(metadataFieldValue.getValue());
+                        allMetadataKVPairsOnDocument.put(field.getLabel().getUnqualifiedName() , firstValue);
+                    }
                 }
             }
-
         });
 
         // Second, add the header row. This has the "parts" field and all the
         // metadata keys/labels
+        //Have to turn our keySet of labels into a list, as we need order guaranteed when making the first row (lables) and the second row (values)
+        String labels[] = allMetadataKVPairsOnDocument.keySet().toArray(new String[0]);
         ArrayList<String> csvRow = new ArrayList<String>();
         csvRow.add("parts");
         for (int i = 0; i < elements.length; i++) {
             // writing the element
-            for (Metadatum metadatum : allMetadataKVPairsOnDocument) {
-                if (metadatum.getLabel().contains(elements[i])) {
-                    csvRow.add(metadatum.getLabel());
+            for (String label : labels) {
+                if (label.contains(elements[i])) {
+                    //have to add a cell for every single occurrence of a value with the label
+                    for(int k = 0; k < allMetadataKVPairsOnDocument.get(label).size(); k++)
+                        csvRow.add(label);
                 }
             }
         }
@@ -111,13 +128,18 @@ public class CsvUtility {
 
         // Finally, write the data values we compiled the list of.
         for (int i = 0; i < elements.length; i++) {
-            for (Metadatum metadatum : allMetadataKVPairsOnDocument) {
-                if (metadatum.getLabel().contains(elements[i])) {
-
-                    if (metadatum.getLabel().contains("parts")) {
-                        metadatum.setValue("objects/" + document.getName());
+            for (String label : labels) {
+                if (label.contains(elements[i])) {
+                    if (label.contains("parts")) {
+                        csvRow.add("objects/" + document.getName());
                     }
-                    csvRow.add(metadatum.getValue());
+                    else {
+                    
+                    for(int k = 0; k < allMetadataKVPairsOnDocument.get(label).size(); k++) {
+                        
+                        csvRow.add(allMetadataKVPairsOnDocument.get(label).get(k));
+                        }
+                    }
                 }
             }
         }
@@ -150,31 +172,5 @@ public class CsvUtility {
             }
         }
         return publishedUrl;
-    }
-
-    private class Metadatum {
-        private String label;
-        private String value;
-
-        public Metadatum(String label, String value) {
-            this.label = label;
-            this.value = value;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        public void setLabel(String label) {
-            this.label = label;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
     }
 }
