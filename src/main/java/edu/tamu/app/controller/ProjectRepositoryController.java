@@ -1,7 +1,9 @@
 package edu.tamu.app.controller;
 
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
-import static edu.tamu.weaver.validation.model.BusinessValidationType.CREATE;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProjectRepositoryRepo;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
-import edu.tamu.weaver.validation.aspect.annotation.WeaverValidation;
 
 @RestController
 @RequestMapping("/project-repository")
@@ -52,9 +54,15 @@ public class ProjectRepositoryController {
     }
 
     @RequestMapping("/remove")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse remove(@WeaverValidatedModel ProjectRepository projectRepository) {
         projectRepositoryRepo.delete(projectRepository);
         return new ApiResponse(SUCCESS);
+    }
+
+    @RequestMapping("/types")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse getTypes() {
+        return new ApiResponse(SUCCESS,new ArrayList<>(Arrays.asList(ServiceType.values())));
     }
 }
