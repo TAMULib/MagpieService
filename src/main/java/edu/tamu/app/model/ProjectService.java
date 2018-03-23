@@ -24,7 +24,7 @@ public abstract class ProjectService extends ValidatingBaseEntity {
     @Enumerated
     private ServiceType type;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<ProjectSetting> settings;
 
