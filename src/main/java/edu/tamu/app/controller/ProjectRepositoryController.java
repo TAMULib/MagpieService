@@ -41,7 +41,6 @@ public class ProjectRepositoryController {
 
     @RequestMapping("/create")
     @PreAuthorize("hasRole('MANAGER')")
-    @WeaverValidation(business = { @WeaverValidation.Business(value = CREATE) })
     public ApiResponse create(@WeaverValidatedModel ProjectRepository projectRepository) {
         return new ApiResponse(SUCCESS, projectRepositoryRepo.create(projectRepository));
     }
@@ -57,5 +56,5 @@ public class ProjectRepositoryController {
     public ApiResponse remove(@WeaverValidatedModel ProjectRepository projectRepository) {
         projectRepositoryRepo.delete(projectRepository);
         return new ApiResponse(SUCCESS);
-    }    
+    }
 }

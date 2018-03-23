@@ -13,10 +13,10 @@ import javax.persistence.OneToMany;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import edu.tamu.weaver.data.model.BaseEntity;
+import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 
 @MappedSuperclass
-public abstract class ProjectService extends BaseEntity {
+public abstract class ProjectService extends ValidatingBaseEntity {
 
     @Column
     private String name;
