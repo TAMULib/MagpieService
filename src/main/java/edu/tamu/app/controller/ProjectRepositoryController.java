@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProjectRepositoryRepo;
+import edu.tamu.app.service.ProjectFactory;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 
@@ -23,6 +24,9 @@ public class ProjectRepositoryController {
 
     @Autowired
     private ProjectRepositoryRepo projectRepositoryRepo;
+    
+    @Autowired
+    private ProjectFactory projectFactory;
 
     /**
      * Endpoint to return list of project repositories.
@@ -63,6 +67,7 @@ public class ProjectRepositoryController {
     @RequestMapping("/types")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getTypes() {
-        return new ApiResponse(SUCCESS,new ArrayList<>(Arrays.asList(ServiceType.values())));
+        return new ApiResponse(SUCCESS,projectFactory.getProjectRepositoryTypes());
     }
+
 }

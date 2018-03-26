@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,7 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ProjectSuggestor;
+import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
@@ -118,49 +122,9 @@ public class ProjectFactory {
         JsonNode projectNode = getProjectNode(projectName);
 
         // TODO: improve the object mapping for repositories, authorities, and suggestors
-
-        List<ProjectRepository> repositories = new ArrayList<ProjectRepository>();
-        if (projectNode.has(REPOSITORIES_KEY)) {
-            try {
-                repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
-                });
-            } catch (JsonParseException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
-
-        if (projectNode.has(AUTHORITIES_KEY)) {
-            try {
-                authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
-                });
-            } catch (JsonParseException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();
-        if (projectNode.has(SUGGESTORS_KEY)) {
-            try {
-                suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
-                });
-            } catch (JsonParseException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        List<ProjectRepository> repositories = getProjectRepositories(projectNode);        
+        List<ProjectAuthority> authorities = getProjectAuthorities(projectNode);
+        List<ProjectSuggestor> suggestors = getProjectSuggestors(projectNode);
 
         boolean headless = false;
         if (projectNode.has(HEADLESS_KEY)) {
@@ -177,6 +141,58 @@ public class ProjectFactory {
         registerListeners(project);
 
         return project;
+    }
+
+    protected List<ProjectRepository> getProjectRepositories(JsonNode projectNode) {    
+        List<ProjectRepository> repositories = new ArrayList<ProjectRepository>();
+        if (projectNode.has(REPOSITORIES_KEY)) {
+            try {
+                repositories = objectMapper.readValue(projectNode.get(REPOSITORIES_KEY).toString(), new TypeReference<List<ProjectRepository>>() {
+                });
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return repositories;
+    }
+    
+    protected List<ProjectAuthority> getProjectAuthorities(JsonNode projectNode) {
+        List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
+
+        if (projectNode.has(AUTHORITIES_KEY)) {
+            try {
+                authorities = objectMapper.readValue(projectNode.get(AUTHORITIES_KEY).toString(), new TypeReference<List<ProjectAuthority>>() {
+                });
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return authorities;
+    }
+    
+    protected List<ProjectSuggestor> getProjectSuggestors(JsonNode projectNode) {
+        List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();        
+        if (projectNode.has(SUGGESTORS_KEY)) {
+            try {
+                suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
+                });
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return suggestors;
     }
 
     private void registerListeners(Project project) {
@@ -203,12 +219,34 @@ public class ProjectFactory {
         });
 
     }
-
-    public JsonNode getProjectNode(String projectName) {
-        JsonNode profileNode = null;
+    
+    public Map<String,List<String>> getProjectRepositoryTypes() {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+        getProjectsNode().forEach(projectNode -> {
+            List<ProjectRepository> projectRepositories = getProjectRepositories(projectNode);
+            projectRepositories.forEach(projectRepository -> {
+                if (!scaffolds.containsKey(projectRepository.getType())) {
+                    List<String> settingKeys = new ArrayList<String>(); 
+                    projectRepository.getSettings().forEach(projectSetting -> {
+                        settingKeys.add(projectSetting.getKey());
+                    });
+                    scaffolds.put(projectRepository.getType().toString(), settingKeys);
+                }
+            });
+        });
+        return scaffolds;
+    }
+    
+    protected JsonNode getProjectsNode() {
         if (projectsNode == null) {
             projectsNode = readProjectsNode();
         }
+        return projectsNode;
+    }
+
+    public JsonNode getProjectNode(String projectName) {
+        JsonNode profileNode = null;
+        getProjectsNode();
         profileNode = projectsNode.get(projectName);
         if (profileNode == null) {
             profileNode = projectsNode.get(DEFAULT_PROJECT_KEY);
