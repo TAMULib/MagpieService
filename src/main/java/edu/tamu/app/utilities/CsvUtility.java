@@ -2,7 +2,6 @@ package edu.tamu.app.utilities;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -61,8 +60,7 @@ public class CsvUtility {
 
         List<List<String>> csvContents = new ArrayList<List<String>>();
 
-        String[] elements = { "title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "language", "relation", "coverage",
-                "rights" };
+        String[] elements = { "title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "language", "relation", "coverage", "rights" };
 
         String[] preferredElements = { "dc.date.created" };
 
