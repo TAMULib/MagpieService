@@ -132,7 +132,7 @@ public class DocumentFactory {
         logger.info("Creating standard document at " + documentPath);
         Document document = documentRepo.create(project, documentName, documentPath, "Open");
         document = addMetadataFields(document, project.getName());
-        document = applyAutorities(document, project.getAuthorities());
+        document = applyAuthorities(document, project.getAuthorities());
         document = documentRepo.update(document);
         project.addDocument(document);
         projectRepo.update(project);
@@ -151,7 +151,7 @@ public class DocumentFactory {
         return document;
     }
 
-    private Document applyAutorities(Document document, List<ProjectAuthority> authorities) {
+    private Document applyAuthorities(Document document, List<ProjectAuthority> authorities) {
         for (ProjectAuthority authority : authorities) {
             document = ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
         }

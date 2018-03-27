@@ -27,6 +27,7 @@ public class MetadataFieldGroup extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     private MetadataFieldLabel label;
 
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
