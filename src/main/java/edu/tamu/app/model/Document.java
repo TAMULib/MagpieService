@@ -46,7 +46,7 @@ public class Document extends BaseEntity {
     @JsonIdentityReference(alwaysAsId = true)
     private Project project;
 
-    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = { CascadeType.ALL })
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Fetch(FetchMode.SELECT)
     private List<MetadataFieldGroup> fields;
 
