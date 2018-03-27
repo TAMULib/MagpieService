@@ -2,14 +2,11 @@ package edu.tamu.app.utilities;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.csv.CSVFormat;
@@ -58,8 +55,7 @@ public class CsvUtility {
 
         List<List<String>> csvContents = new ArrayList<List<String>>();
 
-        String[] elements = { "title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "language", "relation", "coverage",
-                "rights" };
+        String[] elements = { "title", "creator", "subject", "description", "publisher", "contributor", "date", "type", "format", "identifier", "source", "language", "relation", "coverage", "rights" };
 
         List<Metadatum> allMetadataKVPairsOnDocument = new ArrayList<Metadatum>();
 
@@ -153,7 +149,7 @@ public class CsvUtility {
     }
 
     private class Metadatum {
-        private String label;
+        private final String label;
         private String value;
 
         public Metadatum(String label, String value) {
@@ -163,10 +159,6 @@ public class CsvUtility {
 
         public String getLabel() {
             return label;
-        }
-
-        public void setLabel(String label) {
-            this.label = label;
         }
 
         public String getValue() {
