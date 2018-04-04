@@ -34,6 +34,7 @@ import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.MetadataFieldValueRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -45,6 +46,9 @@ public class CsvUtilityTest {
 
     @Autowired
     private DocumentRepo documentRepo;
+    
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     @Autowired
     private MetadataFieldGroupRepo metadataFieldGroupRepo;
@@ -74,10 +78,15 @@ public class CsvUtilityTest {
         testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         mockDocument = documentRepo.create(testProject, "testDocument", "documentPath", "Unassigned");
 
-        FieldProfile profile = projectFieldProfileRepo.create(testProject, "Date Created", false, false, false, false, InputType.TEXT, null);
-        MetadataFieldLabel dateCreatedLabel = metadataFieldLabelRepo.create("dc.date.created", profile);
+        FieldProfile createdProfile = projectFieldProfileRepo.create(testProject, "Date Created", false, false, false, false, InputType.TEXT, null);
+        MetadataFieldLabel dateCreatedLabel = metadataFieldLabelRepo.create("dc.date.created", createdProfile);
         MetadataFieldGroup dateCreatedFieldGroup = metadataFieldGroupRepo.create(mockDocument, dateCreatedLabel);
         MetadataFieldValue dateCreatedValue = metadataFieldValueRepo.create(dateValue, dateCreatedFieldGroup);
+        
+        FieldProfile issueProfile = projectFieldProfileRepo.create(testProject, "Date Issued", false, false, false, false, InputType.TEXT, null);
+        MetadataFieldLabel dateIssuedLabel = metadataFieldLabelRepo.create("dc.date.issued", issueProfile);
+        MetadataFieldGroup dateIssuedFieldGroup = metadataFieldGroupRepo.create(mockDocument, dateIssuedLabel);
+        MetadataFieldValue dateIssuedValue = metadataFieldValueRepo.create(dateValue, dateCreatedFieldGroup);
 
         FieldProfile descriptionAbstractProfile = projectFieldProfileRepo.create(testProject, "Abstract", false, false, false, false, InputType.TEXT, null);
         MetadataFieldLabel descriptionAbstractLabel = metadataFieldLabelRepo.create("dc.description.abstract", descriptionAbstractProfile);
@@ -95,8 +104,10 @@ public class CsvUtilityTest {
 
         descriptionAbstractFieldGroup.addValue(descriptionAbstractValue);
         dateCreatedFieldGroup.addValue(dateCreatedValue);
+        dateIssuedFieldGroup.addValue(dateIssuedValue);
 
         mockDocument.addField(dateCreatedFieldGroup);
+        mockDocument.addField(dateIssuedFieldGroup);
         mockDocument.addField(descriptionAbstractFieldGroup);
         mockDocument.addField(descriptionFieldGroup);
 
@@ -146,6 +157,7 @@ public class CsvUtilityTest {
         metadataFieldValueRepo.deleteAll();
         metadataFieldLabelRepo.deleteAll();
         metadataFieldGroupRepo.deleteAll();
+        resourceRepo.deleteAll();
         documentRepo.deleteAll();
         projectRepo.deleteAll();
     }

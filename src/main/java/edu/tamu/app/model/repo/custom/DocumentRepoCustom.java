@@ -14,6 +14,4 @@ public interface DocumentRepoCustom {
 
     public Page<Document> pageableDynamicDocumentQuery(Map<String, String[]> filters, Pageable pageable);
 
-    public Document fullSave(Document document);
-
 }

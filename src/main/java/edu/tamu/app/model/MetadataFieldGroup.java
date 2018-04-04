@@ -27,12 +27,13 @@ public class MetadataFieldGroup extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     private MetadataFieldLabel label;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Document document;
 
-    @OneToMany(mappedBy = "field", fetch = FetchType.EAGER, cascade = { CascadeType.ALL })
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Fetch(FetchMode.SELECT)
     private List<MetadataFieldValue> values;
 

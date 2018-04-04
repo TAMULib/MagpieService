@@ -140,8 +140,7 @@ public class DocumentController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @PreAuthorize("hasRole('USER')")
     public ApiResponse save(@RequestBody Document document) {
-        document = documentRepo.fullSave(document);
-        return new ApiResponse(SUCCESS);
+        return new ApiResponse(SUCCESS, documentRepo.update(document));
     }
 
     /**

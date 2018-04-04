@@ -2,6 +2,7 @@ package edu.tamu.app.model;
 
 import java.io.UnsupportedEncodingException;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -18,7 +19,7 @@ import edu.tamu.weaver.data.model.BaseEntity;
 @Entity
 public class MetadataFieldValue extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = MetadataFieldGroup.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private MetadataFieldGroup field;

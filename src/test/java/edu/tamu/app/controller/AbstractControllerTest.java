@@ -158,7 +158,7 @@ public abstract class AbstractControllerTest extends MockData {
             }
         });
 
-        when(documentRepo.fullSave(any(Document.class))).then(new Answer<Document>() {
+        when(documentRepo.update(any(Document.class))).then(new Answer<Document>() {
             @Override
             public Document answer(InvocationOnMock invocation) throws Throwable {
                 return saveDocument((Document) invocation.getArguments()[0]);
