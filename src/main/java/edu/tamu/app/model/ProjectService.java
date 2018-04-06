@@ -13,10 +13,10 @@ import javax.persistence.OneToMany;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import edu.tamu.weaver.data.model.BaseEntity;
+import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 
 @MappedSuperclass
-public abstract class ProjectService extends BaseEntity {
+public abstract class ProjectService extends ValidatingBaseEntity {
 
     @Column
     private String name;
@@ -24,7 +24,7 @@ public abstract class ProjectService extends BaseEntity {
     @Enumerated
     private ServiceType type;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE }, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     private List<ProjectSetting> settings;
 
