@@ -26,10 +26,10 @@ import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 
 @RestController
-@RequestMapping("/suggest")
-public class SuggestionController {
+@RequestMapping("/project-suggestor")
+public class ProjectSuggestorController {
 
-    private static final Logger logger = Logger.getLogger(SuggestionController.class);
+    private static final Logger logger = Logger.getLogger(ProjectSuggestorController.class);
 
     @Autowired
     private DocumentRepo documentRepo;
