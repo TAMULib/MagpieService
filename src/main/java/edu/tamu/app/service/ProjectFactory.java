@@ -218,6 +218,25 @@ public class ProjectFactory {
 
     }
 
+    /* TODO generalize against ProjectService commonalities
+    public Map<String,List<String>> getProjectServiceTypes(ProjectService projectService) {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+        getProjectsNode().forEach(projectNode -> {
+            List<? extends ProjectService> projectRepositories = getProjectRepositories(projectNode);
+            projectRepositories.forEach(projectRepository -> {
+                if (!scaffolds.containsKey(projectRepository.getType())) {
+                    List<String> settingKeys = new ArrayList<String>();
+                    projectRepository.getSettings().forEach(projectSetting -> {
+                        settingKeys.add(projectSetting.getKey());
+                    });
+                    scaffolds.put(projectRepository.getType().toString(), settingKeys);
+                }
+            });
+        });
+        return scaffolds;
+    }
+    */
+
     public Map<String, List<String>> getProjectRepositoryTypes() {
         Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
         getProjectsNode().forEach(projectNode -> {
@@ -229,6 +248,23 @@ public class ProjectFactory {
                         settingKeys.add(projectSetting.getKey());
                     });
                     scaffolds.put(projectRepository.getType().toString(), settingKeys);
+                }
+            });
+        });
+        return scaffolds;
+    }
+    
+    public Map<String,List<String>> getProjectAuthorityTypes() {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+        getProjectsNode().forEach(projectNode -> {
+            List<ProjectAuthority> projectAuthorities = getProjectAuthorities(projectNode);
+            projectAuthorities.forEach(projectAuthority -> {
+                if (!scaffolds.containsKey(projectAuthority.getType())) {
+                    List<String> settingKeys = new ArrayList<String>();
+                    projectAuthority.getSettings().forEach(projectSetting -> {
+                        settingKeys.add(projectSetting.getKey());
+                    });
+                    scaffolds.put(projectAuthority.getType().toString(), settingKeys);
                 }
             });
         });
