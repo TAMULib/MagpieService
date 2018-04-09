@@ -36,13 +36,13 @@ public class Initialization implements CommandLineRunner {
     private SyncService syncService;
 
     @Autowired
+    private ResourceLoader resourceLoader;
+
+    @Autowired
     private FileMonitorManager fileMonitorManager;
 
     @Autowired
     private FileObserverRegistry fileObserverRegistry;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
 
     @Override
     public void run(String... args) throws Exception {

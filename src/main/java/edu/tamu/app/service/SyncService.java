@@ -48,9 +48,9 @@ public class SyncService {
             logger.debug("Running Sync Service");
         }
 
-        String directory = ASSETS_PATH + File.separator + "projects";
+        projectFactory.startProjectFileListeners();
 
-        List<Path> projects = FileSystemUtility.directoryList(directory);
+        List<Path> projects = FileSystemUtility.directoryList(ASSETS_PATH + File.separator + "projects");
 
         for (Path projectPath : projects) {
 
