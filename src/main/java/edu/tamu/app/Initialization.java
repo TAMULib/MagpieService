@@ -58,9 +58,10 @@ public class Initialization implements CommandLineRunner {
         fileObserverRegistry.register(new ProjectListener(ASSETS_PATH, "projects"));
         fileObserverRegistry.register(new MapFileListener(ASSETS_PATH, "maps"));
 
-        fileMonitorManager.start();
-
         syncService.sync();
+
+        // NOTE: this must be last on startup, otherwise it will invoke all file observers
+        fileMonitorManager.start();
     }
 
     private void setHost(String host) {
