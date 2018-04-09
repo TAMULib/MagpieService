@@ -234,7 +234,24 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-
+    
+    public Map<String,List<String>> getProjectSuggestorTypes() {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+        getProjectsNode().forEach(projectNode -> {
+            List<ProjectSuggestor> projectSuggestors = getProjectSuggestors(projectNode);
+            projectSuggestors.forEach(projectSuggestor -> {
+                if (!scaffolds.containsKey(projectSuggestor.getType())) {
+                    List<String> settingKeys = new ArrayList<String>(); 
+                    projectSuggestor.getSettings().forEach(projectSetting -> {
+                        settingKeys.add(projectSetting.getKey());
+                    });
+                    scaffolds.put(projectSuggestor.getType().toString(), settingKeys);
+                }
+            });
+        });
+        return scaffolds;
+    }    
+    
     protected JsonNode getProjectsNode() {
         if (projectsNode == null) {
             projectsNode = readProjectsNode();

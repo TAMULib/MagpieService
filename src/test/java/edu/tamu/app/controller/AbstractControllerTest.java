@@ -97,7 +97,7 @@ public abstract class AbstractControllerTest extends MockData {
     protected ProjectController projectController;
 
     @InjectMocks
-    protected SuggestionController suggestionController;
+    protected ProjectSuggestorController suggestionController;
 
     @InjectMocks
     protected UserController userController;
