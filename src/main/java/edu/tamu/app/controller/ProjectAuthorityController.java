@@ -63,7 +63,7 @@ public class ProjectAuthorityController {
     @RequestMapping("/types")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getTypes() {
-        return new ApiResponse(SUCCESS,projectFactory.getProjectRepositoryTypes());
+        return new ApiResponse(SUCCESS,projectFactory.getProjectAuthorityTypes());
     }
 
 }
