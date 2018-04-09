@@ -28,6 +28,7 @@ public class CsvUtility {
     private Optional<ProjectRepository> projectRepository;
 
     // TODO:
+    @SuppressWarnings("unused")
     private List<String> prioritizedLabels = null;
 
     public CsvUtility() {
@@ -105,13 +106,13 @@ public class CsvUtility {
                         }
                     }
 
-                    //put a new list with the single value under the key in case it's preferred or there's nothing there yet anyway
+                    // put a new list with the single value under the key in case it's preferred or there's nothing there yet anyway
                     if (fieldIsPreferred || !allMetadataKVPairsOnDocument.containsKey(field.getLabel().getUnqualifiedName())) {
                         List<String> firstValue = new ArrayList<String>();
                         firstValue.add(metadataFieldValue.getValue());
                         allMetadataKVPairsOnDocument.put(field.getLabel().getUnqualifiedName(), firstValue);
                     }
-                    //otherwise, append to the existing list, unless it is not to be overwritten as it contains a preferred field
+                    // otherwise, append to the existing list, unless it is not to be overwritten as it contains a preferred field
                     else if (allMetadataKVPairsOnDocument.containsKey(field.getLabel().getUnqualifiedName()) && !fieldsNotToOverwrite.contains(field.getLabel().getUnqualifiedName())) {
                         allMetadataKVPairsOnDocument.get(field.getLabel().getUnqualifiedName()).add(metadataFieldValue.getValue());
                     }
