@@ -2,9 +2,6 @@ package edu.tamu.app.controller;
 
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.ProjectRepository;
-import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProjectRepositoryRepo;
 import edu.tamu.app.service.ProjectFactory;
 import edu.tamu.weaver.response.ApiResponse;
@@ -24,7 +20,7 @@ public class ProjectRepositoryController {
 
     @Autowired
     private ProjectRepositoryRepo projectRepositoryRepo;
-    
+
     @Autowired
     private ProjectFactory projectFactory;
 
@@ -67,7 +63,7 @@ public class ProjectRepositoryController {
     @RequestMapping("/types")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getTypes() {
-        return new ApiResponse(SUCCESS,projectFactory.getProjectRepositoryTypes());
+        return new ApiResponse(SUCCESS, projectFactory.getProjectRepositoryTypes());
     }
 
 }

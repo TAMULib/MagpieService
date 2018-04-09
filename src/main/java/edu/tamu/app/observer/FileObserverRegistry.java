@@ -15,17 +15,13 @@ public class FileObserverRegistry {
 
     private static final Logger logger = Logger.getLogger(FileObserverRegistry.class);
 
+    private static final Map<String, FileAlterationObserver> observers = new HashMap<String, FileAlterationObserver>();
+
     @Autowired
     private FileMonitorManager fileMonitorManager;
 
     @Autowired
     private AutowireCapableBeanFactory beanFactory;
-
-    private Map<String, FileAlterationObserver> observers;
-
-    public FileObserverRegistry() {
-        observers = new HashMap<String, FileAlterationObserver>();
-    }
 
     public void register(FileListener listener) {
         beanFactory.autowireBean(listener);
