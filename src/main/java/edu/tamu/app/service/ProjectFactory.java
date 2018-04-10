@@ -1,5 +1,7 @@
 package edu.tamu.app.service;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +34,9 @@ import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.observer.FileObserverRegistry;
+import edu.tamu.app.observer.HeadlessDocumentListener;
+import edu.tamu.app.observer.StandardDocumentListener;
 import edu.tamu.app.service.authority.Authority;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
@@ -64,10 +69,13 @@ public class ProjectFactory {
     private String initialProjectsFile;
 
     @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private FileObserverRegistry fileObserverRegistry;
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
@@ -218,6 +226,25 @@ public class ProjectFactory {
 
     }
 
+    /* TODO generalize against ProjectService commonalities
+    public Map<String,List<String>> getProjectServiceTypes(ProjectService projectService) {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+        getProjectsNode().forEach(projectNode -> {
+            List<? extends ProjectService> projectRepositories = getProjectRepositories(projectNode);
+            projectRepositories.forEach(projectRepository -> {
+                if (!scaffolds.containsKey(projectRepository.getType())) {
+                    List<String> settingKeys = new ArrayList<String>();
+                    projectRepository.getSettings().forEach(projectSetting -> {
+                        settingKeys.add(projectSetting.getKey());
+                    });
+                    scaffolds.put(projectRepository.getType().toString(), settingKeys);
+                }
+            });
+        });
+        return scaffolds;
+    }
+    */
+
     public Map<String, List<String>> getProjectRepositoryTypes() {
         Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
         getProjectsNode().forEach(projectNode -> {
@@ -250,7 +277,24 @@ public class ProjectFactory {
             });
         });
         return scaffolds;
-    }    
+    }
+    
+    public Map<String,List<String>> getProjectAuthorityTypes() {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+        getProjectsNode().forEach(projectNode -> {
+            List<ProjectAuthority> projectAuthorities = getProjectAuthorities(projectNode);
+            projectAuthorities.forEach(projectAuthority -> {
+                if (!scaffolds.containsKey(projectAuthority.getType())) {
+                    List<String> settingKeys = new ArrayList<String>();
+                    projectAuthority.getSettings().forEach(projectSetting -> {
+                        settingKeys.add(projectSetting.getKey());
+                    });
+                    scaffolds.put(projectAuthority.getType().toString(), settingKeys);
+                }
+            });
+        });
+        return scaffolds;
+    }
     
     protected JsonNode getProjectsNode() {
         if (projectsNode == null) {
@@ -317,6 +361,19 @@ public class ProjectFactory {
         }
 
         return projectFields;
+    }
+
+    public void startProjectFileListeners() {
+        String projectsPath = ASSETS_PATH + File.separator + "projects";
+        projectRepo.findAll().forEach(project -> {
+            if (project.isHeadless()) {
+                logger.info("Registering headless document listener: " + projectsPath + File.separator + project.getName());
+                fileObserverRegistry.register(new HeadlessDocumentListener(projectsPath, project.getName()));
+            } else {
+                logger.info("Registering standard document listener: " + projectsPath + File.separator + project.getName());
+                fileObserverRegistry.register(new StandardDocumentListener(projectsPath, project.getName()));
+            }
+        });
     }
 
 }
