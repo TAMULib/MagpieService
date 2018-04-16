@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -176,7 +177,7 @@ public class DocumentFactory {
 
         Node dublinCoreNode = dublinCoreDocument.getFirstChild();
         NodeList valueNodes = dublinCoreNode.getChildNodes();
-
+        
         for (int i = 0; i < valueNodes.getLength(); i++) {
             Node valueNode = valueNodes.item(i);
             NamedNodeMap attributes = valueNode.getAttributes();
@@ -235,10 +236,18 @@ public class DocumentFactory {
                     fieldProfile.setRepeatable(true);
                     fieldProfile = fieldProfileRepo.save(fieldProfile);
                 }
-
                 metadataFieldValueRepo.create(value, mfg);
+                document = documentRepo.update(document);
+                System.out.println("***\n***Document now has " + document.getFields().size() + " fields"); 
             }
         }
+        document = documentRepo.save(document);
+        
+        System.out.println("***\n***After final save, Document now has " + document.getFields().size() + " fields");
+        
+        
+      
+        
 
         // use the contents file to determine content files
         // TODO: this throws away a lot of the details of the contents

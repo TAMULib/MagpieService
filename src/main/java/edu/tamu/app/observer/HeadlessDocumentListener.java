@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.ProjectRepository;
@@ -61,7 +62,7 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
 
     // this is a blocking sleep operation of this listener
     private void waitOnDirectory(File directory) {
-        logger.info("Waiting for directory " + directory + " to be quiescent, as it is a Headless or SAF-ingest project.");
+        logger.info("Waiting for directory " + directory + " to be quiescent, as it is a Headless project.");
         long lastModified = 0L;
         long oldLastModified = -1L;
         long stableTime = 0L;

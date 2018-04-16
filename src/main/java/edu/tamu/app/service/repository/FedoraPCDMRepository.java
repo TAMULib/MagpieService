@@ -97,6 +97,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
                 String pagePath = itemContainerPath + "/" + pagesEndpoint + "/" + "page_" + x;
                 createResource(ASSETS_PATH + File.separator + document.getPath() + "/" + file.getName(), pagePath, file.getName());
                 proxyPages[x] = new ProxyPage(itemContainerPath + "/" + "orderProxies" + "/" + "page_" + x + "_proxy", pagePath, itemContainerPath);
+                logger.debug("About to generat PUT to push file " + file.getName() + " to document " + document.getName());
                 generatePutRequest(proxyPages[x].getProxyUrl(), null, buildPCDMPageProxy(proxyPages[x].getProxyUrl(), proxyPages[x].getProxyInUrl(), proxyPages[x].getProxyForUrl()));
             }
             x++;
@@ -203,7 +204,8 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
         int responseCode = connection.getResponseCode();
 
-        if (responseCode != 201) {
+        //check for a responseCode between 200 and 299 for success
+        if (!(responseCode - 200 > 0 && responseCode - 200 < 99)) {
             logger.debug("Server message: " + connection.getResponseMessage());
             throw new IOException("Could not complete PUT request. Server responded with " + responseCode);
         }
