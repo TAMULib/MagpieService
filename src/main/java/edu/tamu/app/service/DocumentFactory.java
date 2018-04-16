@@ -101,13 +101,14 @@ public class DocumentFactory {
         String projectName = file.getParentFile().getParentFile().getName();
         String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
         String mimeType = tika.detect(path);
-        logger.info("Adding resource " + resourceName + " - " + mimeType + " to document " + document.getName());
+
         Resource resource = resourceRepo.findByDocumentNameAndName(documentName, resourceName);
         if (resource == null) {
+            logger.info("Adding new resource " + resourceName + " - " + mimeType + " for document " + document.getName());
             resourceRepo.create(document, resourceName, path, mimeType);
             document = documentRepo.findByProjectNameAndName(projectName, documentName);
         } else {
-            logger.info("Reource " + resourceName + " already exists for document " + documentName);
+            logger.info("Resource " + resourceName + " already exists for document " + documentName);
         }
         return document;
     }
