@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.exception.DocumentNotFoundException;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.service.DocumentFactory;
 
 public abstract class AbstractDocumentListener extends AbstractFileListener {
@@ -28,6 +29,9 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
     @Autowired
     protected DocumentFactory documentFactory;
 
+    @Autowired
+    protected DocumentRepo documentRepo;
+
     public AbstractDocumentListener(String root, String folder) {
         super(root, folder);
     }
@@ -39,14 +43,17 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     @Override
     public void onDirectoryCreate(File directory) {
-        initializePendingResources(directory.getName());
-        createDocument(directory).thenAccept(document -> {
-            if (document != null) {
-                processPendingResources(document);
-            } else {
-                logger.warn("Unable to create document!");
-            }
-        });
+        Document existingDocument = documentRepo.findByProjectNameAndName(directory.getParentFile().getName(), directory.getName());
+        if (existingDocument == null) {
+            initializePendingResources(directory.getName());
+            createDocument(directory).thenAccept(newDocument -> {
+                if (newDocument != null) {
+                    processPendingResources(newDocument);
+                } else {
+                    logger.warn("Unable to create document!");
+                }
+            });
+        }
 
     }
 
