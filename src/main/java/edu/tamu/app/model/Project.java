@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Fetch;
@@ -36,15 +37,15 @@ public class Project extends BaseEntity {
     @Fetch(FetchMode.SELECT)
     private List<Document> documents;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Fetch(FetchMode.SELECT)
     private List<ProjectAuthority> authorities;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Fetch(FetchMode.SELECT)
     private List<ProjectSuggestor> suggestors;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Fetch(FetchMode.SELECT)
     private List<ProjectRepository> repositories;
 

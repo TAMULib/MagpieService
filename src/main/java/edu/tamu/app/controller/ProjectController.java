@@ -20,6 +20,7 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
 import edu.tamu.weaver.response.ApiResponse;
+import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 
 @RestController
 @RequestMapping("/project")
@@ -42,6 +43,35 @@ public class ProjectController {
     @PreAuthorize("hasRole('USER')")
     public ApiResponse getProjects() {
         return new ApiResponse(SUCCESS, projectRepo.findAll());
+    }
+
+    @RequestMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse getProject(@PathVariable Long id) {
+        return new ApiResponse(SUCCESS, projectRepo.findOne(id));
+    }
+
+    @RequestMapping("/create")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse create(@WeaverValidatedModel Project project) {
+        return new ApiResponse(SUCCESS, projectRepo.create(project));
+    }
+
+    @RequestMapping("/update")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse update(@WeaverValidatedModel Project project) {
+        //TODO There's hopefully a better way to merge the old project state with the new one
+        Project currentProject = projectRepo.findOne(project.getId());
+        project.setDocuments(currentProject.getDocuments());
+        project.setProfiles(currentProject.getProfiles());
+        return new ApiResponse(SUCCESS, projectRepo.update(project));
+    }
+
+    @RequestMapping("/remove")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse remove(@WeaverValidatedModel Project project) {
+        projectRepo.delete(project);
+        return new ApiResponse(SUCCESS);
     }
 
     /**
