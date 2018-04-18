@@ -37,15 +37,15 @@ public class Project extends BaseEntity {
     @Fetch(FetchMode.SELECT)
     private List<Document> documents;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @Fetch(FetchMode.SELECT)
     private List<ProjectAuthority> authorities;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @Fetch(FetchMode.SELECT)
     private List<ProjectSuggestor> suggestors;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @Fetch(FetchMode.SELECT)
     private List<ProjectRepository> repositories;
 

@@ -4,6 +4,9 @@ import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.ProjectRepo;
@@ -72,6 +76,12 @@ public class ProjectController {
     public ApiResponse remove(@WeaverValidatedModel Project project) {
         projectRepo.delete(project);
         return new ApiResponse(SUCCESS);
+    }
+
+    @RequestMapping("/ingest-types")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse getIngestTypes() {
+        return new ApiResponse(SUCCESS, new ArrayList<IngestType>(Arrays.asList(IngestType.values())));
     }
 
     /**
