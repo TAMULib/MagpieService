@@ -6,20 +6,29 @@ import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.IngestType;
+import edu.tamu.app.model.InputType;
+import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.repo.FieldProfileRepo;
+import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
@@ -36,7 +45,16 @@ public class ProjectController {
     private ProjectRepo projectRepo;
 
     @Autowired
+    private FieldProfileRepo fieldProfileRepo;
+
+    @Autowired
+    private MetadataFieldLabelRepo metadataFieldLabelRepo;
+
+    @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * Endpoint to return list of projects.
@@ -78,10 +96,48 @@ public class ProjectController {
         return new ApiResponse(SUCCESS);
     }
 
+    @RequestMapping("/{projectId}/add-field-profile")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse addFieldProfile(@PathVariable Long projectId, @RequestBody JsonNode data) {
+        Project currentProject = projectRepo.findOne(projectId);
+        FieldProfile existingFieldProfile = fieldProfileRepo.findByProjectAndGloss(currentProject, data.get("fieldProfile").get("gloss").toString());
+        if (existingFieldProfile == null) {
+            try {
+                FieldProfile fieldProfile = objectMapper.readValue(data.get("fieldProfile").toString(), new TypeReference<FieldProfile>() {
+                });
+
+                List<String> labelNames = objectMapper.readValue(data.get("labelNames").toString(), new TypeReference<List<String>>() {
+                });
+
+                fieldProfile.setProject(currentProject);
+                fieldProfile = fieldProfileRepo.save(fieldProfile);
+                for (String label: labelNames) {
+                    MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(label, fieldProfile);
+                    if (metadataFieldLabel == null) {
+                        metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
+                    }
+                }
+                currentProject.addProfile(fieldProfile);
+                return new ApiResponse(SUCCESS, projectRepo.update(currentProject));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                new ApiResponse(ERROR, "There was an error processing the Field Profile.");
+            }
+        }
+        return new ApiResponse(ERROR, "A Field Profile with that name already exists.");
+    }
+
     @RequestMapping("/ingest-types")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getIngestTypes() {
         return new ApiResponse(SUCCESS, new ArrayList<IngestType>(Arrays.asList(IngestType.values())));
+    }
+
+    @RequestMapping("/input-types")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse getInputTypes() {
+        return new ApiResponse(SUCCESS, new ArrayList<InputType>(Arrays.asList(InputType.values())));
     }
 
     /**
