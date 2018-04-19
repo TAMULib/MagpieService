@@ -49,13 +49,13 @@ public class DocumentControllerTest extends AbstractControllerTest {
         assertEquals(" The document has a different document name ", TEST_DOCUMENT1.getName(), document.getName());
         assertEquals(" The document has a different project name ", TEST_PROJECT1.getName(), document.getProject().getName());
     }
-    
+
     @Test
     public void testRemoveDocument() {
         response = documentController.remove(TEST_DOCUMENT1.getProject().getName(), TEST_DOCUMENT1.getName());
         assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
-        String responseMessage = "Document " + TEST_DOCUMENT1.getName() + " has been removed from project " + TEST_DOCUMENT1.getProject().getName();
-        assertEquals(" The document was not removed (deleted)", responseMessage, response.getMeta().getMessage());       
+        String responseMessage = "Document " + TEST_DOCUMENT1.getName() + " has been removed (deleted) from project " + TEST_DOCUMENT1.getProject().getName();
+        assertEquals(" The document was not removed (deleted)", responseMessage, response.getMeta().getMessage());
     }
 
 }
