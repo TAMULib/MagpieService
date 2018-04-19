@@ -33,6 +33,7 @@ import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
+import edu.tamu.weaver.response.ApiAction;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 
@@ -119,7 +120,7 @@ public class ProjectController {
                     }
                 }
                 currentProject.addProfile(fieldProfile);
-                return new ApiResponse(SUCCESS, projectRepo.update(currentProject));
+                return new ApiResponse(SUCCESS,"Field Profile added", projectRepo.update(currentProject));
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -151,7 +152,7 @@ public class ProjectController {
                 }
             }
             fieldProfileRepo.save(fieldProfile);
-            return new ApiResponse(SUCCESS, projectRepo.update(currentProject));
+            return new ApiResponse(SUCCESS, "Field Profile updated", projectRepo.update(currentProject));
 
         } catch (IOException e) {
             e.printStackTrace();
