@@ -139,7 +139,6 @@ public class FieldProfile extends BaseEntity {
         this.project = project;
     }
 
-    @JsonIgnore
     public Set<MetadataFieldLabel> getLabels() {
         return labels;
     }

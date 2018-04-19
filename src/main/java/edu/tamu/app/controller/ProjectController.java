@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,15 +107,15 @@ public class ProjectController {
                 FieldProfile fieldProfile = objectMapper.readValue(data.get("fieldProfile").toString(), new TypeReference<FieldProfile>() {
                 });
 
-                List<String> labelNames = objectMapper.readValue(data.get("labelNames").toString(), new TypeReference<List<String>>() {
+                List<Map<String,String>> labels = objectMapper.readValue(data.get("labels").toString(), new TypeReference<List<Map<String,String>>>() {
                 });
 
                 fieldProfile.setProject(currentProject);
                 fieldProfile = fieldProfileRepo.save(fieldProfile);
-                for (String label: labelNames) {
-                    MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(label, fieldProfile);
+                for (Map<String,String> label: labels) {
+                    MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(label.get("name"), fieldProfile);
                     if (metadataFieldLabel == null) {
-                        metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
+                        metadataFieldLabel = metadataFieldLabelRepo.create(label.get("name"), fieldProfile);
                     }
                 }
                 currentProject.addProfile(fieldProfile);
@@ -128,6 +129,36 @@ public class ProjectController {
         return new ApiResponse(ERROR, "A Field Profile with that name already exists.");
     }
 
+    @RequestMapping("/{projectId}/update-field-profile")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse updateFieldProfile(@PathVariable Long projectId, @RequestBody JsonNode data) {
+        Project currentProject = projectRepo.findOne(projectId);
+
+        try {
+            FieldProfile fieldProfile = objectMapper.readValue(data.get("fieldProfile").toString(), new TypeReference<FieldProfile>() {
+            });
+
+            List<MetadataFieldLabel> labels = objectMapper.readValue(data.get("labels").toString(), new TypeReference<List<MetadataFieldLabel>>() {
+            });
+
+            fieldProfile.setProject(currentProject);
+            fieldProfile = fieldProfileRepo.save(fieldProfile);
+            for (MetadataFieldLabel label: labels) {
+                if (label.getId() == null) {
+                    label = metadataFieldLabelRepo.create(label.getName(), fieldProfile);
+                } else {
+                    label = metadataFieldLabelRepo.save(label);
+                }
+            }
+            fieldProfileRepo.save(fieldProfile);
+            return new ApiResponse(SUCCESS, projectRepo.update(currentProject));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ApiResponse(ERROR, "There was an error updating the Field Profile");
+    }
+
     @RequestMapping("/ingest-types")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getIngestTypes() {
@@ -138,6 +169,12 @@ public class ProjectController {
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getInputTypes() {
         return new ApiResponse(SUCCESS, new ArrayList<InputType>(Arrays.asList(InputType.values())));
+    }
+
+    @RequestMapping("/field-profile/{fieldProfileId}/get-labels")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse getFieldProfileLabels(@PathVariable Long fieldProfileId) {
+        return new ApiResponse(SUCCESS, metadataFieldLabelRepo.findByProfileId(fieldProfileId));
     }
 
     /**
