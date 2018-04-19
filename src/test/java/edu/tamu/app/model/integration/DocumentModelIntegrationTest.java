@@ -31,7 +31,7 @@ public class DocumentModelIntegrationTest extends AbstractModelTest {
 
         resourceRepo.create(new Resource(testDocument, mockResource2.getName(), mockResource2.getPath(), mockResource2.getMimeType()));
 
-        List<Resource> testResources = resourceRepo.findAllByDocumentName(testDocument.getName());
+        List<Resource> testResources = resourceRepo.findAllByDocumentProjectNameAndDocumentName(testProject.getName(), testDocument.getName());
         assertEquals("Test Document did not have the expected number of resources!", 2, testResources.size());
 
         assertEquals("Test Document first Resource did not have the expected name!", mockResource1.getName(), testResources.get(0).getName());

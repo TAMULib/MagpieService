@@ -136,7 +136,7 @@ public abstract class AbstractFedoraRepository implements Repository {
     }
 
     protected File[] getFiles(Document document) {
-        List<Resource> resources = resourceRepo.findAllByDocumentName(document.getName());
+        List<Resource> resources = resourceRepo.findAllByDocumentProjectNameAndDocumentName(document.getProject().getName(), document.getName());
         File[] files = new File[resources.size()];
         int i = 0;
         for (Resource resource : resources) {

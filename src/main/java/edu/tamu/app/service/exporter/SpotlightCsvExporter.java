@@ -44,7 +44,7 @@ public class SpotlightCsvExporter extends AbstractExporter {
     public List<List<String>> extractMetadata(Project project) {
         List<List<String>> metadata = new ArrayList<List<String>>();
         project.getDocuments().stream().filter(isPublished()).collect(Collectors.<Document>toList()).forEach(document -> {
-            resourceRepo.findAllByDocumentName(document.getName()).stream().forEach(resource -> {
+            resourceRepo.findAllByDocumentProjectNameAndDocumentName(project.getName(), document.getName()).stream().forEach(resource -> {
                 List<MetadataFieldGroup> metadataFields = document.getFields();
                 Collections.sort(metadataFields, new LabelComparator());
                 List<String> documentMetadata = new ArrayList<String>();

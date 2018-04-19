@@ -28,8 +28,8 @@ public class ResourceRepoImpl extends AbstractWeaverRepoImpl<Resource, ResourceR
         return resource;
     }
 
-    public List<Resource> findAllByDocumentNameAndMimeType(String documentName, String... mimeTypes) {
-        return resourceRepo.findAllByDocumentName(documentName).stream().filter(resource -> Arrays.asList(mimeTypes).contains(resource.getMimeType())).collect(Collectors.toList());
+    public List<Resource> findAllByDocumentProjectNameAndDocumentNameAndMimeType(String projectName, String documentName, String... mimeTypes) {
+        return resourceRepo.findAllByDocumentProjectNameAndDocumentName(projectName, documentName).stream().filter(resource -> Arrays.asList(mimeTypes).contains(resource.getMimeType())).collect(Collectors.toList());
     }
 
     @Override

@@ -9,6 +9,6 @@ public interface ResourceRepoCustom {
 
     public Resource create(Document document, String name, String path, String mimeType);
 
-    public List<Resource> findAllByDocumentNameAndMimeType(String documentName, String... mimeTypes);
+    public List<Resource> findAllByDocumentProjectNameAndDocumentNameAndMimeType(String projectName, String documentName, String... mimeTypes);
 
 }
