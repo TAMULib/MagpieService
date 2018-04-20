@@ -72,6 +72,16 @@ public class MockData {
         return null;
     }
 
+    public Project updateProject(Project modifiedProject) {
+        for (Project project : mockProjectList) {
+            if (project.getName().equals(modifiedProject.getName())) {
+                project.setLocked(modifiedProject.isLocked());
+                project.setName(modifiedProject.getName());
+            }
+        }
+        return modifiedProject;
+    }
+
     public Project findProjectById(Long projectId) {
         for (Project project : mockProjectList) {
             if (project.getId().equals(projectId)) {
