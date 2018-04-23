@@ -1,6 +1,7 @@
 package edu.tamu.app.controller;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.when;
 
 import java.awt.print.Pageable;
@@ -26,13 +27,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.AppUser;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.IngestType;
+import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.Role;
 import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
+import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.ProjectFactory;
 import edu.tamu.app.service.SyncService;
@@ -53,6 +58,12 @@ public abstract class AbstractControllerTest extends MockData {
 
     @Mock
     protected ProjectRepo projectRepo;
+
+    @Mock
+    protected FieldProfileRepo fieldProfileRepo;
+
+    @Mock
+    protected MetadataFieldLabelRepo metadataFieldLabelRepo;
 
     @Mock
     protected AppUserRepo userRepo;
@@ -192,6 +203,13 @@ public abstract class AbstractControllerTest extends MockData {
             }
         });
 
+        when(projectRepo.findOne(any(Long.class))).then(new Answer<Project>() {
+            @Override
+            public Project answer(InvocationOnMock invocation) throws Throwable {
+                return findProjectById((Long) invocation.getArguments()[0]);
+            }
+        });
+
         when(projectRepo.read(any(Long.class))).then(new Answer<Project>() {
             @Override
             public Project answer(InvocationOnMock invocation) throws Throwable {
@@ -213,12 +231,52 @@ public abstract class AbstractControllerTest extends MockData {
             }
         });
 
+        when(projectRepo.update(any(Project.class))).then(new Answer<Project>() {
+            @Override
+            public Project answer(InvocationOnMock invocation) throws Throwable {
+                return updateProject((Project) invocation.getArguments()[0]);
+            }
+        });
+
         when(projectsService.getOrCreateProject(any(File.class))).then(new Answer<Project>() {
             @Override
             public Project answer(InvocationOnMock invocation) throws Throwable {
                 return TEST_PROJECT1;
             }
         });
+
+        // Field Profiles
+
+        //for cases when we expect the FieldProfile not to be found
+        when(fieldProfileRepo.findByProjectAndGloss(refEq(TEST_PROJECT1), any(String.class))).then(new Answer<FieldProfile>() {
+           @Override
+           public FieldProfile answer(InvocationOnMock invocation) throws Throwable {
+               return null;
+           }
+        });
+
+        when(fieldProfileRepo.save(any(FieldProfile.class))).then(new Answer<FieldProfile>() {
+            @Override
+            public FieldProfile answer(InvocationOnMock invocation) throws Throwable {
+                return TEST_PROFILE1;
+            }
+         });
+
+        // Metadata Field Labels
+
+        when(metadataFieldLabelRepo.create(any(String.class), any(FieldProfile.class))).then(new Answer<MetadataFieldLabel>() {
+            @Override
+            public MetadataFieldLabel answer(InvocationOnMock invocation) throws Throwable {
+                return TEST_META_LABEL;
+            }
+        });
+
+        when(metadataFieldLabelRepo.findByNameAndProfile(any(String.class),any(FieldProfile.class))).then(new Answer<MetadataFieldLabel>() {
+            @Override
+            public MetadataFieldLabel answer(InvocationOnMock invocation) throws Throwable {
+                return TEST_META_LABEL;
+            }
+         });
 
         // metdataHeader formats
         mockSpotlightExportedMetadataHeaders.add(0, "url");

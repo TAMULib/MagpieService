@@ -33,7 +33,10 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.ProjectAuthorityRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ProjectRepositoryRepo;
+import edu.tamu.app.model.repo.ProjectSuggestorRepo;
 import edu.tamu.app.observer.FileObserverRegistry;
 import edu.tamu.app.observer.HeadlessDocumentListener;
 import edu.tamu.app.observer.StandardDocumentListener;
@@ -84,6 +87,15 @@ public class ProjectFactory {
     private ProjectRepo projectRepo;
 
     @Autowired
+    private ProjectRepositoryRepo projectRepositoryRepo;
+
+    @Autowired
+    private ProjectSuggestorRepo projectSuggestorRepo;
+
+    @Autowired
+    private ProjectAuthorityRepo projectAuthorityRepo;
+
+    @Autowired
     private FieldProfileRepo fieldProfileRepo;
 
     @Autowired
@@ -131,6 +143,18 @@ public class ProjectFactory {
         List<ProjectRepository> repositories = getProjectRepositories(projectNode);
         List<ProjectAuthority> authorities = getProjectAuthorities(projectNode);
         List<ProjectSuggestor> suggestors = getProjectSuggestors(projectNode);
+
+        repositories.forEach(service -> {
+            projectRepositoryRepo.create(service);
+        });
+
+        authorities.forEach(service -> {
+            projectAuthorityRepo.create(service);
+        });
+
+        suggestors.forEach(service -> {
+            projectSuggestorRepo.create(service);
+        });
 
         boolean headless = false;
         if (projectNode.has(HEADLESS_KEY)) {
