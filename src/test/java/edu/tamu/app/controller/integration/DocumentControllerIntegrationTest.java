@@ -89,17 +89,17 @@ public class DocumentControllerIntegrationTest {
 
     @Test
     public void testDelete() {
-        // assertEquals("DocumentRepo is empty.", 1, documentRepo.count());
-        //
-        // // NOTE: this is not how controller integration tests should be
-        // // The context should start and setup, then a REST call should be made with appropriate JWT for authorization
-        //
-        // documentRepo.delete(mockDocument);
-        //
-        // assertEquals("Test Document was not removed.", 0, documentRepo.count());
-        // assertEquals("Test Resources were not delete when document was removed.", 0, resourceRepo.count());
-        // assertEquals("Test Document was not removed from Test Project when it was deleted", 0, mockProject.getDocuments().size());
-        // assertEquals("Test MetadataFieldValues were not deleted from the Test Document when it was deleted.", 0, mfvRepo.findAll().size());
+         //assertEquals("DocumentRepo is empty.", 1, documentRepo.count());
+        
+         // NOTE: this is not how controller integration tests should be
+         // The context should start and setup, then a REST call should be made with appropriate JWT for authorization
+        
+         //TODO:  call document controller method remove()
+        
+//         assertEquals("Test Document was not removed.", 0, documentRepo.count());
+//         assertEquals("Test Resources were not delete when document was removed.", 0, resourceRepo.count());
+//         assertEquals("Test Document was not removed from Test Project when it was deleted", 0, mockProject.getDocuments().size());
+//         assertEquals("Test MetadataFieldValues were not deleted from the Test Document when it was deleted.", 0, mfvRepo.findAll().size());
     }
 
     @After
