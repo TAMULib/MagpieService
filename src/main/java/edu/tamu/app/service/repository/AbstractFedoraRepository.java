@@ -14,7 +14,6 @@ import java.net.URL;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -52,20 +51,17 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     private ProjectRepository projectRepository;
 
-    private Optional<String> transactionalUrl;
-
     public AbstractFedoraRepository(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
-        this.transactionalUrl = Optional.empty();
     }
 
     public Document push(Document document) throws IOException {
 
+        String transactionalUrl = prepForPush();
+
         try {
 
-            prepForPush();
-
-            String itemContainerPath = createItemContainer(document.getName());
+            String itemContainerPath = createItemContainer(document.getName(), transactionalUrl);
 
             File[] files = getFiles(document);
 
@@ -73,12 +69,12 @@ public abstract class AbstractFedoraRepository implements Repository {
 
             updateMetadata(document, itemContainerPath);
 
-            document.addPublishedLocation(new PublishedLocation(projectRepository, getUrlWithoutTransaction(itemContainerPath)));
+            document.addPublishedLocation(new PublishedLocation(projectRepository, getUrlWithoutTransaction(itemContainerPath, transactionalUrl)));
 
-            commmitTransaction();
+            commmitTransaction(transactionalUrl);
 
         } catch (IOException ioe) {
-            rollbackTransaction();
+            rollbackTransaction(transactionalUrl);
             throw ioe;
         }
 
@@ -97,19 +93,14 @@ public abstract class AbstractFedoraRepository implements Repository {
         return itemPath;
     }
 
-    protected String buildContainerUrl() {
-        return String.join("/", buildRepoRestUrl(), getContainerPath());
+    protected String buildContainerUrl(String transactionalUrl) {
+        String transactionalContainerUrl = String.join("/", transactionalUrl, getContainerPath());
+        logger.info("Transactional container url: " + transactionalContainerUrl);
+        return transactionalContainerUrl;
     }
 
-    protected String buildRepoRestUrl() {
-        if (!transactionalUrl.isPresent()) {
-            throw new RuntimeException("No transaction in which to process request!");
-        }
-        return transactionalUrl.get();
-    }
-
-    protected String getUrlWithoutTransaction(String url) {
-        return url.replaceAll(transactionalUrl.get(), String.join("/", getRepoUrl(), getRestPath()));
+    protected String getUrlWithoutTransaction(String transactionalUrl, String url) {
+        return url.replaceAll(transactionalUrl, String.join("/", getRepoUrl(), getRestPath()));
     }
 
     protected String getEncodedBasicAuthorization() {
@@ -214,10 +205,10 @@ public abstract class AbstractFedoraRepository implements Repository {
         }
     }
 
-    protected String confirmProjectContainerExists() throws IOException {
+    protected String confirmProjectContainerExists(String transactionUrl) throws IOException {
         String projectContainerPath = null;
-        if (!resourceExists(buildContainerUrl())) {
-            projectContainerPath = createContainer(buildRepoRestUrl(), getContainerPath());
+        if (!resourceExists(transactionUrl)) {
+            projectContainerPath = createContainer(transactionUrl, getContainerPath());
         } else {
             projectContainerPath = getContainerPath().replace(String.join("/", getRepoUrl(), getRestPath()), "");
         }
@@ -247,21 +238,21 @@ public abstract class AbstractFedoraRepository implements Repository {
         return connection;
     }
 
-    protected void startTransaction() throws IOException {
+    protected String startTransaction() throws IOException {
         HttpURLConnection connection = buildFedoraConnection(String.join("/", getRepoUrl(), getRestPath(), "fcr:tx"), "POST");
-        transactionalUrl = Optional.of(connection.getHeaderField("Location"));
+        String transactionalUrl = connection.getHeaderField("Location");
+        logger.info("Transaction started: " + transactionalUrl);
+        return transactionalUrl;
     }
 
-    protected void commmitTransaction() throws IOException {
-        HttpURLConnection connection = buildFedoraConnection(String.join("/", transactionalUrl.get(), "fcr:tx", "fcr:commit"), "POST");
+    protected void commmitTransaction(String transactionalUrl) throws IOException {
+        HttpURLConnection connection = buildFedoraConnection(String.join("/", transactionalUrl, "fcr:tx", "fcr:commit"), "POST");
         logger.info("Transaction commit status: " + connection.getResponseCode());
-        transactionalUrl = Optional.empty();
     }
 
-    protected void rollbackTransaction() throws IOException {
-        HttpURLConnection connection = buildFedoraConnection(String.join("/", transactionalUrl.get(), "fcr:tx", "rollback"), "POST");
+    protected void rollbackTransaction(String transactionalUrl) throws IOException {
+        HttpURLConnection connection = buildFedoraConnection(String.join("/", transactionalUrl, "fcr:tx", "rollback"), "POST");
         logger.info("Transaction rollback status: " + connection.getResponseCode());
-        transactionalUrl = Optional.empty();
     }
 
     protected URL buildTransactionalUrl(String path) throws MalformedURLException {
@@ -288,13 +279,9 @@ public abstract class AbstractFedoraRepository implements Repository {
         return projectRepository.getSettingValues("password").get(0);
     }
 
-    protected Optional<String> getTransactionalUrl() {
-        return transactionalUrl;
-    }
+    abstract String prepForPush() throws IOException;
 
-    abstract void prepForPush() throws IOException;
-
-    abstract String createItemContainer(String slugName) throws IOException;
+    abstract String createItemContainer(String slugName, String transactionalUrl) throws IOException;
 
     abstract String createContainer(String containerUrl, String slugName) throws IOException;
 

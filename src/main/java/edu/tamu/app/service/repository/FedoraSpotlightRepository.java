@@ -11,15 +11,19 @@ public class FedoraSpotlightRepository extends AbstractFedoraRepository {
         super(projectRepository);
     }
 
-    protected void prepForPush() throws IOException {
-        startTransaction();
-        confirmProjectContainerExists();
+    @Override
+    protected synchronized String prepForPush() throws IOException {
+        String transactionalUrl = startTransaction();
+        confirmProjectContainerExists(transactionalUrl);
+        return transactionalUrl;
     }
 
-    protected String createItemContainer(String slugName) throws IOException {
-        return createContainer(buildContainerUrl(), slugName);
+    @Override
+    protected String createItemContainer(String slugName, String transactionalUrl) throws IOException {
+        return createContainer(transactionalUrl, slugName);
     }
 
+    @Override
     protected String createContainer(String containerUrl, String slugName) throws IOException {
         HttpURLConnection connection = buildFedoraConnection(containerUrl, "POST");
         connection.setRequestProperty("Accept", "*/*");
