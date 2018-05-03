@@ -27,7 +27,8 @@ public class CsvUtility {
 
     private Optional<ProjectRepository> projectRepository;
 
-    // TODO:
+    // TODO: populate from configuration
+    @SuppressWarnings("unused")
     private List<String> prioritizedLabels = null;
 
     public CsvUtility() {
@@ -94,8 +95,10 @@ public class CsvUtility {
                 if (metadataFieldValue.getValue().trim().length() > 0) {
 
                     // if field.getLabel().getQualifiedName() is PRIORITIZED,
-                    // then we will put it's value on top of what's there, overwriting.
-                    // what's more, we'll remember, and we won't let anything else overwrite it later.
+                    // then we will put it's value on top of what's there,
+                    // overwriting.
+                    // what's more, we'll remember, and we won't let anything
+                    // else overwrite it later.
                     boolean fieldIsPreferred = false;
                     for (String elementName : preferredElements) {
                         if (field.getLabel().getName().equals(elementName)) {
@@ -105,13 +108,15 @@ public class CsvUtility {
                         }
                     }
 
-                    //put a new list with the single value under the key in case it's preferred or there's nothing there yet anyway
+                    // put a new list with the single value under the key in
+                    // case it's preferred or there's nothing there yet anyway
                     if (fieldIsPreferred || !allMetadataKVPairsOnDocument.containsKey(field.getLabel().getUnqualifiedName())) {
                         List<String> firstValue = new ArrayList<String>();
                         firstValue.add(metadataFieldValue.getValue());
                         allMetadataKVPairsOnDocument.put(field.getLabel().getUnqualifiedName(), firstValue);
                     }
-                    //otherwise, append to the existing list, unless it is not to be overwritten as it contains a preferred field
+                    // otherwise, append to the existing list, unless it is not
+                    // to be overwritten as it contains a preferred field
                     else if (allMetadataKVPairsOnDocument.containsKey(field.getLabel().getUnqualifiedName()) && !fieldsNotToOverwrite.contains(field.getLabel().getUnqualifiedName())) {
                         allMetadataKVPairsOnDocument.get(field.getLabel().getUnqualifiedName()).add(metadataFieldValue.getValue());
                     }
