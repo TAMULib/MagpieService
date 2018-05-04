@@ -48,9 +48,9 @@ public class SyncService {
             logger.debug("Running Sync Service");
         }
 
-        String directory = ASSETS_PATH + File.separator + "projects";
+        projectFactory.startProjectFileListeners();
 
-        List<Path> projects = FileSystemUtility.directoryList(directory);
+        List<Path> projects = FileSystemUtility.directoryList(ASSETS_PATH + File.separator + "projects");
 
         for (Path projectPath : projects) {
 
@@ -60,48 +60,53 @@ public class SyncService {
 
             Project project = projectFactory.getOrCreateProject(projectName);
 
-            List<Path> documents = FileSystemUtility.directoryList(projectPath.toString());
+            if (project.isHeadless()) {
+                logger.info(project.getName() + " is headless. Headless projects do not support manual sync!");
+            } else {
+                List<Path> documents = FileSystemUtility.directoryList(projectPath.toString());
 
-            documents.parallelStream().forEach(documentPath -> {
+                documents.parallelStream().forEach(documentPath -> {
 
-                logger.info("Found document: " + documentPath);
+                    logger.info("Found document: " + documentPath);
 
-                String documentName = documentPath.getFileName().toString();
+                    String documentName = documentPath.getFileName().toString();
 
-                Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+                    Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 
-                try {
-                    if (document == null) {
-                        document = documentFactory.createDocument(documentPath.toFile());
-                        if (!project.getIngestType().equals(IngestType.SAF)) {
+                    try {
+                        if (document == null) {
+                            document = documentFactory.createDocument(documentPath.toFile());
+                            if (!project.getIngestType().equals(IngestType.SAF)) {
 
-                            List<Path> resources = FileSystemUtility.fileList(documentPath.toString());
+                                List<Path> resources = FileSystemUtility.fileList(documentPath.toString());
 
-                            for (Path resourcePath : resources) {
+                                for (Path resourcePath : resources) {
 
-                                logger.info("Found resource: " + resourcePath);
+                                    logger.info("Found resource: " + resourcePath);
 
-                                File file = resourcePath.toFile();
-                                if (file.isFile() && !file.isHidden()) {
-                                    documentFactory.addResource(document, file);
+                                    File file = resourcePath.toFile();
+                                    if (file.isFile() && !file.isHidden()) {
+                                        documentFactory.addResource(document, file);
+                                    }
+
                                 }
 
+                            } else {
+                                logger.info("SAF ingest type cannot sync resources at this time. Please use listener.");
                             }
-
-                        } else {
-                            logger.info("SAF ingest type cannot sync resources at this time. Please use listener.");
                         }
+
+                    } catch (SAXException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ParserConfigurationException e) {
+                        e.printStackTrace();
                     }
 
-                } catch (SAXException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParserConfigurationException e) {
-                    e.printStackTrace();
-                }
+                });
+            }
 
-            });
         }
         logger.info("Sync Service Finished");
     }

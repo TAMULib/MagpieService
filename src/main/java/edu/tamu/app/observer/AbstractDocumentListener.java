@@ -17,6 +17,7 @@ import edu.tamu.app.exception.DocumentNotFoundException;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.DocumentFactory;
 
@@ -27,12 +28,15 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
     protected static final Map<String, List<String>> pendingResources = new ConcurrentHashMap<String, List<String>>();
 
     protected static final ExecutorService executor = Executors.newFixedThreadPool(10);
-    
+
     @Autowired
     private ProjectRepo projectRepo;
 
     @Autowired
     protected DocumentFactory documentFactory;
+
+    @Autowired
+    protected DocumentRepo documentRepo;
 
     public AbstractDocumentListener(String root, String folder) {
         super(root, folder);
@@ -45,14 +49,17 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     @Override
     public void onDirectoryCreate(File directory) {
-        initializePendingResources(directory.getName());
-        createDocument(directory).thenAccept(document -> {
-            if (document != null) {
-                processPendingResources(document);
-            } else {
-                logger.warn("Unable to create document!");
-            }
-        });
+        Document existingDocument = documentRepo.findByProjectNameAndName(directory.getParentFile().getName(), directory.getName());
+        if (existingDocument == null) {
+            initializePendingResources(directory.getName());
+            createDocument(directory).thenAccept(newDocument -> {
+                if (newDocument != null) {
+                    processPendingResources(newDocument);
+                } else {
+                    logger.warn("Unable to create document!");
+                }
+            });
+        }
 
     }
 
@@ -72,19 +79,18 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
             logger.debug("File created: " + file.getName());
             String projectName = file.getParentFile().getParentFile().getName();
             Project parentProject = projectRepo.findByName(projectName);
-            if(!parentProject.getIngestType().equals(IngestType.SAF)) {
+            if (!parentProject.getIngestType().equals(IngestType.SAF)) {
                 try {
                     addResource(file);
                 } catch (DocumentNotFoundException e) {
                     String documentName = file.getParentFile().getName();
-                     {
+                    {
                         logger.debug("Document " + documentName + " not yet created for resource. Adding to pending resources.");
                         List<String> documentPendingResources = pendingResources.get(documentName);
                         documentPendingResources.add(file.getAbsolutePath());
                     }
                 }
-            }
-            else {
+            } else {
                 logger.debug("Ignoring file create of " + file.getName() + " becuase project is SAF and we will use the contents manifest to add resources.");
             }
         }

@@ -1,10 +1,11 @@
 package edu.tamu.app.service;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +31,12 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ProjectSuggestor;
-import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.observer.FileObserverRegistry;
+import edu.tamu.app.observer.HeadlessDocumentListener;
+import edu.tamu.app.observer.StandardDocumentListener;
 import edu.tamu.app.service.authority.Authority;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
@@ -66,10 +69,13 @@ public class ProjectFactory {
     private String initialProjectsFile;
 
     @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private FileObserverRegistry fileObserverRegistry;
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
@@ -122,7 +128,7 @@ public class ProjectFactory {
         JsonNode projectNode = getProjectNode(projectName);
 
         // TODO: improve the object mapping for repositories, authorities, and suggestors
-        List<ProjectRepository> repositories = getProjectRepositories(projectNode);        
+        List<ProjectRepository> repositories = getProjectRepositories(projectNode);
         List<ProjectAuthority> authorities = getProjectAuthorities(projectNode);
         List<ProjectSuggestor> suggestors = getProjectSuggestors(projectNode);
 
@@ -143,7 +149,7 @@ public class ProjectFactory {
         return project;
     }
 
-    protected List<ProjectRepository> getProjectRepositories(JsonNode projectNode) {    
+    protected List<ProjectRepository> getProjectRepositories(JsonNode projectNode) {
         List<ProjectRepository> repositories = new ArrayList<ProjectRepository>();
         if (projectNode.has(REPOSITORIES_KEY)) {
             try {
@@ -159,7 +165,7 @@ public class ProjectFactory {
         }
         return repositories;
     }
-    
+
     protected List<ProjectAuthority> getProjectAuthorities(JsonNode projectNode) {
         List<ProjectAuthority> authorities = new ArrayList<ProjectAuthority>();
 
@@ -177,9 +183,9 @@ public class ProjectFactory {
         }
         return authorities;
     }
-    
+
     protected List<ProjectSuggestor> getProjectSuggestors(JsonNode projectNode) {
-        List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();        
+        List<ProjectSuggestor> suggestors = new ArrayList<ProjectSuggestor>();
         if (projectNode.has(SUGGESTORS_KEY)) {
             try {
                 suggestors = objectMapper.readValue(projectNode.get(SUGGESTORS_KEY).toString(), new TypeReference<List<ProjectSuggestor>>() {
@@ -219,14 +225,14 @@ public class ProjectFactory {
         });
 
     }
-    
-    public Map<String,List<String>> getProjectRepositoryTypes() {
-        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+
+    public Map<String, List<String>> getProjectRepositoryTypes() {
+        Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectRepository> projectRepositories = getProjectRepositories(projectNode);
             projectRepositories.forEach(projectRepository -> {
                 if (!scaffolds.containsKey(projectRepository.getType())) {
-                    List<String> settingKeys = new ArrayList<String>(); 
+                    List<String> settingKeys = new ArrayList<String>();
                     projectRepository.getSettings().forEach(projectSetting -> {
                         settingKeys.add(projectSetting.getKey());
                     });
@@ -236,7 +242,7 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-    
+
     protected JsonNode getProjectsNode() {
         if (projectsNode == null) {
             projectsNode = readProjectsNode();
@@ -302,6 +308,19 @@ public class ProjectFactory {
         }
 
         return projectFields;
+    }
+
+    public void startProjectFileListeners() {
+        String projectsPath = ASSETS_PATH + File.separator + "projects";
+        projectRepo.findAll().forEach(project -> {
+            if (project.isHeadless()) {
+                logger.info("Registering headless document listener: " + projectsPath + File.separator + project.getName());
+                fileObserverRegistry.register(new HeadlessDocumentListener(projectsPath, project.getName()));
+            } else {
+                logger.info("Registering standard document listener: " + projectsPath + File.separator + project.getName());
+                fileObserverRegistry.register(new StandardDocumentListener(projectsPath, project.getName()));
+            }
+        });
     }
 
 }

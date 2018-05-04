@@ -41,11 +41,12 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     }
 
     @Override
-    protected synchronized String prepForPush() throws IOException {
-        String transactionalUrl = startTransaction();
-        confirmProjectContainerExists(transactionalUrl);
-        verifyPCDMStructures(transactionalUrl);
-        return transactionalUrl;
+
+    protected String prepForPush() throws IOException {
+        final String tid = startTransaction();
+        confirmProjectContainerExists(tid);
+        verifyPCDMStructures(tid);
+        return tid;
     }
 
     @Override
@@ -62,17 +63,15 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     }
 
     @Override
-    protected String createItemContainer(String slugName, String transactionalUrl) throws FileNotFoundException, IOException {
-        logger.info("Create item container at: " + transactionalUrl);
+    protected String createItemContainer(String slugName, final String tid) throws FileNotFoundException, IOException {
         // Create the item container
-        String desiredItemUrl = getObjectsUrl(transactionalUrl) + "/" + slugName;
+        String desiredItemUrl = getObjectsUrl(tid) + "/" + slugName;
         String actualItemUrl = generatePutRequest(desiredItemUrl, null, buildPCDMObject(desiredItemUrl));
-        generatePutRequest(getMembersUrl(transactionalUrl) + "/" + slugName + "Proxy", null, buildPCDMItemProxy(getMembersUrl(transactionalUrl) + "/" + slugName + "Proxy", actualItemUrl + "/"));
+        generatePutRequest(getMembersUrl(tid) + "/" + slugName + "Proxy", null, buildPCDMItemProxy(getMembersUrl(tid) + "/" + slugName + "Proxy", actualItemUrl + "/"));
         // Create a pages container within the item container
         generatePutRequest(actualItemUrl + "/" + pagesEndpoint + "/", null, buildPCDMDirectContainer(actualItemUrl + "/" + pagesEndpoint, actualItemUrl));
         // Set up the container that will hold the page order proxies
         generatePutRequest(actualItemUrl + "/" + "orderProxies", null, buildPCDMOrderProxy(actualItemUrl + "/" + "orderProxies", actualItemUrl));
-
         return actualItemUrl;
     }
 
@@ -112,30 +111,30 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         executeSparqlUpdate(fileUri + "/" + "fcr:metadata", buildPCDMFile(filePath));
     }
 
-    private void verifyPCDMStructures(String transactionalUrl) throws IOException {
+    private void verifyPCDMStructures(final String tid) throws IOException {
 
-        String pcdmMembersUrl = getMembersUrl(transactionalUrl);
+        String pcdmMembersUrl = getMembersUrl(tid);
 
         // make sure we have a members resource to represent properties of the
         // items in the context of the collection
         if (!resourceExists(pcdmMembersUrl)) {
-            generatePutRequest(pcdmMembersUrl, null, buildPCDMMember(pcdmMembersUrl, transactionalUrl));
+            generatePutRequest(pcdmMembersUrl, null, buildPCDMMember(pcdmMembersUrl, tid));
         }
 
         // make sure we have an objects resource to store items
-        String objectsUrl = getObjectsUrl(transactionalUrl);
+        String objectsUrl = getObjectsUrl(tid);
         if (!resourceExists(objectsUrl)) {
-            generatePutRequest(objectsUrl, null, buildPCDMMember(objectsUrl, transactionalUrl));
+            generatePutRequest(objectsUrl, null, buildPCDMMember(objectsUrl, tid));
         }
 
     }
 
-    private String getMembersUrl(String transactionalUrl) {
-        return String.join("/", buildContainerUrl(transactionalUrl), membersEndpoint);
+    private String getMembersUrl(final String tid) {
+        return String.join("/", buildTransactionalContainerUrl(tid), membersEndpoint);
     }
 
-    private String getObjectsUrl(String transactionalUrl) {
-        return String.join("/", transactionalUrl, objectsEndpoint);
+    private String getObjectsUrl(final String tid) {
+        return String.join("/", buildTransactionalContainerUrl(tid), objectsEndpoint);
     }
 
     private void orderPageProxies(ProxyPage[] proxyPages) throws IOException {
@@ -234,14 +233,14 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         return model;
     }
 
-    private Model buildPCDMMember(String membersUrl, String transactionalUrl) {
+    private Model buildPCDMMember(String membersUrl, String tid) {
         logger.debug("Building PCDM Member at <" + membersUrl + ">");
         Model model = ModelFactory.createDefaultModel();
         Resource resource = model.createResource(membersUrl);
         resource.addProperty(RDF.type, model.createProperty(LDP.IndirectContainer.getIRIString()));
         resource.addProperty(RDF.type, model.createProperty("http://pcdm.org/models#Object"));
         resource.addProperty(model.createProperty(LDP.hasMemberRelation.getIRIString()), model.createProperty("http://pcdm.org/models#hasMember"));
-        resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(buildContainerUrl(transactionalUrl)));
+        resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(buildTransactionalContainerUrl(tid)));
         resource.addProperty(model.createProperty(LDP.insertedContentRelation.getIRIString()), model.createProperty("http://www.openarchives.org/ore/terms#proxyFor"));
         return model;
     }

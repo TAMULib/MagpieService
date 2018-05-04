@@ -13,10 +13,10 @@ public class FileMonitorManager {
 
     private static final Logger logger = Logger.getLogger(FileObserverRegistry.class);
 
+    private static FileAlterationMonitor monitor;
+
     @Value("${app.polling.interval}")
     private Long interval;
-
-    private FileAlterationMonitor monitor;
 
     public FileMonitorManager() {
 

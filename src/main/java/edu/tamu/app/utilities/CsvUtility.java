@@ -95,8 +95,7 @@ public class CsvUtility {
                 if (metadataFieldValue.getValue().trim().length() > 0) {
 
                     // if field.getLabel().getQualifiedName() is PRIORITIZED,
-                    // then we will put it's value on top of what's there,
-                    // overwriting.
+                    // then we will put it's value on top of what's there, overwriting.
                     // what's more, we'll remember, and we won't let anything
                     // else overwrite it later.
                     boolean fieldIsPreferred = false;
@@ -108,15 +107,13 @@ public class CsvUtility {
                         }
                     }
 
-                    // put a new list with the single value under the key in
-                    // case it's preferred or there's nothing there yet anyway
+                    // put a new list with the single value under the key in case it's preferred or there's nothing there yet anyway
                     if (fieldIsPreferred || !allMetadataKVPairsOnDocument.containsKey(field.getLabel().getUnqualifiedName())) {
                         List<String> firstValue = new ArrayList<String>();
                         firstValue.add(metadataFieldValue.getValue());
                         allMetadataKVPairsOnDocument.put(field.getLabel().getUnqualifiedName(), firstValue);
                     }
-                    // otherwise, append to the existing list, unless it is not
-                    // to be overwritten as it contains a preferred field
+                    // otherwise, append to the existing list, unless it is not to be overwritten as it contains a preferred field
                     else if (allMetadataKVPairsOnDocument.containsKey(field.getLabel().getUnqualifiedName()) && !fieldsNotToOverwrite.contains(field.getLabel().getUnqualifiedName())) {
                         allMetadataKVPairsOnDocument.get(field.getLabel().getUnqualifiedName()).add(metadataFieldValue.getValue());
                     }
@@ -125,11 +122,9 @@ public class CsvUtility {
             }
         });
 
-        // Second, add the header row. This has the "parts" field and all the
-        // metadata keys/labels
+        // Second, add the header row. This has the "parts" field and all the metadata keys/labels
         // Have to turn our keySet of labels into a list, as we need order
-        // guaranteed when making the first row (lables) and the second row
-        // (values)
+        // guaranteed when making the first row (lables) and the second row (values)
         String labels[] = allMetadataKVPairsOnDocument.keySet().toArray(new String[0]);
         ArrayList<String> csvRow = new ArrayList<String>();
         csvRow.add("parts");
@@ -137,8 +132,7 @@ public class CsvUtility {
             // writing the element
             for (String label : labels) {
                 if (label.contains(elements[i])) {
-                    // have to add a cell for every single occurrence of a value
-                    // with the label
+                    // have to add a cell for every single occurrence of a value with the label
                     for (int k = 0; k < allMetadataKVPairsOnDocument.get(label).size(); k++)
                         csvRow.add(label);
                 }

@@ -12,15 +12,15 @@ public class FedoraSpotlightRepository extends AbstractFedoraRepository {
     }
 
     @Override
-    protected synchronized String prepForPush() throws IOException {
-        String transactionalUrl = startTransaction();
-        confirmProjectContainerExists(transactionalUrl);
-        return transactionalUrl;
+    protected String prepForPush() throws IOException {
+        final String tid = startTransaction();
+        confirmProjectContainerExists(tid);
+        return tid;
     }
 
     @Override
-    protected String createItemContainer(String slugName, String transactionalUrl) throws IOException {
-        return createContainer(transactionalUrl, slugName);
+    protected String createItemContainer(String slugName, final String tid) throws IOException {
+        return createContainer(buildTransactionalContainerUrl(tid), slugName);
     }
 
     @Override
