@@ -27,7 +27,6 @@ public class MetadataFieldGroup extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     private MetadataFieldLabel label;
 
-
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Document.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
@@ -76,7 +75,9 @@ public class MetadataFieldGroup extends BaseEntity {
     }
 
     public void addValue(MetadataFieldValue value) {
-        values.add(value);
+        if (!values.contains(value)) {
+            values.add(value);
+        }
     }
 
     public void removeValue(MetadataFieldValue value) {

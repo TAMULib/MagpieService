@@ -1,7 +1,6 @@
 package edu.tamu.app.observer;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -12,10 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
-import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.service.registry.MagpieServiceRegistry;
-import edu.tamu.app.service.repository.Repository;
 
 public class HeadlessDocumentListener extends AbstractDocumentListener {
 
@@ -26,9 +22,6 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
 
     @Autowired
     private DocumentRepo documentRepo;
-
-    @Autowired
-    private MagpieServiceRegistry projectServiceRegistry;
 
     public HeadlessDocumentListener(String root, String folder) {
         super(root, folder);
@@ -44,7 +37,6 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
                 document = documentFactory.createDocument(directory);
                 document = processPendingResources(document);
                 document = applyDefaultValues(document);
-                document = publishToRepositories(document);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -82,18 +74,6 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
             mfg.addValue(mfv);
         }
         return documentRepo.save(document);
-    }
-
-    private Document publishToRepositories(Document document) {
-        for (ProjectRepository repository : document.getProject().getRepositories()) {
-            try {
-                document = ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
-            } catch (IOException e) {
-                logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
-                e.printStackTrace();
-            }
-        }
-        return document;
     }
 
 }
