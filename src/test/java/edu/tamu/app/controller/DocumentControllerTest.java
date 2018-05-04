@@ -17,7 +17,7 @@ public class DocumentControllerTest extends AbstractControllerTest {
         response = documentController.allDocuments();
         assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
         List<Document> list = (List<Document>) response.getPayload().get("ArrayList<Document>");
-        assertEquals(" the list had no documents in it ", mockDocumentList.size(), list.size());
+        assertEquals(" The list had no documents in it ", mockDocumentList.size(), list.size());
     }
 
     @Test
@@ -26,7 +26,7 @@ public class DocumentControllerTest extends AbstractControllerTest {
         assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
         Document document = (Document) response.getPayload().get("Document");
         assertEquals(" The document has a different document document name ", TEST_DOCUMENT1.getName(), document.getName());
-        assertEquals(" The document has a differnt project name ", TEST_PROJECT1.getName(), document.getProject().getName());
+        assertEquals(" The document has a different project name ", TEST_PROJECT1.getName(), document.getProject().getName());
     }
 
     @Test
@@ -47,7 +47,15 @@ public class DocumentControllerTest extends AbstractControllerTest {
         assertEquals(" The document was not published ", "Your item has been successfully published", response.getMeta().getMessage());
         Document document = (Document) response.getPayload().get("Document");
         assertEquals(" The document has a different document name ", TEST_DOCUMENT1.getName(), document.getName());
-        assertEquals(" The document has a differnt project name ", TEST_PROJECT1.getName(), document.getProject().getName());
+        assertEquals(" The document has a different project name ", TEST_PROJECT1.getName(), document.getProject().getName());
+    }
+
+    @Test
+    public void testRemoveDocument() {
+        response = documentController.remove(TEST_DOCUMENT1.getProject().getName(), TEST_DOCUMENT1.getName());
+        assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        String responseMessage = "Document " + TEST_DOCUMENT1.getName() + " has been removed (deleted) from project " + TEST_DOCUMENT1.getProject().getName();
+        assertEquals(" The document was not removed (deleted)", responseMessage, response.getMeta().getMessage());
     }
 
 }

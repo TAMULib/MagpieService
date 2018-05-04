@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.awt.print.Pageable;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,11 +30,13 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.Role;
 import edu.tamu.app.model.repo.AppUserRepo;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.ProjectFactory;
 import edu.tamu.app.service.SyncService;
 import edu.tamu.app.service.exporter.DspaceCsvExporter;
@@ -50,6 +53,9 @@ public abstract class AbstractControllerTest extends MockData {
 
     @Mock
     protected DocumentRepo documentRepo;
+    
+    @Mock
+    protected ResourceRepo resourceRepo;
 
     @Mock
     protected ProjectRepo projectRepo;
@@ -219,6 +225,9 @@ public abstract class AbstractControllerTest extends MockData {
                 return TEST_PROJECT1;
             }
         });
+        
+        // resource
+        when(resourceRepo.findAllByDocumentProjectNameAndDocumentName(any(String.class), any(String.class))).thenReturn(new ArrayList<Resource>());
 
         // metdataHeader formats
         mockSpotlightExportedMetadataHeaders.add(0, "url");

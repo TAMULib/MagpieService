@@ -44,7 +44,7 @@ public class NALTSuggestor implements Suggestor {
         try {
             StringBuilder textBuilder = new StringBuilder();
 
-            for (Resource resource : resourceRepo.findAllByDocumentNameAndMimeType(document.getName(), "text/plain")) {
+            for (Resource resource : resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "text/plain")) {
                 File file = File.createTempFile(resource.getName(), Long.toString(System.nanoTime()));
                 file.deleteOnExit();
                 FileUtils.copyURLToFile(new URL(resource.getUrl()), file);

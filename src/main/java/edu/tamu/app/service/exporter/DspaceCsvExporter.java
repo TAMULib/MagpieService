@@ -34,7 +34,7 @@ public class DspaceCsvExporter extends AbstractExporter {
 
             List<String> documentMetadata = new ArrayList<String>();
 
-            documentMetadata.add(resourceRepo.findAllByDocumentNameAndMimeType(document.getName(), "application/pdf").get(0).getName());
+            documentMetadata.add(resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "application/pdf").get(0).getName());
 
             metadataFields.forEach(field -> {
                 String values = null;

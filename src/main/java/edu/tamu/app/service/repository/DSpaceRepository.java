@@ -300,9 +300,9 @@ public class DSpaceRepository implements Repository {
     }
 
     private void addBitstreams(String itemId, Document document) throws IOException {
-        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentNameAndMimeType(document.getName(), "application/pdf")));
-        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentNameAndMimeType(document.getName(), "text/plain"), "TEXT"));
-        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentNameAndMimeType(document.getName(), "image/jpeg", "image/jpg", "image/jp2", "image/jpx", "image/bmp", "image/gif", "image/png", "image/svg", "image/tif", "image/tiff")));
+        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "application/pdf")));
+        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "text/plain"), "TEXT"));
+        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "image/jpeg", "image/jpg", "image/jp2", "image/jpx", "image/bmp", "image/gif", "image/png", "image/svg", "image/tif", "image/tiff")));
     }
 
     private void addBitstreams(Bitstreams bitstreams) throws IOException {

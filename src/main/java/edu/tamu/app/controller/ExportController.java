@@ -162,7 +162,7 @@ public class ExportController {
 
             PrintStream manifest = new PrintStream(itemDirectory + File.separator + "contents");
 
-            for (Resource resource : resourceRepo.findAllByDocumentName(document.getName())) {
+            for (Resource resource : resourceRepo.findAllByDocumentProjectNameAndDocumentName(project, document.getName())) {
                 FileUtils.copyFileToDirectory(new File(ASSETS_PATH + File.separator + resource.getPath()), itemDirectory);
 
                 String bundleName = resource.getMimeType().equals("text/plain") ? "TEXT" : "ORIGINAL";

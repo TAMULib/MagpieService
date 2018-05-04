@@ -13,6 +13,6 @@ public interface ResourceRepo extends WeaverRepo<Resource>, ResourceRepoCustom {
 
     public Resource findByDocumentNameAndName(String documentName, String name);
 
-    public List<Resource> findAllByDocumentName(String documentName);
+    public List<Resource> findAllByDocumentProjectNameAndDocumentName(String projectName, String documentName);
 
 }

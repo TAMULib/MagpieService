@@ -6,6 +6,7 @@ import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -26,8 +27,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
 import edu.tamu.weaver.response.ApiResponse;
@@ -46,6 +51,12 @@ public class DocumentController {
 
     @Autowired
     private DocumentRepo documentRepo;
+
+    @Autowired
+    private ProjectRepo projectRepo;
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
@@ -132,7 +143,7 @@ public class DocumentController {
      * Endpoint to save document.
      * 
      * @param document
-     * @ApiData Document
+     * @RequestBody Document
      * 
      * @return ApiResponse
      * 
@@ -146,14 +157,14 @@ public class DocumentController {
     /**
      * Endpoint to push document to IR.
      * 
-     * @param name
-     * @ApiVariable String
+     * @PathVariable String projectName
+     * @PathVariable String documentName
      * 
      * @return ApiResponse
      * 
      */
     @RequestMapping("/push/{projectName}/{documentName}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse push(@PathVariable String projectName, @PathVariable String documentName) {
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 
@@ -168,6 +179,41 @@ public class DocumentController {
         }
 
         return new ApiResponse(SUCCESS, "Your item has been successfully published", document);
+    }
+
+    /**
+     * Endpoint to delete/remove document from persistence. Won't affect
+     * document directory/resources on disk.
+     * 
+     * @PathVariable String projectName
+     * @PathVariable String documentName
+     * 
+     * @return ApiResponse
+     * 
+     */
+    @RequestMapping("/remove/{projectName}/{documentName}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse remove(@PathVariable String projectName, @PathVariable String documentName) {
+        Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+        Project project = projectRepo.findByName(projectName);
+
+        try {
+            List<Resource> resources = resourceRepo.findAllByDocumentProjectNameAndDocumentName(projectName, documentName);
+            if (resources.size() > 0) {
+                resourceRepo.delete(resources);
+            }
+            documentRepo.delete(document);
+            project.removeDocument(document);
+            projectRepo.update(project);
+        } catch (Exception e) {
+            logger.error("Exception thrown attempting to delete document " + document.getName() + " from project " + document.getProject().getName() + "!", e);
+            e.printStackTrace();
+            return new ApiResponse(ERROR, "There was an error deleting the document " + documentName + " from project " + projectName);
+        }
+
+        logger.info("Document " + documentName + " has been removed (deleted) from project " + projectName);
+
+        return new ApiResponse(SUCCESS, "Document " + documentName + " has been removed (deleted) from project " + projectName);
     }
 
 }

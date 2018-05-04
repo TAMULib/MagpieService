@@ -24,10 +24,10 @@ public class ResourceController {
         return new ApiResponse(SUCCESS, resourceRepo.findAll());
     }
 
-    @RequestMapping("/all/{documentName}")
+    @RequestMapping("/all/{projectName}/{documentName}")
     @PreAuthorize("hasRole('USER')")
-    public ApiResponse allResourcesByDocumentName(@PathVariable String documentName) {
-        return new ApiResponse(SUCCESS, resourceRepo.findAllByDocumentName(documentName));
+    public ApiResponse allResourcesByProjectNameAndDocumentName(@PathVariable String projectName, @PathVariable String documentName) {
+        return new ApiResponse(SUCCESS, resourceRepo.findAllByDocumentProjectNameAndDocumentName(projectName, documentName));
     }
 
 }
