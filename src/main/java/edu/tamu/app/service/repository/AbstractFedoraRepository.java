@@ -94,7 +94,7 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     protected String buildTransactionalContainerUrl(final String tid) {
         String transactionalContainerUrl = String.join("/", getRepoUrl(), getRestPath(), tid, getContainerPath());
-        logger.info("Transactional container url: " + transactionalContainerUrl);
+        logger.debug("Transactional container url: " + transactionalContainerUrl);
         return transactionalContainerUrl;
     }
 

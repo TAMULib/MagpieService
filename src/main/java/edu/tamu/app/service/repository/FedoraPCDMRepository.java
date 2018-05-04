@@ -138,8 +138,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     }
 
     private void orderPageProxies(ProxyPage[] proxyPages) throws IOException {
-        // Helper class for generating order structure for an array of Proxy
-        // Pages
+        // Helper class for generating order structure for an array of Proxy Pages
         class ProxyBuilder {
             private ProxyPage[] proxyPages;
 
@@ -334,8 +333,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         return queryPredicates;
     }
 
-    // intermediary for prepping PCDM Proxy Pages to be pushed to the Fedora
-    // repo
+    // intermediary for prepping PCDM Proxy Pages to be pushed to the Fedora repo
     class ProxyPage {
         private String proxyUrl, proxyInUrl, proxyForUrl, nextUrl, prevUrl;
 
