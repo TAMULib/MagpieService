@@ -71,7 +71,7 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
             initializePendingResources(directory.getName());
             createDocument(directory).thenAccept(newDocument -> {
                 if (newDocument != null) {
-                    processPendingResources(newDocument);
+                    logger.info("Document created: " + newDocument.getName());
                     publishToRepositories(newDocument);
                 } else {
                     logger.warn("Unable to create document!");
@@ -147,6 +147,7 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
             Document document = null;
             try {
                 document = documentFactory.createDocument(directory);
+                document = processPendingResources(document);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -159,6 +160,10 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
     }
 
     private void publishToRepositories(Document document) {
+
+        logger.info("Attempting to publish documnet: " + document.getName());
+
+        logger.info("Current concurrency: " + publishing.get());
 
         if (publishing.get() <= publishConcurrency) {
             publishing.incrementAndGet();
@@ -177,10 +182,12 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
             if (publishQueue.size() > 0) {
                 Document queuedDocument = publishQueue.get(0);
                 publishQueue.remove(0);
+                logger.info("Remaining in queue: " + publishQueue.size());
                 publishToRepositories(queuedDocument);
             }
 
         } else {
+            logger.info("Queueing document: " + document.getName());
             publishQueue.add(document);
         }
 

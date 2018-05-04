@@ -282,14 +282,14 @@ public class DocumentFactory {
 
                     String filename = line.split("\\t")[0];
 
-                    String filePath = ASSETS_PATH + File.separator + document.getPath() + File.separator + filename;
+                    String filePath = ASSETS_PATH + document.getPath() + File.separator + filename;
 
                     File file = new File(filePath);
 
                     logger.info("Attempting to add file from contents: " + filePath);
                     if (file.exists() && file.isFile()) {
                         String name = file.getName();
-                        String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
+                        String path = ASSETS_PATH + document.getPath() + File.separator + file.getName();
                         String mimeType = tika.detect(path);
                         logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
                         resourceRepo.create(document, name, path, mimeType);
