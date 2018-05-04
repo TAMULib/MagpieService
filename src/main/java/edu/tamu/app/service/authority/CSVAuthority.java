@@ -33,9 +33,9 @@ public class CSVAuthority implements Authority {
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
-    private Map<String, String[]> headers;
+    private static Map<String, String[]> headers;
 
-    private Map<String, Map<String, CSVRecord>> records;
+    private static Map<String, Map<String, CSVRecord>> records;
 
     private ProjectAuthority projectAuthority;
 
@@ -48,11 +48,11 @@ public class CSVAuthority implements Authority {
     @Override
     public Document populate(Document document) {
         getPaths().forEach(path -> {
-            if (this.records.get(path) == null) {
+            if (CSVAuthority.records.get(path) == null) {
                 cacheRecords(path);
             }
-            String[] headers = this.headers.get(path);
-            CSVRecord record = this.records.get(path).get(document.getName());
+            String[] headers = CSVAuthority.headers.get(path);
+            CSVRecord record = CSVAuthority.records.get(path).get(document.getName());
             if (record != null) {
                 List<MetadataFieldGroup> mfgs = new ArrayList<MetadataFieldGroup>();
                 for (String header : headers) {
@@ -93,17 +93,19 @@ public class CSVAuthority implements Authority {
         logger.info("Caching " + path);
         try {
             CSVParser csvParser;
-            if (this.headers.get(path) == null) {
+            if (CSVAuthority.headers.get(path) == null) {
                 logger.info("Getting headers from " + path);
                 csvParser = getParser(path);
-                this.headers.put(path, getHeaders(csvParser.getRecords().get(0)));
+                CSVAuthority.headers.put(path, getHeaders(csvParser.getRecords().get(0)));
                 csvParser.close();
             }
 
             Map<String, CSVRecord> currentRecords = new HashMap<String, CSVRecord>();
             csvParser = getParser(path);
+            logger.info("Preparing to process CSV records using identifier field " + getIdentifier());
             csvParser.getRecords().forEach(record -> {
                 String filename = record.get(getIdentifier());
+                logger.info("Processing record " + filename);
                 if (filename != null) {
                     currentRecords.put(filename, record);
                 } else {
@@ -132,11 +134,15 @@ public class CSVAuthority implements Authority {
 
     private CSVParser getParser(String path) throws FileNotFoundException, IOException {
         CSVParser csvParser;
-        String[] headers = this.headers.get(path);
+        String[] headers = CSVAuthority.headers.get(path);
+
+        logger.info("CSV Parser for project authority " + projectAuthority.getName() + " reading spreadsheet at " + getCsvAbsolutePath(path));
+        FileReader csvFileReader = new FileReader(getCsvAbsolutePath(path));
+
         if (headers == null) {
-            csvParser = new CSVParser(new FileReader(getCsvAbsolutePath(path)), CSVFormat.RFC4180);
+            csvParser = new CSVParser(csvFileReader, CSVFormat.RFC4180);
         } else {
-            csvParser = new CSVParser(new FileReader(getCsvAbsolutePath(path)), CSVFormat.RFC4180.withHeader(headers));
+            csvParser = new CSVParser(csvFileReader, CSVFormat.RFC4180.withHeader(headers));
         }
         return csvParser;
     }
