@@ -7,14 +7,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -52,20 +50,17 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     private ProjectRepository projectRepository;
 
-    private Optional<String> transactionalUrl;
-
     public AbstractFedoraRepository(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
-        this.transactionalUrl = Optional.empty();
     }
 
     public Document push(Document document) throws IOException {
 
+        final String tid = prepForPush();
+
         try {
 
-            prepForPush();
-
-            String itemContainerPath = createItemContainer(document.getName());
+            String itemContainerPath = createItemContainer(document.getName(), tid);
 
             File[] files = getFiles(document);
 
@@ -73,18 +68,25 @@ public abstract class AbstractFedoraRepository implements Repository {
 
             updateMetadata(document, itemContainerPath);
 
-            document.addPublishedLocation(new PublishedLocation(projectRepository, getUrlWithoutTransaction(itemContainerPath)));
+            document.addPublishedLocation(new PublishedLocation(projectRepository, getUrlWithoutTransaction(itemContainerPath, tid)));
 
-            commmitTransaction();
+            commmitTransaction(tid);
 
         } catch (IOException ioe) {
-            rollbackTransaction();
+            rollbackTransaction(tid);
+            ioe.printStackTrace();
             throw ioe;
         }
 
         document.setStatus("Published");
 
         return documentRepo.update(document);
+    }
+
+    protected void confirmProjectContainerExists(String tid) throws IOException {
+        if (!resourceExists(buildTransactionalContainerUrl(tid))) {
+            createContainer(String.join("/", getRepoUrl(), getRestPath(), tid), getContainerPath());
+        }
     }
 
     protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
@@ -97,19 +99,20 @@ public abstract class AbstractFedoraRepository implements Repository {
         return itemPath;
     }
 
-    protected String buildContainerUrl() {
-        return String.join("/", buildRepoRestUrl(), getContainerPath());
+    protected String buildTransactionalContainerUrl(final String tid) {
+        String transactionalContainerUrl = String.join("/", getRepoUrl(), getRestPath(), tid, getContainerPath());
+        logger.debug("Transactional container url: " + transactionalContainerUrl);
+        return transactionalContainerUrl;
     }
 
-    protected String buildRepoRestUrl() {
-        if (!transactionalUrl.isPresent()) {
-            throw new RuntimeException("No transaction in which to process request!");
-        }
-        return transactionalUrl.get();
+    protected String buildTransactionaUrl(final String tid) {
+        String transactionalUrl = String.join("/", getRepoUrl(), getRestPath(), tid);
+        logger.debug("Transactional container url: " + transactionalUrl);
+        return transactionalUrl;
     }
 
-    protected String getUrlWithoutTransaction(String url) {
-        return url.replaceAll(transactionalUrl.get(), String.join("/", getRepoUrl(), getRestPath()));
+    protected String getUrlWithoutTransaction(String url, final String tid) {
+        return url.replace("/" + tid, "");
     }
 
     protected String getEncodedBasicAuthorization() {
@@ -193,7 +196,7 @@ public abstract class AbstractFedoraRepository implements Repository {
         try {
             httpPatch = new HttpPatch(new URI(uri));
 
-            logger.debug("**** PATCHING SPARQL UPDATE ****");
+            logger.debug("**** PATCHING SPARQL UPDATE at URL " + uri + " ****");
             logger.debug(sparqlQuery);
             StringEntity data = new StringEntity(sparqlQuery);
 
@@ -212,16 +215,6 @@ public abstract class AbstractFedoraRepository implements Repository {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-    }
-
-    protected String confirmProjectContainerExists() throws IOException {
-        String projectContainerPath = null;
-        if (!resourceExists(buildContainerUrl())) {
-            projectContainerPath = createContainer(buildRepoRestUrl(), getContainerPath());
-        } else {
-            projectContainerPath = getContainerPath().replace(String.join("/", getRepoUrl(), getRestPath()), "");
-        }
-        return projectContainerPath;
     }
 
     protected boolean resourceExists(String uri) throws IOException {
@@ -247,25 +240,25 @@ public abstract class AbstractFedoraRepository implements Repository {
         return connection;
     }
 
-    protected void startTransaction() throws IOException {
+    protected String startTransaction() throws IOException {
         HttpURLConnection connection = buildFedoraConnection(String.join("/", getRepoUrl(), getRestPath(), "fcr:tx"), "POST");
-        transactionalUrl = Optional.of(connection.getHeaderField("Location"));
+        String transactionalUrl = connection.getHeaderField("Location");
+
+        return transactionalUrl.substring(transactionalUrl.lastIndexOf("/") + 1);
     }
 
-    protected void commmitTransaction() throws IOException {
-        HttpURLConnection connection = buildFedoraConnection(String.join("/", transactionalUrl.get(), "fcr:tx", "fcr:commit"), "POST");
+    protected void commmitTransaction(String tid) throws IOException {
+        String commitUrlString = String.join("/", buildTransactionaUrl(tid), "fcr:tx", "fcr:commit");
+        logger.debug("Commit URL: " + commitUrlString);
+        HttpURLConnection connection = buildFedoraConnection(commitUrlString, "POST");
         logger.info("Transaction commit status: " + connection.getResponseCode());
-        transactionalUrl = Optional.empty();
     }
 
-    protected void rollbackTransaction() throws IOException {
-        HttpURLConnection connection = buildFedoraConnection(String.join("/", transactionalUrl.get(), "fcr:tx", "rollback"), "POST");
+    protected void rollbackTransaction(String tid) throws IOException {
+        String rollbackUrlString = String.join("/", buildTransactionaUrl(tid), "fcr:tx", "fcr:rollback");
+        logger.debug("Rollback URL: " + rollbackUrlString);
+        HttpURLConnection connection = buildFedoraConnection(rollbackUrlString, "POST");
         logger.info("Transaction rollback status: " + connection.getResponseCode());
-        transactionalUrl = Optional.empty();
-    }
-
-    protected URL buildTransactionalUrl(String path) throws MalformedURLException {
-        return new URL(path);
     }
 
     protected String getRepoUrl() {
@@ -288,13 +281,9 @@ public abstract class AbstractFedoraRepository implements Repository {
         return projectRepository.getSettingValues("password").get(0);
     }
 
-    protected Optional<String> getTransactionalUrl() {
-        return transactionalUrl;
-    }
+    abstract String prepForPush() throws IOException;
 
-    abstract void prepForPush() throws IOException;
-
-    abstract String createItemContainer(String slugName) throws IOException;
+    abstract String createItemContainer(String slugName, final String tid) throws IOException;
 
     abstract String createContainer(String containerUrl, String slugName) throws IOException;
 

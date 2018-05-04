@@ -26,13 +26,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     private Tika tika;
 
     // @formatter:off
-    private List<String> jpeg2000MimeTypes = Arrays.asList(new String[] {
-        "image/jp2",
-        "image/j2k",
-        "image/jpx",
-        "image/jpm",
-        "image/jpeg2000"
-    });
+    private List<String> jpeg2000MimeTypes = Arrays.asList(new String[] { "image/jp2", "image/j2k", "image/jpx", "image/jpm", "image/jpeg2000" });
     // @formatter:on
 
     private String membersEndpoint = "members";
@@ -47,10 +41,12 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     }
 
     @Override
-    protected void prepForPush() throws IOException {
-        startTransaction();
-        confirmProjectContainerExists();
-        verifyPCDMStructures();
+
+    protected String prepForPush() throws IOException {
+        final String tid = startTransaction();
+        confirmProjectContainerExists(tid);
+        verifyPCDMStructures(tid);
+        return tid;
     }
 
     @Override
@@ -67,16 +63,15 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     }
 
     @Override
-    protected String createItemContainer(String slugName) throws FileNotFoundException, IOException {
+    protected String createItemContainer(String slugName, final String tid) throws FileNotFoundException, IOException {
         // Create the item container
-        String desiredItemUrl = getObjectsUrl() + "/" + slugName;
+        String desiredItemUrl = getObjectsUrl(tid) + "/" + slugName;
         String actualItemUrl = generatePutRequest(desiredItemUrl, null, buildPCDMObject(desiredItemUrl));
-        generatePutRequest(getMembersUrl() + "/" + slugName + "Proxy", null, buildPCDMItemProxy(getMembersUrl() + "/" + slugName + "Proxy", actualItemUrl + "/"));
+        generatePutRequest(getMembersUrl(tid) + "/" + slugName + "Proxy", null, buildPCDMItemProxy(getMembersUrl(tid) + "/" + slugName + "Proxy", actualItemUrl + "/"));
         // Create a pages container within the item container
         generatePutRequest(actualItemUrl + "/" + pagesEndpoint + "/", null, buildPCDMDirectContainer(actualItemUrl + "/" + pagesEndpoint, actualItemUrl));
         // Set up the container that will hold the page order proxies
         generatePutRequest(actualItemUrl + "/" + "orderProxies", null, buildPCDMOrderProxy(actualItemUrl + "/" + "orderProxies", actualItemUrl));
-
         return actualItemUrl;
     }
 
@@ -90,13 +85,16 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     protected String pushFiles(Document document, String itemContainerPath, File[] files) throws IOException {
 
         ProxyPage[] proxyPages = new ProxyPage[files.length];
-        // TODO Since magpie hasn't been modified to support defining pages, yet, we're treating each file as a different page to provide a proof of concept for a paged PCDM collection pushed to Fedora
+        // TODO Since magpie hasn't been modified to support defining pages,
+        // yet, we're treating each file as a different page to provide a proof
+        // of concept for a paged PCDM collection pushed to Fedora
         int x = 0;
         for (File file : files) {
             if (file.isFile() && !file.isHidden()) {
                 String pagePath = itemContainerPath + "/" + pagesEndpoint + "/" + "page_" + x;
                 createResource(ASSETS_PATH + File.separator + document.getPath() + "/" + file.getName(), pagePath, file.getName());
                 proxyPages[x] = new ProxyPage(itemContainerPath + "/" + "orderProxies" + "/" + "page_" + x + "_proxy", pagePath, itemContainerPath);
+                logger.debug("About to generat PUT to push file " + file.getName() + " to document " + document.getName());
                 generatePutRequest(proxyPages[x].getProxyUrl(), null, buildPCDMPageProxy(proxyPages[x].getProxyUrl(), proxyPages[x].getProxyInUrl(), proxyPages[x].getProxyForUrl()));
             }
             x++;
@@ -113,29 +111,30 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         executeSparqlUpdate(fileUri + "/" + "fcr:metadata", buildPCDMFile(filePath));
     }
 
-    private void verifyPCDMStructures() throws IOException {
+    private void verifyPCDMStructures(final String tid) throws IOException {
 
-        String pcdmMembersUrl = getMembersUrl();
+        String pcdmMembersUrl = getMembersUrl(tid);
 
-        // make sure we have a members resource to represent properties of the items in the context of the collection
+        // make sure we have a members resource to represent properties of the
+        // items in the context of the collection
         if (!resourceExists(pcdmMembersUrl)) {
-            generatePutRequest(pcdmMembersUrl, null, buildPCDMMember(pcdmMembersUrl));
+            generatePutRequest(pcdmMembersUrl, null, buildPCDMMember(pcdmMembersUrl, tid));
         }
 
         // make sure we have an objects resource to store items
-        String objectsUrl = getObjectsUrl();
+        String objectsUrl = getObjectsUrl(tid);
         if (!resourceExists(objectsUrl)) {
-            generatePutRequest(objectsUrl, null, buildPCDMMember(objectsUrl));
+            generatePutRequest(objectsUrl, null, buildPCDMMember(objectsUrl, tid));
         }
 
     }
 
-    private String getMembersUrl() {
-        return String.join("/", buildContainerUrl(), membersEndpoint);
+    private String getMembersUrl(final String tid) {
+        return String.join("/", buildTransactionalContainerUrl(tid), membersEndpoint);
     }
 
-    private String getObjectsUrl() {
-        return String.join("/", getTransactionalUrl().get(), objectsEndpoint);
+    private String getObjectsUrl(final String tid) {
+        return String.join("/", buildTransactionaUrl(tid), objectsEndpoint);
     }
 
     private void orderPageProxies(ProxyPage[] proxyPages) throws IOException {
@@ -173,6 +172,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     }
 
     private String generatePutRequest(String url, Map<String, String> requestProperties, Model rdfObject) throws IOException {
+        logger.info("Building put request to: " + url);
         HttpURLConnection connection = buildBasicFedoraConnection(url);
 
         boolean hasContentType = false;
@@ -203,11 +203,11 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
         int responseCode = connection.getResponseCode();
 
-        if (responseCode != 201) {
+        // check for a responseCode between 200 and 299 for success
+        if (!(responseCode - 200 > 0 && responseCode - 200 < 99)) {
             logger.debug("Server message: " + connection.getResponseMessage());
             throw new IOException("Could not complete PUT request. Server responded with " + responseCode);
         }
-
         return connection.getHeaderField("Location");
 
     }
@@ -231,14 +231,14 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         return model;
     }
 
-    private Model buildPCDMMember(String membersUrl) {
+    private Model buildPCDMMember(String membersUrl, String tid) {
         logger.debug("Building PCDM Member at <" + membersUrl + ">");
         Model model = ModelFactory.createDefaultModel();
         Resource resource = model.createResource(membersUrl);
         resource.addProperty(RDF.type, model.createProperty(LDP.IndirectContainer.getIRIString()));
         resource.addProperty(RDF.type, model.createProperty("http://pcdm.org/models#Object"));
         resource.addProperty(model.createProperty(LDP.hasMemberRelation.getIRIString()), model.createProperty("http://pcdm.org/models#hasMember"));
-        resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(buildContainerUrl()));
+        resource.addProperty(model.createProperty(LDP.membershipResource.getIRIString()), model.createProperty(buildTransactionalContainerUrl(tid)));
         resource.addProperty(model.createProperty(LDP.insertedContentRelation.getIRIString()), model.createProperty("http://www.openarchives.org/ore/terms#proxyFor"));
         return model;
     }
@@ -278,11 +278,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     private String buildPCDMItemOrderUpdate(String itemUrl, String firstUrl, String lastUrl) {
         logger.debug("Setting first/last order for PCDM Item at <" + itemUrl + ">");
         // @formatter:off
-        String orderedItemUpdate = "PREFIX iana: <http://www.iana.org/assignments/relation/>" + 
-                                   "INSERT {" +
-                                     "<> iana:first <" + firstUrl + "> ." + 
-                                     "<> iana:last <" + lastUrl + ">" + 
-                                   "} WHERE {" + "}";
+        String orderedItemUpdate = "PREFIX iana: <http://www.iana.org/assignments/relation/>" + "INSERT {" + "<> iana:first <" + firstUrl + "> ." + "<> iana:last <" + lastUrl + ">" + "} WHERE {" + "}";
         // @formatter:on
         return orderedItemUpdate;
     }
@@ -316,14 +312,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         String fileName = imageFile.getName();
 
         // @formatter:off
-        String updateQuery = "PREFIX pcdm: <http://pcdm.org/models#> " +
-                             "PREFIX dc: <http://purl.org/dc/elements/1.1/> " +
-                             "PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> " + 
-                             "INSERT {" + 
-                             "<> a pcdm:File . " + 
-                             "<> dc:filename '" + fileName + "' . " +
-                             getImageMetadata(imageFile) + 
-                             "} WHERE { }";
+        String updateQuery = "PREFIX pcdm: <http://pcdm.org/models#> " + "PREFIX dc: <http://purl.org/dc/elements/1.1/> " + "PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> " + "INSERT {" + "<> a pcdm:File . " + "<> dc:filename '" + fileName + "' . " + getImageMetadata(imageFile) + "} WHERE { }";
         // @formatter:on
         return updateQuery;
     }
@@ -336,9 +325,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
             mimeType = "image/jp2";
         }
 
-        String queryPredicates = "<> ebucore:filename '" + imageFile.getName() + "' . " + "<> ebucore:hasMimeType '" + mimeType + "' ";
-
-        return queryPredicates;
+        return "<> ebucore:filename '" + imageFile.getName() + "' . " + "<> ebucore:hasMimeType '" + mimeType + "' ";
     }
 
     // intermediary for prepping PCDM Proxy Pages to be pushed to the Fedora repo

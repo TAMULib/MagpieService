@@ -61,7 +61,7 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
 
     // this is a blocking sleep operation of this listener
     private void waitOnDirectory(File directory) {
-        logger.info("Waiting for directory " + directory + " to be quiescent, as it is a Headless or SAF-ingest project.");
+        logger.info("Waiting for directory " + directory + " to be quiescent, as it is a Headless project.");
         long lastModified = 0L;
         long oldLastModified = -1L;
         long stableTime = 0L;

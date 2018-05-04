@@ -124,7 +124,9 @@ public class Document extends BaseEntity {
     }
 
     public void addField(MetadataFieldGroup field) {
-        fields.add(field);
+        if (!fields.contains(field)) {
+            fields.add(field);
+        }
     }
 
     public void removeField(MetadataFieldGroup field) {

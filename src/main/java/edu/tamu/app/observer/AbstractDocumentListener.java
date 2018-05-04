@@ -15,7 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.exception.DocumentNotFoundException;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.IngestType;
+import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.DocumentFactory;
 
 public abstract class AbstractDocumentListener extends AbstractFileListener {
@@ -25,6 +28,9 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
     protected static final Map<String, List<String>> pendingResources = new ConcurrentHashMap<String, List<String>>();
 
     protected static final ExecutorService executor = Executors.newFixedThreadPool(10);
+
+    @Autowired
+    private ProjectRepo projectRepo;
 
     @Autowired
     protected DocumentFactory documentFactory;
@@ -70,14 +76,22 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
     @Override
     public void onFileCreate(File file) {
         if (!file.isHidden() && file.isFile()) {
-            logger.info("File created: " + file.getName());
-            try {
-                addResource(file);
-            } catch (DocumentNotFoundException e) {
-                String documentName = file.getParentFile().getName();
-                logger.info("Document " + documentName + " not yet created for resource. Adding to pending resources.");
-                List<String> documentPendingResources = pendingResources.get(documentName);
-                documentPendingResources.add(file.getAbsolutePath());
+            logger.debug("File created: " + file.getName());
+            String projectName = file.getParentFile().getParentFile().getName();
+            Project parentProject = projectRepo.findByName(projectName);
+            if (!parentProject.getIngestType().equals(IngestType.SAF)) {
+                try {
+                    addResource(file);
+                } catch (DocumentNotFoundException e) {
+                    String documentName = file.getParentFile().getName();
+                    {
+                        logger.debug("Document " + documentName + " not yet created for resource. Adding to pending resources.");
+                        List<String> documentPendingResources = pendingResources.get(documentName);
+                        documentPendingResources.add(file.getAbsolutePath());
+                    }
+                }
+            } else {
+                logger.debug("Ignoring file create of " + file.getName() + " becuase project is SAF and we will use the contents manifest to add resources.");
             }
         }
     }

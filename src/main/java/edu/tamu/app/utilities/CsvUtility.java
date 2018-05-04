@@ -27,7 +27,7 @@ public class CsvUtility {
 
     private Optional<ProjectRepository> projectRepository;
 
-    // TODO:
+    // TODO: populate from configuration
     @SuppressWarnings("unused")
     private List<String> prioritizedLabels = null;
 
@@ -96,7 +96,8 @@ public class CsvUtility {
 
                     // if field.getLabel().getQualifiedName() is PRIORITIZED,
                     // then we will put it's value on top of what's there, overwriting.
-                    // what's more, we'll remember, and we won't let anything else overwrite it later.
+                    // what's more, we'll remember, and we won't let anything
+                    // else overwrite it later.
                     boolean fieldIsPreferred = false;
                     for (String elementName : preferredElements) {
                         if (field.getLabel().getName().equals(elementName)) {
@@ -121,11 +122,9 @@ public class CsvUtility {
             }
         });
 
-        // Second, add the header row. This has the "parts" field and all the
-        // metadata keys/labels
+        // Second, add the header row. This has the "parts" field and all the metadata keys/labels
         // Have to turn our keySet of labels into a list, as we need order
-        // guaranteed when making the first row (lables) and the second row
-        // (values)
+        // guaranteed when making the first row (lables) and the second row (values)
         String labels[] = allMetadataKVPairsOnDocument.keySet().toArray(new String[0]);
         ArrayList<String> csvRow = new ArrayList<String>();
         csvRow.add("parts");
@@ -133,8 +132,7 @@ public class CsvUtility {
             // writing the element
             for (String label : labels) {
                 if (label.contains(elements[i])) {
-                    // have to add a cell for every single occurrence of a value
-                    // with the label
+                    // have to add a cell for every single occurrence of a value with the label
                     for (int k = 0; k < allMetadataKVPairsOnDocument.get(label).size(); k++)
                         csvRow.add(label);
                 }

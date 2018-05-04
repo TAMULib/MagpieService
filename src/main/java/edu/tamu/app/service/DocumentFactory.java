@@ -27,6 +27,7 @@ import edu.tamu.app.model.FieldProfile;
 import edu.tamu.app.model.InputType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldLabel;
+import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.Resource;
@@ -167,6 +168,8 @@ public class DocumentFactory {
 
         Document document = documentRepo.create(project, documentName, documentPath, "Open");
 
+        Long docId = document.getId();
+
         // read dublin_core.xml and create the fields and their values
         // TODO: read other schemata's xml files as well
 
@@ -214,6 +217,9 @@ public class DocumentFactory {
                     }
 
                     project.addProfile(fieldProfile);
+
+                    project = projectRepo.save(project);
+
                 }
                 // If the project has a field profile to accommodate this
                 // field, use it
@@ -229,6 +235,13 @@ public class DocumentFactory {
                 // field, then create it
                 if (mfg == null) {
                     mfg = metadataFieldGroupRepo.create(document, mfl);
+
+                    mfg.setDocument(document);
+                    
+                    mfg = metadataFieldGroupRepo.save(mfg);
+
+                    document = documentRepo.findOne(docId);
+
                 }
                 // otherwise, note that the field is being repeated on this
                 // document (and therefore for the project as a whole)
@@ -236,11 +249,20 @@ public class DocumentFactory {
                     fieldProfile.setRepeatable(true);
                     fieldProfile = fieldProfileRepo.save(fieldProfile);
                 }
+                
+                
+                MetadataFieldValue mfv =  metadataFieldValueRepo.create(value, mfg);
 
-                metadataFieldValueRepo.create(value, mfg);
+                mfg.addValue(mfv);
+                
+                mfg = metadataFieldGroupRepo.save(mfg);
+                
+                document.addField(mfg);
+                
+                document = documentRepo.save(document);
             }
         }
-
+        
         // use the contents file to determine content files
         // TODO: this throws away a lot of the details of the contents
         // manifest, but it's unclear how to map it all to Fedora anyway
