@@ -1,25 +1,32 @@
 package edu.tamu.app.observer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import edu.tamu.app.exception.DocumentNotFoundException;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.DocumentFactory;
+import edu.tamu.app.service.registry.MagpieServiceRegistry;
+import edu.tamu.app.service.repository.Repository;
 
 public abstract class AbstractDocumentListener extends AbstractFileListener {
 
@@ -29,6 +36,13 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     protected static final ExecutorService executor = Executors.newFixedThreadPool(10);
 
+    private static final List<Document> publishQueue = new CopyOnWriteArrayList<Document>();
+
+    private static final AtomicInteger publishing = new AtomicInteger(0);
+
+    @Value("${app.document.publish.concurrency:5}")
+    private int publishConcurrency;
+
     @Autowired
     private ProjectRepo projectRepo;
 
@@ -37,6 +51,9 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     @Autowired
     protected DocumentRepo documentRepo;
+
+    @Autowired
+    private MagpieServiceRegistry projectServiceRegistry;
 
     public AbstractDocumentListener(String root, String folder) {
         super(root, folder);
@@ -55,6 +72,7 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
             createDocument(directory).thenAccept(newDocument -> {
                 if (newDocument != null) {
                     processPendingResources(newDocument);
+                    publishToRepositories(newDocument);
                 } else {
                     logger.warn("Unable to create document!");
                 }
@@ -138,6 +156,34 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     protected void addResource(File file) throws DocumentNotFoundException {
         documentFactory.addResource(file);
+    }
+
+    private void publishToRepositories(Document document) {
+
+        if (publishing.get() <= publishConcurrency) {
+            publishing.incrementAndGet();
+
+            for (ProjectRepository repository : document.getProject().getRepositories()) {
+                try {
+                    document = ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
+                } catch (IOException e) {
+                    logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
+                    e.printStackTrace();
+                }
+            }
+
+            publishing.decrementAndGet();
+
+            if (publishQueue.size() > 0) {
+                Document queuedDocument = publishQueue.get(0);
+                publishQueue.remove(0);
+                publishToRepositories(queuedDocument);
+            }
+
+        } else {
+            publishQueue.add(document);
+        }
+
     }
 
 }
