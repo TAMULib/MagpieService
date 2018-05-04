@@ -134,7 +134,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     }
 
     private String getObjectsUrl(final String tid) {
-        return String.join("/", buildTransactionalContainerUrl(tid), objectsEndpoint);
+        return String.join("/", buildTransactionaUrl(tid), objectsEndpoint);
     }
 
     private void orderPageProxies(ProxyPage[] proxyPages) throws IOException {
@@ -208,7 +208,6 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
             logger.debug("Server message: " + connection.getResponseMessage());
             throw new IOException("Could not complete PUT request. Server responded with " + responseCode);
         }
-
         return connection.getHeaderField("Location");
 
     }
@@ -279,8 +278,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     private String buildPCDMItemOrderUpdate(String itemUrl, String firstUrl, String lastUrl) {
         logger.debug("Setting first/last order for PCDM Item at <" + itemUrl + ">");
         // @formatter:off
-        String orderedItemUpdate = "PREFIX iana: <http://www.iana.org/assignments/relation/>" + "INSERT {" + "<> iana:first <" + firstUrl + "> ." + "<> iana:last <" + lastUrl + ">" + "} WHERE {"
-                + "}";
+        String orderedItemUpdate = "PREFIX iana: <http://www.iana.org/assignments/relation/>" + "INSERT {" + "<> iana:first <" + firstUrl + "> ." + "<> iana:last <" + lastUrl + ">" + "} WHERE {" + "}";
         // @formatter:on
         return orderedItemUpdate;
     }
@@ -314,8 +312,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         String fileName = imageFile.getName();
 
         // @formatter:off
-        String updateQuery = "PREFIX pcdm: <http://pcdm.org/models#> " + "PREFIX dc: <http://purl.org/dc/elements/1.1/> " + "PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> "
-                + "INSERT {" + "<> a pcdm:File . " + "<> dc:filename '" + fileName + "' . " + getImageMetadata(imageFile) + "} WHERE { }";
+        String updateQuery = "PREFIX pcdm: <http://pcdm.org/models#> " + "PREFIX dc: <http://purl.org/dc/elements/1.1/> " + "PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> " + "INSERT {" + "<> a pcdm:File . " + "<> dc:filename '" + fileName + "' . " + getImageMetadata(imageFile) + "} WHERE { }";
         // @formatter:on
         return updateQuery;
     }
@@ -328,9 +325,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
             mimeType = "image/jp2";
         }
 
-        String queryPredicates = "<> ebucore:filename '" + imageFile.getName() + "' . " + "<> ebucore:hasMimeType '" + mimeType + "' ";
-
-        return queryPredicates;
+        return "<> ebucore:filename '" + imageFile.getName() + "' . " + "<> ebucore:hasMimeType '" + mimeType + "' ";
     }
 
     // intermediary for prepping PCDM Proxy Pages to be pushed to the Fedora repo
