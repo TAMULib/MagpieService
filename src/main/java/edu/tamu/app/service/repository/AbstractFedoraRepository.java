@@ -161,7 +161,8 @@ public abstract class AbstractFedoraRepository implements Repository {
         for (MetadataFieldGroup group : document.getFields()) {
             for (MetadataFieldValue value : group.getValues()) {
                 cleanValue = StringEscapeUtils.escapeJava(value.getValue());
-                updateQuery += "<> " + group.getLabel().getName().replace('.', ':') + " \"" + cleanValue + "\" . ";
+                if (cleanValue.length() > 0)
+                    updateQuery += "<> " + group.getLabel().getName().replace('.', ':') + " \"" + cleanValue + "\" . ";
             }
         }
         updateQuery += "} WHERE { }";
