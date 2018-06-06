@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><entities>
 	<entity>
+		<entity-name>edu.tamu.app.model.PublishedLocation</entity-name>
+		<entity-width>120</entity-width>
+		<entity-height>108</entity-height>
+		<entity-X-Coordinate>253</entity-X-Coordinate>
+		<entity-Y-Coordinate>564</entity-Y-Coordinate>
+		<primary-collapsed>false</primary-collapsed>
+		<relation-collapsed>false</relation-collapsed>
+		<basic-collapsed>false</basic-collapsed>
+	</entity>
+
+	<entity>
 		<entity-name>edu.tamu.app.model.AppUser</entity-name>
 		<entity-width>120</entity-width>
 		<entity-height>110</entity-height>
@@ -22,11 +33,11 @@
 	</entity>
 
 	<entity>
-		<entity-name>edu.tamu.app.model.Document</entity-name>
+		<entity-name>edu.tamu.app.model.ProjectRepository</entity-name>
 		<entity-width>120</entity-width>
-		<entity-height>228</entity-height>
-		<entity-X-Coordinate>702</entity-X-Coordinate>
-		<entity-Y-Coordinate>420</entity-Y-Coordinate>
+		<entity-height>32</entity-height>
+		<entity-X-Coordinate>253</entity-X-Coordinate>
+		<entity-Y-Coordinate>363</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
 		<basic-collapsed>false</basic-collapsed>
@@ -44,22 +55,22 @@
 	</entity>
 
 	<entity>
-		<entity-name>edu.tamu.app.model.MetadataFieldGroup</entity-name>
+		<entity-name>edu.tamu.app.model.MetadataFieldLabel</entity-name>
 		<entity-width>120</entity-width>
-		<entity-height>110</entity-height>
-		<entity-X-Coordinate>702</entity-X-Coordinate>
-		<entity-Y-Coordinate>762</entity-Y-Coordinate>
+		<entity-height>108</entity-height>
+		<entity-X-Coordinate>424</entity-X-Coordinate>
+		<entity-Y-Coordinate>763</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
 		<basic-collapsed>false</basic-collapsed>
 	</entity>
 
 	<entity>
-		<entity-name>edu.tamu.app.model.MetadataFieldLabel</entity-name>
+		<entity-name>edu.tamu.app.model.ProjectService</entity-name>
 		<entity-width>120</entity-width>
-		<entity-height>108</entity-height>
-		<entity-X-Coordinate>424</entity-X-Coordinate>
-		<entity-Y-Coordinate>763</entity-Y-Coordinate>
+		<entity-height>128</entity-height>
+		<entity-X-Coordinate>101</entity-X-Coordinate>
+		<entity-Y-Coordinate>175</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
 		<basic-collapsed>false</basic-collapsed>
@@ -77,65 +88,10 @@
 	</entity>
 
 	<entity>
-		<entity-name>edu.tamu.app.model.Project</entity-name>
-		<entity-width>120</entity-width>
-		<entity-height>248</entity-height>
-		<entity-X-Coordinate>101</entity-X-Coordinate>
-		<entity-Y-Coordinate>410</entity-Y-Coordinate>
-		<primary-collapsed>false</primary-collapsed>
-		<relation-collapsed>false</relation-collapsed>
-		<basic-collapsed>false</basic-collapsed>
-	</entity>
-
-	<entity>
-		<entity-name>edu.tamu.app.model.ProjectAuthority</entity-name>
-		<entity-width>120</entity-width>
-		<entity-height>32</entity-height>
-		<entity-X-Coordinate>555</entity-X-Coordinate>
-		<entity-Y-Coordinate>363</entity-Y-Coordinate>
-		<primary-collapsed>false</primary-collapsed>
-		<relation-collapsed>false</relation-collapsed>
-		<basic-collapsed>false</basic-collapsed>
-	</entity>
-
-	<entity>
-		<entity-name>edu.tamu.app.model.ProjectRepository</entity-name>
-		<entity-width>120</entity-width>
-		<entity-height>32</entity-height>
-		<entity-X-Coordinate>261</entity-X-Coordinate>
-		<entity-Y-Coordinate>363</entity-Y-Coordinate>
-		<primary-collapsed>false</primary-collapsed>
-		<relation-collapsed>false</relation-collapsed>
-		<basic-collapsed>false</basic-collapsed>
-	</entity>
-
-	<entity>
-		<entity-name>edu.tamu.app.model.ProjectService</entity-name>
-		<entity-width>120</entity-width>
-		<entity-height>128</entity-height>
-		<entity-X-Coordinate>101</entity-X-Coordinate>
-		<entity-Y-Coordinate>149</entity-Y-Coordinate>
-		<primary-collapsed>false</primary-collapsed>
-		<relation-collapsed>false</relation-collapsed>
-		<basic-collapsed>false</basic-collapsed>
-	</entity>
-
-	<entity>
-		<entity-name>edu.tamu.app.model.ProjectSetting</entity-name>
-		<entity-width>120</entity-width>
-		<entity-height>90</entity-height>
-		<entity-X-Coordinate>101</entity-X-Coordinate>
-		<entity-Y-Coordinate>35</entity-Y-Coordinate>
-		<primary-collapsed>false</primary-collapsed>
-		<relation-collapsed>false</relation-collapsed>
-		<basic-collapsed>false</basic-collapsed>
-	</entity>
-
-	<entity>
 		<entity-name>edu.tamu.app.model.ProjectSuggestor</entity-name>
 		<entity-width>120</entity-width>
 		<entity-height>32</entity-height>
-		<entity-X-Coordinate>401</entity-X-Coordinate>
+		<entity-X-Coordinate>388</entity-X-Coordinate>
 		<entity-Y-Coordinate>363</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
@@ -143,11 +99,11 @@
 	</entity>
 
 	<entity>
-		<entity-name>edu.tamu.app.model.PublishedLocation</entity-name>
+		<entity-name>edu.tamu.app.model.MetadataFieldGroup</entity-name>
 		<entity-width>120</entity-width>
-		<entity-height>108</entity-height>
-		<entity-X-Coordinate>261</entity-X-Coordinate>
-		<entity-Y-Coordinate>92</entity-Y-Coordinate>
+		<entity-height>110</entity-height>
+		<entity-X-Coordinate>702</entity-X-Coordinate>
+		<entity-Y-Coordinate>762</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
 		<basic-collapsed>false</basic-collapsed>
@@ -159,6 +115,50 @@
 		<entity-height>148</entity-height>
 		<entity-X-Coordinate>908</entity-X-Coordinate>
 		<entity-Y-Coordinate>460</entity-Y-Coordinate>
+		<primary-collapsed>false</primary-collapsed>
+		<relation-collapsed>false</relation-collapsed>
+		<basic-collapsed>false</basic-collapsed>
+	</entity>
+
+	<entity>
+		<entity-name>edu.tamu.app.model.ProjectSetting</entity-name>
+		<entity-width>120</entity-width>
+		<entity-height>90</entity-height>
+		<entity-X-Coordinate>99</entity-X-Coordinate>
+		<entity-Y-Coordinate>50</entity-Y-Coordinate>
+		<primary-collapsed>false</primary-collapsed>
+		<relation-collapsed>false</relation-collapsed>
+		<basic-collapsed>false</basic-collapsed>
+	</entity>
+
+	<entity>
+		<entity-name>edu.tamu.app.model.ProjectAuthority</entity-name>
+		<entity-width>120</entity-width>
+		<entity-height>32</entity-height>
+		<entity-X-Coordinate>520</entity-X-Coordinate>
+		<entity-Y-Coordinate>363</entity-Y-Coordinate>
+		<primary-collapsed>false</primary-collapsed>
+		<relation-collapsed>false</relation-collapsed>
+		<basic-collapsed>false</basic-collapsed>
+	</entity>
+
+	<entity>
+		<entity-name>edu.tamu.app.model.Project</entity-name>
+		<entity-width>120</entity-width>
+		<entity-height>248</entity-height>
+		<entity-X-Coordinate>101</entity-X-Coordinate>
+		<entity-Y-Coordinate>410</entity-Y-Coordinate>
+		<primary-collapsed>false</primary-collapsed>
+		<relation-collapsed>false</relation-collapsed>
+		<basic-collapsed>false</basic-collapsed>
+	</entity>
+
+	<entity>
+		<entity-name>edu.tamu.app.model.Document</entity-name>
+		<entity-width>120</entity-width>
+		<entity-height>228</entity-height>
+		<entity-X-Coordinate>702</entity-X-Coordinate>
+		<entity-Y-Coordinate>420</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
 		<basic-collapsed>false</basic-collapsed>
