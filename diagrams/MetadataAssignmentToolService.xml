@@ -3,8 +3,8 @@
 		<entity-name>edu.tamu.app.model.PublishedLocation</entity-name>
 		<entity-width>120</entity-width>
 		<entity-height>108</entity-height>
-		<entity-X-Coordinate>253</entity-X-Coordinate>
-		<entity-Y-Coordinate>564</entity-Y-Coordinate>
+		<entity-X-Coordinate>512</entity-X-Coordinate>
+		<entity-Y-Coordinate>551</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
 		<basic-collapsed>false</basic-collapsed>
@@ -36,7 +36,7 @@
 		<entity-name>edu.tamu.app.model.ProjectRepository</entity-name>
 		<entity-width>120</entity-width>
 		<entity-height>32</entity-height>
-		<entity-X-Coordinate>253</entity-X-Coordinate>
+		<entity-X-Coordinate>512</entity-X-Coordinate>
 		<entity-Y-Coordinate>363</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
@@ -70,7 +70,7 @@
 		<entity-width>120</entity-width>
 		<entity-height>128</entity-height>
 		<entity-X-Coordinate>101</entity-X-Coordinate>
-		<entity-Y-Coordinate>175</entity-Y-Coordinate>
+		<entity-Y-Coordinate>186</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
 		<basic-collapsed>false</basic-collapsed>
@@ -91,7 +91,7 @@
 		<entity-name>edu.tamu.app.model.ProjectSuggestor</entity-name>
 		<entity-width>120</entity-width>
 		<entity-height>32</entity-height>
-		<entity-X-Coordinate>388</entity-X-Coordinate>
+		<entity-X-Coordinate>370</entity-X-Coordinate>
 		<entity-Y-Coordinate>363</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
@@ -135,7 +135,7 @@
 		<entity-name>edu.tamu.app.model.ProjectAuthority</entity-name>
 		<entity-width>120</entity-width>
 		<entity-height>32</entity-height>
-		<entity-X-Coordinate>520</entity-X-Coordinate>
+		<entity-X-Coordinate>236</entity-X-Coordinate>
 		<entity-Y-Coordinate>363</entity-Y-Coordinate>
 		<primary-collapsed>false</primary-collapsed>
 		<relation-collapsed>false</relation-collapsed>
