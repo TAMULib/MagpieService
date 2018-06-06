@@ -76,8 +76,8 @@ public class ProjectListenerTest {
 
         assertEquals("The resource repo has the incorrect number of resources!", 2, resourceRepo.count());
 
-        assertNotNull("The test.pdf resource was not created!", resourceRepo.findByDocumentNameAndDocumentProjectNameAndName("test_0", "test", "test.pdf"));
-        assertNotNull("The test.pdf.txt resource was not created!", resourceRepo.findByDocumentNameAndDocumentProjectNameAndName("test_0", "test", "test.pdf.txt"));
+        assertNotNull("The test.pdf resource was not created!", resourceRepo.findByDocumentProjectNameAndDocumentNameAndName("test", "test_0", "test.pdf"));
+        assertNotNull("The test.pdf.txt resource was not created!", resourceRepo.findByDocumentProjectNameAndDocumentNameAndName("test", "test_0", "test.pdf.txt"));
 
         FileSystemUtility.deleteDirectory(disseratationsPath);
         FileSystemUtility.deleteDirectory(projectsPath);

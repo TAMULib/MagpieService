@@ -11,7 +11,7 @@ import edu.tamu.weaver.data.model.repo.WeaverRepo;
 @Repository
 public interface ResourceRepo extends WeaverRepo<Resource>, ResourceRepoCustom {
 
-    public Resource findByDocumentNameAndDocumentProjectNameAndName(String documentName, String projectName, String name);
+    public Resource findByDocumentProjectNameAndDocumentNameAndName(String projectName, String documentName, String name);
 
     public List<Resource> findAllByDocumentProjectNameAndDocumentName(String projectName, String documentName);
 

@@ -103,7 +103,7 @@ public class DocumentFactory {
         String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
         String mimeType = tika.detect(path);
 
-        Resource resource = resourceRepo.findByDocumentNameAndDocumentProjectNameAndName(documentName, projectName, resourceName);
+        Resource resource = resourceRepo.findByDocumentProjectNameAndDocumentNameAndName(projectName, documentName, resourceName);
         if (resource == null) {
             logger.info("Adding new resource " + resourceName + " - " + mimeType + " for document " + document.getName());
             resourceRepo.create(document, resourceName, path, mimeType);
