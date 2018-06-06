@@ -103,7 +103,7 @@ public class DocumentFactory {
         String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
         String mimeType = tika.detect(path);
 
-        Resource resource = resourceRepo.findByDocumentNameAndName(documentName, resourceName);
+        Resource resource = resourceRepo.findByDocumentProjectNameAndDocumentNameAndName(projectName, documentName, resourceName);
         if (resource == null) {
             logger.info("Adding new resource " + resourceName + " - " + mimeType + " for document " + document.getName());
             resourceRepo.create(document, resourceName, path, mimeType);
@@ -237,7 +237,7 @@ public class DocumentFactory {
                     mfg = metadataFieldGroupRepo.create(document, mfl);
 
                     mfg.setDocument(document);
-                    
+
                     mfg = metadataFieldGroupRepo.save(mfg);
 
                     document = documentRepo.findOne(docId);
@@ -249,20 +249,19 @@ public class DocumentFactory {
                     fieldProfile.setRepeatable(true);
                     fieldProfile = fieldProfileRepo.save(fieldProfile);
                 }
-                
-                
-                MetadataFieldValue mfv =  metadataFieldValueRepo.create(value, mfg);
+
+                MetadataFieldValue mfv = metadataFieldValueRepo.create(value, mfg);
 
                 mfg.addValue(mfv);
-                
+
                 mfg = metadataFieldGroupRepo.save(mfg);
-                
+
                 document.addField(mfg);
-                
+
                 document = documentRepo.save(document);
             }
         }
-        
+
         // use the contents file to determine content files
         // TODO: this throws away a lot of the details of the contents
         // manifest, but it's unclear how to map it all to Fedora anyway
