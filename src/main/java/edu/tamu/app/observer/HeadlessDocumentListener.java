@@ -1,8 +1,11 @@
 package edu.tamu.app.observer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,17 +14,30 @@ import org.springframework.beans.factory.annotation.Value;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
+import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.service.registry.MagpieServiceRegistry;
+import edu.tamu.app.service.repository.Repository;
 
 public class HeadlessDocumentListener extends AbstractDocumentListener {
 
     private static final Logger logger = Logger.getLogger(HeadlessDocumentListener.class);
 
+    @Autowired
+    private DocumentRepo documentRepo;
+
+    @Autowired
+    private MagpieServiceRegistry projectServiceRegistry;
+
     @Value("${app.document.create.wait}")
     private int documentCreationWait;
 
-    @Autowired
-    private DocumentRepo documentRepo;
+    @Value("${app.document.publish.concurrency:5}")
+    private int publishConcurrency;
+
+    private static final List<Document> publishQueue = new CopyOnWriteArrayList<Document>();
+
+    private static final AtomicInteger publishing = new AtomicInteger(0);
 
     public HeadlessDocumentListener(String root, String folder) {
         super(root, folder);
@@ -42,6 +58,16 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
             }
             return document;
         }, executor);
+    }
+
+    @Override
+    protected void createdDocumentCallback(Document document) {
+        if (document != null) {
+            logger.info("Document created: " + document.getName());
+            publishToRepositories(document);
+        } else {
+            logger.warn("Unable to create document!");
+        }
     }
 
     @Override
@@ -74,6 +100,40 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
             mfg.addValue(mfv);
         }
         return documentRepo.save(document);
+    }
+
+    private void publishToRepositories(Document document) {
+
+        logger.info("Attempting to publish documnet: " + document.getName());
+
+        logger.info("Current concurrency: " + publishing.get());
+
+        if (publishing.get() <= publishConcurrency) {
+            publishing.incrementAndGet();
+
+            for (ProjectRepository repository : document.getProject().getRepositories()) {
+                try {
+                    document = ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
+                } catch (IOException e) {
+                    logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
+                    e.printStackTrace();
+                }
+            }
+
+            publishing.decrementAndGet();
+
+            if (publishQueue.size() > 0) {
+                Document queuedDocument = publishQueue.get(0);
+                publishQueue.remove(0);
+                logger.info("Remaining in queue: " + publishQueue.size());
+                publishToRepositories(queuedDocument);
+            }
+
+        } else {
+            logger.info("Queueing document: " + document.getName());
+            publishQueue.add(document);
+        }
+
     }
 
 }
