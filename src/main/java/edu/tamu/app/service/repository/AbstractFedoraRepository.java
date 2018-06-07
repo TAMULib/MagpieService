@@ -243,6 +243,11 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     protected String startTransaction() throws IOException {
         HttpURLConnection connection = buildFedoraConnection(String.join("/", getRepoUrl(), getRestPath(), "fcr:tx"), "POST");
+
+        for (String header : connection.getHeaderFields().keySet()) {
+            logger.debug("HTTP connection to open Fedora transaction got header \"" + header + "\" with value \"" + connection.getHeaderFields().get(header) + "\".");
+        }
+
         String transactionalUrl = connection.getHeaderField("Location");
 
         return transactionalUrl.substring(transactionalUrl.lastIndexOf("/") + 1);
