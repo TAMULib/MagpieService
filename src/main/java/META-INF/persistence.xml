@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+	<persistence-unit name="MetadataAssignmentToolService">
+		<class>edu.tamu.app.model.AppUser</class>
+		<class>edu.tamu.app.model.ControlledVocabulary</class>
+		<class>edu.tamu.app.model.Document</class>
+		<class>edu.tamu.app.model.FieldProfile</class>
+		<class>edu.tamu.app.model.MetadataFieldGroup</class>
+		<class>edu.tamu.app.model.MetadataFieldLabel</class>
+		<class>edu.tamu.app.model.MetadataFieldValue</class>
+		<class>edu.tamu.app.model.Project</class>
+		<class>edu.tamu.app.model.ProjectAuthority</class>
+		<class>edu.tamu.app.model.ProjectRepository</class>
+		<class>edu.tamu.app.model.ProjectService</class>
+		<class>edu.tamu.app.model.ProjectSetting</class>
+		<class>edu.tamu.app.model.ProjectSuggestor</class>
+		<class>edu.tamu.app.model.PublishedLocation</class>
+		<class>edu.tamu.app.model.Resource</class>
+		<class>edu.tamu.weaver.data.model.BaseEntity</class>
+	</persistence-unit>
+</persistence>
