@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,11 +84,9 @@ public class ProjectController {
     @RequestMapping("/update")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse update(@WeaverValidatedModel Project project) {
-        //TODO There's hopefully a better way to merge the old project state with the new one
         Project currentProject = projectRepo.findOne(project.getId());
-        project.setDocuments(currentProject.getDocuments());
-        project.setProfiles(currentProject.getProfiles());
-        return new ApiResponse(SUCCESS, projectRepo.update(project));
+        BeanUtils.copyProperties(project, currentProject, "documents","profiles");
+        return new ApiResponse(SUCCESS, projectRepo.update(currentProject));
     }
 
     @RequestMapping("/remove")
