@@ -155,6 +155,7 @@ public class DocumentFactory {
 
     private Document applyAuthorities(Document document, List<ProjectAuthority> authorities) {
         for (ProjectAuthority authority : authorities) {
+            logger.info("Applying authority " + authority.getName() + " to " + document.getName() );
             document = ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
         }
         return document;
