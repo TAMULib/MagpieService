@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import edu.tamu.app.exception.DocumentNotFoundException;
 import edu.tamu.app.model.Document;
+import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.ProjectRepository;
@@ -19,7 +20,7 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
 
     private static final Logger logger = Logger.getLogger(HeadlessDocumentListener.class);
 
-    @Value("${app.document.create.wait}")
+    @Value("${app.document.create.wait:10000}")
     private int documentCreationWait;
 
     @Autowired
@@ -45,8 +46,11 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
         try {
             waitOnDirectory(directory);
             document = documentFactory.createDocument(directory);
-            document = processResources(document, directory);
-            document = applyDefaultValues(document);
+            IngestType ingestType = document.getProject().getIngestType();
+            if (!ingestType.equals(IngestType.SAF)) {
+                document = processResources(document, directory);
+                document = applyDefaultValues(document);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
