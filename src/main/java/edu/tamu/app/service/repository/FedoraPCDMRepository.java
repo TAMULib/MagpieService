@@ -26,7 +26,13 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     private Tika tika;
 
     // @formatter:off
-    private List<String> jpeg2000MimeTypes = Arrays.asList(new String[] { "image/jp2", "image/j2k", "image/jpx", "image/jpm", "image/jpeg2000" });
+    private List<String> jpeg2000MimeTypes = Arrays.asList(new String[] {
+        "image/jp2",
+        "image/j2k",
+        "image/jpx",
+        "image/jpm",
+        "image/jpeg2000"
+    });
     // @formatter:on
 
     private String membersEndpoint = "members";
