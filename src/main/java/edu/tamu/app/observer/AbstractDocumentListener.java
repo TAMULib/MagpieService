@@ -1,5 +1,7 @@
 package edu.tamu.app.observer;
 
+import static edu.tamu.app.Initialization.LISTENER_PARALLELISM;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
@@ -25,9 +28,11 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     private static final Logger logger = Logger.getLogger(AbstractDocumentListener.class);
 
-    protected static final Map<String, List<String>> pendingResources = new ConcurrentHashMap<String, List<String>>();
+    private static final Map<String, List<String>> pendingResources = new ConcurrentHashMap<String, List<String>>();
 
-    protected static final ExecutorService executor = Executors.newFixedThreadPool(1);
+    private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(LISTENER_PARALLELISM);
+
+    private static final AtomicBoolean firstDocument = new AtomicBoolean(true);
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -52,9 +57,14 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
         Document existingDocument = documentRepo.findByProjectNameAndName(directory.getParentFile().getName(), directory.getName());
         if (existingDocument == null) {
             initializePendingResources(directory.getName());
-            createDocument(directory).thenAccept(document -> {
+            if (firstDocument.compareAndSet(true, false)) {
+                Document document = createDocument(directory);
                 createdDocumentCallback(document);
-            });
+            } else {
+                completableCreateDocument(directory).thenAccept(document -> {
+                    createdDocumentCallback(document);
+                });
+            }
         }
     }
 
@@ -110,6 +120,17 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
         pendingResources.put(documentName, new ArrayList<String>());
     }
 
+    protected Document createDocument(File directory) {
+        Document document = null;
+        try {
+            document = documentFactory.createDocument(directory);
+            document = processResources(document, directory);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return document;
+    }
+
     protected Document processResources(Document document, File directory) {
         String documentName = document.getName();
         for (String resourcePath : pendingResources.get(documentName)) {
@@ -117,19 +138,6 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
         }
         pendingResources.remove(documentName);
         return document;
-    }
-
-    protected CompletableFuture<Document> createDocument(File directory) {
-        return CompletableFuture.supplyAsync(() -> {
-            Document document = null;
-            try {
-                document = documentFactory.createDocument(directory);
-                document = processResources(document, directory);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return document;
-        }, executor);
     }
 
     protected void createdDocumentCallback(Document document) {
@@ -142,6 +150,12 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     protected void addResource(File file) throws DocumentNotFoundException {
         documentFactory.addResource(file);
+    }
+
+    private synchronized CompletableFuture<Document> completableCreateDocument(File directory) {
+        return CompletableFuture.supplyAsync(() -> {
+            return createDocument(directory);
+        }, parallelExecutor);
     }
 
 }

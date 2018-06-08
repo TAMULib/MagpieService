@@ -1,10 +1,7 @@
 package edu.tamu.app.observer;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +12,6 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.ProjectRepository;
-import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
 
@@ -23,14 +19,11 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
 
     private static final Logger logger = Logger.getLogger(HeadlessDocumentListener.class);
 
-    @Autowired
-    private DocumentRepo documentRepo;
+    @Value("${app.document.create.wait}")
+    private int documentCreationWait;
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
-
-    @Value("${app.document.create.wait}")
-    private int documentCreationWait;
 
     public HeadlessDocumentListener(String root, String folder) {
         super(root, folder);
@@ -42,20 +35,22 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
     }
 
     @Override
-    protected CompletableFuture<Document> createDocument(File directory) {
-        return CompletableFuture.supplyAsync(() -> {
-            Document document = null;
-            try {
-                waitOnDirectory(directory);
-                document = documentFactory.createDocument(directory);
-                document = processResources(document, directory);
-                document = applyDefaultValues(document);
-                logger.info("Document created: " + document.getName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return document;
-        }, executor);
+    protected void initializePendingResources(String documentName) {
+
+    }
+
+    @Override
+    protected Document createDocument(File directory) {
+        Document document = null;
+        try {
+            waitOnDirectory(directory);
+            document = documentFactory.createDocument(directory);
+            document = processResources(document, directory);
+            document = applyDefaultValues(document);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return document;
     }
 
     @Override
@@ -77,6 +72,7 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
     @Override
     protected void createdDocumentCallback(Document document) {
         if (document != null) {
+            logger.info("Document created: " + document.getName());
             publishToRepositories(document);
         } else {
             logger.warn("Unable to create document!");
