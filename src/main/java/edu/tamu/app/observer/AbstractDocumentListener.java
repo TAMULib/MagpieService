@@ -110,7 +110,7 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
         pendingResources.put(documentName, new ArrayList<String>());
     }
 
-    protected Document processPendingResources(Document document) {
+    protected Document processResources(Document document, File directory) {
         String documentName = document.getName();
         for (String resourcePath : pendingResources.get(documentName)) {
             document = documentFactory.addResource(document, new File(resourcePath));
@@ -124,7 +124,7 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
             Document document = null;
             try {
                 document = documentFactory.createDocument(directory);
-                document = processPendingResources(document);
+                document = processResources(document, directory);
             } catch (Exception e) {
                 e.printStackTrace();
             }
