@@ -105,7 +105,7 @@ public class CSVAuthority implements Authority {
             logger.info("Preparing to process CSV records using identifier field " + getIdentifier());
             csvParser.getRecords().forEach(record -> {
                 String filename = record.get(getIdentifier());
-                logger.info("Processing record " + filename);
+                logger.debug("Processing record " + filename);
                 if (filename != null) {
                     currentRecords.put(filename, record);
                 } else {

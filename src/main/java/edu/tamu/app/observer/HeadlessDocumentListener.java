@@ -1,16 +1,16 @@
 package edu.tamu.app.observer;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import edu.tamu.app.exception.DocumentNotFoundException;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
@@ -32,15 +32,13 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
     @Value("${app.document.create.wait}")
     private int documentCreationWait;
 
-    @Value("${app.document.publish.concurrency:5}")
-    private int publishConcurrency;
-
-    private static final List<Document> publishQueue = new CopyOnWriteArrayList<Document>();
-
-    private static final AtomicInteger publishing = new AtomicInteger(0);
-
     public HeadlessDocumentListener(String root, String folder) {
         super(root, folder);
+    }
+
+    @Override
+    public void onFileCreate(File file) {
+        logger.debug("File listener not invoking resource creation for file " + file.getName() + " because we're waiting for directory quiescence in Headless mode.");
     }
 
     @Override
@@ -48,11 +46,11 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
         return CompletableFuture.supplyAsync(() -> {
             Document document = null;
             try {
-                initializePendingResources(directory.getName());
                 waitOnDirectory(directory);
                 document = documentFactory.createDocument(directory);
-                document = processPendingResources(document);
+                document = processResources(document, directory);
                 document = applyDefaultValues(document);
+                logger.info("Document created: " + document.getName());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -61,20 +59,28 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
     }
 
     @Override
+    protected Document processResources(Document document, File directory) {
+        // For the Headless use case, we can simply list the files in the document directory after it has become quiescent
+        for (File resourceFile : directory.listFiles()) {
+            try {
+                if (!resourceFile.isHidden() && !resourceFile.isDirectory()) {
+                    addResource(resourceFile);
+                }
+            } catch (DocumentNotFoundException e) {
+                logger.error("Couldn't find a newly created file " + resourceFile.getName());
+                e.printStackTrace();
+            }
+        }
+        return document;
+    }
+
+    @Override
     protected void createdDocumentCallback(Document document) {
         if (document != null) {
-            logger.info("Document created: " + document.getName());
             publishToRepositories(document);
         } else {
             logger.warn("Unable to create document!");
         }
-    }
-
-    @Override
-    protected void addResource(File file) {
-        String documentName = file.getParentFile().getName();
-        List<String> documentPendingResources = pendingResources.get(documentName);
-        documentPendingResources.add(file.getAbsolutePath());
     }
 
     // this is a blocking sleep operation of this listener
@@ -103,37 +109,15 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
     }
 
     private void publishToRepositories(Document document) {
-
-        logger.info("Attempting to publish documnet: " + document.getName());
-
-        logger.info("Current concurrency: " + publishing.get());
-
-        if (publishing.get() <= publishConcurrency) {
-            publishing.incrementAndGet();
-
-            for (ProjectRepository repository : document.getProject().getRepositories()) {
-                try {
-                    document = ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
-                } catch (IOException e) {
-                    logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
-                    e.printStackTrace();
-                }
+        logger.info("Attempting to publish document: " + document.getName());
+        for (ProjectRepository repository : document.getProject().getRepositories()) {
+            try {
+                ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
+            } catch (IOException e) {
+                logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
+                e.printStackTrace();
             }
-
-            publishing.decrementAndGet();
-
-            if (publishQueue.size() > 0) {
-                Document queuedDocument = publishQueue.get(0);
-                publishQueue.remove(0);
-                logger.info("Remaining in queue: " + publishQueue.size());
-                publishToRepositories(queuedDocument);
-            }
-
-        } else {
-            logger.info("Queueing document: " + document.getName());
-            publishQueue.add(document);
         }
-
     }
 
 }
