@@ -33,7 +33,10 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.ProjectAuthorityRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ProjectRepositoryRepo;
+import edu.tamu.app.model.repo.ProjectSuggestorRepo;
 import edu.tamu.app.observer.FileObserverRegistry;
 import edu.tamu.app.observer.HeadlessDocumentListener;
 import edu.tamu.app.observer.StandardDocumentListener;
@@ -84,6 +87,15 @@ public class ProjectFactory {
     private ProjectRepo projectRepo;
 
     @Autowired
+    private ProjectRepositoryRepo projectRepositoryRepo;
+
+    @Autowired
+    private ProjectSuggestorRepo projectSuggestorRepo;
+
+    @Autowired
+    private ProjectAuthorityRepo projectAuthorityRepo;
+
+    @Autowired
     private FieldProfileRepo fieldProfileRepo;
 
     @Autowired
@@ -131,6 +143,18 @@ public class ProjectFactory {
         List<ProjectRepository> repositories = getProjectRepositories(projectNode);
         List<ProjectAuthority> authorities = getProjectAuthorities(projectNode);
         List<ProjectSuggestor> suggestors = getProjectSuggestors(projectNode);
+
+        repositories.forEach(service -> {
+            projectRepositoryRepo.create(service);
+        });
+
+        authorities.forEach(service -> {
+            projectAuthorityRepo.create(service);
+        });
+
+        suggestors.forEach(service -> {
+            projectSuggestorRepo.create(service);
+        });
 
         boolean headless = false;
         if (projectNode.has(HEADLESS_KEY)) {
@@ -226,6 +250,25 @@ public class ProjectFactory {
 
     }
 
+    /* TODO generalize against ProjectService commonalities
+    public Map<String,List<String>> getProjectServiceTypes(ProjectService projectService) {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+        getProjectsNode().forEach(projectNode -> {
+            List<? extends ProjectService> projectRepositories = getProjectRepositories(projectNode);
+            projectRepositories.forEach(projectRepository -> {
+                if (!scaffolds.containsKey(projectRepository.getType())) {
+                    List<String> settingKeys = new ArrayList<String>();
+                    projectRepository.getSettings().forEach(projectSetting -> {
+                        settingKeys.add(projectSetting.getKey());
+                    });
+                    scaffolds.put(projectRepository.getType().toString(), settingKeys);
+                }
+            });
+        });
+        return scaffolds;
+    }
+    */
+
     public Map<String, List<String>> getProjectRepositoryTypes() {
         Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
         getProjectsNode().forEach(projectNode -> {
@@ -242,7 +285,41 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-
+    
+    public Map<String,List<String>> getProjectSuggestorTypes() {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+        getProjectsNode().forEach(projectNode -> {
+            List<ProjectSuggestor> projectSuggestors = getProjectSuggestors(projectNode);
+            projectSuggestors.forEach(projectSuggestor -> {
+                if (!scaffolds.containsKey(projectSuggestor.getType())) {
+                    List<String> settingKeys = new ArrayList<String>(); 
+                    projectSuggestor.getSettings().forEach(projectSetting -> {
+                        settingKeys.add(projectSetting.getKey());
+                    });
+                    scaffolds.put(projectSuggestor.getType().toString(), settingKeys);
+                }
+            });
+        });
+        return scaffolds;
+    }
+    
+    public Map<String,List<String>> getProjectAuthorityTypes() {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+        getProjectsNode().forEach(projectNode -> {
+            List<ProjectAuthority> projectAuthorities = getProjectAuthorities(projectNode);
+            projectAuthorities.forEach(projectAuthority -> {
+                if (!scaffolds.containsKey(projectAuthority.getType())) {
+                    List<String> settingKeys = new ArrayList<String>();
+                    projectAuthority.getSettings().forEach(projectSetting -> {
+                        settingKeys.add(projectSetting.getKey());
+                    });
+                    scaffolds.put(projectAuthority.getType().toString(), settingKeys);
+                }
+            });
+        });
+        return scaffolds;
+    }
+    
     protected JsonNode getProjectsNode() {
         if (projectsNode == null) {
             projectsNode = readProjectsNode();
