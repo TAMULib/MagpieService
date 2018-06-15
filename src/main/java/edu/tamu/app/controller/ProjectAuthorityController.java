@@ -53,9 +53,9 @@ public class ProjectAuthorityController {
         return new ApiResponse(SUCCESS, projectAuthorityRepo.update(projectAuthority));
     }
 
-    @RequestMapping("/remove")
+    @RequestMapping("/delete")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse remove(@WeaverValidatedModel ProjectAuthority projectAuthority) {
+    public ApiResponse delete(@WeaverValidatedModel ProjectAuthority projectAuthority) {
         projectAuthorityRepo.delete(projectAuthority);
         return new ApiResponse(SUCCESS);
     }

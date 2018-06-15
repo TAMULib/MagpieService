@@ -72,9 +72,9 @@ public class ProjectSuggestorController {
         return new ApiResponse(SUCCESS, projectSuggestorRepo.update(projectSuggestor));
     }
 
-    @RequestMapping("/remove")
+    @RequestMapping("/delete")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse remove(@WeaverValidatedModel ProjectSuggestor projectSuggestor) {
+    public ApiResponse delete(@WeaverValidatedModel ProjectSuggestor projectSuggestor) {
         projectSuggestorRepo.delete(projectSuggestor);
         return new ApiResponse(SUCCESS);
     }
