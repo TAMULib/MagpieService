@@ -53,10 +53,11 @@ public class ProjectRepositoryController {
         return new ApiResponse(SUCCESS, projectRepositoryRepo.update(projectRepository));
     }
 
-    @RequestMapping("/remove")
+    @RequestMapping("/delete")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse remove(@WeaverValidatedModel ProjectRepository projectRepository) {
-        projectRepositoryRepo.delete(projectRepository);
+    public ApiResponse delete(@WeaverValidatedModel ProjectRepository projectRepository) {
+        //TODO The WeaverValidatedModel isn't populating the projects associated with the projectRepository, so we have to get it fresh from the repo here
+        projectRepositoryRepo.delete(projectRepositoryRepo.getOne(projectRepository.getId()));
         return new ApiResponse(SUCCESS);
     }
 
