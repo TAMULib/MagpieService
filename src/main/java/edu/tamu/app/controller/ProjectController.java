@@ -60,7 +60,7 @@ public class ProjectController {
 
     /**
      * Endpoint to return list of projects.
-     * 
+     *
      * @return ApiResponse
      */
     @RequestMapping("/all")
@@ -89,9 +89,9 @@ public class ProjectController {
         return new ApiResponse(SUCCESS, projectRepo.update(currentProject));
     }
 
-    @RequestMapping("/remove")
+    @RequestMapping("/delete")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse remove(@WeaverValidatedModel Project project) {
+    public ApiResponse delete(@WeaverValidatedModel Project project) {
         projectRepo.delete(project);
         return new ApiResponse(SUCCESS);
     }
@@ -178,10 +178,10 @@ public class ProjectController {
 
     /**
      * Endpoint for batch publishing to a given repository all Accepted documents of a project
-     * 
+     *
      * @param projectId
      * @param repositoryId
-     * 
+     *
      * @return ApiResponse
      */
     @RequestMapping("/batchpublish/project/{projectId}/repository/{repositoryId}")
