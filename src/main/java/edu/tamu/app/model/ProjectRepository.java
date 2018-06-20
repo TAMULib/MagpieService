@@ -34,4 +34,13 @@ public class ProjectRepository extends ProjectService {
     public void setProjects(List<Project> projects) {
         this.projects = projects;
     }
+
+    public void removeProject(Project project) {
+        for (int x=0;x<this.getProjects().size();x++) {
+            if (projects.get(x).getId() == project.getId()) {
+                projects.remove(x);
+                break;
+            }
+        }
+    }
 }

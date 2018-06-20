@@ -31,7 +31,10 @@ import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
+import edu.tamu.app.model.repo.ProjectAuthorityRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ProjectRepositoryRepo;
+import edu.tamu.app.model.repo.ProjectSuggestorRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
 import edu.tamu.weaver.response.ApiResponse;
@@ -54,6 +57,15 @@ public class ProjectController {
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
+
+    @Autowired
+    private ProjectAuthorityRepo projectAuthorityRepo;
+
+    @Autowired
+    private ProjectSuggestorRepo projectSuggestorRepo;
+
+    @Autowired
+    private ProjectRepositoryRepo projectRepositoryRepo;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -92,6 +104,23 @@ public class ProjectController {
     @RequestMapping("/delete")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse delete(@WeaverValidatedModel Project project) {
+        //The cascade is set up so we don't actually need to remove the Project from the Project Services before deleting the Project,
+        //but we DO need to broadcast that the Project Services no longer have an association with that project.
+        project.getAuthorities().forEach(authority -> {
+            authority.removeProject(project);
+            projectAuthorityRepo.update(authority);
+        });
+
+        project.getSuggestors().forEach(suggestor -> {
+            suggestor.removeProject(project);
+            projectSuggestorRepo.update(suggestor);
+        });
+
+        project.getRepositories().forEach(repository -> {
+            repository.removeProject(project);
+            projectRepositoryRepo.update(repository);
+        });
+
         projectRepo.delete(project);
         return new ApiResponse(SUCCESS);
     }
