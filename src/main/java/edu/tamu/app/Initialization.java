@@ -23,11 +23,16 @@ public class Initialization implements CommandLineRunner {
 
     public static String ASSETS_PATH;
 
+    public static int LISTENER_PARALLELISM;
+
     @Value("${app.host}")
     private String host;
 
     @Value("${app.assets.path}")
     private String assetsPath;
+
+    @Value("${app.listener.parallelism:10}")
+    private int parallelism;
 
     @Value("${app.assets.folders}")
     private String[] assetsFolders;
@@ -50,6 +55,8 @@ public class Initialization implements CommandLineRunner {
         setHost(host);
 
         setAssetsPath(assetsPath);
+
+        setListenerParallelism(parallelism);
 
         for (String folder : assetsFolders) {
             FileSystemUtility.createDirectory(ASSETS_PATH + File.separator + folder);
@@ -74,6 +81,10 @@ public class Initialization implements CommandLineRunner {
         } catch (IOException e) {
             ASSETS_PATH = assetsPath;
         }
+    }
+
+    private void setListenerParallelism(int parallelism) {
+        LISTENER_PARALLELISM = parallelism;
     }
 
 }

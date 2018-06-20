@@ -1,59 +1,47 @@
 package edu.tamu.app.observer;
 
+import static edu.tamu.app.Initialization.LISTENER_PARALLELISM;
+
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import edu.tamu.app.exception.DocumentNotFoundException;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.DocumentFactory;
-import edu.tamu.app.service.registry.MagpieServiceRegistry;
-import edu.tamu.app.service.repository.Repository;
 
 public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     private static final Logger logger = Logger.getLogger(AbstractDocumentListener.class);
 
-    protected static final Map<String, List<String>> pendingResources = new ConcurrentHashMap<String, List<String>>();
+    private static final Map<String, List<String>> pendingResources = new ConcurrentHashMap<String, List<String>>();
 
-    protected static final ExecutorService executor = Executors.newFixedThreadPool(10);
+    private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(LISTENER_PARALLELISM);
 
-    private static final List<Document> publishQueue = new CopyOnWriteArrayList<Document>();
-
-    private static final AtomicInteger publishing = new AtomicInteger(0);
-
-    @Value("${app.document.publish.concurrency:5}")
-    private int publishConcurrency;
+    private static final AtomicBoolean firstDocument = new AtomicBoolean(true);
 
     @Autowired
     private ProjectRepo projectRepo;
 
     @Autowired
-    protected DocumentFactory documentFactory;
-
-    @Autowired
     protected DocumentRepo documentRepo;
 
     @Autowired
-    private MagpieServiceRegistry projectServiceRegistry;
+    protected DocumentFactory documentFactory;
 
     public AbstractDocumentListener(String root, String folder) {
         super(root, folder);
@@ -69,16 +57,15 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
         Document existingDocument = documentRepo.findByProjectNameAndName(directory.getParentFile().getName(), directory.getName());
         if (existingDocument == null) {
             initializePendingResources(directory.getName());
-            createDocument(directory).thenAccept(newDocument -> {
-                if (newDocument != null) {
-                    logger.info("Document created: " + newDocument.getName());
-                    publishToRepositories(newDocument);
-                } else {
-                    logger.warn("Unable to create document!");
-                }
-            });
+            if (firstDocument.compareAndSet(true, false)) {
+                Document document = createDocument(directory);
+                createdDocumentCallback(document);
+            } else {
+                completableCreateDocument(directory).thenAccept(document -> {
+                    createdDocumentCallback(document);
+                });
+            }
         }
-
     }
 
     @Override
@@ -133,7 +120,18 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
         pendingResources.put(documentName, new ArrayList<String>());
     }
 
-    protected Document processPendingResources(Document document) {
+    protected Document createDocument(File directory) {
+        Document document = null;
+        try {
+            document = documentFactory.createDocument(directory);
+            document = processResources(document, directory);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return document;
+    }
+
+    protected Document processResources(Document document, File directory) {
         String documentName = document.getName();
         for (String resourcePath : pendingResources.get(documentName)) {
             document = documentFactory.addResource(document, new File(resourcePath));
@@ -142,55 +140,22 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
         return document;
     }
 
-    protected CompletableFuture<Document> createDocument(File directory) {
-        return CompletableFuture.supplyAsync(() -> {
-            Document document = null;
-            try {
-                document = documentFactory.createDocument(directory);
-                document = processPendingResources(document);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return document;
-        }, executor);
+    protected void createdDocumentCallback(Document document) {
+        if (document != null) {
+            logger.info("Document created: " + document.getName());
+        } else {
+            logger.warn("Unable to create document!");
+        }
     }
 
     protected void addResource(File file) throws DocumentNotFoundException {
         documentFactory.addResource(file);
     }
 
-    private void publishToRepositories(Document document) {
-
-        logger.info("Attempting to publish documnet: " + document.getName());
-
-        logger.info("Current concurrency: " + publishing.get());
-
-        if (publishing.get() <= publishConcurrency) {
-            publishing.incrementAndGet();
-
-            for (ProjectRepository repository : document.getProject().getRepositories()) {
-                try {
-                    document = ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
-                } catch (IOException e) {
-                    logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
-                    e.printStackTrace();
-                }
-            }
-
-            publishing.decrementAndGet();
-
-            if (publishQueue.size() > 0) {
-                Document queuedDocument = publishQueue.get(0);
-                publishQueue.remove(0);
-                logger.info("Remaining in queue: " + publishQueue.size());
-                publishToRepositories(queuedDocument);
-            }
-
-        } else {
-            logger.info("Queueing document: " + document.getName());
-            publishQueue.add(document);
-        }
-
+    private synchronized CompletableFuture<Document> completableCreateDocument(File directory) {
+        return CompletableFuture.supplyAsync(() -> {
+            return createDocument(directory);
+        }, parallelExecutor);
     }
 
 }
