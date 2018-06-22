@@ -108,8 +108,14 @@ public class ProjectController {
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse update(@WeaverValidatedModel Project project) {
         Project currentProject = projectRepo.findOne(project.getId());
+        boolean refreshListener = (currentProject.isHeadless() != project.isHeadless());
         BeanUtils.copyProperties(project, currentProject, "documents","profiles");
-        return new ApiResponse(SUCCESS, projectRepo.update(currentProject));
+        currentProject = projectRepo.update(currentProject);
+        if (refreshListener) {
+            projectFactory.stopProjectFileListener(currentProject);
+            projectFactory.startProjectFileListener(currentProject);
+        }
+        return new ApiResponse(SUCCESS, currentProject);
     }
 
     @RequestMapping("/delete")

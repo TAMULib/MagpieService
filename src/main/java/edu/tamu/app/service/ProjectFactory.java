@@ -389,16 +389,20 @@ public class ProjectFactory {
     }
 
     public void startProjectFileListeners() {
-        String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
         projectRepo.findAll().forEach(project -> {
-            if (project.isHeadless()) {
-                logger.info("Registering headless document listener: " + projectsPath + File.separator + project.getName());
-                fileObserverRegistry.register(new HeadlessDocumentListener(projectsPath, project.getName()));
-            } else {
-                logger.info("Registering standard document listener: " + projectsPath + File.separator + project.getName());
-                fileObserverRegistry.register(new StandardDocumentListener(projectsPath, project.getName()));
-            }
+            startProjectFileListener(project);
         });
+    }
+
+    public void startProjectFileListener(Project project) {
+        String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
+        if (project.isHeadless()) {
+            logger.info("Registering headless document listener: " + projectsPath + File.separator + project.getName());
+            fileObserverRegistry.register(new HeadlessDocumentListener(projectsPath, project.getName()));
+        } else {
+            logger.info("Registering standard document listener: " + projectsPath + File.separator + project.getName());
+            fileObserverRegistry.register(new StandardDocumentListener(projectsPath, project.getName()));
+        }
     }
 
     public void stopProjectFileListener(Project project) {
