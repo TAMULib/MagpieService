@@ -39,8 +39,12 @@ public class FileObserverRegistry {
     }
 
     public void dismiss(FileListener listener) throws Exception {
-        logger.info("Dismissing: " + listener.getPath());
-        FileAlterationObserver observer = observers.get(listener.getPath());
+        dismiss(listener.getPath());
+    }
+
+    public void dismiss(String path) throws Exception {
+        logger.info("Dismissing: " + path);
+        FileAlterationObserver observer = observers.get(path);
         observers.remove(observer.getDirectory().getAbsolutePath());
         fileMonitorManager.removeObserver(observer);
         observer.destroy();

@@ -23,6 +23,8 @@ public class Initialization implements CommandLineRunner {
 
     public static String ASSETS_PATH;
 
+    public static String PROJECTS_PATH = "projects";
+
     @Value("${app.host}")
     private String host;
 
@@ -55,7 +57,7 @@ public class Initialization implements CommandLineRunner {
             FileSystemUtility.createDirectory(ASSETS_PATH + File.separator + folder);
         }
 
-        fileObserverRegistry.register(new ProjectListener(ASSETS_PATH, "projects"));
+        fileObserverRegistry.register(new ProjectListener(ASSETS_PATH, PROJECTS_PATH));
         fileObserverRegistry.register(new MapFileListener(ASSETS_PATH, "maps"));
 
         syncService.sync();

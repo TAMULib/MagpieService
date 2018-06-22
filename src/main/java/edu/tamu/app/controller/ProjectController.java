@@ -1,8 +1,11 @@
 package edu.tamu.app.controller;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+import static edu.tamu.app.Initialization.PROJECTS_PATH;
 import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,8 +38,10 @@ import edu.tamu.app.model.repo.ProjectAuthorityRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ProjectRepositoryRepo;
 import edu.tamu.app.model.repo.ProjectSuggestorRepo;
+import edu.tamu.app.service.ProjectFactory;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Repository;
+import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 
@@ -68,6 +73,9 @@ public class ProjectController {
     private ProjectRepositoryRepo projectRepositoryRepo;
 
     @Autowired
+    private ProjectFactory projectFactory;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     /**
@@ -89,8 +97,11 @@ public class ProjectController {
 
     @RequestMapping("/create")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse create(@WeaverValidatedModel Project project) {
-        return new ApiResponse(SUCCESS, projectRepo.create(project));
+    public ApiResponse create(@WeaverValidatedModel Project project) throws IOException {
+        project = projectRepo.create(project);
+        logger.info("creating directory: "+ASSETS_PATH + File.separator + PROJECTS_PATH + File.separator + project.getName());
+        FileSystemUtility.createDirectory(ASSETS_PATH + File.separator + PROJECTS_PATH + File.separator + project.getName());
+        return new ApiResponse(SUCCESS, project);
     }
 
     @RequestMapping("/update")
@@ -103,7 +114,7 @@ public class ProjectController {
 
     @RequestMapping("/delete")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse delete(@WeaverValidatedModel Project project) {
+    public ApiResponse delete(@WeaverValidatedModel Project project) throws IOException {
         //The cascade is set up so we don't actually need to remove the Project from the Project Services before deleting the Project,
         //but we DO need to broadcast that the Project Services no longer have an association with that project.
         project.getAuthorities().forEach(authority -> {
@@ -122,6 +133,8 @@ public class ProjectController {
         });
 
         projectRepo.delete(project);
+        FileSystemUtility.deleteDirectory(ASSETS_PATH + File.separator + PROJECTS_PATH + File.separator + project.getName());
+        projectFactory.stopProjectFileListener(project);
         return new ApiResponse(SUCCESS);
     }
 

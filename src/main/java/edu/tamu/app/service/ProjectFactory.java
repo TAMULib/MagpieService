@@ -1,6 +1,7 @@
 package edu.tamu.app.service;
 
 import static edu.tamu.app.Initialization.ASSETS_PATH;
+import static edu.tamu.app.Initialization.PROJECTS_PATH;
 
 import java.io.File;
 import java.io.IOException;
@@ -285,14 +286,14 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-    
+
     public Map<String,List<String>> getProjectSuggestorTypes() {
         Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectSuggestor> projectSuggestors = getProjectSuggestors(projectNode);
             projectSuggestors.forEach(projectSuggestor -> {
                 if (!scaffolds.containsKey(projectSuggestor.getType())) {
-                    List<String> settingKeys = new ArrayList<String>(); 
+                    List<String> settingKeys = new ArrayList<String>();
                     projectSuggestor.getSettings().forEach(projectSetting -> {
                         settingKeys.add(projectSetting.getKey());
                     });
@@ -302,7 +303,7 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-    
+
     public Map<String,List<String>> getProjectAuthorityTypes() {
         Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
         getProjectsNode().forEach(projectNode -> {
@@ -319,7 +320,7 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-    
+
     protected JsonNode getProjectsNode() {
         if (projectsNode == null) {
             projectsNode = readProjectsNode();
@@ -388,7 +389,7 @@ public class ProjectFactory {
     }
 
     public void startProjectFileListeners() {
-        String projectsPath = ASSETS_PATH + File.separator + "projects";
+        String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
         projectRepo.findAll().forEach(project -> {
             if (project.isHeadless()) {
                 logger.info("Registering headless document listener: " + projectsPath + File.separator + project.getName());
@@ -398,6 +399,16 @@ public class ProjectFactory {
                 fileObserverRegistry.register(new StandardDocumentListener(projectsPath, project.getName()));
             }
         });
+    }
+
+    public void stopProjectFileListener(Project project) {
+        String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
+        logger.info("De-registering document listener: " + projectsPath + File.separator + project.getName());
+        try {
+            fileObserverRegistry.dismiss(projectsPath + File.separator + project.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
