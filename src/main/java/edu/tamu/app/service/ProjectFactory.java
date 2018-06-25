@@ -131,7 +131,7 @@ public class ProjectFactory {
         if (project == null) {
             project = createProject(projectName);
         } else {
-            registerListeners(project);
+            registerServiceListeners(project);
         }
         return project;
     }
@@ -169,7 +169,7 @@ public class ProjectFactory {
 
         Project project = projectRepo.create(projectName, ingestType, headless, repositories, authorities, suggestors);
 
-        registerListeners(project);
+        registerServiceListeners(project);
 
         return project;
     }
@@ -226,7 +226,7 @@ public class ProjectFactory {
         return suggestors;
     }
 
-    private void registerListeners(Project project) {
+    public void registerServiceListeners(Project project) {
 
         project.getRepositories().forEach(repository -> {
             Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());

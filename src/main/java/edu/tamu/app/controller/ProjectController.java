@@ -99,6 +99,7 @@ public class ProjectController {
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse create(@WeaverValidatedModel Project project) throws IOException {
         project = projectRepo.create(project);
+        projectFactory.registerServiceListeners(project);
         logger.info("creating directory: "+ASSETS_PATH + File.separator + PROJECTS_PATH + File.separator + project.getName());
         FileSystemUtility.createDirectory(ASSETS_PATH + File.separator + PROJECTS_PATH + File.separator + project.getName());
         return new ApiResponse(SUCCESS, project);
@@ -108,10 +109,11 @@ public class ProjectController {
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse update(@WeaverValidatedModel Project project) {
         Project currentProject = projectRepo.findOne(project.getId());
-        boolean refreshListener = (currentProject.isHeadless() != project.isHeadless());
+        boolean refreshProjectListener = (currentProject.isHeadless() != project.isHeadless());
         BeanUtils.copyProperties(project, currentProject, "documents","profiles");
         currentProject = projectRepo.update(currentProject);
-        if (refreshListener) {
+        projectFactory.registerServiceListeners(currentProject);
+        if (refreshProjectListener) {
             projectFactory.stopProjectFileListener(currentProject);
             projectFactory.startProjectFileListener(currentProject);
         }
@@ -141,6 +143,7 @@ public class ProjectController {
         projectRepo.delete(project);
         FileSystemUtility.deleteDirectory(ASSETS_PATH + File.separator + PROJECTS_PATH + File.separator + project.getName());
         projectFactory.stopProjectFileListener(project);
+        projectServiceRegistry.deregisterAuxiliaryServices(project);
         return new ApiResponse(SUCCESS);
     }
 

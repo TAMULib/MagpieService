@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.registry.MagpieAuxiliaryService;
 import edu.tamu.app.utilities.CsvUtility;
+import edu.tamu.app.utilities.FileSystemUtility;
 
 @Service
 @Scope("prototype")
@@ -62,6 +64,12 @@ public class MapFileService implements MagpieAuxiliaryService {
 
         File mapDirectory = new File(mapDirectoryName);
         mapDirectory.mkdir();
+    }
+
+    @PreDestroy
+    public void destroy() throws IOException {
+        logger.info("Removing maps directory for project: "+project.getName());
+        FileSystemUtility.deleteDirectory(String.join(File.separator, ASSETS_PATH, "maps", project.getName()));
     }
 
     public void readMapFile(File file) throws IOException {

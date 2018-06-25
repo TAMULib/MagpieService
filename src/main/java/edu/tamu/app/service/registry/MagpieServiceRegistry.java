@@ -90,6 +90,18 @@ public class MagpieServiceRegistry {
         } else {
             logger.info("Service was not instantiated!");
         }
+
+    }
+
+    public void deregisterAuxiliaryServices(Project project) {
+        if (auxiliaryServices.containsKey(project.getName())) {
+            logger.info("Removing auxiliary service for: "+project.getName());
+            auxiliaryServices.forEach((k,v) -> {
+               logger.info(k+": "+v.getClass().getName());
+            });
+            beanFactory.destroyBean(auxiliaryServices.get(project.getName()));
+            auxiliaryServices.remove(project.getName());
+        }
     }
 
     public MagpieService getService(String name) {
@@ -99,5 +111,4 @@ public class MagpieServiceRegistry {
     public MagpieAuxiliaryService getAuxiliaryService(String name) {
         return auxiliaryServices.get(name);
     }
-
 }
