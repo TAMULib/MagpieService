@@ -1,18 +1,30 @@
 package edu.tamu.app.controller;
 
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.ERROR;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import antlr.collections.List;
 import edu.tamu.app.model.ProjectAuthority;
+import edu.tamu.app.model.ProjectSetting;
 import edu.tamu.app.model.repo.ProjectAuthorityRepo;
 import edu.tamu.app.service.ProjectFactory;
+import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
+
+import static edu.tamu.app.Initialization.ASSETS_PATH;
 
 @RestController
 @RequestMapping("/project-authority")
@@ -45,6 +57,21 @@ public class ProjectAuthorityController {
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse create(@WeaverValidatedModel ProjectAuthority projectAuthority) {
         return new ApiResponse(SUCCESS, projectAuthorityRepo.create(projectAuthority));
+    }
+
+    @RequestMapping("/upload-csv")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse uploadCsv(@RequestParam("file") MultipartFile file) {
+        try {
+            String uploadPath = ASSETS_PATH + File.separator + "uploads";
+            FileSystemUtility.createDirectory(uploadPath);
+            file.transferTo(new File(uploadPath + File.separator + file.getName()));
+            return new ApiResponse(SUCCESS,"CSV upload successful", uploadPath + File.separator + file.getOriginalFilename());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return new ApiResponse(ERROR, "CSV upload failed");
+        }
     }
 
     @RequestMapping("/update")
