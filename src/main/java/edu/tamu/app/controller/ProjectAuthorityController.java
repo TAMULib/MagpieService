@@ -1,11 +1,11 @@
 package edu.tamu.app.controller;
 
-import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
+import static edu.tamu.app.Initialization.ASSETS_PATH;
 import static edu.tamu.weaver.response.ApiStatus.ERROR;
+import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,16 +15,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import antlr.collections.List;
 import edu.tamu.app.model.ProjectAuthority;
-import edu.tamu.app.model.ProjectSetting;
 import edu.tamu.app.model.repo.ProjectAuthorityRepo;
 import edu.tamu.app.service.ProjectFactory;
 import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
-
-import static edu.tamu.app.Initialization.ASSETS_PATH;
 
 @RestController
 @RequestMapping("/project-authority")
@@ -65,8 +61,9 @@ public class ProjectAuthorityController {
         try {
             String uploadPath = ASSETS_PATH + File.separator + "uploads";
             FileSystemUtility.createDirectory(uploadPath);
-            file.transferTo(new File(uploadPath + File.separator + file.getName()));
-            return new ApiResponse(SUCCESS,"CSV upload successful", uploadPath + File.separator + file.getOriginalFilename());
+            String filePath = uploadPath + File.separator + System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            file.transferTo(new File(filePath));
+            return new ApiResponse(SUCCESS,"CSV upload successful", filePath);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -84,7 +81,10 @@ public class ProjectAuthorityController {
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse delete(@WeaverValidatedModel ProjectAuthority projectAuthority) {
         //TODO The WeaverValidatedModel isn't populating the projects associated with the projectAuthority, so we have to get it fresh from the repo here
-        projectAuthorityRepo.delete(projectAuthorityRepo.getOne(projectAuthority.getId()));
+        projectAuthority = projectAuthorityRepo.getOne(projectAuthority.getId());
+        File csvFile = new File(projectAuthority.getSettingValues("paths").get(0));
+        csvFile.delete();
+        projectAuthorityRepo.delete(projectAuthority);
         return new ApiResponse(SUCCESS);
     }
 
