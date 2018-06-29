@@ -34,12 +34,12 @@ import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
-import edu.tamu.app.service.repository.Repository;
+import edu.tamu.app.service.repository.Destination;
 import edu.tamu.weaver.response.ApiResponse;
 
 /**
  * Document Controller
- * 
+ *
  * @author
  *
  */
@@ -66,9 +66,9 @@ public class DocumentController {
 
     /**
      * Endpoint to return all documents.
-     * 
+     *
      * @return ApiResponse
-     * 
+     *
      */
     @RequestMapping("/all")
     @PreAuthorize("hasRole('USER')")
@@ -78,12 +78,12 @@ public class DocumentController {
 
     /**
      * Endpoint to return document by filename.
-     * 
+     *
      * @param name
      * @ApiVariable String
-     * 
+     *
      * @return ApiResponse
-     * 
+     *
      */
     @RequestMapping("/get/{projectName}/{documentName}")
     @PreAuthorize("hasRole('USER')")
@@ -93,12 +93,12 @@ public class DocumentController {
 
     /**
      * Endpoint to return a page of documents.
-     * 
+     *
      * @param data
      * @ApiData Map<String, Object>
-     * 
+     *
      * @return ApiResponse
-     * 
+     *
      */
     @RequestMapping("/page")
     @PreAuthorize("hasRole('USER')")
@@ -141,12 +141,12 @@ public class DocumentController {
 
     /**
      * Endpoint to save document.
-     * 
+     *
      * @param document
      * @RequestBody Document
-     * 
+     *
      * @return ApiResponse
-     * 
+     *
      */
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @PreAuthorize("hasRole('USER')")
@@ -156,12 +156,12 @@ public class DocumentController {
 
     /**
      * Endpoint to push document to IR.
-     * 
+     *
      * @PathVariable String projectName
      * @PathVariable String documentName
-     * 
+     *
      * @return ApiResponse
-     * 
+     *
      */
     @RequestMapping("/push/{projectName}/{documentName}")
     @PreAuthorize("hasRole('MANAGER')")
@@ -170,7 +170,7 @@ public class DocumentController {
 
         for (ProjectRepository repository : document.getProject().getRepositories()) {
             try {
-                document = ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
+                document = ((Destination) projectServiceRegistry.getService(repository.getName())).push(document);
             } catch (IOException e) {
                 logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
                 e.printStackTrace();
@@ -184,12 +184,12 @@ public class DocumentController {
     /**
      * Endpoint to delete/remove document from persistence. Won't affect
      * document directory/resources on disk.
-     * 
+     *
      * @PathVariable String projectName
      * @PathVariable String documentName
-     * 
+     *
      * @return ApiResponse
-     * 
+     *
      */
     @RequestMapping("/remove/{projectName}/{documentName}")
     @PreAuthorize("hasRole('MANAGER')")
