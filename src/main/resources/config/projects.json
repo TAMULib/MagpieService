@@ -549,9 +549,9 @@
       }
     ]
   },
-  "taes_leaflets": {
+  "taex_leaflets": {
     "repositories": [{
-      "name": "DSpace for TAES Misc Publications",
+      "name": "DSpace for TAEX Leaflets",
       "type": "DSPACE",
       "settings": [{
           "key": "repoUrl",
@@ -592,12 +592,12 @@
       ]
     }],
     "authorities": [{
-      "name": "NALT CSV Authority",
+      "name": "Leaflets CSV Authority",
       "type": "CSV",
       "settings": [{
           "key": "paths",
           "values": [
-            "config/csv/TAES-Leaflet-Collection-Metadata.csv"
+            "config/csv/TAEX-Leaflet-Collection-Metadata.csv"
           ]
         },
         {
