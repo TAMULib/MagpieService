@@ -549,6 +549,182 @@
       }
     ]
   },
+  "taex_leaflets": {
+    "repositories": [{
+      "name": "DSpace for TAEX Leaflets",
+      "type": "DSPACE",
+      "settings": [{
+          "key": "repoUrl",
+          "values": [
+            "http://localhost:8080"
+          ]
+        },
+        {
+          "key": "repoContextPath",
+          "values": [
+            "xmlui"
+          ]
+        },
+        {
+          "key": "collectionId",
+          "values": [
+            "COLLECTION-UUID"
+          ]
+        },
+        {
+          "key": "groupId",
+          "values": [
+            "0"
+          ]
+        },
+        {
+          "key": "email",
+          "values": [
+            "magpie@oaktrust.library.tamu.edu"
+          ]
+        },
+        {
+          "key": "password",
+          "values": [
+            ""
+          ]
+        }
+      ]
+    }],
+    "authorities": [{
+      "name": "Leaflets CSV Authority",
+      "type": "CSV",
+      "settings": [{
+          "key": "paths",
+          "values": [
+            "config/csv/TAEX-Leaflet-Collection-Metadata.csv"
+          ]
+        },
+        {
+          "key": "identifier",
+          "values": [
+            "filename"
+          ]
+        },
+        {
+          "key": "delimeter",
+          "values": [
+            "||"
+          ]
+        }
+      ]
+    }],
+    "suggestors": [{
+      "name": "NALT Pelican Suggestor",
+      "type": "NALT",
+      "settings": [{
+          "key": "pelicanUrl",
+          "values": [
+            "http://localhost:9001/nalt/suggestions"
+          ]
+        },
+        {
+          "key": "subjectLabel",
+          "values": [
+            "dc.subject.nalt"
+          ]
+        }
+      ]
+    }],
+    "metadata": [{
+        "label": "dc.creator",
+        "gloss": "Author",
+        "repeatable": true,
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.title",
+        "gloss": "Title",
+        "repeatable": false,
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.relation.ispartof",
+        "gloss": "Is Part Of",
+        "repeatable": false,
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.publisher",
+        "gloss": "Publisher",
+        "repeatable": false,
+        "inputType": "TEXT",
+        "default": "Texas Agricultural Experiment Station"
+      },
+      {
+        "label": "dc.date.issued",
+        "gloss": "Issue Date",
+        "repeatable": false,
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.description",
+        "gloss": "Description (Number of Pages)",
+        "repeatable": false,
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.description.tableofcontents",
+        "gloss": "Table of Contents",
+        "repeatable": false,
+        "inputType": "TEXTAREA"
+      },
+      {
+        "label": "dc.subject",
+        "gloss": "Subject",
+        "repeatable": true,
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.subject.nalt",
+        "gloss": "NALT Term",
+        "repeatable": true,
+        "inputType": "SUGGESTION"
+      },
+      {
+        "label": "dc.subject.lcsh",
+        "gloss": "Library of Congress Subject Headings",
+        "repeatable": true,
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.language",
+        "gloss": "Language",
+        "repeatable": false,
+        "inputType": "TEXT",
+        "default": "en_US"
+      },
+      {
+        "label": "dc.type",
+        "gloss": "Type",
+        "repeatable": false,
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.format",
+        "gloss": "Format",
+        "repeatable": false,
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.coverage.spatial",
+        "gloss": "Spatial Coverage",
+        "repeatable": true,
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.audience",
+        "gloss": "Audience",
+        "repeatable": true,
+        "inputType": "TEXT"
+      }
+    ]
+  },
   "thesis": {
     "repositories": [],
     "authorities": [],
