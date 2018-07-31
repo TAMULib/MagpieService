@@ -2,6 +2,10 @@ package edu.tamu.app.model;
 
 import static edu.tamu.app.Initialization.HOST;
 
+import java.io.File;
+
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -80,6 +84,10 @@ public class Resource extends BaseEntity {
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    public File getFile() {
+        return new File(ASSETS_PATH + path);
     }
 
 }
