@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class FileMonitorManager {
 
-    private static final Logger logger = Logger.getLogger(FileObserverRegistry.class);
+    private static final Logger logger = Logger.getLogger(FileMonitorManager.class);
 
     private static FileAlterationMonitor monitor;
 

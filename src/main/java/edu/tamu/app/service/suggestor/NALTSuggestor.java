@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.controller.DocumentController;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.Resource;
