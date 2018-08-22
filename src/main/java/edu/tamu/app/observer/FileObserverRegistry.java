@@ -3,6 +3,7 @@ package edu.tamu.app.observer;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
@@ -24,26 +25,38 @@ public class FileObserverRegistry {
     private AutowireCapableBeanFactory beanFactory;
 
     public void register(FileListener listener) {
+        String path = listener.getPath();
+        try {
+            dismiss(listener);
+        } catch (Exception e) {
+            logger.error("Unable to dismiss listener: " + path);
+        }
+        logger.info("Registering listener: " + path);
         beanFactory.autowireBean(listener);
-        logger.info("Registering: " + listener.getPath());
-        final File directory = new File(listener.getPath());
+        final File directory = new File(path);
         if (directory.exists()) {
             FileAlterationObserver observer = new FileAlterationObserver(directory);
             observer.addListener(listener);
-            observers.put(listener.getPath(), observer);
+            observers.put(path, observer);
             fileMonitorManager.addObserver(observer);
-            logger.info("Listening: " + listener.getPath());
+            logger.info("Listening at: " + path);
         } else {
-            logger.error("Path not found: " + listener.getPath());
+            logger.error("Path not found: " + path);
         }
     }
 
     public void dismiss(FileListener listener) throws Exception {
-        logger.info("Dismissing: " + listener.getPath());
-        FileAlterationObserver observer = observers.get(listener.getPath());
-        observers.remove(observer.getDirectory().getAbsolutePath());
-        fileMonitorManager.removeObserver(observer);
-        observer.destroy();
+        String path = listener.getPath();
+        Optional<FileAlterationObserver> observer = Optional.ofNullable(observers.get(path));
+        if (observer.isPresent()) {
+            logger.info("Dismissing listener: " + path);
+            beanFactory.destroyBean(listener);
+            observers.remove(path);
+            fileMonitorManager.removeObserver(observer.get());
+            observer.get().destroy();
+        } else {
+            logger.info("No listener to dismiss: " + path);
+        }
     }
 
 }
