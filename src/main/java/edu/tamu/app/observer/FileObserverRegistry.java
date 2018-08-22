@@ -1,8 +1,6 @@
 package edu.tamu.app.observer;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
@@ -15,8 +13,6 @@ import org.springframework.stereotype.Service;
 public class FileObserverRegistry {
 
     private static final Logger logger = Logger.getLogger(FileObserverRegistry.class);
-
-    private static final Map<String, FileAlterationObserver> observers = new HashMap<String, FileAlterationObserver>();
 
     @Autowired
     private FileMonitorManager fileMonitorManager;
@@ -37,7 +33,6 @@ public class FileObserverRegistry {
         if (directory.exists()) {
             FileAlterationObserver observer = new FileAlterationObserver(directory);
             observer.addListener(listener);
-            observers.put(path, observer);
             fileMonitorManager.addObserver(observer);
             logger.info("Listening at: " + path);
         } else {
@@ -47,11 +42,10 @@ public class FileObserverRegistry {
 
     public void dismiss(FileListener listener) throws Exception {
         String path = listener.getPath();
-        Optional<FileAlterationObserver> observer = Optional.ofNullable(observers.get(path));
+        Optional<FileAlterationObserver> observer = fileMonitorManager.getObserver(path);
         if (observer.isPresent()) {
             logger.info("Dismissing listener: " + path);
             beanFactory.destroyBean(listener);
-            observers.remove(path);
             fileMonitorManager.removeObserver(observer.get());
             observer.get().destroy();
         } else {

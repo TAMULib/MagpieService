@@ -1,5 +1,7 @@
 package edu.tamu.app.observer;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.monitor.FileAlterationMonitor;
@@ -50,4 +52,16 @@ public class FileMonitorManager {
     public FileAlterationMonitor getMonitor() {
         return monitor;
     }
+
+    public Optional<FileAlterationObserver> getObserver(String path) {
+        Optional<FileAlterationObserver> observer = Optional.empty();
+        for (FileAlterationObserver fao : monitor.getObservers()) {
+            if (fao.getDirectory().getAbsolutePath().equals(path)) {
+                observer = Optional.of(fao);
+                break;
+            }
+        }
+        return observer;
+    }
+
 }
