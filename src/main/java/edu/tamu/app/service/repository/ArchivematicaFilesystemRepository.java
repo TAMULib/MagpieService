@@ -35,7 +35,7 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.utilities.CsvUtility;
 
-public class ArchivematicaFilesystemRepository implements Repository {
+public class ArchivematicaFilesystemRepository implements Preservation {
 
     @Autowired
     private DocumentRepo documentRepo;
