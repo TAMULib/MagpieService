@@ -194,6 +194,7 @@ public class ArchivematicaFilesystemRepository implements Preservation {
         // writing to it
         OutputStream os;
         try {
+            logger.info("POSTing start transfer request to this URL: " + restUrl.toString());
             os = connection.getOutputStream();
         } catch (IOException e) {
             IOException ioe = new IOException("Could not open output stream to write the post data. {" + e.getMessage() + "}");
@@ -205,7 +206,6 @@ public class ArchivematicaFilesystemRepository implements Preservation {
         params += "name=" + document.getProject().getName() + "_" + document.getName() + "&type=standard" + "&paths[]=" + encodedPath;
         try {
             logger.info("POST request parameters being sent to archivematica: " + params);
-
             connection.getOutputStream().write(params.getBytes());
 
         } catch (IOException e) {
