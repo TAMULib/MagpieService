@@ -32,7 +32,7 @@ import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
-import edu.tamu.app.service.repository.Repository;
+import edu.tamu.app.service.repository.Destination;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 
@@ -59,7 +59,7 @@ public class ProjectController {
 
     /**
      * Endpoint to return list of projects.
-     * 
+     *
      * @return ApiResponse
      */
     @RequestMapping("/all")
@@ -179,10 +179,10 @@ public class ProjectController {
 
     /**
      * Endpoint for batch publishing to a given repository all Accepted documents of a project
-     * 
+     *
      * @param projectId
      * @param repositoryId
-     * 
+     *
      * @return ApiResponse
      */
     @RequestMapping("/batchpublish/project/{projectId}/repository/{repositoryId}")
@@ -191,7 +191,7 @@ public class ProjectController {
         Project project = projectRepo.read(projectId);
         ProjectRepository publishRepository = project.getRepositoryById(repositoryId);
         if (publishRepository != null) {
-            Repository repositoryService = (Repository) projectServiceRegistry.getService(publishRepository.getName());
+            Destination repositoryService = (Destination) projectServiceRegistry.getService(publishRepository.getName());
             List<Document> publishableDocuments = project.getPublishableDocuments();
             boolean errorFlag = false;
             for (Document document : publishableDocuments) {

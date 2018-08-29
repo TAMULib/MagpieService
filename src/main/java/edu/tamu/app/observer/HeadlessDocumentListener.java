@@ -14,7 +14,7 @@ import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
-import edu.tamu.app.service.repository.Repository;
+import edu.tamu.app.service.repository.Destination;
 
 public class HeadlessDocumentListener extends AbstractDocumentListener {
 
@@ -112,7 +112,7 @@ public class HeadlessDocumentListener extends AbstractDocumentListener {
         logger.info("Attempting to publish document: " + document.getName());
         for (ProjectRepository repository : document.getProject().getRepositories()) {
             try {
-                ((Repository) projectServiceRegistry.getService(repository.getName())).push(document);
+                ((Destination) projectServiceRegistry.getService(repository.getName())).push(document);
             } catch (IOException e) {
                 logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
                 e.printStackTrace();

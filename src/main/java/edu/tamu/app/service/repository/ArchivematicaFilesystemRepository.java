@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.jena.atlas.logging.Log;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Base64Utils;
@@ -34,10 +33,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
-import edu.tamu.app.service.DocumentFactory;
 import edu.tamu.app.utilities.CsvUtility;
 
-public class ArchivematicaFilesystemRepository implements Repository {
+public class ArchivematicaFilesystemRepository implements Preservation {
 
     @Autowired
     private DocumentRepo documentRepo;
@@ -48,7 +46,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
     private ProjectRepository projectRepository;
 
     private CsvUtility csvUtility;
-    
+
     private static final Logger logger = Logger.getLogger(ArchivematicaFilesystemRepository.class);
 
     public ArchivematicaFilesystemRepository(ProjectRepository projectRepository) {
@@ -207,8 +205,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         String params = "";
         params += "name=" + document.getProject().getName() + "_" + document.getName() + "&type=standard" + "&paths[]=" + encodedPath;
         try {
-            logger.info("POST parameters being sent to archivematica: "+ params);
-
+            logger.info("POST request parameters being sent to archivematica: " + params);
             connection.getOutputStream().write(params.getBytes());
 
         } catch (IOException e) {
@@ -219,14 +216,13 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
         // Read response from item post
         StringBuilder response = new StringBuilder();
-        
+
         BufferedReader br = null;
         try {
             br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
         } catch (IOException e) {
-            IOException ioe = new IOException("Could not get input stream for a response from the connection of the POST request. Response message was \"" + connection.getResponseMessage()
-                    + "\" with this exception thrown: {" + e.getMessage() + "}");
+            IOException ioe = new IOException("Could not get input stream for a response from the connection of the POST request. Response message was \"" + connection.getResponseMessage() + "\" with this exception thrown: {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
@@ -242,7 +238,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
-        
+
         logger.info("POST request to archivematica resulted in response code of " + connection.getResponseCode() + " with response: " + response.toString());
 
         // Close streams
