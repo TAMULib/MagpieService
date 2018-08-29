@@ -113,7 +113,6 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     @Override
     public void onStop(FileAlterationObserver observer) {
-        logger.info("File listener has stopped: " + observer.getDirectory().getAbsolutePath());
     }
 
     protected void initializePendingResources(String documentName) {
