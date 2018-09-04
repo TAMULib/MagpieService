@@ -107,13 +107,11 @@ public class CSVAuthority implements Authority {
     }
 
     private CSVParser getParser(String path) throws FileNotFoundException, IOException {
-        logger.info("CSV Parser for project authority " + projectAuthority.getName() + " reading spreadsheet at " + getCsvAbsolutePath(path));
         FileReader csvFileReader = new FileReader(getCsvAbsolutePath(path));
         return new CSVParser(csvFileReader, CSVFormat.RFC4180);
     }
 
     private CSVParser getParser(String path, String[] headers) throws FileNotFoundException, IOException {
-        logger.info("CSV Parser for project authority " + projectAuthority.getName() + " reading spreadsheet at " + getCsvAbsolutePath(path));
         FileReader csvFileReader = new FileReader(getCsvAbsolutePath(path));
         return new CSVParser(csvFileReader, CSVFormat.RFC4180.withHeader(headers));
     }
