@@ -3,10 +3,10 @@ package edu.tamu.app.service.authority;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -33,99 +33,73 @@ public class CSVAuthority implements Authority {
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
-    private static Map<String, String[]> headers;
-
-    private static Map<String, Map<String, CSVRecord>> records;
-
     private ProjectAuthority projectAuthority;
 
     public CSVAuthority(ProjectAuthority projectAuthority) {
         this.projectAuthority = projectAuthority;
-        headers = new HashMap<String, String[]>();
-        records = new HashMap<String, Map<String, CSVRecord>>();
     }
 
     @Override
     public Document populate(Document document) {
-        getPaths().forEach(path -> {
-            if (CSVAuthority.records.get(path) == null) {
-                cacheRecords(path);
-            }
-            String[] headers = CSVAuthority.headers.get(path);
-            CSVRecord record = CSVAuthority.records.get(path).get(document.getName());
-            if (record != null) {
-                List<MetadataFieldGroup> mfgs = new ArrayList<MetadataFieldGroup>();
-                for (String header : headers) {
-                    if (header.equals(getIdentifier())) {
-                        continue;
-                    }
-                    String cellValue = record.get(header);
-                    if (cellValue != null) {
-                        String[] values = cellValue.split(Pattern.quote(getDelimeter()));
-                        if (values != null) {
-                            MetadataFieldGroup mfg = document.getFieldByLabel(header);
-                            if (mfg != null) {
-                                for (String value : values) {
-                                    if (!mfg.containsValue(value)) {
-                                        Optional<String> defaultValue = Optional.of(mfg.getLabel().getProfile().getDefaultValue());
-                                        if (value.length() == 0 && defaultValue.isPresent()) {
-                                            value = defaultValue.get();
-                                        }
-                                        mfg.addValue(metadataFieldValueRepo.create(value, mfg));
-                                    }
+        for (String path : getPaths()) {
+            try {
+                Instant start = Instant.now();
+                String identifier = getIdentifier();
+                String delimeter = getDelimeter();
+                CSVParser csvParser = getParser(path);
+                String[] headers = getHeaders(csvParser.getRecords().get(0));
+                csvParser.close();
+                csvParser = getParser(path, headers);
+                for (CSVRecord record : csvParser.getRecords()) {
+                    String filename = record.get(identifier);
+                    logger.debug("Processing record " + filename);
+                    if (filename != null) {
+                        if (filename.equals(document.getName())) {
+                            List<MetadataFieldGroup> mfgs = new ArrayList<MetadataFieldGroup>();
+                            for (String header : headers) {
+                                if (header.equals(identifier)) {
+                                    continue;
                                 }
-                                mfgs.add(mfg);
-                            } else {
-                                logger.debug("No MetadataFieldGroup with label: " + header);
+                                String cellValue = record.get(header);
+                                if (cellValue != null) {
+                                    String[] values = cellValue.split(Pattern.quote(delimeter));
+                                    if (values != null) {
+                                        MetadataFieldGroup mfg = document.getFieldByLabel(header);
+                                        if (mfg != null) {
+                                            for (String value : values) {
+                                                if (!mfg.containsValue(value)) {
+                                                    Optional<String> defaultValue = Optional.of(mfg.getLabel().getProfile().getDefaultValue());
+                                                    if (value.length() == 0 && defaultValue.isPresent()) {
+                                                        value = defaultValue.get();
+                                                    }
+                                                    Instant innerStart = Instant.now();
+                                                    mfg.addValue(metadataFieldValueRepo.create(value, mfg));
+                                                    logger.info(Duration.between(innerStart, Instant.now()).toMillis() + " milliseconds to create metadata file value");
+                                                }
+                                            }
+                                            mfgs.add(mfg);
+                                        } else {
+                                            logger.debug("No MetadataFieldGroup with label: " + header);
+                                        }
+                                    }
+                                } else {
+                                    logger.debug("No row with header: " + header);
+                                }
                             }
+                            document.setFields(mfgs);
+                            break;
                         }
                     } else {
-                        logger.debug("No row with header: " + header);
+                        logger.info("Record without filename found!");
                     }
                 }
-                document.setFields(mfgs);
-            }
-        });
-        return document;
-    }
-
-    private void cacheRecords(String path) {
-        logger.info("Caching " + path);
-        try {
-            CSVParser csvParser;
-            if (CSVAuthority.headers.get(path) == null) {
-                logger.info("Getting headers from " + path);
-                csvParser = getParser(path);
-                CSVAuthority.headers.put(path, getHeaders(csvParser.getRecords().get(0)));
                 csvParser.close();
+                logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to find look for record in csv");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            Map<String, CSVRecord> currentRecords = new HashMap<String, CSVRecord>();
-            csvParser = getParser(path);
-            logger.info("Preparing to process CSV records using identifier field " + getIdentifier());
-            csvParser.getRecords().forEach(record -> {
-                String filename = record.get(getIdentifier());
-                logger.debug("Processing record " + filename);
-                if (filename != null) {
-                    currentRecords.put(filename, record);
-                } else {
-                    logger.info("Record without filename found!");
-                }
-            });
-            csvParser.close();
-
-            records.put(path, currentRecords);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
-
-    public String[] getHeaders(CSVRecord headersRecord) {
-        String[] headers = new String[headersRecord.size()];
-        for (int i = 0; i < headersRecord.size(); i++) {
-            headers[i] = headersRecord.get(i);
-        }
-        return headers;
+        return document;
     }
 
     private String getCsvAbsolutePath(String path) throws IOException {
@@ -133,18 +107,23 @@ public class CSVAuthority implements Authority {
     }
 
     private CSVParser getParser(String path) throws FileNotFoundException, IOException {
-        CSVParser csvParser;
-        String[] headers = CSVAuthority.headers.get(path);
-
         logger.info("CSV Parser for project authority " + projectAuthority.getName() + " reading spreadsheet at " + getCsvAbsolutePath(path));
         FileReader csvFileReader = new FileReader(getCsvAbsolutePath(path));
+        return new CSVParser(csvFileReader, CSVFormat.RFC4180);
+    }
 
-        if (headers == null) {
-            csvParser = new CSVParser(csvFileReader, CSVFormat.RFC4180);
-        } else {
-            csvParser = new CSVParser(csvFileReader, CSVFormat.RFC4180.withHeader(headers));
+    private CSVParser getParser(String path, String[] headers) throws FileNotFoundException, IOException {
+        logger.info("CSV Parser for project authority " + projectAuthority.getName() + " reading spreadsheet at " + getCsvAbsolutePath(path));
+        FileReader csvFileReader = new FileReader(getCsvAbsolutePath(path));
+        return new CSVParser(csvFileReader, CSVFormat.RFC4180.withHeader(headers));
+    }
+
+    private String[] getHeaders(CSVRecord headersRecord) {
+        String[] headers = new String[headersRecord.size()];
+        for (int i = 0; i < headersRecord.size(); i++) {
+            headers[i] = headersRecord.get(i);
         }
-        return csvParser;
+        return headers;
     }
 
     public List<String> getPaths() {
