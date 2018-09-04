@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -89,7 +91,11 @@ public class DocumentFactory {
     public Document addResource(File file) throws DocumentNotFoundException {
         String documentName = file.getParentFile().getName();
         String projectName = file.getParentFile().getParentFile().getName();
+
+        Instant start = Instant.now();
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+        logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup document while adding resource");
+
         if (document == null) {
             throw new DocumentNotFoundException(projectName, documentName);
         }
@@ -103,11 +109,21 @@ public class DocumentFactory {
         String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
         String mimeType = tika.detect(path);
 
+        Instant start = Instant.now();
         Resource resource = resourceRepo.findByDocumentProjectNameAndDocumentNameAndName(projectName, documentName, resourceName);
+        logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to look for existing resource while adding resource");
+
         if (resource == null) {
             logger.info("Adding new resource " + resourceName + " - " + mimeType + " for document " + document.getName());
+
+            start = Instant.now();
             resourceRepo.create(document, resourceName, path, mimeType);
+            logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new resource");
+
+            start = Instant.now();
             document = documentRepo.findByProjectNameAndName(projectName, documentName);
+            logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup document after creating new resource");
+
         } else {
             logger.info("Resource " + resourceName + " already exists for document " + documentName);
         }
@@ -155,7 +171,7 @@ public class DocumentFactory {
 
     private Document applyAuthorities(Document document, List<ProjectAuthority> authorities) {
         for (ProjectAuthority authority : authorities) {
-            logger.info("Applying authority " + authority.getName() + " to " + document.getName() );
+            logger.info("Applying authority " + authority.getName() + " to " + document.getName());
             document = ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
         }
         return document;
