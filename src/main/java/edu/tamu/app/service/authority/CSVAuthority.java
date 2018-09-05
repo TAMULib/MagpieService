@@ -7,8 +7,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -44,57 +44,58 @@ public class CSVAuthority implements Authority {
         for (String path : getPaths()) {
             try {
                 Instant start = Instant.now();
+                boolean found = false;
                 String identifier = getIdentifier();
-                String delimeter = getDelimeter();
+                String delimeter = Pattern.quote(getDelimeter());
+                String documentName = document.getName();
                 CSVParser csvParser = getParser(path);
-                String[] headers = getHeaders(csvParser.getRecords().get(0));
-                csvParser.close();
-                csvParser = getParser(path, headers);
+                List<String> headers = csvParser.getHeaderMap().keySet().stream().filter(h -> !h.equals(identifier)).collect(Collectors.toList());
                 for (CSVRecord record : csvParser.getRecords()) {
                     String filename = record.get(identifier);
-                    logger.debug("Processing record " + filename);
                     if (filename != null) {
-                        if (filename.equals(document.getName())) {
+                        if (filename.equals(documentName)) {
+                            found = true;
                             List<MetadataFieldGroup> mfgs = new ArrayList<MetadataFieldGroup>();
                             for (String header : headers) {
-                                if (header.equals(identifier)) {
-                                    continue;
-                                }
                                 String cellValue = record.get(header);
                                 if (cellValue != null) {
-                                    String[] values = cellValue.split(Pattern.quote(delimeter));
-                                    if (values != null) {
-                                        MetadataFieldGroup mfg = document.getFieldByLabel(header);
-                                        if (mfg != null) {
-                                            for (String value : values) {
-                                                if (!mfg.containsValue(value)) {
-                                                    Optional<String> defaultValue = Optional.of(mfg.getLabel().getProfile().getDefaultValue());
-                                                    if (value.length() == 0 && defaultValue.isPresent()) {
-                                                        value = defaultValue.get();
-                                                    }
-                                                    Instant innerStart = Instant.now();
-                                                    mfg.addValue(metadataFieldValueRepo.create(value, mfg));
-                                                    logger.info(Duration.between(innerStart, Instant.now()).toMillis() + " milliseconds to create metadata file value");
+                                    String[] values = cellValue.split(delimeter);
+                                    MetadataFieldGroup mfg = document.getFieldByLabel(header);
+                                    if (mfg != null) {
+                                        String defaultValue = mfg.getLabel().getProfile().getDefaultValue();
+                                        for (String value : values) {
+                                            if (!mfg.containsValue(value)) {
+                                                if (value.length() == 0 && defaultValue != null) {
+                                                    value = defaultValue;
                                                 }
+                                                Instant innerStart = Instant.now();
+                                                mfg.addValue(metadataFieldValueRepo.create(value, mfg));
+                                                logger.info(Duration.between(innerStart, Instant.now()).toMillis() + " milliseconds to create metadata file value");
                                             }
-                                            mfgs.add(mfg);
-                                        } else {
-                                            logger.debug("No MetadataFieldGroup with label: " + header);
                                         }
+                                        mfgs.add(mfg);
+                                    } else {
+                                        logger.debug("Could not find metadata field group with label: " + header);
                                     }
                                 } else {
-                                    logger.debug("No row with header: " + header);
+                                    logger.debug("Record does not a value for column " + header + "!");
                                 }
                             }
                             document.setFields(mfgs);
                             break;
                         }
                     } else {
-                        logger.info("Record without filename found!");
+                        logger.debug("Record does not have the expected identifier!");
                     }
                 }
                 csvParser.close();
-                logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to find look for record in csv");
+                if (found) {
+                    logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to find for record in csv");
+                } else {
+                    logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to look for record in csv");
+                    logger.debug("No record with identifier " + documentName + " found!");
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -108,20 +109,7 @@ public class CSVAuthority implements Authority {
 
     private CSVParser getParser(String path) throws FileNotFoundException, IOException {
         FileReader csvFileReader = new FileReader(getCsvAbsolutePath(path));
-        return new CSVParser(csvFileReader, CSVFormat.RFC4180);
-    }
-
-    private CSVParser getParser(String path, String[] headers) throws FileNotFoundException, IOException {
-        FileReader csvFileReader = new FileReader(getCsvAbsolutePath(path));
-        return new CSVParser(csvFileReader, CSVFormat.RFC4180.withHeader(headers));
-    }
-
-    private String[] getHeaders(CSVRecord headersRecord) {
-        String[] headers = new String[headersRecord.size()];
-        for (int i = 0; i < headersRecord.size(); i++) {
-            headers[i] = headersRecord.get(i);
-        }
-        return headers;
+        return new CSVParser(csvFileReader, CSVFormat.RFC4180.withFirstRecordAsHeader());
     }
 
     public List<String> getPaths() {
