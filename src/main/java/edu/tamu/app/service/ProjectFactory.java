@@ -5,6 +5,8 @@ import static edu.tamu.app.Initialization.ASSETS_PATH;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -250,24 +252,10 @@ public class ProjectFactory {
 
     }
 
-    /* TODO generalize against ProjectService commonalities
-    public Map<String,List<String>> getProjectServiceTypes(ProjectService projectService) {
-        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
-        getProjectsNode().forEach(projectNode -> {
-            List<? extends ProjectService> projectRepositories = getProjectRepositories(projectNode);
-            projectRepositories.forEach(projectRepository -> {
-                if (!scaffolds.containsKey(projectRepository.getType())) {
-                    List<String> settingKeys = new ArrayList<String>();
-                    projectRepository.getSettings().forEach(projectSetting -> {
-                        settingKeys.add(projectSetting.getKey());
-                    });
-                    scaffolds.put(projectRepository.getType().toString(), settingKeys);
-                }
-            });
-        });
-        return scaffolds;
-    }
-    */
+    /*
+     * TODO generalize against ProjectService commonalities public Map<String,List<String>> getProjectServiceTypes(ProjectService projectService) { Map<String,List<String>> scaffolds = new HashMap<String,List<String>>(); getProjectsNode().forEach(projectNode -> { List<? extends ProjectService> projectRepositories = getProjectRepositories(projectNode); projectRepositories.forEach(projectRepository -> { if (!scaffolds.containsKey(projectRepository.getType())) { List<String> settingKeys = new
+     * ArrayList<String>(); projectRepository.getSettings().forEach(projectSetting -> { settingKeys.add(projectSetting.getKey()); }); scaffolds.put(projectRepository.getType().toString(), settingKeys); } }); }); return scaffolds; }
+     */
 
     public Map<String, List<String>> getProjectRepositoryTypes() {
         Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
@@ -285,14 +273,14 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-    
-    public Map<String,List<String>> getProjectSuggestorTypes() {
-        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+
+    public Map<String, List<String>> getProjectSuggestorTypes() {
+        Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectSuggestor> projectSuggestors = getProjectSuggestors(projectNode);
             projectSuggestors.forEach(projectSuggestor -> {
                 if (!scaffolds.containsKey(projectSuggestor.getType())) {
-                    List<String> settingKeys = new ArrayList<String>(); 
+                    List<String> settingKeys = new ArrayList<String>();
                     projectSuggestor.getSettings().forEach(projectSetting -> {
                         settingKeys.add(projectSetting.getKey());
                     });
@@ -302,9 +290,9 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-    
-    public Map<String,List<String>> getProjectAuthorityTypes() {
-        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+
+    public Map<String, List<String>> getProjectAuthorityTypes() {
+        Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectAuthority> projectAuthorities = getProjectAuthorities(projectNode);
             projectAuthorities.forEach(projectAuthority -> {
@@ -319,7 +307,7 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-    
+
     protected JsonNode getProjectsNode() {
         if (projectsNode == null) {
             projectsNode = readProjectsNode();
@@ -339,14 +327,20 @@ public class ProjectFactory {
 
     public List<MetadataFieldGroup> getProjectFields(String projectName) {
 
+        Instant start = Instant.now();
+
         List<MetadataFieldGroup> projectFields = new ArrayList<MetadataFieldGroup>();
 
+        start = Instant.now();
         Project project = projectRepo.findByName(projectName);
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup project");
 
         boolean newProject = project == null;
 
         if (newProject) {
+            start = Instant.now();
             project = createProject(projectName);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new project");
         }
 
         final Iterable<JsonNode> nodesOfProject = () -> getProjectNode(projectName).get(METADATA_KEY).elements();
@@ -360,16 +354,24 @@ public class ProjectFactory {
             InputType inputType = InputType.valueOf(metadata.get(INPUT_TYPE_KEY) != null ? metadata.get(INPUT_TYPE_KEY).asText() : "TEXT");
             String defaultValue = metadata.get(DEFAULT_KEY) != null ? metadata.get(DEFAULT_KEY).asText() : "";
 
+            start = Instant.now();
             FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to look up field profile");
             if (fieldProfile == null) {
+                start = Instant.now();
                 fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
+                logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new field profile");
             }
 
             String labelName = metadata.get(LABEL_KEY).asText();
 
+            start = Instant.now();
             MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(labelName, fieldProfile);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup metadata field label");
             if (metadataFieldLabel == null) {
+                start = Instant.now();
                 metadataFieldLabel = metadataFieldLabelRepo.create(labelName, fieldProfile);
+                logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new metadata field label");
             }
 
             projectFields.add(new MetadataFieldGroup(metadataFieldLabel));
@@ -381,8 +383,12 @@ public class ProjectFactory {
         }
 
         if (newProject) {
+            start = Instant.now();
             projectRepo.update(project);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to update project");
         }
+
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to get project metadata field groups");
 
         return projectFields;
     }
