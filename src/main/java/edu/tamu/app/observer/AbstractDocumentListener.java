@@ -3,6 +3,8 @@ package edu.tamu.app.observer;
 import static edu.tamu.app.Initialization.LISTENER_PARALLELISM;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +115,7 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     @Override
     public void onStop(FileAlterationObserver observer) {
+
     }
 
     protected void initializePendingResources(String documentName) {
@@ -148,7 +151,9 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
     }
 
     protected void addResource(File file) throws DocumentNotFoundException {
+        Instant start = Instant.now();
         documentFactory.addResource(file);
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to add resource");
     }
 
     private synchronized CompletableFuture<Document> completableCreateDocument(File directory) {

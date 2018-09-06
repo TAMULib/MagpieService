@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -83,13 +85,20 @@ public class DocumentFactory {
 
     private Document createDocument(String projectName, String documentName) throws SAXException, IOException, ParserConfigurationException {
         Project project = projectRepo.findByName(projectName);
+        if (project == null) {
+            logger.error("Unable to find project " + projectName);
+        }
         return createDocument(project, documentName);
     }
 
     public Document addResource(File file) throws DocumentNotFoundException {
         String documentName = file.getParentFile().getName();
         String projectName = file.getParentFile().getParentFile().getName();
+
+        Instant start = Instant.now();
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup document while adding resource");
+
         if (document == null) {
             throw new DocumentNotFoundException(projectName, documentName);
         }
@@ -103,11 +112,21 @@ public class DocumentFactory {
         String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
         String mimeType = tika.detect(path);
 
+        Instant start = Instant.now();
         Resource resource = resourceRepo.findByDocumentProjectNameAndDocumentNameAndName(projectName, documentName, resourceName);
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to look for existing resource while adding resource");
+
         if (resource == null) {
             logger.info("Adding new resource " + resourceName + " - " + mimeType + " for document " + document.getName());
+
+            start = Instant.now();
             resourceRepo.create(document, resourceName, path, mimeType);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new resource");
+
+            start = Instant.now();
             document = documentRepo.findByProjectNameAndName(projectName, documentName);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup document after creating new resource");
+
         } else {
             logger.info("Resource " + resourceName + " already exists for document " + documentName);
         }
@@ -132,12 +151,29 @@ public class DocumentFactory {
         String projectName = project.getName();
         String documentPath = getDocumentPath(projectName, documentName);
         logger.info("Creating standard document at " + documentPath);
+
+        Instant start = Instant.now();
         Document document = documentRepo.create(project, documentName, documentPath, "Open");
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new document");
+
+        start = Instant.now();
         document = addMetadataFields(document, project.getName());
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to add metadata to new document");
+
+        start = Instant.now();
         document = applyAuthorities(document, project.getAuthorities());
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to apply authorities to new document");
+
+        start = Instant.now();
         document = documentRepo.update(document);
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to update new document");
+
         project.addDocument(document);
+
+        start = Instant.now();
         projectRepo.update(project);
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to update project");
+
         return document;
     }
 
@@ -148,15 +184,19 @@ public class DocumentFactory {
     private Document addMetadataFields(Document document, String projectName) {
         for (MetadataFieldGroup field : projectFactory.getProjectFields(projectName)) {
             logger.info("Adding field " + field.getLabel().getName() + " to document " + document.getName());
+            Instant start = Instant.now();
             document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new metadata field group");
         }
         return document;
     }
 
     private Document applyAuthorities(Document document, List<ProjectAuthority> authorities) {
         for (ProjectAuthority authority : authorities) {
-            logger.info("Applying authority " + authority.getName() + " to " + document.getName() );
+            logger.info("Applying authority " + authority.getName() + " to " + document.getName());
+            Instant start = Instant.now();
             document = ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to apply authority " + authority.getName());
         }
         return document;
     }
