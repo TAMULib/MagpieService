@@ -85,6 +85,9 @@ public class DocumentFactory {
 
     private Document createDocument(String projectName, String documentName) throws SAXException, IOException, ParserConfigurationException {
         Project project = projectRepo.findByName(projectName);
+        if (project == null) {
+            logger.error("Unable to find project " + projectName);
+        }
         return createDocument(project, documentName);
     }
 
