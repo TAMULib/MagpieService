@@ -252,10 +252,27 @@ public class ProjectFactory {
 
     }
 
+    // @formatter:off
+    // TODO: generalize against ProjectService commonalities 
     /*
-     * TODO generalize against ProjectService commonalities public Map<String,List<String>> getProjectServiceTypes(ProjectService projectService) { Map<String,List<String>> scaffolds = new HashMap<String,List<String>>(); getProjectsNode().forEach(projectNode -> { List<? extends ProjectService> projectRepositories = getProjectRepositories(projectNode); projectRepositories.forEach(projectRepository -> { if (!scaffolds.containsKey(projectRepository.getType())) { List<String> settingKeys = new
-     * ArrayList<String>(); projectRepository.getSettings().forEach(projectSetting -> { settingKeys.add(projectSetting.getKey()); }); scaffolds.put(projectRepository.getType().toString(), settingKeys); } }); }); return scaffolds; }
-     */
+    public Map<String, List<String>> getProjectServiceTypes(ProjectService projectService) {
+        Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
+        getProjectsNode().forEach(projectNode -> {
+            List<? extends ProjectService> projectRepositories = getProjectRepositories(projectNode);
+            projectRepositories.forEach(projectRepository -> {
+                if (!scaffolds.containsKey(projectRepository.getType())) {
+                    List<String> settingKeys = new ArrayList<String>();
+                    projectRepository.getSettings().forEach(projectSetting -> {
+                        settingKeys.add(projectSetting.getKey());
+                    });
+                    scaffolds.put(projectRepository.getType().toString(), settingKeys);
+                }
+            });
+        });
+        return scaffolds;
+    }
+    */
+    // @formatter:on
 
     public Map<String, List<String>> getProjectRepositoryTypes() {
         Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
