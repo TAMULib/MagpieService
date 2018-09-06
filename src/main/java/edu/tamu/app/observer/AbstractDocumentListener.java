@@ -56,7 +56,6 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     @Override
     public void onDirectoryCreate(File directory) {
-        logger.info("onDirectoryCreate: " + directory.getName());
         Document existingDocument = documentRepo.findByProjectNameAndName(directory.getParentFile().getName(), directory.getName());
         if (existingDocument == null) {
             initializePendingResources(directory.getName());
@@ -73,17 +72,16 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     @Override
     public void onDirectoryChange(File directory) {
-        logger.info("onDirectoryChange: " + directory.getName());
+
     }
 
     @Override
     public void onDirectoryDelete(File directory) {
-        logger.info("onDirectoryDelete: " + directory.getName());
+
     }
 
     @Override
     public void onFileCreate(File file) {
-        logger.info("onFileCreate: " + file.getName());
         if (!file.isHidden() && file.isFile()) {
             logger.debug("File created: " + file.getName());
             String projectName = file.getParentFile().getParentFile().getName();
@@ -107,12 +105,12 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     @Override
     public void onFileChange(File file) {
-        logger.info("onFileChange: " + file.getName());
+
     }
 
     @Override
     public void onFileDelete(File file) {
-        logger.info("onFileDelete: " + file.getName());
+
     }
 
     @Override
@@ -155,7 +153,7 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
     protected void addResource(File file) throws DocumentNotFoundException {
         Instant start = Instant.now();
         documentFactory.addResource(file);
-        logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to add resource");
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to add resource");
     }
 
     private synchronized CompletableFuture<Document> completableCreateDocument(File directory) {
