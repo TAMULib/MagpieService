@@ -3,8 +3,6 @@ package edu.tamu.app.service.authority;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -43,7 +41,6 @@ public class CSVAuthority implements Authority {
     public Document populate(Document document) {
         for (String path : getPaths()) {
             try {
-                Instant start = Instant.now();
                 boolean found = false;
                 String identifier = getIdentifier();
                 String delimeter = Pattern.quote(getDelimeter());
@@ -68,9 +65,7 @@ public class CSVAuthority implements Authority {
                                                 if (value.length() == 0 && defaultValue != null) {
                                                     value = defaultValue;
                                                 }
-                                                Instant innerStart = Instant.now();
                                                 mfg.addValue(metadataFieldValueRepo.create(value, mfg));
-                                                logger.info(Duration.between(innerStart, Instant.now()).toMillis() + " milliseconds to create metadata file value");
                                             }
                                         }
                                         mfgs.add(mfg);
@@ -89,10 +84,7 @@ public class CSVAuthority implements Authority {
                     }
                 }
                 csvParser.close();
-                if (found) {
-                    logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to find for record in csv");
-                } else {
-                    logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to look for record in csv");
+                if (!found) {
                     logger.debug("No record with identifier " + documentName + " found!");
                 }
 

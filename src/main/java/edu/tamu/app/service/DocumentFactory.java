@@ -114,18 +114,18 @@ public class DocumentFactory {
 
         Instant start = Instant.now();
         Resource resource = resourceRepo.findByDocumentProjectNameAndDocumentNameAndName(projectName, documentName, resourceName);
-        logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to look for existing resource while adding resource");
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to look for existing resource while adding resource");
 
         if (resource == null) {
             logger.info("Adding new resource " + resourceName + " - " + mimeType + " for document " + document.getName());
 
             start = Instant.now();
             resourceRepo.create(document, resourceName, path, mimeType);
-            logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new resource");
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new resource");
 
             start = Instant.now();
             document = documentRepo.findByProjectNameAndName(projectName, documentName);
-            logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup document after creating new resource");
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup document after creating new resource");
 
         } else {
             logger.info("Resource " + resourceName + " already exists for document " + documentName);
@@ -154,25 +154,25 @@ public class DocumentFactory {
 
         Instant start = Instant.now();
         Document document = documentRepo.create(project, documentName, documentPath, "Open");
-        logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new document");
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new document");
 
         start = Instant.now();
         document = addMetadataFields(document, project.getName());
-        logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to add metadata to new document");
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to add metadata to new document");
 
         start = Instant.now();
         document = applyAuthorities(document, project.getAuthorities());
-        logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to apply authorities to new document");
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to apply authorities to new document");
 
         start = Instant.now();
         document = documentRepo.update(document);
-        logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to update new document");
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to update new document");
 
         project.addDocument(document);
 
         start = Instant.now();
         projectRepo.update(project);
-        logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to update project");
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to update project");
 
         return document;
     }
@@ -184,9 +184,7 @@ public class DocumentFactory {
     private Document addMetadataFields(Document document, String projectName) {
         for (MetadataFieldGroup field : projectFactory.getProjectFields(projectName)) {
             logger.info("Adding field " + field.getLabel().getName() + " to document " + document.getName());
-            Instant start = Instant.now();
             document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
-            logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new metadata field group");
         }
         return document;
     }
@@ -194,9 +192,7 @@ public class DocumentFactory {
     private Document applyAuthorities(Document document, List<ProjectAuthority> authorities) {
         for (ProjectAuthority authority : authorities) {
             logger.info("Applying authority " + authority.getName() + " to " + document.getName());
-            Instant start = Instant.now();
             document = ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
-            logger.info(Duration.between(start, Instant.now()).toMillis() + " milliseconds to apply authority " + authority.getName());
         }
         return document;
     }
