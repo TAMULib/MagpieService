@@ -104,6 +104,8 @@ public class ProjectFactory {
     // TODO: initialize projects.json into database and remove this in memory cache
     private JsonNode projectsNode = null;
 
+    private Map<String, List<MetadataFieldGroup>> projectFieldGroups = new HashMap<String, List<MetadataFieldGroup>>();
+
     public JsonNode readProjectsNode() {
         String json = null;
         try {
@@ -250,7 +252,8 @@ public class ProjectFactory {
 
     }
 
-    /* TODO generalize against ProjectService commonalities
+    // @formatter:off
+    /* TODO: generalize against ProjectService commonalities
     public Map<String,List<String>> getProjectServiceTypes(ProjectService projectService) {
         Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
         getProjectsNode().forEach(projectNode -> {
@@ -268,6 +271,7 @@ public class ProjectFactory {
         return scaffolds;
     }
     */
+    // @formatter:on
 
     public Map<String, List<String>> getProjectRepositoryTypes() {
         Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
@@ -285,14 +289,14 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-    
-    public Map<String,List<String>> getProjectSuggestorTypes() {
-        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+
+    public Map<String, List<String>> getProjectSuggestorTypes() {
+        Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectSuggestor> projectSuggestors = getProjectSuggestors(projectNode);
             projectSuggestors.forEach(projectSuggestor -> {
                 if (!scaffolds.containsKey(projectSuggestor.getType())) {
-                    List<String> settingKeys = new ArrayList<String>(); 
+                    List<String> settingKeys = new ArrayList<String>();
                     projectSuggestor.getSettings().forEach(projectSetting -> {
                         settingKeys.add(projectSetting.getKey());
                     });
@@ -302,9 +306,9 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-    
-    public Map<String,List<String>> getProjectAuthorityTypes() {
-        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+
+    public Map<String, List<String>> getProjectAuthorityTypes() {
+        Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectAuthority> projectAuthorities = getProjectAuthorities(projectNode);
             projectAuthorities.forEach(projectAuthority -> {
@@ -319,7 +323,7 @@ public class ProjectFactory {
         });
         return scaffolds;
     }
-    
+
     protected JsonNode getProjectsNode() {
         if (projectsNode == null) {
             projectsNode = readProjectsNode();
@@ -339,49 +343,55 @@ public class ProjectFactory {
 
     public List<MetadataFieldGroup> getProjectFields(String projectName) {
 
-        List<MetadataFieldGroup> projectFields = new ArrayList<MetadataFieldGroup>();
+        List<MetadataFieldGroup> projectFields = projectFieldGroups.get(projectName);
 
-        Project project = projectRepo.findByName(projectName);
+        if (projectFields == null) {
+            projectFields = new ArrayList<MetadataFieldGroup>();
 
-        boolean newProject = project == null;
+            Project project = projectRepo.findByName(projectName);
 
-        if (newProject) {
-            project = createProject(projectName);
-        }
-
-        final Iterable<JsonNode> nodesOfProject = () -> getProjectNode(projectName).get(METADATA_KEY).elements();
-
-        for (JsonNode metadata : nodesOfProject) {
-            String gloss = metadata.get(GLOSS_KEY) != null ? metadata.get(GLOSS_KEY).asText() : "";
-            Boolean isRepeatable = metadata.get(REPEATABLE_KEY) != null ? metadata.get(REPEATABLE_KEY).asBoolean() : false;
-            Boolean isReadOnly = metadata.get(READ_ONLY_KEY) != null ? metadata.get(READ_ONLY_KEY).asBoolean() : false;
-            Boolean isHidden = metadata.get(HIDDEN_KEY) != null ? metadata.get(HIDDEN_KEY).asBoolean() : false;
-            Boolean isRequired = metadata.get(REQUIRED_KEY) != null ? metadata.get(REQUIRED_KEY).asBoolean() : false;
-            InputType inputType = InputType.valueOf(metadata.get(INPUT_TYPE_KEY) != null ? metadata.get(INPUT_TYPE_KEY).asText() : "TEXT");
-            String defaultValue = metadata.get(DEFAULT_KEY) != null ? metadata.get(DEFAULT_KEY).asText() : "";
-
-            FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
-            if (fieldProfile == null) {
-                fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
-            }
-
-            String labelName = metadata.get(LABEL_KEY).asText();
-
-            MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(labelName, fieldProfile);
-            if (metadataFieldLabel == null) {
-                metadataFieldLabel = metadataFieldLabelRepo.create(labelName, fieldProfile);
-            }
-
-            projectFields.add(new MetadataFieldGroup(metadataFieldLabel));
+            boolean newProject = project == null;
 
             if (newProject) {
-                project.addProfile(fieldProfile);
+                project = createProject(projectName);
             }
 
-        }
+            final Iterable<JsonNode> nodesOfProject = () -> getProjectNode(projectName).get(METADATA_KEY).elements();
 
-        if (newProject) {
-            projectRepo.update(project);
+            for (JsonNode metadata : nodesOfProject) {
+                String gloss = metadata.get(GLOSS_KEY) != null ? metadata.get(GLOSS_KEY).asText() : "";
+                Boolean isRepeatable = metadata.get(REPEATABLE_KEY) != null ? metadata.get(REPEATABLE_KEY).asBoolean() : false;
+                Boolean isReadOnly = metadata.get(READ_ONLY_KEY) != null ? metadata.get(READ_ONLY_KEY).asBoolean() : false;
+                Boolean isHidden = metadata.get(HIDDEN_KEY) != null ? metadata.get(HIDDEN_KEY).asBoolean() : false;
+                Boolean isRequired = metadata.get(REQUIRED_KEY) != null ? metadata.get(REQUIRED_KEY).asBoolean() : false;
+                InputType inputType = InputType.valueOf(metadata.get(INPUT_TYPE_KEY) != null ? metadata.get(INPUT_TYPE_KEY).asText() : "TEXT");
+                String defaultValue = metadata.get(DEFAULT_KEY) != null ? metadata.get(DEFAULT_KEY).asText() : "";
+
+                FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
+                if (fieldProfile == null) {
+                    fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
+                }
+
+                String labelName = metadata.get(LABEL_KEY).asText();
+
+                MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(labelName, fieldProfile);
+                if (metadataFieldLabel == null) {
+                    metadataFieldLabel = metadataFieldLabelRepo.create(labelName, fieldProfile);
+                }
+
+                projectFields.add(new MetadataFieldGroup(metadataFieldLabel));
+
+                if (newProject) {
+                    project.addProfile(fieldProfile);
+                }
+
+            }
+
+            if (newProject) {
+                projectRepo.update(project);
+            }
+
+            projectFieldGroups.put(projectName, projectFields);
         }
 
         return projectFields;

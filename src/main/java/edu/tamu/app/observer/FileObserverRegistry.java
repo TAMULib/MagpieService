@@ -45,9 +45,9 @@ public class FileObserverRegistry {
         Optional<FileAlterationObserver> observer = fileMonitorManager.getObserver(path);
         if (observer.isPresent()) {
             logger.info("Dismissing listener: " + path);
+            observer.get().destroy();
             beanFactory.destroyBean(listener);
             fileMonitorManager.removeObserver(observer.get());
-            observer.get().destroy();
         } else {
             logger.info("No listener to dismiss: " + path);
         }

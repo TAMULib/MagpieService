@@ -81,6 +81,9 @@ public class Initialization implements CommandLineRunner {
         } catch (IOException e) {
             ASSETS_PATH = assetsPath;
         }
+        if (ASSETS_PATH.endsWith(File.separator)) {
+            ASSETS_PATH = ASSETS_PATH.substring(0, ASSETS_PATH.length() - 1);
+        }
     }
 
     private void setListenerParallelism(int parallelism) {
