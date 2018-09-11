@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -96,4 +97,9 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
         argumentResolvers.add(new WeaverUserArgumentResolver<AppUser, AppUserRepo>(appUserRepo));
     }
 
+    @Override
+    public void configureContentNegotiation(final ContentNegotiationConfigurer configurer) {
+        // Turn off suffix-based content negotiation
+        configurer.favorPathExtension(false);
+    }
 }
