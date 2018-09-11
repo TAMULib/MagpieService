@@ -206,7 +206,7 @@
   "postcards":{
     "ingestType":"SAF",
     "repositories": [{
-      "name": "Fedora PCDM for SAF",
+      "name": "Fedora PCDM for World War I Postcards",
       "type": "FEDORA_PCDM",
       "settings": [{
           "key": "repoUrl",
