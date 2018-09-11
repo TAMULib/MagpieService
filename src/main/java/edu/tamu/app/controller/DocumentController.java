@@ -85,10 +85,11 @@ public class DocumentController {
      * @return ApiResponse
      *
      */
-    @RequestMapping("/get/{projectName}/{documentName}")
+    @RequestMapping(value="/get/{projectName}/{documentName:.+}")
     @PreAuthorize("hasRole('USER')")
     public ApiResponse documentByName(@PathVariable String projectName, @PathVariable String documentName) {
-        return new ApiResponse(SUCCESS, documentRepo.findByProjectNameAndName(projectName, documentName));
+        Document d = documentRepo.findByProjectNameAndName(projectName, documentName);
+        return new ApiResponse(SUCCESS, d);
     }
 
     /**
