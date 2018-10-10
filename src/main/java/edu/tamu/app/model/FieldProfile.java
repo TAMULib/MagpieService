@@ -11,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Index;
+
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
@@ -20,7 +22,8 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import edu.tamu.weaver.data.model.BaseEntity;
 
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "gloss", "project_id" }) })
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "gloss", "project_id" })},
+		indexes= {@Index(name="gloss_and_project_id", columnList = "gloss,project_id") })
 public class FieldProfile extends BaseEntity {
 
     @Column(nullable = false)
