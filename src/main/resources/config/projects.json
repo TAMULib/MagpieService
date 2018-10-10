@@ -206,7 +206,7 @@
   "postcards":{
     "ingestType":"SAF",
     "repositories": [{
-      "name": "Fedora PCDM for SAF",
+      "name": "Fedora PCDM for World War I Postcards",
       "type": "FEDORA_PCDM",
       "settings": [{
           "key": "repoUrl",
@@ -294,6 +294,128 @@
         "inputType": "TEXTAREA"
       }
     ]
+  },
+  "alice_in_wonderland": {
+    "repositories": [{
+      "name": "Alice in Wonderland",
+      "type": "FEDORA_PCDM",
+      "settings": [{
+          "key": "repoUrl",
+          "values": [
+            "http://localhost:8080"
+          ]
+        },
+        {
+          "key": "restPath",
+          "values": [
+            "fcrepo/rest"
+          ]
+        },
+        {
+          "key": "containerPath",
+          "values": [
+            "alice_in_wonderland"
+          ]
+        },
+        {
+          "key": "userName",
+          "values": [
+            ""
+          ]
+        },
+        {
+          "key": "password",
+          "values": [
+            ""
+          ]
+        }
+      ]
+    }],
+    "metadata": [{
+        "label": "dc.title",
+        "gloss": "Title",
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.abstract",
+        "gloss": "Abstract",
+        "inputType": "TEXTAREA"
+      },
+      {
+        "label": "dc.creator",
+        "gloss": "Creator",
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.citation",
+        "gloss": "Citation",
+        "inputType": "TEXTAREA"
+      },
+      {
+        "label": "local.country",
+        "gloss": "Country",
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.relation.ispartof",
+        "gloss": "Is Part Of",
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.rights.holder",
+        "gloss": "Rights Holder",
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.identifier.other",
+        "gloss": "Other Identifier",
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.identifer.url",
+        "gloss": "URL",
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.rights",
+        "gloss": "Rights",
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.rights.uri",
+        "gloss": "Rights URI",
+        "inputType": "TEXT"
+      },
+      {
+        "label": "dc.subject.other",
+        "gloss": "Subject (Other)",
+        "inputType": "TEXT"
+      }
+    ],
+    "suggestors": [],
+    "authorities": [{
+      "name": "Alice In Wonderland DC CSV Authority",
+      "type": "CSV",
+      "settings": [{
+          "key": "paths",
+          "values": [
+            "config/csv/alice-dc-metadata.csv"
+          ]
+        },
+        {
+          "key": "identifier",
+          "values": [
+            "filename"
+          ]
+        },
+        {
+          "key": "delimeter",
+          "values": [
+            "||"
+          ]
+        }
+      ]
+    }]
   },
   "fedora_spotlight_exhibit": {
     "repositories": [{

@@ -156,7 +156,7 @@ public abstract class AbstractFedoraRepository implements Repository {
      * @throws IOException
      */
     private void updateMetadata(Document document, String itemContainerUrl) throws IOException {
-        String updateQuery = "PREFIX dc: <http://purl.org/dc/elements/1.1/>" + "INSERT {";
+        String updateQuery = "PREFIX dc: <http://purl.org/dc/elements/1.1/> PREFIX local: <http://digital.library.tamu.edu/schemas/local>" + "INSERT {";
         String cleanValue = null;
         for (MetadataFieldGroup group : document.getFields()) {
             for (MetadataFieldValue value : group.getValues()) {
