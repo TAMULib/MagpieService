@@ -11,8 +11,7 @@ import javax.persistence.UniqueConstraint;
 import edu.tamu.weaver.data.model.BaseEntity;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "profile_id" }),
-		indexes= {@Index(name="name_and_profile_id", columnList="name,profile_id")})
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "profile_id" }), indexes = { @Index(name = "name_and_profile_id", columnList = "name,profile_id") })
 public class MetadataFieldLabel extends BaseEntity {
 
     @Column(nullable = false)

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 public class ProjectFieldProfileTest extends AbstractModelTest {
@@ -31,11 +32,10 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
         assertEquals(" The testProfile project was not set ", testProfile.getProject().getName(), testProject.getName());
     }
 
-    @Test
+    @Test(expected = DataIntegrityViolationException.class)
     public void testDuplicateProjectFieldProfile() {
         projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
         projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-        assertEquals("Test ProjectFieldProfile duplicate was created.", 1, projectFieldProfileRepo.count());
     }
 
     @Test

@@ -21,12 +21,8 @@ public class DocumentRepoImpl extends AbstractWeaverRepoImpl<Document, DocumentR
     private DocumentRepo documentRepo;
 
     @Override
-    public synchronized Document create(Project project, String name, String path, String status) {
-        Document document = documentRepo.findByProjectNameAndName(project.getName(), name);
-        if (document == null) {
-            document = documentRepo.create(new Document(project, name, path.replace(ASSETS_PATH, ""), status));
-        }
-        return document;
+    public Document create(Project project, String name, String path, String status) {
+        return documentRepo.create(new Document(project, name, path.replace(ASSETS_PATH, ""), status));
     }
 
     @Override

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 public class MetadataFieldGroupTest extends AbstractModelTest {
@@ -23,6 +24,12 @@ public class MetadataFieldGroupTest extends AbstractModelTest {
         testFieldGroup = metadataFieldGroupRepo.create(testDocument, testLabel);
         assertEquals("Test MetadataField was not created.", 1, metadataFieldGroupRepo.count());
         assertEquals("Expected Test MetadataField was not created.", testLabel.getName(), testFieldGroup.getLabel().getName());
+    }
+
+    @Test(expected = DataIntegrityViolationException.class)
+    public void testDuplicateDocument() {
+        metadataFieldGroupRepo.create(testDocument, testLabel);
+        metadataFieldGroupRepo.create(testDocument, testLabel);
     }
 
     @Test

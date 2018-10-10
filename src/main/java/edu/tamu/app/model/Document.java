@@ -24,8 +24,7 @@ import edu.tamu.app.resolver.ProjectByNameResolver;
 import edu.tamu.weaver.data.model.BaseEntity;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "project_id" }),
-	indexes= {@Index(name="project_and_name", columnList="project_id,name")})
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "project_id" }), indexes = { @Index(name = "project_and_name", columnList = "project_id,name") })
 public class Document extends BaseEntity {
 
     @Column(nullable = false)

@@ -13,5 +13,7 @@ import edu.tamu.weaver.data.model.repo.WeaverRepo;
 public interface MetadataFieldLabelRepo extends WeaverRepo<MetadataFieldLabel>, MetadataFieldLabelRepoCustom {
 
     public MetadataFieldLabel findByNameAndProfile(String name, FieldProfile profile);
+
     public Set<MetadataFieldLabel> findByProfileId(Long fieldProfileId);
+
 }

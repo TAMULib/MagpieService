@@ -168,7 +168,11 @@ public class ProjectFactory {
             ingestType = IngestType.valueOf(projectNode.get(INGEST_TYPE_KEY).asText());
         }
 
-        Project project = projectRepo.create(projectName, ingestType, headless, repositories, authorities, suggestors);
+        Project project = projectRepo.findByName(projectName);
+
+        if (project == null) {
+            project = projectRepo.create(projectName, ingestType, headless, repositories, authorities, suggestors);
+        }
 
         registerListeners(project);
 
