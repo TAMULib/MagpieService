@@ -373,7 +373,7 @@ public class ProjectFactory {
 
             start = Instant.now();
             FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
-            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to look up field profile");
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to look up field profile by project " + project.getName() + " and gloss " + gloss);
             if (fieldProfile == null) {
                 start = Instant.now();
                 fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
@@ -384,7 +384,7 @@ public class ProjectFactory {
 
             start = Instant.now();
             MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(labelName, fieldProfile);
-            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup metadata field label");
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup metadata field label by labelName " + labelName + " and FP " + fieldProfile.getId());
             if (metadataFieldLabel == null) {
                 start = Instant.now();
                 metadataFieldLabel = metadataFieldLabelRepo.create(labelName, fieldProfile);
