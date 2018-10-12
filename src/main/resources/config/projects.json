@@ -361,6 +361,16 @@
         "gloss": "Is Part Of",
         "inputType": "TEXT"
       },
+            {
+        "label": "dc.relation.ispartofseries",
+        "gloss": "Is Part Of Series",
+        "inputType": "TEXT"
+      },
+            {
+        "label": "dc.relation.ispartofcollection",
+        "gloss": "Is Part Of Collection",
+        "inputType": "TEXT"
+      },
       {
         "label": "dc.rights.holder",
         "gloss": "Rights Holder",
