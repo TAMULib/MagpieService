@@ -17,18 +17,15 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
     private ProjectSuggestorRepo projectSuggestorRepo;
 
     @Override
-    public synchronized ProjectSuggestor create(String name, ServiceType serviceType) {
-        return create(name,serviceType,null);
+    public ProjectSuggestor create(String name, ServiceType serviceType) {
+        return create(name, serviceType, null);
     }
 
     @Override
-    public synchronized ProjectSuggestor create(String name, ServiceType serviceType, List<ProjectSetting> settings) {
-        ProjectSuggestor projectSuggestor = projectSuggestorRepo.findByName(name);
-        if (projectSuggestor == null) {
-            projectSuggestor = new ProjectSuggestor();
-            projectSuggestor.setName(name);
-            projectSuggestor.setType(serviceType);
-        }
+    public ProjectSuggestor create(String name, ServiceType serviceType, List<ProjectSetting> settings) {
+        ProjectSuggestor projectSuggestor = new ProjectSuggestor();
+        projectSuggestor.setName(name);
+        projectSuggestor.setType(serviceType);
         projectSuggestor.setSettings(settings);
         return projectSuggestorRepo.create(projectSuggestor);
     }

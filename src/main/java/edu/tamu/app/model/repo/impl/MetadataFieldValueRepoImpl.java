@@ -15,30 +15,18 @@ public class MetadataFieldValueRepoImpl extends AbstractWeaverRepoImpl<MetadataF
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Override
-    public synchronized MetadataFieldValue create(ControlledVocabulary cv, MetadataFieldGroup field) {
-        MetadataFieldValue metadataFieldValue = metadataFieldValueRepo.findByCvAndField(cv, field);
-        if (metadataFieldValue == null) {
-            metadataFieldValue = metadataFieldValueRepo.save(new MetadataFieldValue(cv, field));
-        }
-        return metadataFieldValue;
+    public MetadataFieldValue create(ControlledVocabulary cv, MetadataFieldGroup field) {
+        return metadataFieldValueRepo.save(new MetadataFieldValue(cv, field));
     }
 
     @Override
-    public synchronized MetadataFieldValue create(String value, MetadataFieldGroup field) {
-        MetadataFieldValue metadataFieldValue = metadataFieldValueRepo.findByValueAndField(value, field);
-        if (metadataFieldValue == null) {
-            metadataFieldValue = metadataFieldValueRepo.save(new MetadataFieldValue(value, field));
-        }
-        return metadataFieldValue;
+    public MetadataFieldValue create(String value, MetadataFieldGroup field) {
+        return metadataFieldValueRepo.save(new MetadataFieldValue(value, field));
     }
 
     @Override
-    public synchronized MetadataFieldValue create(String value, MetadataFieldGroup field, ControlledVocabulary cv) {
-        MetadataFieldValue metadataFieldValue = metadataFieldValueRepo.findByValueAndCvAndField(value, cv, field);
-        if (metadataFieldValue == null) {
-            metadataFieldValue = metadataFieldValueRepo.save(new MetadataFieldValue(value, cv, field));
-        }
-        return metadataFieldValue;
+    public MetadataFieldValue create(String value, MetadataFieldGroup field, ControlledVocabulary cv) {
+        return metadataFieldValueRepo.save(new MetadataFieldValue(value, cv, field));
     }
 
     @Override

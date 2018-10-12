@@ -60,9 +60,11 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
         if (existingDocument == null) {
             initializePendingResources(directory.getName());
             if (firstDocument.compareAndSet(true, false)) {
+            	logger.debug("Creating first document (calling createDocument) " + directory.getName() + " on a directory creation in listener"); 
                 Document document = createDocument(directory);
                 createdDocumentCallback(document);
             } else {
+            	logger.debug("Creating subseqeuent document (calling createDocument) " + directory.getName() + " on a directory creation in listener");
                 completableCreateDocument(directory).thenAccept(document -> {
                     createdDocumentCallback(document);
                 });
@@ -125,6 +127,7 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
     protected Document createDocument(File directory) {
         Document document = null;
         try {
+        	logger.debug("Creating document (calling createDocument) during run of Sync Service"); 
             document = documentFactory.createDocument(directory);
             document = processResources(document, directory);
         } catch (Exception e) {
@@ -158,6 +161,7 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     private synchronized CompletableFuture<Document> completableCreateDocument(File directory) {
         return CompletableFuture.supplyAsync(() -> {
+        	logger.debug("Creating document (calling createDocument) " + directory.getName() + " as completable future");
             return createDocument(directory);
         }, parallelExecutor);
     }

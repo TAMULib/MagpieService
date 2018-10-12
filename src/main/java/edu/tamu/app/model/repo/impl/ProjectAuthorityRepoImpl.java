@@ -18,17 +18,14 @@ public class ProjectAuthorityRepoImpl extends AbstractWeaverRepoImpl<ProjectAuth
 
     @Override
     public synchronized ProjectAuthority create(String name, ServiceType serviceType) {
-        return create(name,serviceType,null);
+        return create(name, serviceType, null);
     }
 
     @Override
     public synchronized ProjectAuthority create(String name, ServiceType serviceType, List<ProjectSetting> settings) {
-        ProjectAuthority projectAuthority = projectAuthorityRepo.findByName(name);
-        if (projectAuthority == null) {
-            projectAuthority = new ProjectAuthority();
-            projectAuthority.setName(name);
-            projectAuthority.setType(serviceType);
-        }
+        ProjectAuthority projectAuthority = new ProjectAuthority();
+        projectAuthority.setName(name);
+        projectAuthority.setType(serviceType);
         projectAuthority.setSettings(settings);
         return projectAuthorityRepo.create(projectAuthority);
     }

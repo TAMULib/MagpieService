@@ -3,6 +3,7 @@ package edu.tamu.app.model;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 
 public class ProjectTest extends AbstractModelTest {
 
@@ -13,11 +14,10 @@ public class ProjectTest extends AbstractModelTest {
         assertEquals("Expected Test Project was not created.", "testProject", assertProject.getName());
     }
 
-    @Test
+    @Test(expected = DataIntegrityViolationException.class)
     public void testDuplicateProject() {
         projectRepo.create("testProject", IngestType.STANDARD, false);
         projectRepo.create("testProject", IngestType.STANDARD, false);
-        assertEquals("Duplicate Test Project was created.", 1, projectRepo.count());
     }
 
     @Test

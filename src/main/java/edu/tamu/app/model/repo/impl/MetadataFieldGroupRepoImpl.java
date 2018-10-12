@@ -15,12 +15,8 @@ public class MetadataFieldGroupRepoImpl extends AbstractWeaverRepoImpl<MetadataF
     private MetadataFieldGroupRepo metadataFieldGroupRepo;
 
     @Override
-    public synchronized MetadataFieldGroup create(Document document, MetadataFieldLabel label) {
-        MetadataFieldGroup metadataFieldGroup = metadataFieldGroupRepo.findByDocumentAndLabel(document, label);
-        if (metadataFieldGroup == null) {
-            metadataFieldGroup = metadataFieldGroupRepo.save(new MetadataFieldGroup(document, label));
-        }
-        return metadataFieldGroup;
+    public MetadataFieldGroup create(Document document, MetadataFieldLabel label) {
+        return metadataFieldGroupRepo.save(new MetadataFieldGroup(document, label));
     }
 
     @Override

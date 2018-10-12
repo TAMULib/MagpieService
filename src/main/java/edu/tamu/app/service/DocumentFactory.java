@@ -17,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Logger;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -32,7 +33,6 @@ import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
-import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
@@ -113,10 +113,8 @@ public class DocumentFactory {
         String mimeType = tika.detect(path);
 
         Instant start = Instant.now();
-        Resource resource = resourceRepo.findByDocumentProjectNameAndDocumentNameAndName(projectName, documentName, resourceName);
-        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to look for existing resource while adding resource");
 
-        if (resource == null) {
+        try {
             logger.info("Adding new resource " + resourceName + " - " + mimeType + " for document " + document.getName());
 
             start = Instant.now();
@@ -127,7 +125,7 @@ public class DocumentFactory {
             document = documentRepo.findByProjectNameAndName(projectName, documentName);
             logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup document after creating new resource");
 
-        } else {
+        } catch (DataIntegrityViolationException e) {
             logger.info("Resource " + resourceName + " already exists for document " + documentName);
         }
         return document;
@@ -153,8 +151,16 @@ public class DocumentFactory {
         logger.info("Creating standard document at " + documentPath);
 
         Instant start = Instant.now();
-        Document document = documentRepo.create(project, documentName, documentPath, "Open");
-        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new document");
+        Document document = null;
+
+        try {
+            document = documentRepo.create(project, documentName, documentPath, "Open");
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new document");
+        } catch (DataIntegrityViolationException e) {
+            logger.info("Document " + documentName + " already exists for project " + projectName);
+            document = documentRepo.findByProjectNameAndName(projectName, documentName);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to find existing document");
+        }
 
         start = Instant.now();
         document = addMetadataFields(document, project.getName());
@@ -185,8 +191,19 @@ public class DocumentFactory {
         for (MetadataFieldGroup field : projectFactory.getProjectFields(projectName)) {
             logger.info("Adding field " + field.getLabel().getName() + " to document " + document.getName());
             Instant start = Instant.now();
-            document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
-            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new metadata field group");
+
+            MetadataFieldGroup mfg = null;
+            try {
+                mfg = metadataFieldGroupRepo.create(document, field.getLabel());
+                logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new metadata field group");
+            } catch (DataIntegrityViolationException e) {
+                logger.info("Metadata field group with label " + field.getLabel().getName() + " already exists for document " + document.getName());
+                mfg = metadataFieldGroupRepo.findByDocumentAndLabel(document, field.getLabel());
+                logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to find existing document");
+            }
+
+            document.addField(mfg);
+
         }
         return document;
     }

@@ -17,18 +17,15 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
     private ProjectRepositoryRepo projectRepositoryRepo;
 
     @Override
-    public synchronized ProjectRepository create(String name, ServiceType serviceType) {
-        return create(name,serviceType,null);
+    public ProjectRepository create(String name, ServiceType serviceType) {
+        return create(name, serviceType, null);
     }
 
     @Override
-    public synchronized ProjectRepository create(String name, ServiceType serviceType, List<ProjectSetting> settings) {
-        ProjectRepository projectRepository = projectRepositoryRepo.findByName(name);
-        if (projectRepository == null) {
-            projectRepository = new ProjectRepository();
-            projectRepository.setName(name);
-            projectRepository.setType(serviceType);
-        }
+    public ProjectRepository create(String name, ServiceType serviceType, List<ProjectSetting> settings) {
+        ProjectRepository projectRepository = new ProjectRepository();
+        projectRepository.setName(name);
+        projectRepository.setType(serviceType);
         projectRepository.setSettings(settings);
         return projectRepositoryRepo.create(projectRepository);
     }

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 public class MetadataFieldLabelTest extends AbstractModelTest {
@@ -22,11 +23,10 @@ public class MetadataFieldLabelTest extends AbstractModelTest {
         assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
     }
 
-    @Test
+    @Test(expected = DataIntegrityViolationException.class)
     public void testDuplicateMetadataFieldLabel() {
         metadataFieldLabelRepo.create("test", testProfile);
         metadataFieldLabelRepo.create("test", testProfile);
-        assertEquals("MetadataFieldLabel has duplicate.", 1, metadataFieldLabelRepo.count());
     }
 
     @Test
