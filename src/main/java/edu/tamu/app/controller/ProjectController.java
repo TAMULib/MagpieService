@@ -31,6 +31,7 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.service.SyncService;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Destination;
 import edu.tamu.weaver.response.ApiResponse;
@@ -56,6 +57,9 @@ public class ProjectController {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private SyncService syncService;
 
     /**
      * Endpoint to return list of projects.
@@ -208,6 +212,32 @@ public class ProjectController {
             }
         }
         return new ApiResponse(ERROR, "There was an error with the batch publish");
+    }
+
+    // TODO: handle exception gracefully
+    /**
+     * Synchronizes the project directory with the database for a single project.
+     *
+     * @param Long id
+     *   The ID of the specific project to synchronize.
+     *
+     * @return ApiResponse
+     * @throws IOException
+     *
+     */
+    @RequestMapping("/sync/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse syncDocuments(@PathVariable Long id) throws IOException {
+        ApiResponse response = null;
+        logger.info("Syncronizing projects with database.");
+        if (id == null) {
+            response = new ApiResponse(ERROR, "No valid project ID specified.");
+        }
+        else {
+            syncService.sync(id);
+            response = new ApiResponse(SUCCESS, "Syncronized project ID " + id + " with database.");
+        }
+        return response;
     }
 
 }

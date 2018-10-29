@@ -257,7 +257,7 @@ public class ProjectFactory {
     }
 
     // @formatter:off
-    // TODO: generalize against ProjectService commonalities 
+    // TODO: generalize against ProjectService commonalities
     /*
     public Map<String, List<String>> getProjectServiceTypes(ProjectService projectService) {
         Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
@@ -425,6 +425,26 @@ public class ProjectFactory {
                 fileObserverRegistry.register(new StandardDocumentListener(projectsPath, project.getName()));
             }
         });
+    }
+
+    /**
+     * Initiate project file listener for single project.
+     *
+     * @param id
+     *   ID of the project to initiate listener for.
+     */
+    public void startProjectFileListener(Long id) {
+        String projectsPath = ASSETS_PATH + File.separator + "projects";
+        Project project = projectRepo.findOne(id);
+        if (project != null) {
+            if (project.isHeadless()) {
+                logger.info("Registering headless document listener: " + projectsPath + File.separator + project.getName());
+                fileObserverRegistry.register(new HeadlessDocumentListener(projectsPath, project.getName()));
+            } else {
+                logger.info("Registering standard document listener: " + projectsPath + File.separator + project.getName());
+                fileObserverRegistry.register(new StandardDocumentListener(projectsPath, project.getName()));
+            }
+        };
     }
 
 }

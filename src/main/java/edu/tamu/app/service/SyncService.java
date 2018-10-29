@@ -18,11 +18,12 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.IngestType;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.repo.DocumentRepo;
+import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 /**
  * Sync Service. Synchronizes project database with projects folders.
- * 
+ *
  * @author
  */
 @Service
@@ -34,6 +35,9 @@ public class SyncService {
     private DocumentRepo documentRepo;
 
     @Autowired
+    private ProjectRepo projectRepo;
+
+    @Autowired
     private ProjectFactory projectFactory;
 
     @Autowired
@@ -43,22 +47,26 @@ public class SyncService {
 
     }
 
-    public void sync() throws IOException {
+    /**
+     * Synchronizes the project directory with the database for a single project.
+     *
+     * @param Long projectId
+     *   The ID of the specific project to synchronize.
+     *
+     * @throws IOException
+     */
+    public void sync(Long projectId) throws IOException {
         if (logger.isDebugEnabled()) {
-            logger.debug("Running Sync Service");
+            logger.debug("Running Sync Service for ID " + projectId);
         }
 
         projectFactory.startProjectFileListeners();
 
-        List<Path> projects = FileSystemUtility.directoryList(ASSETS_PATH + File.separator + "projects");
+        Project project = projectRepo.getOne(projectId);
 
-        for (Path projectPath : projects) {
-
-            logger.info("Found project: " + projectPath);
-
-            String projectName = projectPath.getFileName().toString();
-
-            Project project = projectFactory.getOrCreateProject(projectName);
+        if (project != null) {
+            String projectPath = ASSETS_PATH + File.separator + "projects" + File.separator + project.getName();
+            logger.info("Found project: " + project.getName());
 
             if (project.isHeadless()) {
                 logger.info(project.getName() + " is headless. Headless projects do not support manual sync!");
@@ -71,7 +79,7 @@ public class SyncService {
 
                     String documentName = documentPath.getFileName().toString();
 
-                    Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+                    Document document = documentRepo.findByProjectNameAndName(project.getName(), documentName);
 
                     try {
                         if (document == null) {
@@ -108,7 +116,8 @@ public class SyncService {
             }
 
         }
-        logger.info("Sync Service Finished");
+
+        logger.info("Sync Service Finished for ID " + projectId);
     }
 
 }

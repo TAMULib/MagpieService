@@ -11,8 +11,8 @@ import edu.tamu.weaver.response.ApiStatus;
 public class AdminControllerTest extends AbstractControllerTest {
 
     @Test
-    public void testSyncDocuments() throws IOException {
-        response = adminController.syncDocuments();
+    public void testSyncDocuments(Long projectId) throws IOException {
+        response = projectController.syncDocuments(projectId);
         assertEquals(" The response was not suucessful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
     }
 
