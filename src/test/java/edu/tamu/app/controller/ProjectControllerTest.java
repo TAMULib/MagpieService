@@ -2,6 +2,7 @@ package edu.tamu.app.controller;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +61,12 @@ public class ProjectControllerTest extends AbstractControllerTest {
 
         data.set("labels", objectMapper.valueToTree(labels));
         return data;
+    }
+
+    @Test
+    public void testSyncDocuments() throws IOException {
+        response = projectController.syncDocuments(TEST_PROJECT1.getId());
+        assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
     }
 
 }
