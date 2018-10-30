@@ -60,11 +60,11 @@ public class SyncService {
             logger.debug("Running Sync Service for ID " + projectId);
         }
 
-        projectFactory.startProjectFileListeners();
-
         Project project = projectRepo.getOne(projectId);
 
         if (project != null) {
+            projectFactory.startProjectFileListener(projectId);
+
             String projectPath = ASSETS_PATH + File.separator + "projects" + File.separator + project.getName();
             logger.info("Found project: " + project.getName());
 
