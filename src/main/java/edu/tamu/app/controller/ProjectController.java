@@ -31,6 +31,7 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Destination;
 import edu.tamu.weaver.response.ApiResponse;
@@ -50,6 +51,9 @@ public class ProjectController {
 
     @Autowired
     private MetadataFieldLabelRepo metadataFieldLabelRepo;
+
+    @Autowired
+    private ResourceRepo resourceRepo;
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
@@ -93,6 +97,15 @@ public class ProjectController {
     @RequestMapping("/remove")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse remove(@WeaverValidatedModel Project project) {
+
+        project = projectRepo.findOne(project.getId());
+
+        if (project.getDocuments().isEmpty() != true) {
+            final String projectName = project.getName();
+            project.getDocuments().forEach(document -> {
+                resourceRepo.delete(resourceRepo.findAllByDocumentProjectNameAndDocumentName(projectName, document.getName()));
+            });
+        }
         projectRepo.delete(project);
         return new ApiResponse(SUCCESS);
     }
