@@ -138,13 +138,16 @@ public class NALTSuggestor implements Suggestor {
                 try {
                     textStripper = new PDFTextStripper();
                     for (Resource pdfResource : pdfResources) {
-                        textBuilder.append(textStripper.getText(getDocument(pdfResource)));
+                        PDDocument pdfDocument = getDocument(pdfResource);
+                        textBuilder.append(textStripper.getText(pdfDocument));
                         logger.debug("Got PDF text " + textBuilder.toString());
+                        pdfDocument.close();
                     }
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
+
             } else {
                 logger.info("No PDFs found for Document " + document.getName() + " - unable to retrieve fulltext.");
             }
@@ -156,7 +159,7 @@ public class NALTSuggestor implements Suggestor {
 
     /**
      * get the PDDocument for a PDF resource
-     * 
+     *
      * @return the PDDocument for the PDF on disk
      * @throws IOException
      *             - if an I/O problem occurs
