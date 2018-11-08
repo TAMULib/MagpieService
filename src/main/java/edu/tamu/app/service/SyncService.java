@@ -63,61 +63,82 @@ public class SyncService {
         Project project = projectRepo.getOne(projectId);
 
         if (project != null) {
-            projectFactory.startProjectFileListener(projectId);
-
-            String projectPath = ASSETS_PATH + File.separator + "projects" + File.separator + project.getName();
             logger.info("Found project: " + project.getName());
-
-            if (project.isHeadless()) {
-                logger.info(project.getName() + " is headless. Headless projects do not support manual sync!");
-            } else {
-                List<Path> documents = FileSystemUtility.directoryList(projectPath.toString());
-
-                documents.parallelStream().forEach(documentPath -> {
-
-                    logger.info("Found document: " + documentPath);
-
-                    String documentName = documentPath.getFileName().toString();
-
-                    Document document = documentRepo.findByProjectNameAndName(project.getName(), documentName);
-
-                    try {
-                        if (document == null) {
-                            document = documentFactory.createDocument(documentPath.toFile());
-                            if (!project.getIngestType().equals(IngestType.SAF)) {
-
-                                List<Path> resources = FileSystemUtility.fileList(documentPath.toString());
-
-                                for (Path resourcePath : resources) {
-
-                                    logger.info("Found resource: " + resourcePath);
-
-                                    File file = resourcePath.toFile();
-                                    if (file.isFile() && !file.isHidden()) {
-                                        documentFactory.addResource(document, file);
-                                    }
-
-                                }
-
-                            } else {
-                                logger.info("SAF ingest type cannot sync resources at this time. Please use listener.");
-                            }
-                        }
-
-                    } catch (SAXException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ParserConfigurationException e) {
-                        e.printStackTrace();
-                    }
-
-                });
-            }
-
+            processSync(project);
         }
 
         logger.info("Sync Service Finished for ID " + projectId);
     }
 
+    private void processSync(Project project) {
+        projectFactory.startProjectFileListener(project.getId());
+        String projectPath = ASSETS_PATH + File.separator + "projects" + File.separator + project.getName();
+        if (project.isHeadless()) {
+            logger.info(project.getName() + " is headless. Headless projects do not support manual sync!");
+        } else {
+            List<Path> documents = FileSystemUtility.directoryList(projectPath.toString());
+
+            documents.parallelStream().forEach(documentPath -> {
+
+                logger.info("Found document: " + documentPath);
+
+                String documentName = documentPath.getFileName().toString();
+
+                Document document = documentRepo.findByProjectNameAndName(project.getName(), documentName);
+
+                try {
+                    if (document == null) {
+                        document = documentFactory.createDocument(documentPath.toFile());
+                        if (!project.getIngestType().equals(IngestType.SAF)) {
+
+                            List<Path> resources = FileSystemUtility.fileList(documentPath.toString());
+
+                            for (Path resourcePath : resources) {
+
+                                logger.info("Found resource: " + resourcePath);
+
+                                File file = resourcePath.toFile();
+                                if (file.isFile() && !file.isHidden()) {
+                                    documentFactory.addResource(document, file);
+                                }
+
+                            }
+
+                        } else {
+                            logger.info("SAF ingest type cannot sync resources at this time. Please use listener.");
+                        }
+                    }
+
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                }
+
+            });
+        }
+    }
+
+    public void syncStartup() throws IOException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Running Initial Sync");
+        }
+
+        List<Path> projects = FileSystemUtility.directoryList(ASSETS_PATH + File.separator + "projects");
+
+        for (Path projectPath : projects) {
+
+            logger.info("Found project: " + projectPath);
+
+            String projectName = projectPath.getFileName().toString();
+
+            Project project = projectFactory.getOrCreateProject(projectName);
+            if (project != null) {
+                processSync(project);
+            }
+            logger.info("Initial Sync Finished");
+        }
+    }
 }
