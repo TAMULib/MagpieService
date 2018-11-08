@@ -13,6 +13,7 @@ import edu.tamu.app.observer.FileMonitorManager;
 import edu.tamu.app.observer.FileObserverRegistry;
 import edu.tamu.app.observer.MapFileListener;
 import edu.tamu.app.observer.ProjectListener;
+import edu.tamu.app.service.SyncService;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 @Component
@@ -45,6 +46,9 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     private FileObserverRegistry fileObserverRegistry;
 
+    @Autowired
+    private SyncService syncService;
+
     @Override
     public void run(String... args) throws Exception {
 
@@ -60,6 +64,8 @@ public class Initialization implements CommandLineRunner {
 
         fileObserverRegistry.register(new ProjectListener(ASSETS_PATH, "projects"));
         fileObserverRegistry.register(new MapFileListener(ASSETS_PATH, "maps"));
+
+        syncService.syncStartup();
 
         // NOTE: this must be last on startup, otherwise it will invoke all file observers
         fileMonitorManager.start();
