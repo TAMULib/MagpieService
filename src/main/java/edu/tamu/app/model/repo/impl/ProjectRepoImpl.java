@@ -19,20 +19,13 @@ public class ProjectRepoImpl extends AbstractWeaverRepoImpl<Project, ProjectRepo
     private ProjectRepo projectRepo;
 
     @Override
-    public synchronized Project create(String name, IngestType ingestType, boolean headless) {
-        Project project = projectRepo.findByName(name);
-        if (project == null) {
-            project = new Project(name, ingestType, headless);
-        }
-        return projectRepo.create(project);
+    public Project create(String name, IngestType ingestType, boolean headless) {
+        return projectRepo.create(new Project(name, ingestType, headless));
     }
 
     @Override
-    public synchronized Project create(String name, IngestType ingestType, boolean headless, List<ProjectRepository> repositories, List<ProjectAuthority> authorities, List<ProjectSuggestor> suggestors) {
-        Project project = projectRepo.findByName(name);
-        if (project == null) {
-            project = new Project(name, ingestType, headless);
-        }
+    public Project create(String name, IngestType ingestType, boolean headless, List<ProjectRepository> repositories, List<ProjectAuthority> authorities, List<ProjectSuggestor> suggestors) {
+        Project project = new Project(name, ingestType, headless);
         project.setRepositories(repositories);
         project.setAuthorities(authorities);
         project.setSuggestors(suggestors);

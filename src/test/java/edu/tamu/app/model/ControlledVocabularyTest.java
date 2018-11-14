@@ -3,6 +3,7 @@ package edu.tamu.app.model;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 
 public class ControlledVocabularyTest extends AbstractModelTest {
 
@@ -13,11 +14,10 @@ public class ControlledVocabularyTest extends AbstractModelTest {
         assertEquals("Expected test ControlledVocabulary was not created.", "test", testControlledVocabulary.getValue());
     }
 
-    @Test
+    @Test(expected = DataIntegrityViolationException.class)
     public void testDuplicateControlledVocabulary() {
         controlledVocabularyRepo.create("test");
         controlledVocabularyRepo.create("test");
-        assertEquals("Test ControlledVocabulary duplicate.", 1, controlledVocabularyRepo.count());
     }
 
     @Test

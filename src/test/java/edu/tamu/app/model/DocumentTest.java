@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DocumentTest extends AbstractModelTest {
@@ -20,6 +21,12 @@ public class DocumentTest extends AbstractModelTest {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
         assertEquals("Test Document was not created.", 1, documentRepo.count());
         assertEquals("Expected Test Document was not created.", mockDocument.getName(), testDocument.getName());
+    }
+
+    @Test(expected = DataIntegrityViolationException.class)
+    public void testDuplicateDocument() {
+        documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
+        documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
     }
 
     @Test

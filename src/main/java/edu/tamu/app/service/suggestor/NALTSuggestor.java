@@ -11,6 +11,9 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,6 +35,8 @@ public class NALTSuggestor implements Suggestor {
 
     private ProjectSuggestor projectSuggestor;
 
+    private static final Logger logger = Logger.getLogger(NALTSuggestor.class);
+
     public NALTSuggestor(ProjectSuggestor projectSuggestor) {
         this.projectSuggestor = projectSuggestor;
     }
@@ -40,19 +45,13 @@ public class NALTSuggestor implements Suggestor {
     public List<Suggestion> suggest(Document document) {
 
         List<Suggestion> suggestions = new ArrayList<Suggestion>();
+
+        String fullText = getFullText(document);
+
         // TODO: throw exception and handle using controller advice
         try {
-            StringBuilder textBuilder = new StringBuilder();
 
-            for (Resource resource : resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "text/plain")) {
-                File file = File.createTempFile(resource.getName(), Long.toString(System.nanoTime()));
-                file.deleteOnExit();
-                FileUtils.copyURLToFile(new URL(resource.getUrl()), file);
-                textBuilder.append(FileUtils.readFileToString(file, StandardCharsets.UTF_8).toLowerCase());
-                textBuilder.append("\n\n");
-            }
-
-            JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(textBuilder.toString())).get("payload");
+            JsonNode payloadNode = objectMapper.readTree(fetchNALTSuggestions(fullText)).get("payload");
 
             JsonNode termOccurrenceArrayNode = payloadNode.get("ArrayList<TermOccurrence>") != null ? payloadNode.get("ArrayList<TermOccurrence>") : payloadNode.get("ArrayList");
 
@@ -111,4 +110,65 @@ public class NALTSuggestor implements Suggestor {
         return projectSuggestor.getSettingValues("subjectLabel").get(0);
     }
 
+    private String getFullText(Document document) {
+        StringBuilder textBuilder = new StringBuilder();
+
+        List<Resource> textResources = resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "text/plain");
+
+        if (textResources.size() > 0) {
+            logger.info("Retrieving fulltext of Document " + document.getName() + " from " + textResources.size() + " plaintext file(s).");
+            for (Resource resource : textResources) {
+                File file;
+                try {
+                    file = File.createTempFile(resource.getName(), Long.toString(System.nanoTime()));
+                    file.deleteOnExit();
+                    FileUtils.copyURLToFile(new URL(resource.getUrl()), file);
+                    textBuilder.append(FileUtils.readFileToString(file, StandardCharsets.UTF_8).toLowerCase());
+                    textBuilder.append("\n\n");
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            logger.info("No plaintext found for Document " + document.getName() + " - trying to retrieve from PDFs");
+            List<Resource> pdfResources = resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "application/pdf");
+            if (pdfResources.size() > 0) {
+                PDFTextStripper textStripper;
+                try {
+                    textStripper = new PDFTextStripper();
+                    for (Resource pdfResource : pdfResources) {
+                        textBuilder.append(textStripper.getText(getDocument(pdfResource)));
+                        logger.debug("Got PDF text " + textBuilder.toString());
+                    }
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            } else {
+                logger.info("No PDFs found for Document " + document.getName() + " - unable to retrieve fulltext.");
+            }
+        }
+
+        return textBuilder.toString();
+
+    }
+
+    /**
+     * get the PDDocument for a PDF resource
+     * 
+     * @return the PDDocument for the PDF on disk
+     * @throws IOException
+     *             - if an I/O problem occurs
+     */
+    public PDDocument getDocument(Resource pdfResource) throws IOException {
+        PDDocument result = null;
+        File file = pdfResource.getFile();
+        if (file != null) {
+            if (!file.canRead())
+                throw new IllegalArgumentException("PDF document is unreadable" + file.getPath());
+            result = PDDocument.load(file);
+        }
+        return result;
+    }
 }

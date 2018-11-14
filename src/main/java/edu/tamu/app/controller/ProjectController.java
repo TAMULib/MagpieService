@@ -40,7 +40,7 @@ import edu.tamu.app.model.repo.ProjectRepositoryRepo;
 import edu.tamu.app.model.repo.ProjectSuggestorRepo;
 import edu.tamu.app.service.ProjectFactory;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
-import edu.tamu.app.service.repository.Repository;
+import edu.tamu.app.service.repository.Destination;
 import edu.tamu.app.utilities.FileSystemUtility;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
@@ -241,7 +241,7 @@ public class ProjectController {
         Project project = projectRepo.read(projectId);
         ProjectRepository publishRepository = project.getRepositoryById(repositoryId);
         if (publishRepository != null) {
-            Repository repositoryService = (Repository) projectServiceRegistry.getService(publishRepository.getName());
+            Destination repositoryService = (Destination) projectServiceRegistry.getService(publishRepository.getName());
             List<Document> publishableDocuments = project.getPublishableDocuments();
             boolean errorFlag = false;
             for (Document document : publishableDocuments) {

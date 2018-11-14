@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Base64Utils;
 
@@ -34,7 +35,7 @@ import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.utilities.CsvUtility;
 
-public class ArchivematicaFilesystemRepository implements Repository {
+public class ArchivematicaFilesystemRepository implements Preservation {
 
     @Autowired
     private DocumentRepo documentRepo;
@@ -45,6 +46,8 @@ public class ArchivematicaFilesystemRepository implements Repository {
     private ProjectRepository projectRepository;
 
     private CsvUtility csvUtility;
+
+    private static final Logger logger = Logger.getLogger(ArchivematicaFilesystemRepository.class);
 
     public ArchivematicaFilesystemRepository(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
@@ -61,7 +64,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         // make the top level container for the transfer package
         File archivematicaPackageDirectory = new File(getArchivematicaTopDirectory() + File.separator + document.getProject().getName() + "_" + document.getName());
 
-        System.out.println("Writing Archivematica Transfer Package for Document " + itemDirectoryPath + " to " + archivematicaPackageDirectory.getCanonicalPath());
+        logger.info("Writing Archivematica Transfer Package for Document " + itemDirectoryPath + " to " + archivematicaPackageDirectory.getCanonicalPath());
 
         if (!archivematicaPackageDirectory.isDirectory())
             archivematicaPackageDirectory.mkdir();
@@ -175,7 +178,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         try {
             connection.setRequestMethod("POST");
         } catch (ProtocolException e) {
-            ProtocolException pe = new ProtocolException("Failed to set Archivematica request method to GET; that protocol for the request is invalid. {" + e.getMessage() + "}");
+            ProtocolException pe = new ProtocolException("Failed to set Archivematica request method to POST; that protocol for the request is invalid. {" + e.getMessage() + "}");
             pe.setStackTrace(e.getStackTrace());
             throw pe;
         }
@@ -184,13 +187,14 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
         String itemDirectoryName = document.getProject().getName() + "_" + document.getName();
         String pathString = getArchivematicaTransferSourceLocationUUID() + ":" + getArchivematicaTransferLocationDirectoryName() + File.separator + itemDirectoryName;
-        System.out.println("Transfer package path string: " + pathString);
+        logger.info("Transfer package path string: " + pathString);
         String encodedPath = Base64Utils.encodeToString(pathString.getBytes());
 
         // Write post data by opening an output stream on the connection and
         // writing to it
         OutputStream os;
         try {
+            logger.info("POSTing start transfer request to this URL: " + restUrl.toString());
             os = connection.getOutputStream();
         } catch (IOException e) {
             IOException ioe = new IOException("Could not open output stream to write the post data. {" + e.getMessage() + "}");
@@ -201,9 +205,7 @@ public class ArchivematicaFilesystemRepository implements Repository {
         String params = "";
         params += "name=" + document.getProject().getName() + "_" + document.getName() + "&type=standard" + "&paths[]=" + encodedPath;
         try {
-            System.out.println("POST DATA: ");
-            System.out.println(params);
-
+            logger.info("POST request parameters being sent to archivematica: " + params);
             connection.getOutputStream().write(params.getBytes());
 
         } catch (IOException e) {
@@ -214,13 +216,13 @@ public class ArchivematicaFilesystemRepository implements Repository {
 
         // Read response from item post
         StringBuilder response = new StringBuilder();
+
         BufferedReader br = null;
         try {
             br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
         } catch (IOException e) {
-            IOException ioe = new IOException("Could not get input stream for a response from the connection of the post request. Response message was \"" + connection.getResponseMessage()
-                    + "\" with this exception thrown: {" + e.getMessage() + "}");
+            IOException ioe = new IOException("Could not get input stream for a response from the connection of the POST request. Response message was \"" + connection.getResponseMessage() + "\" with this exception thrown: {" + e.getMessage() + "}");
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
@@ -236,6 +238,8 @@ public class ArchivematicaFilesystemRepository implements Repository {
             ioe.setStackTrace(e.getStackTrace());
             throw ioe;
         }
+
+        logger.info("POST request to archivematica resulted in response code of " + connection.getResponseCode() + " with response: " + response.toString());
 
         // Close streams
         try {

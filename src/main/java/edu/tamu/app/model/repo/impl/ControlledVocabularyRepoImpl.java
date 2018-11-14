@@ -13,12 +13,8 @@ public class ControlledVocabularyRepoImpl extends AbstractWeaverRepoImpl<Control
     private ControlledVocabularyRepo controlledVocabularyRepo;
 
     @Override
-    public synchronized ControlledVocabulary create(String value) {
-        ControlledVocabulary cv = controlledVocabularyRepo.findByValue(value);
-        if (cv == null) {
-            cv = controlledVocabularyRepo.save(new ControlledVocabulary(value));
-        }
-        return cv;
+    public ControlledVocabulary create(String value) {
+        return controlledVocabularyRepo.save(new ControlledVocabulary(value));
     }
 
     @Override

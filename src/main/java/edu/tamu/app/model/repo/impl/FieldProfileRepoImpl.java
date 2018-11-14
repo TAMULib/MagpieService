@@ -15,12 +15,8 @@ public class FieldProfileRepoImpl extends AbstractWeaverRepoImpl<FieldProfile, F
     private FieldProfileRepo fieldProfileRepo;
 
     @Override
-    public synchronized FieldProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
-        FieldProfile fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
-        if (fieldProfile == null) {
-            fieldProfile = fieldProfileRepo.save(new FieldProfile(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
-        }
-        return fieldProfile;
+    public FieldProfile create(Project project, String gloss, Boolean isRepeatable, Boolean isReadOnly, Boolean isHidden, Boolean isRequired, InputType inputType, String defaultValue) {
+        return fieldProfileRepo.save(new FieldProfile(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue));
     }
 
     @Override

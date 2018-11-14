@@ -20,12 +20,8 @@ public class ResourceRepoImpl extends AbstractWeaverRepoImpl<Resource, ResourceR
     private ResourceRepo resourceRepo;
 
     @Override
-    public synchronized Resource create(Document document, String name, String path, String mimeType) {
-        Resource resource = resourceRepo.findByDocumentProjectNameAndDocumentNameAndName(document.getProject().getName(), document.getName(), name);
-        if (resource == null) {
-            resource = resourceRepo.save(new Resource(document, name, path.replace(ASSETS_PATH, ""), mimeType));
-        }
-        return resource;
+    public Resource create(Document document, String name, String path, String mimeType) {
+        return resourceRepo.save(new Resource(document, name, path.replace(ASSETS_PATH, ""), mimeType));
     }
 
     public List<Resource> findAllByDocumentProjectNameAndDocumentNameAndMimeType(String projectName, String documentName, String... mimeTypes) {

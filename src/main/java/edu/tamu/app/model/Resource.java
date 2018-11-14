@@ -1,10 +1,14 @@
 package edu.tamu.app.model;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
 import static edu.tamu.app.Initialization.HOST;
+
+import java.io.File;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -17,7 +21,7 @@ import edu.tamu.weaver.data.model.BaseEntity;
 import edu.tamu.weaver.data.resolver.BaseEntityIdResolver;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "document_id" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "document_id" }), indexes = { @Index(name = "document_and_name", columnList = "document_id,name") })
 public class Resource extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -80,6 +84,10 @@ public class Resource extends BaseEntity {
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    public File getFile() {
+        return new File(ASSETS_PATH + path);
     }
 
 }

@@ -14,12 +14,8 @@ public class MetadataFieldLabelRepoImpl extends AbstractWeaverRepoImpl<MetadataF
     private MetadataFieldLabelRepo metadataFieldLabelRepo;
 
     @Override
-    public synchronized MetadataFieldLabel create(String name, FieldProfile profile) {
-        MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(name, profile);
-        if (metadataFieldLabel == null) {
-            metadataFieldLabel = metadataFieldLabelRepo.save(new MetadataFieldLabel(name, profile));
-        }
-        return metadataFieldLabel;
+    public MetadataFieldLabel create(String name, FieldProfile profile) {
+        return metadataFieldLabelRepo.save(new MetadataFieldLabel(name, profile));
     }
 
     @Override

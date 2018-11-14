@@ -1,6 +1,10 @@
 package edu.tamu.app.observer;
 
+import static edu.tamu.app.Initialization.LISTENER_PARALLELISM;
+
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
@@ -25,18 +30,20 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     private static final Logger logger = Logger.getLogger(AbstractDocumentListener.class);
 
-    protected static final Map<String, List<String>> pendingResources = new ConcurrentHashMap<String, List<String>>();
+    private static final Map<String, List<String>> pendingResources = new ConcurrentHashMap<String, List<String>>();
 
-    protected static final ExecutorService executor = Executors.newFixedThreadPool(10);
+    private static final ExecutorService parallelExecutor = Executors.newFixedThreadPool(LISTENER_PARALLELISM);
+
+    private static final AtomicBoolean firstDocument = new AtomicBoolean(true);
 
     @Autowired
     private ProjectRepo projectRepo;
 
     @Autowired
-    protected DocumentFactory documentFactory;
+    protected DocumentRepo documentRepo;
 
     @Autowired
-    protected DocumentRepo documentRepo;
+    protected DocumentFactory documentFactory;
 
     public AbstractDocumentListener(String root, String folder) {
         super(root, folder);
@@ -52,9 +59,16 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
         Document existingDocument = documentRepo.findByProjectNameAndName(directory.getParentFile().getName(), directory.getName());
         if (existingDocument == null) {
             initializePendingResources(directory.getName());
-            createDocument(directory).thenAccept(document -> {
+            if (firstDocument.compareAndSet(true, false)) {
+            	logger.debug("Creating first document (calling createDocument) " + directory.getName() + " on a directory creation in listener"); 
+                Document document = createDocument(directory);
                 createdDocumentCallback(document);
-            });
+            } else {
+            	logger.debug("Creating subseqeuent document (calling createDocument) " + directory.getName() + " on a directory creation in listener");
+                completableCreateDocument(directory).thenAccept(document -> {
+                    createdDocumentCallback(document);
+                });
+            }
         }
     }
 
@@ -110,26 +124,25 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
         pendingResources.put(documentName, new ArrayList<String>());
     }
 
-    protected Document processPendingResources(Document document) {
+    protected Document createDocument(File directory) {
+        Document document = null;
+        try {
+        	logger.debug("Creating document (calling createDocument) during run of Sync Service"); 
+            document = documentFactory.createDocument(directory);
+            document = processResources(document, directory);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return document;
+    }
+
+    protected Document processResources(Document document, File directory) {
         String documentName = document.getName();
         for (String resourcePath : pendingResources.get(documentName)) {
             document = documentFactory.addResource(document, new File(resourcePath));
         }
         pendingResources.remove(documentName);
         return document;
-    }
-
-    protected CompletableFuture<Document> createDocument(File directory) {
-        return CompletableFuture.supplyAsync(() -> {
-            Document document = null;
-            try {
-                document = documentFactory.createDocument(directory);
-                document = processPendingResources(document);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return document;
-        }, executor);
     }
 
     protected void createdDocumentCallback(Document document) {
@@ -141,7 +154,16 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
     }
 
     protected void addResource(File file) throws DocumentNotFoundException {
+        Instant start = Instant.now();
         documentFactory.addResource(file);
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to add resource");
+    }
+
+    private synchronized CompletableFuture<Document> completableCreateDocument(File directory) {
+        return CompletableFuture.supplyAsync(() -> {
+        	logger.debug("Creating document (calling createDocument) " + directory.getName() + " as completable future");
+            return createDocument(directory);
+        }, parallelExecutor);
     }
 
 }

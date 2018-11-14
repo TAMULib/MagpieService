@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Logger;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -30,7 +33,6 @@ import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
-import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldGroupRepo;
@@ -83,13 +85,20 @@ public class DocumentFactory {
 
     private Document createDocument(String projectName, String documentName) throws SAXException, IOException, ParserConfigurationException {
         Project project = projectRepo.findByName(projectName);
+        if (project == null) {
+            logger.error("Unable to find project " + projectName);
+        }
         return createDocument(project, documentName);
     }
 
     public Document addResource(File file) throws DocumentNotFoundException {
         String documentName = file.getParentFile().getName();
         String projectName = file.getParentFile().getParentFile().getName();
+
+        Instant start = Instant.now();
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup document while adding resource");
+
         if (document == null) {
             throw new DocumentNotFoundException(projectName, documentName);
         }
@@ -103,12 +112,20 @@ public class DocumentFactory {
         String path = ASSETS_PATH + File.separator + document.getPath() + File.separator + file.getName();
         String mimeType = tika.detect(path);
 
-        Resource resource = resourceRepo.findByDocumentProjectNameAndDocumentNameAndName(projectName, documentName, resourceName);
-        if (resource == null) {
+        Instant start = Instant.now();
+
+        try {
             logger.info("Adding new resource " + resourceName + " - " + mimeType + " for document " + document.getName());
+
+            start = Instant.now();
             resourceRepo.create(document, resourceName, path, mimeType);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new resource");
+
+            start = Instant.now();
             document = documentRepo.findByProjectNameAndName(projectName, documentName);
-        } else {
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to lookup document after creating new resource");
+
+        } catch (DataIntegrityViolationException e) {
             logger.info("Resource " + resourceName + " already exists for document " + documentName);
         }
         return document;
@@ -132,12 +149,37 @@ public class DocumentFactory {
         String projectName = project.getName();
         String documentPath = getDocumentPath(projectName, documentName);
         logger.info("Creating standard document at " + documentPath);
-        Document document = documentRepo.create(project, documentName, documentPath, "Open");
+
+        Instant start = Instant.now();
+        Document document = null;
+
+        try {
+            document = documentRepo.create(project, documentName, documentPath, "Open");
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new document");
+        } catch (DataIntegrityViolationException e) {
+            logger.info("Document " + documentName + " already exists for project " + projectName);
+            document = documentRepo.findByProjectNameAndName(projectName, documentName);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to find existing document");
+        }
+
+        start = Instant.now();
         document = addMetadataFields(document, project.getName());
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to add metadata to new document");
+
+        start = Instant.now();
         document = applyAuthorities(document, project.getAuthorities());
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to apply authorities to new document");
+
+        start = Instant.now();
         document = documentRepo.update(document);
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to update new document");
+
         project.addDocument(document);
+
+        start = Instant.now();
         projectRepo.update(project);
+        logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to update project");
+
         return document;
     }
 
@@ -148,15 +190,30 @@ public class DocumentFactory {
     private Document addMetadataFields(Document document, String projectName) {
         for (MetadataFieldGroup field : projectFactory.getProjectFields(projectName)) {
             logger.info("Adding field " + field.getLabel().getName() + " to document " + document.getName());
-            document.addField(metadataFieldGroupRepo.create(document, field.getLabel()));
+            Instant start = Instant.now();
+
+            MetadataFieldGroup mfg = null;
+            try {
+                mfg = metadataFieldGroupRepo.create(document, field.getLabel());
+                logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to create new metadata field group");
+            } catch (DataIntegrityViolationException e) {
+                logger.info("Metadata field group with label " + field.getLabel().getName() + " already exists for document " + document.getName());
+                mfg = metadataFieldGroupRepo.findByDocumentAndLabel(document, field.getLabel());
+                logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to find existing document");
+            }
+
+            document.addField(mfg);
+
         }
         return document;
     }
 
     private Document applyAuthorities(Document document, List<ProjectAuthority> authorities) {
         for (ProjectAuthority authority : authorities) {
-            logger.info("Applying authority " + authority.getName() + " to " + document.getName() );
+            logger.info("Applying authority " + authority.getName() + " to " + document.getName());
+            Instant start = Instant.now();
             document = ((Authority) projectServiceRegistry.getService(authority.getName())).populate(document);
+            logger.debug(Duration.between(start, Instant.now()).toMillis() + " milliseconds to apply authority " + authority.getName());
         }
         return document;
     }
