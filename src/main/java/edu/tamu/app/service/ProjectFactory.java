@@ -421,7 +421,26 @@ public class ProjectFactory {
         });
     }
 
-    public void startProjectFileListener(Project project) {
+    /**
+     * Initiate project file listener for single project.
+     *
+     * @param id
+     *   ID of the project to initiate listener for.
+     */
+    public void startProjectFileListener(Long id) {
+        Project project = projectRepo.findOne(id);
+        if (project != null) {
+            this.startProjectFileListener(project);
+        }
+    }
+
+    /**
+     * Initiate project file listener for single project.
+     *
+     * @param project
+     *   The project to initiate listener for.
+     */
+    private void startProjectFileListener(Project project) {
         String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
         if (project.isHeadless()) {
             logger.info("Registering headless document listener: " + projectsPath + File.separator + project.getName());

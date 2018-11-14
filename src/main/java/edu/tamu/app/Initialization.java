@@ -40,9 +40,6 @@ public class Initialization implements CommandLineRunner {
     private String[] assetsFolders;
 
     @Autowired
-    private SyncService syncService;
-
-    @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
@@ -50,6 +47,9 @@ public class Initialization implements CommandLineRunner {
 
     @Autowired
     private FileObserverRegistry fileObserverRegistry;
+
+    @Autowired
+    private SyncService syncService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -67,7 +67,7 @@ public class Initialization implements CommandLineRunner {
         fileObserverRegistry.register(new ProjectListener(ASSETS_PATH, PROJECTS_PATH));
         fileObserverRegistry.register(new MapFileListener(ASSETS_PATH, "maps"));
 
-        syncService.sync();
+        syncService.syncStartup();
 
         // NOTE: this must be last on startup, otherwise it will invoke all file observers
         fileMonitorManager.start();

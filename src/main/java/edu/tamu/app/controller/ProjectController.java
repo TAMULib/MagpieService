@@ -39,6 +39,8 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ProjectRepositoryRepo;
 import edu.tamu.app.model.repo.ProjectSuggestorRepo;
 import edu.tamu.app.service.ProjectFactory;
+import edu.tamu.app.service.SyncService;
+import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Destination;
 import edu.tamu.app.utilities.FileSystemUtility;
@@ -61,6 +63,9 @@ public class ProjectController {
     private MetadataFieldLabelRepo metadataFieldLabelRepo;
 
     @Autowired
+    private ResourceRepo resourceRepo;
+
+    @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
 
     @Autowired
@@ -77,6 +82,9 @@ public class ProjectController {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private SyncService syncService;
 
     /**
      * Endpoint to return list of projects.
@@ -120,9 +128,11 @@ public class ProjectController {
         return new ApiResponse(SUCCESS, currentProject);
     }
 
-    @RequestMapping("/delete")
+    @RequestMapping("/remove")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse delete(@WeaverValidatedModel Project project) throws IOException {
+    public ApiResponse remove(@WeaverValidatedModel Project project) {
+        project = projectRepo.findOne(project.getId());
+
         //The cascade is set up so we don't actually need to remove the Project from the Project Services before deleting the Project,
         //but we DO need to broadcast that the Project Services no longer have an association with that project.
         project.getAuthorities().forEach(authority -> {
@@ -140,8 +150,16 @@ public class ProjectController {
             projectRepositoryRepo.update(repository);
         });
 
+
+
+        if (project.getDocuments().isEmpty() != true) {
+            final String projectName = project.getName();
+            project.getDocuments().forEach(document -> {
+                resourceRepo.delete(resourceRepo.findAllByDocumentProjectNameAndDocumentName(projectName, document.getName()));
+            });
+        }
+
         projectRepo.delete(project);
-        FileSystemUtility.deleteDirectory(ASSETS_PATH + File.separator + PROJECTS_PATH + File.separator + project.getName());
         projectFactory.stopProjectFileListener(project);
         projectServiceRegistry.deregisterAuxiliaryServices(project);
         return new ApiResponse(SUCCESS);
@@ -258,6 +276,32 @@ public class ProjectController {
             }
         }
         return new ApiResponse(ERROR, "There was an error with the batch publish");
+    }
+
+    // TODO: handle exception gracefully
+    /**
+     * Synchronizes the project directory with the database for a single project.
+     *
+     * @param Long id
+     *   The ID of the specific project to synchronize.
+     *
+     * @return ApiResponse
+     * @throws IOException
+     *
+     */
+    @RequestMapping("/sync/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse syncDocuments(@PathVariable Long id) throws IOException {
+        ApiResponse response = null;
+        logger.info("Syncronizing projects with database.");
+        if (id == null) {
+            response = new ApiResponse(ERROR, "No valid project ID specified.");
+        }
+        else {
+            syncService.sync(id);
+            response = new ApiResponse(SUCCESS, "Syncronized project ID " + id + " with database.");
+        }
+        return response;
     }
 
 }
