@@ -131,8 +131,6 @@ public class ProjectController {
     @RequestMapping("/remove")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse remove(@WeaverValidatedModel Project project) {
-        project = projectRepo.findOne(project.getId());
-
         //The cascade is set up so we don't actually need to remove the Project from the Project Services before deleting the Project,
         //but we DO need to broadcast that the Project Services no longer have an association with that project.
         project.getAuthorities().forEach(authority -> {
@@ -150,18 +148,19 @@ public class ProjectController {
             projectRepositoryRepo.update(repository);
         });
 
+        //get the complete project, with documents
+        Project removableProject = projectRepo.findOne(project.getId());
 
-
-        if (project.getDocuments().isEmpty() != true) {
-            final String projectName = project.getName();
-            project.getDocuments().forEach(document -> {
+        if (removableProject.getDocuments().isEmpty() != true) {
+            final String projectName = removableProject.getName();
+            removableProject.getDocuments().forEach(document -> {
                 resourceRepo.delete(resourceRepo.findAllByDocumentProjectNameAndDocumentName(projectName, document.getName()));
             });
         }
 
-        projectRepo.delete(project);
-        projectFactory.stopProjectFileListener(project);
-        projectServiceRegistry.deregisterAuxiliaryServices(project);
+        projectRepo.delete(removableProject);
+        projectFactory.stopProjectFileListener(removableProject);
+        projectServiceRegistry.deregisterAuxiliaryServices(removableProject);
         return new ApiResponse(SUCCESS);
     }
 

@@ -440,7 +440,7 @@ public class ProjectFactory {
      * @param project
      *   The project to initiate listener for.
      */
-    private void startProjectFileListener(Project project) {
+    public void startProjectFileListener(Project project) {
         String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
         if (project.isHeadless()) {
             logger.info("Registering headless document listener: " + projectsPath + File.separator + project.getName());
