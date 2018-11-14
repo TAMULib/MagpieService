@@ -36,16 +36,16 @@ public class ProjectSuggestorController {
 
     @Autowired
     private MagpieServiceRegistry projectServiceRegistry;
-    
+
     @Autowired
     private ProjectSuggestorRepo projectSuggestorRepo;
-    
+
     @Autowired
     private ProjectFactory projectFactory;
-    
+
     /**
      * Endpoint to return list of project suggestions.
-     * 
+     *
      * @return ApiResponse
      */
     @RequestMapping("/all")
@@ -72,9 +72,9 @@ public class ProjectSuggestorController {
         return new ApiResponse(SUCCESS, projectSuggestorRepo.update(projectSuggestor));
     }
 
-    @RequestMapping("/delete")
+    @RequestMapping("/remove")
     @PreAuthorize("hasRole('MANAGER')")
-    public ApiResponse delete(@WeaverValidatedModel ProjectSuggestor projectSuggestor) {
+    public ApiResponse remove(@WeaverValidatedModel ProjectSuggestor projectSuggestor) {
         //TODO The WeaverValidatedModel isn't populating the projects associated with the projectSuggestor, so we have to get it fresh from the repo here
         projectSuggestorRepo.delete(projectSuggestorRepo.getOne(projectSuggestor.getId()));
         return new ApiResponse(SUCCESS);
@@ -84,7 +84,7 @@ public class ProjectSuggestorController {
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse getTypes() {
         return new ApiResponse(SUCCESS,projectFactory.getProjectSuggestorTypes());
-    }    
+    }
 
     // TODO: handle exception gracefully
     @RequestMapping("/{projectName}/{documentName}")
