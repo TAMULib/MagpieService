@@ -1,6 +1,7 @@
 package edu.tamu.app.service;
 
 import static edu.tamu.app.Initialization.ASSETS_PATH;
+import static edu.tamu.app.Initialization.PROJECTS_PATH;
 
 import java.io.File;
 import java.io.IOException;
@@ -132,7 +133,7 @@ public class ProjectFactory {
         if (project == null) {
             project = createProject(projectName);
         } else {
-            registerListeners(project);
+            registerServiceListeners(project);
         }
         return project;
     }
@@ -174,7 +175,7 @@ public class ProjectFactory {
             project = projectRepo.create(projectName, ingestType, headless, repositories, authorities, suggestors);
         }
 
-        registerListeners(project);
+        registerServiceListeners(project);
 
         return project;
     }
@@ -231,7 +232,7 @@ public class ProjectFactory {
         return suggestors;
     }
 
-    private void registerListeners(Project project) {
+    public void registerServiceListeners(Project project) {
 
         project.getRepositories().forEach(repository -> {
             Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
@@ -257,7 +258,7 @@ public class ProjectFactory {
     }
 
     // @formatter:off
-    // TODO: generalize against ProjectService commonalities 
+    // TODO: generalize against ProjectService commonalities
     /*
     public Map<String, List<String>> getProjectServiceTypes(ProjectService projectService) {
         Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
@@ -295,8 +296,8 @@ public class ProjectFactory {
         return scaffolds;
     }
 
-    public Map<String, List<String>> getProjectSuggestorTypes() {
-        Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
+    public Map<String,List<String>> getProjectSuggestorTypes() {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectSuggestor> projectSuggestors = getProjectSuggestors(projectNode);
             projectSuggestors.forEach(projectSuggestor -> {
@@ -312,8 +313,8 @@ public class ProjectFactory {
         return scaffolds;
     }
 
-    public Map<String, List<String>> getProjectAuthorityTypes() {
-        Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
+    public Map<String,List<String>> getProjectAuthorityTypes() {
+        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectAuthority> projectAuthorities = getProjectAuthorities(projectNode);
             projectAuthorities.forEach(projectAuthority -> {
@@ -415,16 +416,49 @@ public class ProjectFactory {
     }
 
     public void startProjectFileListeners() {
-        String projectsPath = ASSETS_PATH + File.separator + "projects";
         projectRepo.findAll().forEach(project -> {
-            if (project.isHeadless()) {
-                logger.info("Registering headless document listener: " + projectsPath + File.separator + project.getName());
-                fileObserverRegistry.register(new HeadlessDocumentListener(projectsPath, project.getName()));
-            } else {
-                logger.info("Registering standard document listener: " + projectsPath + File.separator + project.getName());
-                fileObserverRegistry.register(new StandardDocumentListener(projectsPath, project.getName()));
-            }
+            startProjectFileListener(project);
         });
+    }
+
+    /**
+     * Initiate project file listener for single project.
+     *
+     * @param id
+     *   ID of the project to initiate listener for.
+     */
+    public void startProjectFileListener(Long id) {
+        Project project = projectRepo.findOne(id);
+        if (project != null) {
+            this.startProjectFileListener(project);
+        }
+    }
+
+    /**
+     * Initiate project file listener for single project.
+     *
+     * @param project
+     *   The project to initiate listener for.
+     */
+    public void startProjectFileListener(Project project) {
+        String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
+        if (project.isHeadless()) {
+            logger.info("Registering headless document listener: " + projectsPath + File.separator + project.getName());
+            fileObserverRegistry.register(new HeadlessDocumentListener(projectsPath, project.getName()));
+        } else {
+            logger.info("Registering standard document listener: " + projectsPath + File.separator + project.getName());
+            fileObserverRegistry.register(new StandardDocumentListener(projectsPath, project.getName()));
+        }
+    }
+
+    public void stopProjectFileListener(Project project) {
+        String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
+        logger.info("De-registering document listener: " + projectsPath + File.separator + project.getName());
+        try {
+            fileObserverRegistry.dismiss(projectsPath + File.separator + project.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

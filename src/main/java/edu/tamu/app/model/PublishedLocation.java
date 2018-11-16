@@ -6,6 +6,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import edu.tamu.weaver.data.model.BaseEntity;
 
 @Entity
@@ -13,6 +17,8 @@ import edu.tamu.weaver.data.model.BaseEntity;
 public class PublishedLocation extends BaseEntity {
 
     @ManyToOne(optional = false)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = ProjectRepository.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private ProjectRepository repository;
 
     @Column(nullable = false)

@@ -127,7 +127,7 @@ public class Project extends BaseEntity {
 
     /**
      * Returns all documents considered ready for publishing.
-     * 
+     *
      * @return List<Document>
      */
     public List<Document> getPublishableDocuments() {
@@ -169,7 +169,12 @@ public class Project extends BaseEntity {
     }
 
     public void removeAuthority(ProjectAuthority authority) {
-        authorities.remove(authority);
+        for (int x=0;x<this.getAuthorities().size();x++) {
+            if (authorities.get(x).getId() == authority.getId()) {
+                authorities.remove(x);
+                break;
+            }
+        }
     }
 
     public void clearAuthorities() {
@@ -190,6 +195,12 @@ public class Project extends BaseEntity {
 
     public void removeSuggestor(ProjectSuggestor suggestor) {
         suggestors.remove(suggestor);
+        for (int x=0;x<this.getSuggestors().size();x++) {
+            if (suggestors.get(x).getId() == suggestor.getId()) {
+                suggestors.remove(x);
+                break;
+            }
+        }
     }
 
     public void clearSuggestors() {
@@ -206,7 +217,7 @@ public class Project extends BaseEntity {
 
     /**
      * Matches by repositoryId a Repository from the Project's list of Repositories and returns it
-     * 
+     *
      * @param repositoryId
      * @return ProjectRepository
      */
@@ -224,7 +235,12 @@ public class Project extends BaseEntity {
     }
 
     public void removeRepository(ProjectRepository repository) {
-        repositories.remove(repository);
+        for (int x=0;x<this.getRepositories().size();x++) {
+            if (repositories.get(x).getId() == repository.getId()) {
+                repositories.remove(x);
+                break;
+            }
+        }
     }
 
     public void clearRepositories() {

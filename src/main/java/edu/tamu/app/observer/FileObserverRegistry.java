@@ -41,12 +41,17 @@ public class FileObserverRegistry {
     }
 
     public void dismiss(FileListener listener) throws Exception {
-        String path = listener.getPath();
+        dismiss(listener.getPath());
+    }
+
+    public void dismiss(String path) throws Exception {
         Optional<FileAlterationObserver> observer = fileMonitorManager.getObserver(path);
         if (observer.isPresent()) {
             logger.info("Dismissing listener: " + path);
+            observer.get().getListeners().forEach(fileListener -> {
+                beanFactory.destroyBean(fileListener);
+            });
             observer.get().destroy();
-            beanFactory.destroyBean(listener);
             fileMonitorManager.removeObserver(observer.get());
         } else {
             logger.info("No listener to dismiss: " + path);
