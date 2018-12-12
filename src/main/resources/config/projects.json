@@ -357,7 +357,7 @@
         "inputType": "TEXT"
       },
       {
-        "label": "dc.relation.ispartof",
+        "label": "dcterms.isPartOf",
         "gloss": "Is Part Of",
         "inputType": "TEXT"
       },
