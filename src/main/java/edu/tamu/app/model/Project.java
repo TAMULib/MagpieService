@@ -17,6 +17,7 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import edu.tamu.weaver.data.model.BaseEntity;
@@ -130,6 +131,7 @@ public class Project extends BaseEntity {
      *
      * @return List<Document>
      */
+    @JsonIgnore
     public List<Document> getPublishableDocuments() {
         List<Document> publishableDocuments = new ArrayList<Document>();
         for (Document document : this.getDocuments()) {
