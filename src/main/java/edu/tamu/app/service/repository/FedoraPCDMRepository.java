@@ -47,7 +47,6 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
     }
 
     @Override
-
     protected String prepForPush() throws IOException {
         final String tid = startTransaction();
         confirmProjectContainerExists(tid);

@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Web server initialization.
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @author
  *
  */
+@EnableScheduling
 @SpringBootApplication
 @ComponentScan(basePackages = { "edu.tamu.*" })
 public class WebServerInit extends SpringBootServletInitializer {
@@ -19,8 +21,7 @@ public class WebServerInit extends SpringBootServletInitializer {
     /**
      * Entry point to the application from within servlet.
      *
-     * @param args
-     *            String[]
+     * @param args String[]
      *
      */
     public static void main(String[] args) {
@@ -30,8 +31,7 @@ public class WebServerInit extends SpringBootServletInitializer {
     /**
      * Entry point to the application if run using spring-boot:run.
      *
-     * @param application
-     *            SpringApplicationBuilder
+     * @param application SpringApplicationBuilder
      *
      * @return SpringApplicationBuilder
      *

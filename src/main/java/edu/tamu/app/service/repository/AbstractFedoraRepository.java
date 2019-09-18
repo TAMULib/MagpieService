@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
+import edu.tamu.app.service.TransactionService;
 
 public abstract class AbstractFedoraRepository implements Repository {
 
@@ -44,6 +46,9 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     @Autowired
     private ResourceRepo resourceRepo;
+
+    @Autowired
+    private TransactionService transactionService;
 
     @Autowired
     private ConfigurableMimeFileTypeMap configurableMimeFileTypeMap;
@@ -127,10 +132,13 @@ public abstract class AbstractFedoraRepository implements Repository {
             connection.setRequestProperty("Authorization", getEncodedBasicAuthorization());
         }
         return connection;
-
     }
 
     protected HttpURLConnection buildFedoraConnection(String path, String method) throws IOException {
+        String tid = path.substring(path.indexOf("tx:")).split("/")[0];
+        if (transactionService.isAboutToExpire(tid)) {
+            refreshTransaction(tid);
+        }
         HttpURLConnection connection = buildBasicFedoraConnection(path);
         connection.setRequestMethod(method);
         connection.setRequestProperty("Accept", "application/ld+json");
@@ -146,6 +154,17 @@ public abstract class AbstractFedoraRepository implements Repository {
             files[i++] = new File(ASSETS_PATH + File.separator + resource.getPath());
         }
         return files;
+    }
+
+    private void refreshTransaction(String tid) throws IOException {
+        String refreshTransactionPath = String.format("%s/fcr:tx", buildTransactionaUrl(tid));
+        HttpURLConnection connection = buildBasicFedoraConnection(refreshTransactionPath);
+        connection.setRequestMethod("POST");
+        int responseCode = connection.getResponseCode();
+        connection.disconnect();
+        if (responseCode != 204) {
+            throw new IOException(String.format("Could not refresh transaction with id %s ", tid));
+        }
     }
 
     /**
@@ -243,14 +262,13 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     protected String startTransaction() throws IOException {
         HttpURLConnection connection = buildFedoraConnection(String.join("/", getRepoUrl(), getRestPath(), "fcr:tx"), "POST");
-
         for (String header : connection.getHeaderFields().keySet()) {
             logger.debug("HTTP connection to open Fedora transaction got header \"" + header + "\" with value \"" + connection.getHeaderFields().get(header) + "\".");
         }
-
         String transactionalUrl = connection.getHeaderField("Location");
-
-        return transactionalUrl.substring(transactionalUrl.lastIndexOf("/") + 1);
+        String tid = transactionalUrl.substring(transactionalUrl.lastIndexOf("/") + 1);
+        transactionService.add(tid, Duration.ofMinutes(3));
+        return tid;
     }
 
     protected void commmitTransaction(String tid) throws IOException {
@@ -258,6 +276,7 @@ public abstract class AbstractFedoraRepository implements Repository {
         logger.debug("Commit URL: " + commitUrlString);
         HttpURLConnection connection = buildFedoraConnection(commitUrlString, "POST");
         logger.info("Transaction commit status: " + connection.getResponseCode());
+        transactionService.remove(tid);
     }
 
     protected void rollbackTransaction(String tid) throws IOException {
@@ -265,6 +284,7 @@ public abstract class AbstractFedoraRepository implements Repository {
         logger.debug("Rollback URL: " + rollbackUrlString);
         HttpURLConnection connection = buildFedoraConnection(rollbackUrlString, "POST");
         logger.info("Transaction rollback status: " + connection.getResponseCode());
+        transactionService.remove(tid);
     }
 
     protected String getRepoUrl() {
