@@ -68,11 +68,11 @@ public class DocumentFactoryTest {
 
     @After
     public void cleanUp() {
+        documentRepo.deleteAll();
+        projectRepo.deleteAll();
         fieldProfileRepo.deleteAll();
         metadataFieldValueRepo.deleteAll();
         metadataFieldLabelRepo.deleteAll();
         metadataFieldGroupRepo.deleteAll();
-        documentRepo.deleteAll();
-        projectRepo.deleteAll();
     }
 }

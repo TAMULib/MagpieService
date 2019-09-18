@@ -85,12 +85,12 @@ public class ProjectListenerTest {
 
     @After
     public void cleanUp() throws Exception {
+        resourceRepo.deleteAll();
+        documentRepo.deleteAll();
+        projectRepo.deleteAll();
         fieldProfileRepo.deleteAll();
         metadataFieldValueRepo.deleteAll();
         metadataFieldLabelRepo.deleteAll();
         metadataFieldGroupRepo.deleteAll();
-        resourceRepo.deleteAll();
-        documentRepo.deleteAll();
-        projectRepo.deleteAll();
     }
 }

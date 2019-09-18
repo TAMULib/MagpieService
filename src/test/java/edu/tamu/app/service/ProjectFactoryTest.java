@@ -69,8 +69,8 @@ public class ProjectFactoryTest {
 
     @After
     public void cleanUp() {
-        fieldProfileRepo.deleteAll();
         documentRepo.deleteAll();
         projectRepo.deleteAll();
+        fieldProfileRepo.deleteAll();
     }
 }
