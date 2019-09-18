@@ -28,14 +28,6 @@ public class TransactionService {
         transactions.remove(tid);
     }
 
-    public boolean isExpired(String tid) {
-        if (transactions.containsKey(tid)) {
-            return transactions.get(tid).isAfter(now());
-        }
-        logger.info(String.format("Transaction with id %s not found!", tid));
-        return true;
-    }
-
     public boolean isAboutToExpire(String tid) {
         if (transactions.containsKey(tid)) {
             return transactions.get(tid).isAfter(now().minusSeconds(15));
