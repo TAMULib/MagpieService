@@ -33,7 +33,9 @@ import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.ProjectService;
 import edu.tamu.app.model.ProjectSuggestor;
+import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.FieldProfileRepo;
 import edu.tamu.app.model.repo.MetadataFieldLabelRepo;
 import edu.tamu.app.model.repo.ProjectAuthorityRepo;
@@ -257,11 +259,8 @@ public class ProjectFactory {
 
     }
 
-    // @formatter:off
-    // TODO: generalize against ProjectService commonalities
-    /*
-    public Map<String, List<String>> getProjectServiceTypes(ProjectService projectService) {
-        Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
+    public Map<ServiceType, List<String>> getProjectServiceTypes(ProjectService projectService) {
+        Map<ServiceType, List<String>> scaffolds = new HashMap<ServiceType, List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<? extends ProjectService> projectRepositories = getProjectRepositories(projectNode);
             projectRepositories.forEach(projectRepository -> {
@@ -270,17 +269,15 @@ public class ProjectFactory {
                     projectRepository.getSettings().forEach(projectSetting -> {
                         settingKeys.add(projectSetting.getKey());
                     });
-                    scaffolds.put(projectRepository.getType().toString(), settingKeys);
+                    scaffolds.put(projectRepository.getType(), settingKeys);
                 }
             });
         });
         return scaffolds;
     }
-    */
-    // @formatter:on
 
-    public Map<String, List<String>> getProjectRepositoryTypes() {
-        Map<String, List<String>> scaffolds = new HashMap<String, List<String>>();
+    public Map<ServiceType, List<String>> getProjectRepositoryTypes() {
+        Map<ServiceType, List<String>> scaffolds = new HashMap<ServiceType, List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectRepository> projectRepositories = getProjectRepositories(projectNode);
             projectRepositories.forEach(projectRepository -> {
@@ -289,15 +286,15 @@ public class ProjectFactory {
                     projectRepository.getSettings().forEach(projectSetting -> {
                         settingKeys.add(projectSetting.getKey());
                     });
-                    scaffolds.put(projectRepository.getType().toString(), settingKeys);
+                    scaffolds.put(projectRepository.getType(), settingKeys);
                 }
             });
         });
         return scaffolds;
     }
 
-    public Map<String,List<String>> getProjectSuggestorTypes() {
-        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+    public Map<ServiceType, List<String>> getProjectSuggestorTypes() {
+        Map<ServiceType, List<String>> scaffolds = new HashMap<ServiceType, List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectSuggestor> projectSuggestors = getProjectSuggestors(projectNode);
             projectSuggestors.forEach(projectSuggestor -> {
@@ -306,15 +303,15 @@ public class ProjectFactory {
                     projectSuggestor.getSettings().forEach(projectSetting -> {
                         settingKeys.add(projectSetting.getKey());
                     });
-                    scaffolds.put(projectSuggestor.getType().toString(), settingKeys);
+                    scaffolds.put(projectSuggestor.getType(), settingKeys);
                 }
             });
         });
         return scaffolds;
     }
 
-    public Map<String,List<String>> getProjectAuthorityTypes() {
-        Map<String,List<String>> scaffolds = new HashMap<String,List<String>>();
+    public Map<ServiceType, List<String>> getProjectAuthorityTypes() {
+        Map<ServiceType, List<String>> scaffolds = new HashMap<ServiceType, List<String>>();
         getProjectsNode().forEach(projectNode -> {
             List<ProjectAuthority> projectAuthorities = getProjectAuthorities(projectNode);
             projectAuthorities.forEach(projectAuthority -> {
@@ -323,7 +320,7 @@ public class ProjectFactory {
                     projectAuthority.getSettings().forEach(projectSetting -> {
                         settingKeys.add(projectSetting.getKey());
                     });
-                    scaffolds.put(projectAuthority.getType().toString(), settingKeys);
+                    scaffolds.put(projectAuthority.getType(), settingKeys);
                 }
             });
         });
@@ -424,8 +421,7 @@ public class ProjectFactory {
     /**
      * Initiate project file listener for single project.
      *
-     * @param id
-     *   ID of the project to initiate listener for.
+     * @param id ID of the project to initiate listener for.
      */
     public void startProjectFileListener(Long id) {
         Project project = projectRepo.findOne(id);
@@ -437,8 +433,7 @@ public class ProjectFactory {
     /**
      * Initiate project file listener for single project.
      *
-     * @param project
-     *   The project to initiate listener for.
+     * @param project The project to initiate listener for.
      */
     public void startProjectFileListener(Project project) {
         String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
