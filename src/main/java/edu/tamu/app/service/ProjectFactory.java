@@ -259,23 +259,6 @@ public class ProjectFactory {
 
     }
 
-    public Map<ServiceType, List<String>> getProjectServiceTypes(ProjectService projectService) {
-        Map<ServiceType, List<String>> scaffolds = new HashMap<ServiceType, List<String>>();
-        getProjectsNode().forEach(projectNode -> {
-            List<? extends ProjectService> projectRepositories = getProjectRepositories(projectNode);
-            projectRepositories.forEach(projectRepository -> {
-                if (!scaffolds.containsKey(projectRepository.getType())) {
-                    List<String> settingKeys = new ArrayList<String>();
-                    projectRepository.getSettings().forEach(projectSetting -> {
-                        settingKeys.add(projectSetting.getKey());
-                    });
-                    scaffolds.put(projectRepository.getType(), settingKeys);
-                }
-            });
-        });
-        return scaffolds;
-    }
-
     public Map<ServiceType, List<String>> getProjectRepositoryTypes() {
         Map<ServiceType, List<String>> scaffolds = new HashMap<ServiceType, List<String>>();
         getProjectsNode().forEach(projectNode -> {
