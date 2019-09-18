@@ -14,6 +14,8 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -40,6 +42,8 @@ import edu.tamu.app.service.TransactionService;
 public abstract class AbstractFedoraRepository implements Repository {
 
     protected static final Logger logger = Logger.getLogger(AbstractFedoraRepository.class);
+
+    private static final Pattern transactionPattern = Pattern.compile("^(.*)tx:(.*?)(/.*)$");
 
     @Autowired
     private DocumentRepo documentRepo;
@@ -135,9 +139,12 @@ public abstract class AbstractFedoraRepository implements Repository {
     }
 
     protected HttpURLConnection buildFedoraConnection(String path, String method) throws IOException {
-        String tid = path.substring(path.indexOf("tx:")).split("/")[0];
-        if (transactionService.isAboutToExpire(tid)) {
-            refreshTransaction(tid);
+        Matcher transactionMatcher = transactionPattern.matcher(path);
+        if (transactionMatcher.find() && transactionMatcher.groupCount() >= 2) {
+            String tid = transactionMatcher.group(2);
+            if (transactionService.isAboutToExpire(tid)) {
+                refreshTransaction(tid);
+            }
         }
         HttpURLConnection connection = buildBasicFedoraConnection(path);
         connection.setRequestMethod(method);
