@@ -51,7 +51,7 @@ public class TransactionService {
     @Scheduled(fixedRate = 180000)
     void expire() {
         transactions.forEach((tid, t) -> {
-            if (t.isAfter(now())) {
+            if (t.isBefore(now())) {
                 remove(tid);
             }
         });

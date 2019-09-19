@@ -24,7 +24,10 @@ public class TransactionServiceTest {
     @Autowired
     private TransactionService transactionService;
 
-    private String[] tids = { "8e18640e-dadf-11e9-8a34-2a2ae2dbcce4", "8e18679c-dadf-11e9-8a34-2a2ae2dbcce4" };
+    private String[] tids = {
+        "8e18640e-dadf-11e9-8a34-2a2ae2dbcce4",
+        "8e18679c-dadf-11e9-8a34-2a2ae2dbcce4"
+    };
 
     @Test
     public void testAdd() {
@@ -49,9 +52,7 @@ public class TransactionServiceTest {
 
     @Test
     public void testCount() {
-        for (String tid : tids) {
-            transactionService.add(tid, Duration.ofDays(1));
-        }
+        addAll(Duration.ofDays(1));
         assertEquals(tids.length, transactionService.count());
     }
 
@@ -64,10 +65,7 @@ public class TransactionServiceTest {
 
     @Test
     public void testExpire() {
-        for (String tid : tids) {
-            transactionService.add(tid, Duration.ofNanos(1));
-        }
-        assertEquals(tids.length, transactionService.count());
+        addAll(Duration.ofSeconds(-1));
         transactionService.expire();
         assertEquals(0, transactionService.count());
     }
@@ -75,6 +73,12 @@ public class TransactionServiceTest {
     @After
     public void clear() {
         transactionService.clear();
+    }
+
+    private void addAll(Duration duration) {
+        for (String tid : tids) {
+            transactionService.add(tid, duration);
+        }
     }
 
 }
