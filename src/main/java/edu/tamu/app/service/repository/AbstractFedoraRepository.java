@@ -7,8 +7,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.Base64;
@@ -19,12 +17,13 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.http.client.ClientProtocolException;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
@@ -165,16 +164,17 @@ public abstract class AbstractFedoraRepository implements Repository {
      * @throws IOException
      */
     private void updateMetadata(Document document, String itemContainerUrl) throws IOException {
-        String updateQuery = "PREFIX dc: <http://purl.org/dc/elements/1.1/> PREFIX dcterms: <http://purl.org/dc/terms/> PREFIX local: <http://digital.library.tamu.edu/schemas/local>" + "INSERT {";
+        String updateQuery = "PREFIX dc: <http://purl.org/dc/elements/1.1/> PREFIX dcterms: <http://purl.org/dc/terms/> PREFIX local: <http://digital.library.tamu.edu/schemas/local> INSERT { ";
         String cleanValue = null;
         for (MetadataFieldGroup group : document.getFields()) {
             for (MetadataFieldValue value : group.getValues()) {
                 cleanValue = StringEscapeUtils.escapeJava(value.getValue());
-                if (cleanValue.length() > 0)
+                if (cleanValue.length() > 0) {
                     updateQuery += "<> " + group.getLabel().getName().replace('.', ':') + " \"" + cleanValue + "\" . ";
+                }
             }
         }
-        updateQuery += "} WHERE { }";
+        updateQuery += " } WHERE { }";
         executeSparqlUpdate(itemContainerUrl, updateQuery);
     }
 
@@ -210,31 +210,32 @@ public abstract class AbstractFedoraRepository implements Repository {
         return connection.getHeaderField("Location");
     }
 
-    protected void executeSparqlUpdate(String uri, String sparqlQuery) throws ClientProtocolException, IOException {
+    protected void executeSparqlUpdate(String uri, String sparqlQuery) throws IOException {
         checkTransaction(uri);
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpPatch httpPatch;
-        try {
-            httpPatch = new HttpPatch(new URI(uri));
+        HttpPatch httpPatch = new HttpPatch(uri);
 
-            logger.debug("**** PATCHING SPARQL UPDATE at URL " + uri + " ****");
-            logger.debug(sparqlQuery);
-            StringEntity data = new StringEntity(sparqlQuery);
+        logger.debug("**** PATCHING SPARQL UPDATE at URL " + uri + " ****");
+        logger.debug(sparqlQuery);
+        StringEntity data = new StringEntity(sparqlQuery);
 
-            data.setContentType("application/sparql-update");
+        data.setContentType("application/sparql-update");
 
-            httpPatch.setEntity(data);
+        httpPatch.setEntity(data);
 
-            httpPatch.addHeader("Authorization", getEncodedBasicAuthorization());
-            httpPatch.addHeader("CONTENT-TYPE", "application/sparql-update");
-            CloseableHttpResponse response = httpClient.execute(httpPatch);
+        httpPatch.addHeader("Authorization", getEncodedBasicAuthorization());
+        httpPatch.addHeader("CONTENT-TYPE", "application/sparql-update");
+        CloseableHttpResponse response = httpClient.execute(httpPatch);
 
-            int responseCode = response.getStatusLine().getStatusCode();
-            if (responseCode != 204) {
-                throw new IOException("Could not complete PATCH request. Server responded with " + responseCode);
-            }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+        int responseCode = response.getStatusLine().getStatusCode();
+        if (responseCode != 204) {
+            HttpEntity entity = response.getEntity();
+            String responseString = EntityUtils.toString(entity, "UTF-8");
+
+            System.out.println("\n\n" + uri + "\n\n");
+            System.out.println("\n\n" + responseString + "\n\n");
+            System.out.println("\n\n" + sparqlQuery + "\n\n");
+            throw new IOException("Could not complete PATCH request. Server responded with " + responseCode);
         }
     }
 

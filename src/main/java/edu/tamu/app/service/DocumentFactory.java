@@ -8,7 +8,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -250,14 +249,11 @@ public class DocumentFactory {
                 Node element = attributes.getNamedItem("element");
                 Node qualifier = attributes.getNamedItem("qualifier");
 
-                List<String> labelParts = new ArrayList<String>();
-                labelParts.add("dc");
-                labelParts.add(element.getNodeValue());
-                if (qualifier != null && !qualifier.getNodeValue().equals("none")) {
-                    labelParts.add(qualifier.getNodeValue());
-                }
+                label = "dc." + element.getNodeValue();
 
-                label = String.format(".", labelParts);
+                if (qualifier != null && !qualifier.getNodeValue().equals("none")) {
+                    label += "." + qualifier.getNodeValue();
+                }
 
                 FieldProfile fieldProfile = null;
                 // If the project does not have a profile to accommodate
