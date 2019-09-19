@@ -7,16 +7,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.StringEntity;
@@ -34,16 +34,22 @@ import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
+import edu.tamu.app.service.TransactionService;
 
 public abstract class AbstractFedoraRepository implements Repository {
 
     protected static final Logger logger = Logger.getLogger(AbstractFedoraRepository.class);
+
+    private static final Pattern transactionPattern = Pattern.compile("^(.*)(tx:.*?)(/.*)$");
 
     @Autowired
     private DocumentRepo documentRepo;
 
     @Autowired
     private ResourceRepo resourceRepo;
+
+    @Autowired
+    private TransactionService transactionService;
 
     @Autowired
     private ConfigurableMimeFileTypeMap configurableMimeFileTypeMap;
@@ -111,8 +117,8 @@ public abstract class AbstractFedoraRepository implements Repository {
         return transactionalUrl;
     }
 
-    protected String getUrlWithoutTransaction(String url, final String tid) {
-        return url.replace("/" + tid, "");
+    protected String getUrlWithoutTransaction(String uri, final String tid) {
+        return uri.replace("/" + tid, "");
     }
 
     protected String getEncodedBasicAuthorization() {
@@ -120,18 +126,18 @@ public abstract class AbstractFedoraRepository implements Repository {
         return "Basic " + encoded;
     }
 
-    protected HttpURLConnection buildBasicFedoraConnection(String path) throws IOException {
-        URL restUrl = new URL(path);
+    protected HttpURLConnection buildBasicFedoraConnection(String uri) throws IOException {
+        checkTransaction(uri);
+        URL restUrl = new URL(uri);
         HttpURLConnection connection = (HttpURLConnection) restUrl.openConnection();
         if (getUsername() != null && !getUsername().isEmpty() && getPassword() != null && !getPassword().isEmpty()) {
             connection.setRequestProperty("Authorization", getEncodedBasicAuthorization());
         }
         return connection;
-
     }
 
-    protected HttpURLConnection buildFedoraConnection(String path, String method) throws IOException {
-        HttpURLConnection connection = buildBasicFedoraConnection(path);
+    protected HttpURLConnection buildFedoraConnection(String uri, String method) throws IOException {
+        HttpURLConnection connection = buildBasicFedoraConnection(uri);
         connection.setRequestMethod(method);
         connection.setRequestProperty("Accept", "application/ld+json");
         return connection;
@@ -156,21 +162,32 @@ public abstract class AbstractFedoraRepository implements Repository {
      * @throws IOException
      */
     private void updateMetadata(Document document, String itemContainerUrl) throws IOException {
-        String updateQuery = "PREFIX dc: <http://purl.org/dc/elements/1.1/> PREFIX dcterms: <http://purl.org/dc/terms/> PREFIX local: <http://digital.library.tamu.edu/schemas/local>" + "INSERT {";
+        String updateQuery = "PREFIX dc: <http://purl.org/dc/elements/1.1/> PREFIX dcterms: <http://purl.org/dc/terms/> PREFIX local: <http://digital.library.tamu.edu/schemas/local> INSERT { ";
         String cleanValue = null;
         for (MetadataFieldGroup group : document.getFields()) {
             for (MetadataFieldValue value : group.getValues()) {
                 cleanValue = StringEscapeUtils.escapeJava(value.getValue());
-                if (cleanValue.length() > 0)
+                if (cleanValue.length() > 0) {
                     updateQuery += "<> " + group.getLabel().getName().replace('.', ':') + " \"" + cleanValue + "\" . ";
+                }
             }
         }
-        updateQuery += "} WHERE { }";
+        updateQuery += " } WHERE { }";
         executeSparqlUpdate(itemContainerUrl, updateQuery);
     }
 
-    protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
+    private void checkTransaction(String url) throws IOException {
+        Matcher transactionMatcher = transactionPattern.matcher(url);
+        if (transactionMatcher.find()) {
+            String tid = transactionMatcher.group(2);
+            String path = transactionMatcher.group(3);
+            if (transactionService.isAboutToExpire(tid) && !path.startsWith("/fcr:tx")) {
+                refreshTransaction(tid);
+            }
+        }
+    }
 
+    protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
         File file = new File(filePath);
         FileInputStream fileStrm = new FileInputStream(file);
         byte[] fileBytes = IOUtils.toByteArray(fileStrm);
@@ -191,30 +208,26 @@ public abstract class AbstractFedoraRepository implements Repository {
         return connection.getHeaderField("Location");
     }
 
-    protected void executeSparqlUpdate(String uri, String sparqlQuery) throws ClientProtocolException, IOException {
+    protected void executeSparqlUpdate(String uri, String sparqlQuery) throws IOException {
+        checkTransaction(uri);
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpPatch httpPatch;
-        try {
-            httpPatch = new HttpPatch(new URI(uri));
+        HttpPatch httpPatch = new HttpPatch(uri);
 
-            logger.debug("**** PATCHING SPARQL UPDATE at URL " + uri + " ****");
-            logger.debug(sparqlQuery);
-            StringEntity data = new StringEntity(sparqlQuery);
+        logger.debug("**** PATCHING SPARQL UPDATE at URL " + uri + " ****");
+        logger.debug(sparqlQuery);
+        StringEntity data = new StringEntity(sparqlQuery);
 
-            data.setContentType("application/sparql-update");
+        data.setContentType("application/sparql-update");
 
-            httpPatch.setEntity(data);
+        httpPatch.setEntity(data);
 
-            httpPatch.addHeader("Authorization", getEncodedBasicAuthorization());
-            httpPatch.addHeader("CONTENT-TYPE", "application/sparql-update");
-            CloseableHttpResponse response = httpClient.execute(httpPatch);
+        httpPatch.addHeader("Authorization", getEncodedBasicAuthorization());
+        httpPatch.addHeader("CONTENT-TYPE", "application/sparql-update");
+        CloseableHttpResponse response = httpClient.execute(httpPatch);
 
-            int responseCode = response.getStatusLine().getStatusCode();
-            if (responseCode != 204) {
-                throw new IOException("Could not complete PATCH request. Server responded with " + responseCode);
-            }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+        int responseCode = response.getStatusLine().getStatusCode();
+        if (responseCode != 204) {
+            throw new IOException("Could not complete PATCH request. Server responded with " + responseCode);
         }
     }
 
@@ -243,14 +256,21 @@ public abstract class AbstractFedoraRepository implements Repository {
 
     protected String startTransaction() throws IOException {
         HttpURLConnection connection = buildFedoraConnection(String.join("/", getRepoUrl(), getRestPath(), "fcr:tx"), "POST");
-
         for (String header : connection.getHeaderFields().keySet()) {
             logger.debug("HTTP connection to open Fedora transaction got header \"" + header + "\" with value \"" + connection.getHeaderFields().get(header) + "\".");
         }
-
         String transactionalUrl = connection.getHeaderField("Location");
+        String tid = transactionalUrl.substring(transactionalUrl.lastIndexOf("/") + 1);
+        transactionService.add(tid, Duration.ofMinutes(3));
+        return tid;
+    }
 
-        return transactionalUrl.substring(transactionalUrl.lastIndexOf("/") + 1);
+    protected void refreshTransaction(String tid) throws IOException {
+        String refreshUrlString = String.join("/", buildTransactionaUrl(tid), "fcr:tx");
+        logger.debug("Refresh URL: " + refreshUrlString);
+        HttpURLConnection connection = buildFedoraConnection(refreshUrlString, "POST");
+        logger.info("Transaction refresh status: " + connection.getResponseCode());
+        transactionService.add(tid, Duration.ofMinutes(3));
     }
 
     protected void commmitTransaction(String tid) throws IOException {
@@ -258,6 +278,7 @@ public abstract class AbstractFedoraRepository implements Repository {
         logger.debug("Commit URL: " + commitUrlString);
         HttpURLConnection connection = buildFedoraConnection(commitUrlString, "POST");
         logger.info("Transaction commit status: " + connection.getResponseCode());
+        transactionService.remove(tid);
     }
 
     protected void rollbackTransaction(String tid) throws IOException {
@@ -265,6 +286,7 @@ public abstract class AbstractFedoraRepository implements Repository {
         logger.debug("Rollback URL: " + rollbackUrlString);
         HttpURLConnection connection = buildFedoraConnection(rollbackUrlString, "POST");
         logger.info("Transaction rollback status: " + connection.getResponseCode());
+        transactionService.remove(tid);
     }
 
     protected String getRepoUrl() {

@@ -246,9 +246,14 @@ public class DocumentFactory {
             String value = "";
             if (attributes != null && valueNode.getNodeType() != Node.TEXT_NODE) {
 
-                String element = attributes.getNamedItem("element").getNodeValue();
-                String qualifier = attributes.getNamedItem("qualifier").getNodeValue();
-                label = "dc." + element + (qualifier.equals("none") ? "" : ("." + qualifier));
+                Node element = attributes.getNamedItem("element");
+                Node qualifier = attributes.getNamedItem("qualifier");
+
+                label = "dc." + element.getNodeValue();
+
+                if (qualifier != null && !qualifier.getNodeValue().equals("none")) {
+                    label += "." + qualifier.getNodeValue();
+                }
 
                 FieldProfile fieldProfile = null;
                 // If the project does not have a profile to accommodate
