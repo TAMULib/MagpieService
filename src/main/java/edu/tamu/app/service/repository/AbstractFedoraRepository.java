@@ -17,13 +17,11 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
@@ -229,12 +227,6 @@ public abstract class AbstractFedoraRepository implements Repository {
 
         int responseCode = response.getStatusLine().getStatusCode();
         if (responseCode != 204) {
-            HttpEntity entity = response.getEntity();
-            String responseString = EntityUtils.toString(entity, "UTF-8");
-
-            System.out.println("\n\n" + uri + "\n\n");
-            System.out.println("\n\n" + responseString + "\n\n");
-            System.out.println("\n\n" + sparqlQuery + "\n\n");
             throw new IOException("Could not complete PATCH request. Server responded with " + responseCode);
         }
     }
