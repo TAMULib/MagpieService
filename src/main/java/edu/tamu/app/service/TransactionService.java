@@ -30,10 +30,18 @@ public class TransactionService {
 
     public boolean isAboutToExpire(String tid) {
         if (transactions.containsKey(tid)) {
-            return transactions.get(tid).isAfter(now().minusSeconds(15));
+            return transactions.get(tid).isBefore(now().plusSeconds(15));
         }
         logger.info(String.format("Transaction with id %s not found!", tid));
         return false;
+    }
+
+    public int count() {
+        return transactions.size();
+    }
+
+    public void clear() {
+        transactions.clear();
     }
 
     private LocalDateTime now() {
@@ -41,7 +49,7 @@ public class TransactionService {
     }
 
     @Scheduled(fixedRate = 180000)
-    private void expireTransactions() {
+    void expire() {
         transactions.forEach((tid, t) -> {
             if (t.isAfter(now())) {
                 remove(tid);
