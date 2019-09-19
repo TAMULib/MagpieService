@@ -138,15 +138,16 @@ public abstract class AbstractFedoraRepository implements Repository {
         return connection;
     }
 
-    protected HttpURLConnection buildFedoraConnection(String path, String method) throws IOException {
-        Matcher transactionMatcher = transactionPattern.matcher(path);
-        if (transactionMatcher.find() && transactionMatcher.groupCount() >= 2) {
+    protected HttpURLConnection buildFedoraConnection(String url, String method) throws IOException {
+        Matcher transactionMatcher = transactionPattern.matcher(url);
+        if (transactionMatcher.find()) {
             String tid = transactionMatcher.group(2);
-            if (transactionService.isAboutToExpire(tid)) {
+            String path = transactionMatcher.group(3);
+            if (transactionService.isAboutToExpire(tid) && !path.startsWith("/fcr:tx")) {
                 refreshTransaction(tid);
             }
         }
-        HttpURLConnection connection = buildBasicFedoraConnection(path);
+        HttpURLConnection connection = buildBasicFedoraConnection(url);
         connection.setRequestMethod(method);
         connection.setRequestProperty("Accept", "application/ld+json");
         return connection;
@@ -161,17 +162,6 @@ public abstract class AbstractFedoraRepository implements Repository {
             files[i++] = new File(ASSETS_PATH + File.separator + resource.getPath());
         }
         return files;
-    }
-
-    private void refreshTransaction(String tid) throws IOException {
-        String refreshTransactionPath = String.format("%s/fcr:tx", buildTransactionaUrl(tid));
-        HttpURLConnection connection = buildBasicFedoraConnection(refreshTransactionPath);
-        connection.setRequestMethod("POST");
-        int responseCode = connection.getResponseCode();
-        connection.disconnect();
-        if (responseCode != 204) {
-            throw new IOException(String.format("Could not refresh transaction with id %s ", tid));
-        }
     }
 
     /**
@@ -276,6 +266,14 @@ public abstract class AbstractFedoraRepository implements Repository {
         String tid = transactionalUrl.substring(transactionalUrl.lastIndexOf("/") + 1);
         transactionService.add(tid, Duration.ofMinutes(3));
         return tid;
+    }
+
+    protected void refreshTransaction(String tid) throws IOException {
+        String refreshUrlString = String.join("/", buildTransactionaUrl(tid), "fcr:tx");
+        logger.debug("Refresh URL: " + refreshUrlString);
+        HttpURLConnection connection = buildFedoraConnection(refreshUrlString, "POST");
+        logger.info("Transaction refresh status: " + connection.getResponseCode());
+        transactionService.add(tid, Duration.ofMinutes(3));
     }
 
     protected void commmitTransaction(String tid) throws IOException {
