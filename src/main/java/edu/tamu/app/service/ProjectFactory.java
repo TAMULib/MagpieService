@@ -33,7 +33,6 @@ import edu.tamu.app.model.MetadataFieldLabel;
 import edu.tamu.app.model.Project;
 import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.ProjectRepository;
-import edu.tamu.app.model.ProjectService;
 import edu.tamu.app.model.ProjectSuggestor;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.FieldProfileRepo;
