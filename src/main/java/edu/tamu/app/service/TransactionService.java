@@ -19,12 +19,12 @@ public class TransactionService {
     private static final Map<String, LocalDateTime> transactions = new ConcurrentHashMap<String, LocalDateTime>();
 
     public void add(String tid, Duration duration) {
-        logger.debug(String.format("Adding transaction with id %s", tid));
+        logger.info(String.format("Managing transaction with id %s", tid));
         transactions.put(tid, now().plus(duration));
     }
 
     public void remove(String tid) {
-        logger.debug(String.format("Removing transaction with id %s", tid));
+        logger.info(String.format("Removing transaction with id %s", tid));
         transactions.remove(tid);
     }
 

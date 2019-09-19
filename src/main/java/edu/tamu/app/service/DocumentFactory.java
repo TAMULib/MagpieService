@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -246,9 +247,17 @@ public class DocumentFactory {
             String value = "";
             if (attributes != null && valueNode.getNodeType() != Node.TEXT_NODE) {
 
-                String element = attributes.getNamedItem("element").getNodeValue();
-                String qualifier = attributes.getNamedItem("qualifier").getNodeValue();
-                label = "dc." + element + (qualifier.equals("none") ? "" : ("." + qualifier));
+                Node element = attributes.getNamedItem("element");
+                Node qualifier = attributes.getNamedItem("qualifier");
+
+                List<String> labelParts = new ArrayList<String>();
+                labelParts.add("dc");
+                labelParts.add(element.getNodeValue());
+                if (qualifier != null && !qualifier.getNodeValue().equals("none")) {
+                    labelParts.add(qualifier.getNodeValue());
+                }
+
+                label = String.format(".", labelParts);
 
                 FieldProfile fieldProfile = null;
                 // If the project does not have a profile to accommodate
