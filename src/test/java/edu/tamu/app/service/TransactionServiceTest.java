@@ -65,7 +65,7 @@ public class TransactionServiceTest {
     @Test
     public void testExpire() {
         for (String tid : tids) {
-            transactionService.add(tid, Duration.ofMillis(1));
+            transactionService.add(tid, Duration.ofNanos(1));
         }
         assertEquals(tids.length, transactionService.count());
         transactionService.expire();
