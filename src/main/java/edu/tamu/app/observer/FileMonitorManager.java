@@ -1,6 +1,7 @@
 package edu.tamu.app.observer;
 
 import java.util.Optional;
+import java.util.concurrent.ThreadFactory;
 
 import javax.annotation.PostConstruct;
 
@@ -15,6 +16,8 @@ public class FileMonitorManager {
 
     private static final Logger logger = Logger.getLogger(FileMonitorManager.class);
 
+    private static SimpleThreadFactory threadFactory;
+
     private static FileAlterationMonitor monitor;
 
     @Value("${app.polling.interval}")
@@ -26,7 +29,9 @@ public class FileMonitorManager {
 
     @PostConstruct
     public void createMonitor() {
+        threadFactory = new SimpleThreadFactory();
         monitor = new FileAlterationMonitor(interval);
+        monitor.setThreadFactory(threadFactory);
     }
 
     public void addObserver(FileAlterationObserver observer) {
@@ -49,6 +54,10 @@ public class FileMonitorManager {
         monitor.stop();
     }
 
+    public boolean isAlive() {
+        return threadFactory.isMonitorThreadAlive();
+    }
+
     public FileAlterationMonitor getMonitor() {
         return monitor;
     }
@@ -62,6 +71,27 @@ public class FileMonitorManager {
             }
         }
         return observer;
+    }
+
+    class SimpleThreadFactory implements ThreadFactory {
+        private Thread monitorThread;
+
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r);
+            if (r instanceof FileAlterationMonitor) {
+                monitorThread = thread;
+            }
+
+            return thread;
+        }
+
+        public boolean isMonitorThreadAlive() {
+            boolean isAlive = false;
+            if (monitorThread != null) {
+                isAlive = monitorThread.isAlive();
+            }
+            return isAlive;
+        }
     }
 
 }
