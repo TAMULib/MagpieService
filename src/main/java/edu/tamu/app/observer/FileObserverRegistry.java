@@ -107,7 +107,7 @@ public class FileObserverRegistry {
         }
     }
 
-    @Scheduled(fixedDelayString = "${app.monitor.health.interval:900000}", initialDelayString = "${app.monitor.health.initDelay:15000}")
+    @Scheduled(fixedDelayString = "${app.monitor.health.interval:900000}", initialDelayString = "${app.monitor.health.initDelay:30000}")
     void healthCheck() throws Exception {
         logger.info("File monitor health check");
         if (!fileMonitorManager.isAlive()) {
