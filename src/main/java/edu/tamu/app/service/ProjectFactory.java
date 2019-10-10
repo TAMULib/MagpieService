@@ -44,10 +44,8 @@ import edu.tamu.app.model.repo.ProjectSuggestorRepo;
 import edu.tamu.app.observer.FileObserverRegistry;
 import edu.tamu.app.observer.HeadlessDocumentListener;
 import edu.tamu.app.observer.StandardDocumentListener;
-import edu.tamu.app.service.authority.Authority;
+import edu.tamu.app.service.registry.MagpieService;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
-import edu.tamu.app.service.repository.Repository;
-import edu.tamu.app.service.suggestor.Suggestor;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 @Service
@@ -139,7 +137,7 @@ public class ProjectFactory {
         return project;
     }
 
-    public Project createProject(String projectName) {
+    public synchronized Project createProject(String projectName) {
 
         JsonNode projectNode = getProjectNode(projectName);
 
@@ -234,28 +232,27 @@ public class ProjectFactory {
     }
 
     public void registerServiceListeners(Project project) {
-
+        // NOTE: ProjectRepository is a Destination, either a Repository or Preservation
         project.getRepositories().forEach(repository -> {
-            Repository registeredRepository = (Repository) projectServiceRegistry.getService(repository.getName());
+            MagpieService registeredRepository = projectServiceRegistry.getService(repository.getName());
             if (registeredRepository == null) {
                 projectServiceRegistry.register(project, repository);
             }
         });
 
         project.getAuthorities().forEach(authority -> {
-            Authority registeredAuthority = (Authority) projectServiceRegistry.getService(authority.getName());
+            MagpieService registeredAuthority = projectServiceRegistry.getService(authority.getName());
             if (registeredAuthority == null) {
                 projectServiceRegistry.register(project, authority);
             }
         });
 
         project.getSuggestors().forEach(suggestor -> {
-            Suggestor registeredSuggestor = (Suggestor) projectServiceRegistry.getService(suggestor.getName());
+            MagpieService registeredSuggestor = projectServiceRegistry.getService(suggestor.getName());
             if (registeredSuggestor == null) {
                 projectServiceRegistry.register(project, suggestor);
             }
         });
-
     }
 
     public Map<ServiceType, List<String>> getProjectRepositoryTypes() {
@@ -326,7 +323,7 @@ public class ProjectFactory {
         return profileNode;
     }
 
-    public List<MetadataFieldGroup> getProjectFields(String projectName) {
+    public synchronized List<MetadataFieldGroup> getProjectFields(String projectName) {
 
         Instant start = Instant.now();
 
