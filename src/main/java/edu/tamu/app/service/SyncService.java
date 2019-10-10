@@ -43,15 +43,10 @@ public class SyncService {
     @Autowired
     private DocumentFactory documentFactory;
 
-    public SyncService() {
-
-    }
-
     /**
      * Synchronizes the project directory with the database for a single project.
      *
-     * @param Long projectId
-     *   The ID of the specific project to synchronize.
+     * @param Long projectId The ID of the specific project to synchronize.
      *
      * @throws IOException
      */
@@ -59,14 +54,11 @@ public class SyncService {
         if (logger.isDebugEnabled()) {
             logger.debug("Running Sync Service for ID " + projectId);
         }
-
         Project project = projectRepo.getOne(projectId);
-
         if (project != null) {
             logger.info("Found project: " + project.getName());
             processSync(project);
         }
-
         logger.info("Sync Service Finished for ID " + projectId);
     }
 
@@ -121,24 +113,16 @@ public class SyncService {
         }
     }
 
-    public void syncStartup() throws IOException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Running Initial Sync");
-        }
-
-        List<Path> projects = FileSystemUtility.directoryList(ASSETS_PATH + File.separator + "projects");
-
-        for (Path projectPath : projects) {
-
+    public void sync() throws IOException {
+        logger.info("Running Sync");
+        for (Path projectPath : FileSystemUtility.directoryList(ASSETS_PATH + File.separator + "projects")) {
             logger.info("Found project: " + projectPath);
-
             String projectName = projectPath.getFileName().toString();
-
             Project project = projectFactory.getOrCreateProject(projectName);
             if (project != null) {
                 processSync(project);
             }
-            logger.info("Initial Sync Finished");
         }
+        logger.info("Sync Finished");
     }
 }

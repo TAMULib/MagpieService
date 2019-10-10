@@ -1,12 +1,14 @@
 package edu.tamu.app.observer;
 
+import static edu.tamu.app.Initialization.ASSETS_PATH;
+import static edu.tamu.app.Initialization.LISTENER_INTERVAL;
+import static edu.tamu.app.Initialization.MAPS_PATH;
+import static edu.tamu.app.Initialization.PROJECTS_PATH;
+
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
-import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,21 +16,52 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.service.SyncService;
+
 @Service
 public class FileObserverRegistry {
 
     private static final Logger logger = Logger.getLogger(FileObserverRegistry.class);
 
     @Autowired
-    private FileMonitorManager fileMonitorManager;
+    private AutowireCapableBeanFactory beanFactory;
 
     @Autowired
-    private AutowireCapableBeanFactory beanFactory;
+    private SyncService syncService;
+
+    private FileMonitorManager fileMonitorManager;
+
+    public void start() throws Exception {
+        logger.info("Starting file monitor");
+        fileMonitorManager = new FileMonitorManager(LISTENER_INTERVAL);
+        register(new ProjectListener(ASSETS_PATH, PROJECTS_PATH));
+        register(new MapFileListener(ASSETS_PATH, MAPS_PATH));
+        syncService.sync();
+        // NOTE: this must be last, otherwise it will invoke all file observers
+        fileMonitorManager.start();
+    }
+
+    public void stop() throws Exception {
+        if (fileMonitorManager != null) {
+            logger.info("Stopping file monitor");
+            fileMonitorManager.stop();
+        }
+    }
+
+    public void restart() throws Exception {
+        logger.info("Restarting file monitor");
+        logger.info("Removing all observers");
+        for (FileAlterationObserver observer : fileMonitorManager.getObservers()) {
+            fileMonitorManager.removeObserver(observer);
+        }
+        stop();
+        start();
+    }
 
     public void register(FileListener listener) {
         String path = listener.getPath();
         try {
-            dismiss(listener);
+            dismiss(path);
         } catch (Exception e) {
             logger.error("Unable to dismiss listener: " + path);
         }
@@ -45,10 +78,6 @@ public class FileObserverRegistry {
         }
     }
 
-    public void dismiss(FileListener listener) throws Exception {
-        dismiss(listener.getPath());
-    }
-
     public void dismiss(String path) throws Exception {
         Optional<FileAlterationObserver> observer = fileMonitorManager.getObserver(path);
         if (observer.isPresent()) {
@@ -63,37 +92,23 @@ public class FileObserverRegistry {
         }
     }
 
-    @Scheduled(fixedDelay = 900000, initialDelay = 15000)
+    @Scheduled(fixedDelayString = "${app.monitor.health.interval:900000}", initialDelayString = "${app.monitor.health.initDelay:15000}")
     void healthCheck() throws Exception {
         logger.info("File monitor health check");
         if (!fileMonitorManager.isAlive()) {
             logger.warn("File monitor thread has stopped!");
-            logger.info("Dismissing all listeners");
-            FileAlterationMonitor monitor = fileMonitorManager.getMonitor();
-            List<FileListener> listeners = new ArrayList<FileListener>();
-            for (FileAlterationObserver observer : monitor.getObservers()) {
-                if (observer.getDirectory().exists()) {
-                    for (FileAlterationListener listener : observer.getListeners()) {
-                        listeners.add((FileListener) listener);
-                        dismiss((FileListener) listener);
-                    }
-                }
-                monitor.removeObserver(observer);
-            }
-            fileMonitorManager.stop();
-            fileMonitorManager.createMonitor();
-            fileMonitorManager.start();
-            listeners.forEach(this::register);
+            restart();
         }
-        for (FileAlterationObserver observer : fileMonitorManager.getMonitor().getObservers()) {
+        for (FileAlterationObserver observer : fileMonitorManager.getObservers()) {
             if (observer.getDirectory().exists()) {
-                logger.info(String.format("Observer %s running", observer.getDirectory().getPath()));
-                for (FileAlterationListener listener : observer.getListeners()) {
-                    logger.info(String.format("\t%s", listener.getClass().getSimpleName()));
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("Observing %s", observer.getDirectory().getName()));
+                    for (FileAlterationListener listener : observer.getListeners()) {
+                        logger.debug(String.format("\twith %s", listener.getClass().getSimpleName()));
+                    }
                 }
             } else {
                 logger.warn(String.format("Observer directory %s does not exist!", observer.getDirectory().getParent()));
-                dismiss(observer.getDirectory().getPath());
             }
         }
     }
