@@ -54,7 +54,7 @@ public class FileMonitorManagerTest {
     public void testAddObserver() throws Exception {
         testStart();
 
-        FileSystemUtility.createDirectory("temp");
+        FileSystemUtility.createDirectory(directory.getAbsolutePath());
 
         FileAlterationObserver observer = new FileAlterationObserver(directory);
 
@@ -98,7 +98,7 @@ public class FileMonitorManagerTest {
     @After
     public void cleanUp() throws IOException {
         if (directory.exists()) {
-            FileSystemUtility.deleteDirectory("temp");
+            FileSystemUtility.deleteDirectory(directory.getAbsolutePath());
         }
     }
 

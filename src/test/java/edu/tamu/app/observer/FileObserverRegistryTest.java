@@ -1,13 +1,13 @@
 package edu.tamu.app.observer;
 
 import static edu.tamu.app.Initialization.ASSETS_PATH;
-import static edu.tamu.app.Initialization.PROJECTS_PATH;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,17 +54,23 @@ public class FileObserverRegistryTest {
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
+    private File directory;
+
+    @Before
+    public void setUp() {
+        directory = new File(ASSETS_PATH + File.separator + "temp");
+    }
+
     @Test
     public void testStart() throws Exception {
-        String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
-        String testsPath = projectsPath + File.separator + "tests";
-
         assertEquals(2, registry.getObservers().size());
 
+        String projectsPath = ASSETS_PATH + File.separator + "projects";
+        String testsPath = projectsPath + File.separator + "tests";
         FileSystemUtility.createDirectory(testsPath);
 
         // wait for the file monitor to pick up the newly created directory
-        Thread.sleep(1500);
+        Thread.sleep(2500);
 
         assertEquals(3, registry.getObservers().size());
 
@@ -87,27 +93,22 @@ public class FileObserverRegistryTest {
 
     @Test
     public void testRegister() throws Exception {
-        String tempPath = ASSETS_PATH + File.separator + "temp";
-
-        FileSystemUtility.createDirectory(tempPath);
-
-        File directory = new File(tempPath);
+        FileSystemUtility.createDirectory(directory.getAbsolutePath());
 
         registry.register(new StandardDocumentListener(directory.getParent(), directory.getName()));
 
-        assertEquals(3, registry.getObservers().size());
+        Thread.sleep(1000);
 
-        FileSystemUtility.deleteDirectory(tempPath);
+        assertEquals(3, registry.getObservers().size());
     }
 
     @Test
     public void testDismiss() throws Exception {
         testRegister();
-        String tempPath = ASSETS_PATH + File.separator + "temp";
-
-        File directory = new File(tempPath);
 
         registry.dismiss(directory.getAbsolutePath());
+
+        Thread.sleep(1000);
 
         assertEquals(2, registry.getObservers().size());
     }
@@ -119,6 +120,9 @@ public class FileObserverRegistryTest {
 
     @After
     public void cleanUp() throws IOException {
+        if (directory.exists()) {
+            FileSystemUtility.deleteDirectory(directory.getAbsolutePath());
+        }
         resourceRepo.deleteAll();
         documentRepo.deleteAll();
         projectRepo.deleteAll();

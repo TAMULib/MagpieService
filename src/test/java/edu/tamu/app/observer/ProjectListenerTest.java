@@ -58,7 +58,7 @@ public class ProjectListenerTest {
         FileSystemUtility.createDirectory(testsPath);
 
         // wait for the file monitor to pick up the newly created directory
-        Thread.sleep(1500);
+        Thread.sleep(2500);
 
         assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
         assertNotNull("The tests project was not created!", projectRepo.findByName("tests"));
