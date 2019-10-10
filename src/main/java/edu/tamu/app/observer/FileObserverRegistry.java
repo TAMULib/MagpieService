@@ -6,7 +6,10 @@ import static edu.tamu.app.Initialization.MAPS_PATH;
 import static edu.tamu.app.Initialization.PROJECTS_PATH;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
@@ -29,36 +32,48 @@ public class FileObserverRegistry {
     @Autowired
     private SyncService syncService;
 
+    private AtomicBoolean started = new AtomicBoolean(false);
+
     private FileMonitorManager fileMonitorManager;
 
-    public void start() throws Exception {
-        logger.info("Starting file monitor");
-        fileMonitorManager = new FileMonitorManager(LISTENER_INTERVAL);
-        register(new ProjectListener(ASSETS_PATH, PROJECTS_PATH));
-        register(new MapFileListener(ASSETS_PATH, MAPS_PATH));
-        syncService.sync();
-        // NOTE: this must be last, otherwise it will invoke all file observers
-        fileMonitorManager.start();
+    List<FileAlterationObserver> getObservers() {
+        List<FileAlterationObserver> observers = new ArrayList<FileAlterationObserver>();
+        fileMonitorManager.getObservers().forEach(observers::add);
+        return observers;
     }
 
-    public void stop() throws Exception {
-        if (fileMonitorManager != null) {
+    public synchronized void start() throws Exception {
+        if (!started.getAndSet(true)) {
+            logger.info("Starting registry");
+            fileMonitorManager = new FileMonitorManager(LISTENER_INTERVAL);
+            register(new ProjectListener(ASSETS_PATH, PROJECTS_PATH));
+            register(new MapFileListener(ASSETS_PATH, MAPS_PATH));
+            syncService.sync();
+            // NOTE: this must be last, otherwise it will invoke all file observers
+            fileMonitorManager.start();
+        } else {
+            logger.info("Registry is already started");
+        }
+    }
+
+    public synchronized void stop() throws Exception {
+        if (started.getAndSet(false)) {
             logger.info("Stopping file monitor");
+            logger.info("Removing all observers");
+            for (FileAlterationObserver observer : fileMonitorManager.getObservers()) {
+                fileMonitorManager.removeObserver(observer);
+            }
             fileMonitorManager.stop();
         }
     }
 
-    public void restart() throws Exception {
+    public synchronized void restart() throws Exception {
         logger.info("Restarting file monitor");
-        logger.info("Removing all observers");
-        for (FileAlterationObserver observer : fileMonitorManager.getObservers()) {
-            fileMonitorManager.removeObserver(observer);
-        }
         stop();
         start();
     }
 
-    public void register(FileListener listener) {
+    public synchronized void register(FileListener listener) {
         String path = listener.getPath();
         try {
             dismiss(path);
@@ -78,7 +93,7 @@ public class FileObserverRegistry {
         }
     }
 
-    public void dismiss(String path) throws Exception {
+    public synchronized void dismiss(String path) throws Exception {
         Optional<FileAlterationObserver> observer = fileMonitorManager.getObserver(path);
         if (observer.isPresent()) {
             logger.info("Dismissing listener: " + path);

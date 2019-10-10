@@ -1,8 +1,8 @@
 package edu.tamu.app.observer;
 
 import static edu.tamu.app.Initialization.ASSETS_PATH;
+import static edu.tamu.app.Initialization.PROJECTS_PATH;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,10 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = WebServerInit.class)
-public class ProjectListenerTest {
+public class FileObserverRegistryTest {
+
+    @Autowired
+    private FileObserverRegistry registry;
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -52,38 +55,70 @@ public class ProjectListenerTest {
     private MetadataFieldValueRepo metadataFieldValueRepo;
 
     @Test
-    public void testListeners() throws IOException, InterruptedException {
-        String projectsPath = ASSETS_PATH + File.separator + "projects";
+    public void testStart() throws Exception {
+        String projectsPath = ASSETS_PATH + File.separator + PROJECTS_PATH;
         String testsPath = projectsPath + File.separator + "tests";
+
+        assertEquals(2, registry.getObservers().size());
+
         FileSystemUtility.createDirectory(testsPath);
 
         // wait for the file monitor to pick up the newly created directory
         Thread.sleep(1500);
 
-        assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
-        assertNotNull("The tests project was not created!", projectRepo.findByName("tests"));
-
-        String documentPath = testsPath + File.separator + "test_0";
-        FileSystemUtility.createDirectory(documentPath);
-        FileSystemUtility.createFile(documentPath, "test.pdf");
-        FileSystemUtility.createFile(documentPath, "test.pdf.txt");
-
-        // wait for the file monitor to pick up the newly created directory and files
-        Thread.sleep(2500);
-
-        assertEquals("The document repo has the incorrect number of documents!", 1, documentRepo.count());
-        assertNotNull("The test_0 document was not created!", documentRepo.findByProjectNameAndName("tests", "test_0"));
-
-        assertEquals("The resource repo has the incorrect number of resources!", 2, resourceRepo.count());
-
-        assertNotNull("The test.pdf resource was not created!", resourceRepo.findByDocumentProjectNameAndDocumentNameAndName("tests", "test_0", "test.pdf"));
-        assertNotNull("The test.pdf.txt resource was not created!", resourceRepo.findByDocumentProjectNameAndDocumentNameAndName("tests", "test_0", "test.pdf.txt"));
+        assertEquals(3, registry.getObservers().size());
 
         FileSystemUtility.deleteDirectory(testsPath);
     }
 
+    @Test
+    public void testStop() throws Exception {
+        registry.stop();
+        assertEquals(0, registry.getObservers().size());
+        registry.start();
+        assertEquals(2, registry.getObservers().size());
+    }
+
+    @Test
+    public void testRestart() throws Exception {
+        registry.restart();
+        assertEquals(2, registry.getObservers().size());
+    }
+
+    @Test
+    public void testRegister() throws Exception {
+        String tempPath = ASSETS_PATH + File.separator + "temp";
+
+        FileSystemUtility.createDirectory(tempPath);
+
+        File directory = new File(tempPath);
+
+        registry.register(new StandardDocumentListener(directory.getParent(), directory.getName()));
+
+        assertEquals(3, registry.getObservers().size());
+
+        FileSystemUtility.deleteDirectory(tempPath);
+    }
+
+    @Test
+    public void testDismiss() throws Exception {
+        testRegister();
+        String tempPath = ASSETS_PATH + File.separator + "temp";
+
+        File directory = new File(tempPath);
+
+        registry.dismiss(directory.getAbsolutePath());
+
+        assertEquals(2, registry.getObservers().size());
+    }
+
+    @Test
+    public void testHealthCheck() throws Exception {
+        registry.healthCheck();
+    }
+
     @After
-    public void cleanUp() throws Exception {
+    public void cleanUp() throws IOException {
         resourceRepo.deleteAll();
         documentRepo.deleteAll();
         projectRepo.deleteAll();
@@ -92,4 +127,5 @@ public class ProjectListenerTest {
         metadataFieldLabelRepo.deleteAll();
         metadataFieldGroupRepo.deleteAll();
     }
+
 }

@@ -21,35 +21,35 @@ public class FileMonitorManager {
         monitor.setThreadFactory(threadFactory);
     }
 
-    public void start() throws Exception {
+    public synchronized void start() throws Exception {
         logger.info("Starting monitor");
         monitor.start();
     }
 
-    public void stop() throws Exception {
+    public synchronized void stop() throws Exception {
         logger.info("Stopping monitor");
         monitor.stop();
     }
 
-    public void addObserver(FileAlterationObserver observer) {
+    public synchronized boolean isAlive() {
+        return threadFactory.isMonitorThreadAlive();
+    }
+
+    public synchronized void addObserver(FileAlterationObserver observer) {
         logger.info("Adding observer: " + observer.getDirectory());
         monitor.addObserver(observer);
     }
 
-    public void removeObserver(FileAlterationObserver observer) {
+    public synchronized void removeObserver(FileAlterationObserver observer) {
         logger.info("Removing observer: " + observer.getDirectory());
         monitor.removeObserver(observer);
     }
 
-    public boolean isAlive() {
-        return threadFactory.isMonitorThreadAlive();
-    }
-
-    public Iterable<FileAlterationObserver> getObservers() {
+    public synchronized Iterable<FileAlterationObserver> getObservers() {
         return monitor.getObservers();
     }
 
-    public Optional<FileAlterationObserver> getObserver(String path) {
+    public synchronized Optional<FileAlterationObserver> getObserver(String path) {
         Optional<FileAlterationObserver> observer = Optional.empty();
         for (FileAlterationObserver fao : getObservers()) {
             if (fao.getDirectory().getAbsolutePath().equals(path)) {
