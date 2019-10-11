@@ -259,6 +259,9 @@ public abstract class AbstractFedoraRepository implements Repository {
         for (String header : connection.getHeaderFields().keySet()) {
             logger.debug("HTTP connection to open Fedora transaction got header \"" + header + "\" with value \"" + connection.getHeaderFields().get(header) + "\".");
         }
+        if (connection.getResponseCode() == 401) {
+            throw new IOException("Authorization failed");
+        }
         String transactionalUrl = connection.getHeaderField("Location");
         String tid = transactionalUrl.substring(transactionalUrl.lastIndexOf("/") + 1);
         transactionService.add(tid, Duration.ofMinutes(3));
