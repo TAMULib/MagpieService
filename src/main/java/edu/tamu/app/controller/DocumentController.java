@@ -169,6 +169,10 @@ public class DocumentController {
     public ApiResponse push(@PathVariable String projectName, @PathVariable String documentName) {
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 
+        if (document.getStatus().equalsIgnoreCase("pending")) {
+            return new ApiResponse(ERROR, "Cannot publish because document is already pending publication.");
+        }
+
         for (ProjectRepository repository : document.getProject().getRepositories()) {
             try {
                 document = ((Destination) projectServiceRegistry.getService(repository.getName())).push(document);
