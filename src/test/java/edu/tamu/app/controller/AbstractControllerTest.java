@@ -58,7 +58,7 @@ public abstract class AbstractControllerTest extends MockData {
 
     @Mock
     protected DocumentRepo documentRepo;
-    
+
     @Mock
     protected ResourceRepo resourceRepo;
 
@@ -189,6 +189,13 @@ public abstract class AbstractControllerTest extends MockData {
             }
         });
 
+        when(documentRepo.findOne(any(Long.class))).then(new Answer<Document>() {
+            @Override
+            public Document answer(InvocationOnMock invocation) throws Throwable {
+                return findDocumentById((Long) invocation.getArguments()[0]);
+            }
+        });
+
         // TODO
         when(documentRepo.pageableDynamicDocumentQuery((Map<String, String[]>) any(Map.class), (org.springframework.data.domain.Pageable) any(Pageable.class))).then(new Answer<Page<Document>>() {
             @Override
@@ -202,7 +209,7 @@ public abstract class AbstractControllerTest extends MockData {
         // project
         when(projectRepo.findAll()).thenReturn(mockProjectList);
 
-        when(projectRepo.create(any(String.class), any(IngestType.class), any(Boolean.class), (List<ProjectRepository>) any(List.class), any(List.class), any(List.class))).then(new Answer<Project>() {
+        when(projectRepo.create(any(String.class), any(IngestType.class), any(Boolean.class), any(List.class), any(List.class), any(List.class))).then(new Answer<Project>() {
             @Override
             public Project answer(InvocationOnMock invocation) throws Throwable {
                 return TEST_PROJECT1;
@@ -250,7 +257,7 @@ public abstract class AbstractControllerTest extends MockData {
                 return TEST_PROJECT1;
             }
         });
-        
+
         // resource
         when(resourceRepo.findAllByDocumentProjectNameAndDocumentName(any(String.class), any(String.class))).thenReturn(new ArrayList<Resource>());
 

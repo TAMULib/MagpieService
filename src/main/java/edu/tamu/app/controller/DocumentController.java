@@ -169,28 +169,28 @@ public class DocumentController {
     public ApiResponse push(@PathVariable String projectName, @PathVariable String documentName) {
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 
-        String status = document.getStatus();
-        if (status.equalsIgnoreCase("Publishing")) {
-            return new ApiResponse(ERROR, "Cannot publish because document is already pending publication.");
+        if (document.isPublishing()) {
+            return new ApiResponse(ERROR, "Cannot publish because document is already pending publication");
         }
 
-        document.setStatus("Publishing");
+        document.isPublishing(true);
         documentRepo.update(document);
 
         for (ProjectRepository repository : document.getProject().getRepositories()) {
             try {
                 document = ((Destination) projectServiceRegistry.getService(repository.getName())).push(document);
             } catch (IOException e) {
-                if (document.getStatus().equalsIgnoreCase("Publishing")) {
-                    document.setStatus(status);
-                    documentRepo.update(document);
-                }
+                document.isPublishing(false);
+                documentRepo.update(document);
 
                 logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
                 e.printStackTrace();
                 return new ApiResponse(ERROR, "There was an error publishing this item");
             }
         }
+
+        document.isPublishing(false);
+        documentRepo.update(document);
 
         return new ApiResponse(SUCCESS, "Your item has been successfully published", document);
     }
