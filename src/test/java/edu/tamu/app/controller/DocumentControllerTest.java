@@ -48,6 +48,16 @@ public class DocumentControllerTest extends AbstractControllerTest {
         Document document = (Document) response.getPayload().get("Document");
         assertEquals(" The document has a different document name ", TEST_DOCUMENT1.getName(), document.getName());
         assertEquals(" The document has a different project name ", TEST_PROJECT1.getName(), document.getProject().getName());
+        assertEquals(" The document has isPublishing set to TRUE ", false, document.isPublishing());
+    }
+
+    @Test
+    public void testPushAlreadyPublishingDocument() {
+        response = documentController.push(TEST_DOCUMENT4.getProject().getName(), TEST_DOCUMENT4.getName());
+        assertEquals(" The response did not error ", ApiStatus.ERROR, response.getMeta().getStatus());
+        assertEquals(" The document did not error due to pending publications ", "Cannot publish because document is already pending publication", response.getMeta().getMessage());
+        Document document = documentRepo.findOne(TEST_DOCUMENT4.getId());
+        assertEquals(" The document has isPublishing set to FALSE ", true, document.isPublishing());
     }
 
     @Test
