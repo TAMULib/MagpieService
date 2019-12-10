@@ -56,7 +56,7 @@ public class ProjectSetting extends BaseEntity {
         if (this.isProtect()) {
             ArrayList<String> protectedValues = new ArrayList<String>();
             this.getValues().forEach(k -> {
-                protectedValues.add("***");
+                protectedValues.add("");
             });
             return protectedValues;
         } else {

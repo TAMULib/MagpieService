@@ -31,18 +31,7 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
     @Override
     public ProjectSuggestor create(ProjectSuggestor projectSuggestor) {
         projectSuggestor.setPropertyProtectionService(propertyProtectionService);
-        projectSuggestor.getSettings().forEach(s -> {
-            if (s.isProtect()) {
-                List<String> protectedValues;
-                try {
-                    protectedValues = propertyProtectionService.encryptPropertyValues(s.getValues());
-                    s.setValues(protectedValues);
-                } catch (GeneralSecurityException | IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        });
-        return super.create(projectSuggestor);
+        return super.create(processProjectSuggestor(projectSuggestor));
     }
 
     @Override
@@ -60,6 +49,11 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
     }
 
     @Override
+    public ProjectSuggestor update(ProjectSuggestor projectSuggestor) {
+        return super.update(processProjectSuggestor(projectSuggestor));
+    }
+
+    @Override
     public void delete(ProjectSuggestor projectSuggestor) {
         for (Project project:projectSuggestor.getProjects()) {
             project.removeSuggestor(projectSuggestor);
@@ -74,5 +68,18 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
     @Override
     protected String getChannel() {
         return "/channel/project-suggestor";
+    }
+
+    private ProjectSuggestor processProjectSuggestor(ProjectSuggestor projectSuggestor) {
+        projectSuggestor.getSettings().forEach(s -> {
+            if (s.isProtect()) {
+                try {
+                    s.setValues(propertyProtectionService.encryptPropertyValues(s.getValues()));
+                } catch (GeneralSecurityException | IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        return projectSuggestor;
     }
 }

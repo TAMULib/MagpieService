@@ -31,18 +31,7 @@ public class ProjectAuthorityRepoImpl extends AbstractWeaverRepoImpl<ProjectAuth
     @Override
     public ProjectAuthority create(ProjectAuthority projectAuthority) {
         projectAuthority.setPropertyProtectionService(propertyProtectionService);
-        projectAuthority.getSettings().forEach(s -> {
-            if (s.isProtect()) {
-                List<String> protectedValues;
-                try {
-                    protectedValues = propertyProtectionService.encryptPropertyValues(s.getValues());
-                    s.setValues(protectedValues);
-                } catch (GeneralSecurityException | IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        });
-        return super.create(projectAuthority);
+        return super.create(processProjectAuthority(projectAuthority));
     }
 
     @Override
@@ -60,6 +49,11 @@ public class ProjectAuthorityRepoImpl extends AbstractWeaverRepoImpl<ProjectAuth
     }
 
     @Override
+    public ProjectAuthority update(ProjectAuthority projectAuthority) {
+        return super.update(processProjectAuthority(projectAuthority));
+    }
+
+    @Override
     public void delete(ProjectAuthority projectAuthority) {
         for (Project project:projectAuthority.getProjects()) {
             project.removeAuthority(projectAuthority);
@@ -74,5 +68,18 @@ public class ProjectAuthorityRepoImpl extends AbstractWeaverRepoImpl<ProjectAuth
     @Override
     protected String getChannel() {
         return "/channel/project-authority";
+    }
+
+    private ProjectAuthority processProjectAuthority(ProjectAuthority projectAuthority) {
+        projectAuthority.getSettings().forEach(s -> {
+            if (s.isProtect()) {
+                try {
+                    s.setValues(propertyProtectionService.encryptPropertyValues(s.getValues()));
+                } catch (GeneralSecurityException | IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        return projectAuthority;
     }
 }

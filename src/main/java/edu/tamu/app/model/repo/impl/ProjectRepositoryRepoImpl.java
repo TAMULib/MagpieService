@@ -31,16 +31,7 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
     @Override
     public ProjectRepository create(ProjectRepository projectRepository) {
         projectRepository.setPropertyProtectionService(propertyProtectionService);
-        projectRepository.getSettings().forEach(s -> {
-            if (s.isProtect()) {
-                try {
-                    s.setValues(propertyProtectionService.encryptPropertyValues(s.getValues()));
-                } catch (GeneralSecurityException | IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        });
-        return super.create(projectRepository);
+        return super.create(processProjectRepository(projectRepository));
     }
 
     @Override
@@ -58,6 +49,11 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
     }
 
     @Override
+    public ProjectRepository update(ProjectRepository projectRepository) {
+        return super.update(processProjectRepository(projectRepository));
+    }
+
+    @Override
     public void delete(ProjectRepository projectRepository) {
         for (Project project:projectRepository.getProjects()) {
             project.removeRepository(projectRepository);
@@ -72,5 +68,18 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
     @Override
     protected String getChannel() {
         return "/channel/project-repository";
+    }
+
+    private ProjectRepository processProjectRepository(ProjectRepository projectRepository) {
+        projectRepository.getSettings().forEach(s -> {
+            if (s.isProtect()) {
+                try {
+                    s.setValues(propertyProtectionService.encryptPropertyValues(s.getValues()));
+                } catch (GeneralSecurityException | IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        return projectRepository;
     }
 }
