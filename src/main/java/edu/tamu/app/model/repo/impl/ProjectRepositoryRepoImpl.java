@@ -1,5 +1,7 @@
 package edu.tamu.app.model.repo.impl;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,7 @@ import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ProjectRepositoryRepo;
 import edu.tamu.app.model.repo.custom.ProjectRepositoryRepoCustom;
+import edu.tamu.app.service.PropertyProtectionService;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRepository, ProjectRepositoryRepo> implements ProjectRepositoryRepoCustom {
@@ -21,6 +24,24 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
 
     @Autowired
     ProjectRepo projectRepo;
+
+    @Autowired
+    PropertyProtectionService propertyProtectionService;
+
+    @Override
+    public ProjectRepository create(ProjectRepository projectRepository) {
+        projectRepository.setPropertyProtectionService(propertyProtectionService);
+        projectRepository.getSettings().forEach(s -> {
+            if (s.isProtect()) {
+                try {
+                    s.setValues(propertyProtectionService.encryptPropertyValues(s.getValues()));
+                } catch (GeneralSecurityException | IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        return super.create(projectRepository);
+    }
 
     @Override
     public ProjectRepository create(String name, ServiceType serviceType) {

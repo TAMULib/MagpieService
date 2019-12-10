@@ -8,6 +8,8 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+
 import edu.tamu.weaver.data.model.BaseEntity;
 
 @Entity
@@ -19,6 +21,9 @@ public class ProjectSetting extends BaseEntity {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> values;
 
+    @Column
+    private Boolean protect = false;
+
     public ProjectSetting() {
         setValues(new ArrayList<String>());
     }
@@ -26,6 +31,12 @@ public class ProjectSetting extends BaseEntity {
     public ProjectSetting(String key, List<String> values) {
         setKey(key);
         setValues(values);
+    }
+
+    public ProjectSetting(String key, List<String> values, Boolean protect) {
+      setKey(key);
+      setValues(values);
+      setProtect(protect);
     }
 
     public String getKey() {
@@ -40,6 +51,19 @@ public class ProjectSetting extends BaseEntity {
         return values;
     }
 
+    @JsonGetter("values")
+    protected List<String> getValuesForSerializer() {
+        if (this.isProtect()) {
+            ArrayList<String> protectedValues = new ArrayList<String>();
+            this.getValues().forEach(k -> {
+                protectedValues.add("***");
+            });
+            return protectedValues;
+        } else {
+            return getValues();
+        }
+    }
+
     public void setValues(List<String> values) {
         this.values = values;
     }
@@ -52,6 +76,14 @@ public class ProjectSetting extends BaseEntity {
 
     public void removeValue(String value) {
         this.values.remove(value);
+    }
+
+    public Boolean isProtect() {
+      return protect;
+    }
+
+    public void setProtect(Boolean protect) {
+      this.protect = protect;
     }
 
 }

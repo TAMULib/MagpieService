@@ -1,5 +1,7 @@
 package edu.tamu.app.model.repo.impl;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,7 @@ import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ProjectSuggestorRepo;
 import edu.tamu.app.model.repo.custom.ProjectSuggestorRepoCustom;
+import edu.tamu.app.service.PropertyProtectionService;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSuggestor, ProjectSuggestorRepo> implements ProjectSuggestorRepoCustom {
@@ -21,6 +24,26 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
 
     @Autowired
     private ProjectRepo projectRepo;
+
+    @Autowired
+    PropertyProtectionService propertyProtectionService;
+
+    @Override
+    public ProjectSuggestor create(ProjectSuggestor projectSuggestor) {
+        projectSuggestor.setPropertyProtectionService(propertyProtectionService);
+        projectSuggestor.getSettings().forEach(s -> {
+            if (s.isProtect()) {
+                List<String> protectedValues;
+                try {
+                    protectedValues = propertyProtectionService.encryptPropertyValues(s.getValues());
+                    s.setValues(protectedValues);
+                } catch (GeneralSecurityException | IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        return super.create(projectSuggestor);
+    }
 
     @Override
     public ProjectSuggestor create(String name, ServiceType serviceType) {
