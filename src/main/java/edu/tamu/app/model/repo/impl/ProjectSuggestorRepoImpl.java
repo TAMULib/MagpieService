@@ -50,6 +50,18 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
 
     @Override
     public ProjectSuggestor update(ProjectSuggestor projectSuggestor) {
+        ProjectSuggestor currentProjectSuggestor = projectSuggestorRepo.findOne(projectSuggestor.getId());
+        for (int i=0;i<projectSuggestor.getSettings().size();i++) {
+            ProjectSetting setting = projectSuggestor.getSettings().get(i);
+            if (setting.isProtect() && setting.getValues().stream().allMatch(v -> v.equals(""))) {
+                try {
+                    setting.setValues(propertyProtectionService.decryptPropertyValues(currentProjectSuggestor.getSettingValues(setting.getKey())));
+                    projectSuggestor.getSettings().set(i, setting);
+                } catch (GeneralSecurityException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         return super.update(processProjectSuggestor(projectSuggestor));
     }
 
