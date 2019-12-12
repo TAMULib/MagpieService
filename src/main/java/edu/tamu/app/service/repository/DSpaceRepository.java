@@ -15,7 +15,9 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -72,16 +74,15 @@ public class DSpaceRepository extends PublishingRepository {
 
     private ProjectRepository projectRepository;
 
-    private Optional<Cookie> authCookie;
+    private Map<Long, Optional<Cookie>> authCookies;
 
     public DSpaceRepository(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
-        authCookie = Optional.empty();
+        this.authCookies = new HashMap<Long, Optional<Cookie>>();
     }
 
     @Override
     public Document push(Document document) throws IOException {
-
         // login to get JSESSIONID
         login(document);
 
@@ -103,7 +104,7 @@ public class DSpaceRepository extends PublishingRepository {
         broadcastDocument(document.getId(), PublishingType.ITEM, "Created Item using Internal ID " + newItemIdString + ".");
 
         // POST each of the bitstreams in this document to the newly created item
-        addBitstreams(newItemIdString, document);
+        addBitstreams(document, newItemIdString);
 
         // add new handle to document, change it's status to published, save it
         String publishedUrl;
@@ -144,15 +145,15 @@ public class DSpaceRepository extends PublishingRepository {
 
             for (Cookie cookie : httpCookieStore.getCookies()) {
                 if (cookie.getName().equals("JSESSIONID")) {
-                    authCookie = Optional.of(cookie);
+                  authCookies.put(document.getId(), Optional.of(cookie));
                 }
             }
 
-            if (!authCookie.isPresent()) {
+            if (!authCookies.containsKey(document.getId()) || !authCookies.get(document.getId()).isPresent()) {
                 throw new RuntimeException("Unable to get cookie JSESSIONID from response!");
             }
 
-            logger.info("Login successful. Authorization cookie: " + getCookieAsString(authCookie.get()));
+            logger.info("Login successful. Authorization cookie: " + getCookieAsString(authCookies.get(document.getId()).get()));
             broadcastDocument(document.getId(), PublishingType.CONNECTION, "DSpace session established for repository " + projectRepository.getName() + ".");
 
         } catch (IOException e) {
@@ -163,8 +164,8 @@ public class DSpaceRepository extends PublishingRepository {
     }
 
     private void logout(Document document) throws IOException {
-        doRESTRequest(new URL(getRepoUrl() + "/rest/logout"), "POST", "".getBytes(), "application/xml", "logout");
-        authCookie = Optional.empty();
+        doRESTRequest(document.getId(), new URL(getRepoUrl() + "/rest/logout"), "POST", "".getBytes(), "application/xml", "logout");
+        authCookies.remove(document.getId());
         logger.info("Logout successful.");
         broadcastDocument(document.getId(), PublishingType.CONNECTION, "DSpace session closed for repository " + projectRepository.getName() + ".");
     }
@@ -207,10 +208,10 @@ public class DSpaceRepository extends PublishingRepository {
 
         String taskDescription = "post item";
 
-        return doRESTRequest(createItemUrl, "POST", xmlDataToPost.getBytes(), "application/xml", taskDescription);
+        return doRESTRequest(document.getId(), createItemUrl, "POST", xmlDataToPost.getBytes(), "application/xml", taskDescription);
     }
 
-    private JsonNode doRESTRequest(URL restUrl, String method, byte[] postData, String contentTypeString, String taskDescription) throws IOException {
+    private JsonNode doRESTRequest(Long documentId, URL restUrl, String method, byte[] postData, String contentTypeString, String taskDescription) throws IOException {
         logger.info("Making this REST request of DSpace: "+ taskDescription);
         // set up the connection for the REST call
         HttpURLConnection connection;
@@ -236,7 +237,7 @@ public class DSpaceRepository extends PublishingRepository {
 
         connection.setRequestProperty("Content-Length", String.valueOf(postData.length));
 
-        connection.setRequestProperty("Cookie", getCookieAsString(authCookie.get()));
+        connection.setRequestProperty("Cookie", getCookieAsString(authCookies.get(documentId).get()));
 
         logger.info("Attempting to connect to DSpace with Cookie = " + connection.getRequestProperty("Cookie"));
 
@@ -315,13 +316,13 @@ public class DSpaceRepository extends PublishingRepository {
         return responseNode;
     }
 
-    private void addBitstreams(String itemId, Document document) throws IOException {
-        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "application/pdf")), document);
-        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "text/plain"), "TEXT"), document);
-        addBitstreams(new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "image/jpeg", "image/jpg", "image/jp2", "image/jpx", "image/bmp", "image/gif", "image/png", "image/svg", "image/tif", "image/tiff")), document);
+    private void addBitstreams(Document document, String itemId) throws IOException {
+        addBitstreams(document, new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "application/pdf")));
+        addBitstreams(document, new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "text/plain"), "TEXT"));
+        addBitstreams(document, new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "image/jpeg", "image/jpg", "image/jp2", "image/jpx", "image/bmp", "image/gif", "image/png", "image/svg", "image/tif", "image/tiff")));
     }
 
-    private void addBitstreams(Bitstreams bitstreams, Document document) throws IOException {
+    private void addBitstreams(Document document, Bitstreams bitstreams) throws IOException {
         for (Resource resource : bitstreams.getResources()) {
 
             // *************************************
@@ -334,7 +335,7 @@ public class DSpaceRepository extends PublishingRepository {
             } catch (MalformedURLException e) {
                 MalformedURLException murle = new MalformedURLException("Failed to add pdf bitstream; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}");
                 murle.setStackTrace(e.getStackTrace());
-                cleanUpFailedPublish(bitstreams.getItemId(), document);
+                cleanUpFailedPublish(document, bitstreams.getItemId());
                 throw murle;
             }
 
@@ -345,9 +346,9 @@ public class DSpaceRepository extends PublishingRepository {
 
             ObjectNode bitstreamMetadataJson = null;
             try {
-                bitstreamMetadataJson = (ObjectNode) doRESTRequest(addBitstreamUrl, "POST", bytes, resource.getMimeType(), "post bitstream");
+                bitstreamMetadataJson = (ObjectNode) doRESTRequest(document.getId(), addBitstreamUrl, "POST", bytes, resource.getMimeType(), "post bitstream");
             } catch (Exception e) {
-                cleanUpFailedPublish(bitstreams.getItemId(), document);
+                cleanUpFailedPublish(document, bitstreams.getItemId());
                 throw e;
             }
 
@@ -380,14 +381,14 @@ public class DSpaceRepository extends PublishingRepository {
             } catch (MalformedURLException e) {
                 MalformedURLException murle = new MalformedURLException("Failed to update bitstream metadata; the REST URL to PUT the policy was malformed. {" + e.getMessage() + "}");
                 murle.setStackTrace(e.getStackTrace());
-                cleanUpFailedPublish(bitstreams.getItemId(), document);
+                cleanUpFailedPublish(document, bitstreams.getItemId());
                 throw murle;
             }
 
             try {
-                doRESTRequest(addPolicyUrl, "PUT", bitstreamMetadataJson.toString().getBytes(), "application/json", "update bitstream metadata");
+                doRESTRequest(document.getId(), addPolicyUrl, "PUT", bitstreamMetadataJson.toString().getBytes(), "application/json", "update bitstream metadata");
             } catch (Exception e) {
-                cleanUpFailedPublish(bitstreams.getItemId(), document);
+                cleanUpFailedPublish(document, bitstreams.getItemId());
                 throw e;
             }
 
@@ -431,7 +432,7 @@ public class DSpaceRepository extends PublishingRepository {
         return stw.toString();
     }
 
-    private void cleanUpFailedPublish(String uuid, Document document) throws IOException {
+    private void cleanUpFailedPublish(Document document, String uuid) throws IOException {
         // delete the item in case there was an error along the way with all the requests.
         // REST endpoint is DELETE /items/{item uuid} - Delete item.
 
@@ -450,7 +451,7 @@ public class DSpaceRepository extends PublishingRepository {
         }
 
         try {
-            doRESTRequest(deleteItemUrl, "DELETE", "".getBytes(), "application/json", "delete item");
+            doRESTRequest(document.getId(), deleteItemUrl, "DELETE", "".getBytes(), "application/json", "delete item");
         }
         catch (IOException e) {
             logout(document);
