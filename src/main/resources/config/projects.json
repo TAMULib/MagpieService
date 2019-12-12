@@ -236,7 +236,8 @@
           "key": "password",
           "values": [
             ""
-          ]
+          ],
+          "protect": true
         }
       ]
     }],
@@ -279,7 +280,8 @@
           "key": "password",
           "values": [
             ""
-          ]
+          ],
+          "protect": true
         }
       ]
     }],
@@ -327,7 +329,8 @@
           "key": "password",
           "values": [
             ""
-          ]
+          ],
+          "protect": true
         }
       ]
     }],
@@ -459,7 +462,8 @@
           "key": "password",
           "values": [
             ""
-          ]
+          ],
+          "protect": true
         }
       ]
     }],
@@ -543,7 +547,8 @@
           "key": "password",
           "values": [
             ""
-          ]
+          ],
+          "protect": true
         }
       ]
     }],
@@ -719,7 +724,8 @@
           "key": "password",
           "values": [
             ""
-          ]
+          ],
+          "protect": true
         }
       ]
     }],

@@ -1,5 +1,7 @@
 package edu.tamu.app.model.repo.impl;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,7 @@ import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ProjectSuggestorRepo;
 import edu.tamu.app.model.repo.custom.ProjectSuggestorRepoCustom;
+import edu.tamu.app.service.PropertyProtectionService;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSuggestor, ProjectSuggestorRepo> implements ProjectSuggestorRepoCustom {
@@ -21,6 +24,15 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
 
     @Autowired
     private ProjectRepo projectRepo;
+
+    @Autowired
+    PropertyProtectionService propertyProtectionService;
+
+    @Override
+    public ProjectSuggestor create(ProjectSuggestor projectSuggestor) {
+        projectSuggestor.setPropertyProtectionService(propertyProtectionService);
+        return super.create(processProjectSuggestor(projectSuggestor));
+    }
 
     @Override
     public ProjectSuggestor create(String name, ServiceType serviceType) {
@@ -34,6 +46,23 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
         projectSuggestor.setType(serviceType);
         projectSuggestor.setSettings(settings);
         return projectSuggestorRepo.create(projectSuggestor);
+    }
+
+    @Override
+    public ProjectSuggestor update(ProjectSuggestor projectSuggestor) {
+        ProjectSuggestor currentProjectSuggestor = projectSuggestorRepo.findOne(projectSuggestor.getId());
+        for (int i=0;i<projectSuggestor.getSettings().size();i++) {
+            ProjectSetting setting = projectSuggestor.getSettings().get(i);
+            if (setting.isProtect() && setting.getValues().stream().allMatch(v -> v.equals(""))) {
+                try {
+                    setting.setValues(propertyProtectionService.decryptPropertyValues(currentProjectSuggestor.getSettingValues(setting.getKey())));
+                    projectSuggestor.getSettings().set(i, setting);
+                } catch (GeneralSecurityException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return super.update(processProjectSuggestor(projectSuggestor));
     }
 
     @Override
@@ -51,5 +80,18 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
     @Override
     protected String getChannel() {
         return "/channel/project-suggestor";
+    }
+
+    private ProjectSuggestor processProjectSuggestor(ProjectSuggestor projectSuggestor) {
+        projectSuggestor.getSettings().forEach(s -> {
+            if (s.isProtect()) {
+                try {
+                    s.setValues(propertyProtectionService.encryptPropertyValues(s.getValues()));
+                } catch (GeneralSecurityException | IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        return projectSuggestor;
     }
 }

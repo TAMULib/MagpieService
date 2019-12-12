@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,10 +54,12 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.ProjectRepository;
+import edu.tamu.app.model.ProjectSetting;
 import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
+import edu.tamu.app.service.PropertyProtectionService;
 
 public class DSpaceRepository implements Repository {
 
@@ -70,6 +73,9 @@ public class DSpaceRepository implements Repository {
 
     @Autowired
     private ResourceRepo resourceRepo;
+
+    @Autowired
+    private PropertyProtectionService propertyProtectionService;
 
     private ProjectRepository projectRepository;
 
@@ -493,11 +499,8 @@ public class DSpaceRepository implements Repository {
     }
 
     private String getSettingValue(String key) {
-        return hasSettingValues(key) ? projectRepository.getSettingValues(key).get(0) : "";
-    }
-
-    private boolean hasSettingValues(String key) {
-        return projectRepository.getSettingValues(key) != null && projectRepository.getSettingValues(key).size() > 0;
+        String value = projectRepository.getSettingValues(key).get(0);
+        return (value != null) ? value:"";
     }
 
     private String getCookieAsString(Cookie cookie) {

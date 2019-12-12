@@ -38,9 +38,9 @@ import edu.tamu.app.model.repo.ProjectAuthorityRepo;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ProjectRepositoryRepo;
 import edu.tamu.app.model.repo.ProjectSuggestorRepo;
+import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.ProjectFactory;
 import edu.tamu.app.service.SyncService;
-import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Destination;
 import edu.tamu.app.utilities.FileSystemUtility;
@@ -116,8 +116,29 @@ public class ProjectController {
     @RequestMapping("/update")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse update(@WeaverValidatedModel Project project) {
+
         Project currentProject = projectRepo.findOne(project.getId());
         boolean refreshProjectListener = (currentProject.isHeadless() != project.isHeadless());
+
+        //we need to populate the values of any protected ProjectService properties by getting the full entities from the repo
+        List<Long> projectRepositoryIds = new ArrayList<Long>();
+        project.getRepositories().forEach(pr -> {
+            projectRepositoryIds.add(pr.getId());
+        });
+        project.setRepositories(projectRepositoryRepo.findAll(projectRepositoryIds));
+
+        List<Long> projectAuthorityIds = new ArrayList<Long>();
+        project.getAuthorities().forEach(pa -> {
+            projectAuthorityIds.add(pa.getId());
+        });
+        project.setAuthorities(projectAuthorityRepo.findAll(projectAuthorityIds));
+
+        List<Long> projectSuggestorIds = new ArrayList<Long>();
+        project.getSuggestors().forEach(ps -> {
+            projectSuggestorIds.add(ps.getId());
+        });
+        project.setSuggestors(projectSuggestorRepo.findAll(projectSuggestorIds));
+
         BeanUtils.copyProperties(project, currentProject, "documents","profiles");
         currentProject = projectRepo.update(currentProject);
         projectFactory.registerServiceListeners(currentProject);
