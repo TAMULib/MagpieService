@@ -1,17 +1,21 @@
 package edu.tamu.app.model.repo.impl;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.Project;
+import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ProjectSetting;
 import edu.tamu.app.model.ServiceType;
 import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ProjectRepositoryRepo;
 import edu.tamu.app.model.repo.custom.ProjectRepositoryRepoCustom;
+import edu.tamu.app.service.PropertyProtectionService;
 import edu.tamu.weaver.data.model.repo.impl.AbstractWeaverRepoImpl;
 
 public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRepository, ProjectRepositoryRepo> implements ProjectRepositoryRepoCustom {
@@ -21,6 +25,15 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
 
     @Autowired
     ProjectRepo projectRepo;
+
+    @Autowired
+    PropertyProtectionService propertyProtectionService;
+
+    @Override
+    public ProjectRepository create(ProjectRepository projectRepository) {
+        projectRepository.setPropertyProtectionService(propertyProtectionService);
+        return super.create(processProjectRepository(projectRepository));
+    }
 
     @Override
     public ProjectRepository create(String name, ServiceType serviceType) {
@@ -34,6 +47,23 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
         projectRepository.setType(serviceType);
         projectRepository.setSettings(settings);
         return projectRepositoryRepo.create(projectRepository);
+    }
+
+    @Override
+    public ProjectRepository update(ProjectRepository projectRepository) {
+        ProjectRepository currentProjectRepository = projectRepositoryRepo.findOne(projectRepository.getId());
+        for (int i=0;i<projectRepository.getSettings().size();i++) {
+            ProjectSetting setting = projectRepository.getSettings().get(i);
+            if (setting.isProtect() && setting.getValues().stream().allMatch(v -> v.equals(""))) {
+                try {
+                    setting.setValues(propertyProtectionService.decryptPropertyValues(currentProjectRepository.getSettingValues(setting.getKey())));
+                    projectRepository.getSettings().set(i, setting);
+                } catch (GeneralSecurityException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return super.update(processProjectRepository(projectRepository));
     }
 
     @Override
@@ -51,5 +81,18 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
     @Override
     protected String getChannel() {
         return "/channel/project-repository";
+    }
+
+    private ProjectRepository processProjectRepository(ProjectRepository projectRepository) {
+        projectRepository.getSettings().forEach(s -> {
+            if (s.isProtect()) {
+                try {
+                    s.setValues(propertyProtectionService.encryptPropertyValues(s.getValues()));
+                } catch (GeneralSecurityException | IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        return projectRepository;
     }
 }
