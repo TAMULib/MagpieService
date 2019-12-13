@@ -54,11 +54,12 @@ import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.PublishedLocation;
+import edu.tamu.app.model.PublishingType;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
 
-public class DSpaceRepository implements Repository {
+public class DSpaceRepository extends PublishingRepository {
 
     private static final Logger logger = Logger.getLogger(DSpaceRepository.class);
 
@@ -83,13 +84,15 @@ public class DSpaceRepository implements Repository {
     @Override
     public Document push(Document document) throws IOException {
         // login to get JSESSIONID
-        login(document.getId());
+        login(document);
 
         // POST to create the item
         JsonNode createItemResponseNode = null;
         try {
             createItemResponseNode = createItem(document);
         } catch (ParserConfigurationException | TransformerException | IOException e) {
+            logout(document);
+
             RuntimeException serviceEx = new RuntimeException(e.getMessage());
             serviceEx.setStackTrace(e.getStackTrace());
             throw serviceEx;
@@ -98,8 +101,10 @@ public class DSpaceRepository implements Repository {
         String handleString = createItemResponseNode.get("handle").asText();
         String newItemIdString = createItemResponseNode.get("uuid").asText();
 
+        broadcastDocument(document.getId(), PublishingType.ITEM, "Created Item using Internal ID " + newItemIdString + ".");
+
         // POST each of the bitstreams in this document to the newly created item
-        addBitstreams(newItemIdString, document);
+        addBitstreams(document, newItemIdString);
 
         // add new handle to document, change it's status to published, save it
         String publishedUrl;
@@ -111,16 +116,17 @@ public class DSpaceRepository implements Repository {
         }
 
         document.addPublishedLocation(new PublishedLocation(projectRepository, publishedUrl));
+        broadcastDocument(document.getId(), PublishingType.MESSAGE, "Published at URL " + publishedUrl + ".");
 
         document.setStatus("Published");
 
         // logout to kill session
-        logout(document.getId());
+        logout(document);
 
         return documentRepo.update(document);
     }
 
-    private void login(Long documentId) throws IOException {
+    private void login(Document document) throws IOException {
         try {
             HttpClient httpClient = null;
             CookieStore httpCookieStore = new BasicCookieStore();
@@ -139,15 +145,16 @@ public class DSpaceRepository implements Repository {
 
             for (Cookie cookie : httpCookieStore.getCookies()) {
                 if (cookie.getName().equals("JSESSIONID")) {
-                  authCookies.put(documentId, Optional.of(cookie));
+                  authCookies.put(document.getId(), Optional.of(cookie));
                 }
             }
 
-            if (!authCookies.containsKey(documentId) || !authCookies.get(documentId).isPresent()) {
+            if (!authCookies.containsKey(document.getId()) || !authCookies.get(document.getId()).isPresent()) {
                 throw new RuntimeException("Unable to get cookie JSESSIONID from response!");
             }
 
-            logger.info("Login successful. Authorization cookie: " + getCookieAsString(authCookies.get(documentId).get()));
+            logger.info("Login successful. Authorization cookie: " + getCookieAsString(authCookies.get(document.getId()).get()));
+            broadcastDocument(document.getId(), PublishingType.CONNECTION, "DSpace session established for repository " + projectRepository.getName() + ".");
 
         } catch (IOException e) {
             IOException ioe = new IOException("Failed to authenticate to DSpace. {" + e.getMessage() + "}");
@@ -156,10 +163,11 @@ public class DSpaceRepository implements Repository {
         }
     }
 
-    private void logout(Long documentId) throws IOException {
-        doRESTRequest(documentId, new URL(getRepoUrl() + "/rest/logout"), "POST", "".getBytes(), "application/xml", "logout");
-        authCookies.remove(documentId);
+    private void logout(Document document) throws IOException {
+        doRESTRequest(document.getId(), new URL(getRepoUrl() + "/rest/logout"), "POST", "".getBytes(), "application/xml", "logout");
+        authCookies.remove(document.getId());
         logger.info("Logout successful.");
+        broadcastDocument(document.getId(), PublishingType.CONNECTION, "DSpace session closed for repository " + projectRepository.getName() + ".");
     }
 
     private JsonNode createItem(Document document) throws ParserConfigurationException, TransformerException, IOException {
@@ -167,6 +175,8 @@ public class DSpaceRepository implements Repository {
         try {
             createItemUrl = new URL(getRepoUrl() + "/rest/collections/" + getCollectionId() + "/items");
         } catch (MalformedURLException e) {
+            logout(document);
+
             MalformedURLException murle = new MalformedURLException("Failed to create items; the REST URL to post the item was malformed. {" + e.getMessage() + "}");
             murle.setStackTrace(e.getStackTrace());
             throw murle;
@@ -177,14 +187,20 @@ public class DSpaceRepository implements Repository {
         try {
             xmlDataToPost = generateItemPostXMLFromDocument(document);
         } catch (ParserConfigurationException e) {
+            logout(document);
+
             ParserConfigurationException pce = new ParserConfigurationException("Failed to create items; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
             pce.setStackTrace(e.getStackTrace());
             throw pce;
         } catch (TransformerFactoryConfigurationError e) {
+            logout(document);
+
             TransformerFactoryConfigurationError tfce = new TransformerFactoryConfigurationError("Failed to create items; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
             tfce.setStackTrace(e.getStackTrace());
             throw tfce;
         } catch (TransformerException e) {
+            logout(document);
+
             TransformerException te = new TransformerException("Failed to create items; Could not transform document metadata into XML for the post. {" + e.getMessage() + "}");
             te.setStackTrace(e.getStackTrace());
             throw te;
@@ -300,13 +316,13 @@ public class DSpaceRepository implements Repository {
         return responseNode;
     }
 
-    private void addBitstreams(String itemId, Document document) throws IOException {
-        addBitstreams(document.getId(), new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "application/pdf")));
-        addBitstreams(document.getId(), new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "text/plain"), "TEXT"));
-        addBitstreams(document.getId(), new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "image/jpeg", "image/jpg", "image/jp2", "image/jpx", "image/bmp", "image/gif", "image/png", "image/svg", "image/tif", "image/tiff")));
+    private void addBitstreams(Document document, String itemId) throws IOException {
+        addBitstreams(document, new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "application/pdf")));
+        addBitstreams(document, new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "text/plain"), "TEXT"));
+        addBitstreams(document, new Bitstreams(itemId, resourceRepo.findAllByDocumentProjectNameAndDocumentNameAndMimeType(document.getProject().getName(), document.getName(), "image/jpeg", "image/jpg", "image/jp2", "image/jpx", "image/bmp", "image/gif", "image/png", "image/svg", "image/tif", "image/tiff")));
     }
 
-    private void addBitstreams(Long documentId, Bitstreams bitstreams) throws IOException {
+    private void addBitstreams(Document document, Bitstreams bitstreams) throws IOException {
         for (Resource resource : bitstreams.getResources()) {
 
             // *************************************
@@ -319,7 +335,7 @@ public class DSpaceRepository implements Repository {
             } catch (MalformedURLException e) {
                 MalformedURLException murle = new MalformedURLException("Failed to add pdf bitstream; the REST URL to post the bitstreams was malformed. {" + e.getMessage() + "}");
                 murle.setStackTrace(e.getStackTrace());
-                cleanUpFailedPublish(documentId, bitstreams.getItemId());
+                cleanUpFailedPublish(document, bitstreams.getItemId());
                 throw murle;
             }
 
@@ -330,9 +346,9 @@ public class DSpaceRepository implements Repository {
 
             ObjectNode bitstreamMetadataJson = null;
             try {
-                bitstreamMetadataJson = (ObjectNode) doRESTRequest(documentId, addBitstreamUrl, "POST", bytes, resource.getMimeType(), "post bitstream");
+                bitstreamMetadataJson = (ObjectNode) doRESTRequest(document.getId(), addBitstreamUrl, "POST", bytes, resource.getMimeType(), "post bitstream");
             } catch (Exception e) {
-                cleanUpFailedPublish(documentId, bitstreams.getItemId());
+                cleanUpFailedPublish(document, bitstreams.getItemId());
                 throw e;
             }
 
@@ -345,6 +361,8 @@ public class DSpaceRepository implements Repository {
             // Fix up the PDF bitstream metadata to have new policy, etc.
 
             String uuid = bitstreamMetadataJson.get("uuid").asText();
+
+            broadcastDocument(document.getId(), PublishingType.ATTACHMENT, "Associated item " + resource.getName() + " using Internal ID " + uuid + ".");
 
             ArrayNode policiesNode = bitstreamMetadataJson.putArray("policies");
             ObjectNode policyNode = objectMapper.createObjectNode();
@@ -363,17 +381,18 @@ public class DSpaceRepository implements Repository {
             } catch (MalformedURLException e) {
                 MalformedURLException murle = new MalformedURLException("Failed to update bitstream metadata; the REST URL to PUT the policy was malformed. {" + e.getMessage() + "}");
                 murle.setStackTrace(e.getStackTrace());
-                cleanUpFailedPublish(documentId, bitstreams.getItemId());
+                cleanUpFailedPublish(document, bitstreams.getItemId());
                 throw murle;
             }
 
             try {
-                doRESTRequest(documentId, addPolicyUrl, "PUT", bitstreamMetadataJson.toString().getBytes(), "application/json", "update bitstream metadata");
+                doRESTRequest(document.getId(), addPolicyUrl, "PUT", bitstreamMetadataJson.toString().getBytes(), "application/json", "update bitstream metadata");
             } catch (Exception e) {
-                cleanUpFailedPublish(documentId, bitstreams.getItemId());
+                cleanUpFailedPublish(document, bitstreams.getItemId());
                 throw e;
             }
 
+            broadcastDocument(document.getId(), PublishingType.MESSAGE, "Populated metadata for item " + resource.getName() + " using Internal ID " + uuid + ".");
         }
     }
 
@@ -413,25 +432,36 @@ public class DSpaceRepository implements Repository {
         return stw.toString();
     }
 
-    private void cleanUpFailedPublish(Long documentId, String uuid) throws IOException {
+    private void cleanUpFailedPublish(Document document, String uuid) throws IOException {
         // delete the item in case there was an error along the way with all the requests.
         // REST endpoint is DELETE /items/{item uuid} - Delete item.
 
         logger.error("Error pushing to DSpace. Rolling back.");
+        broadcastDocument(document.getId(), PublishingType.ALERT, "Error pushing item " + uuid + " to DSpace. Rolling back.");
 
         URL deleteItemUrl;
         try {
             deleteItemUrl = new URL(getRepoUrl() + "/rest/items/" + uuid);
         } catch (MalformedURLException e) {
+            logout(document);
+
             MalformedURLException murle = new MalformedURLException("Failed to delete item " + uuid + "; the REST URL for the DELETE request was malformed. {" + e.getMessage() + "}");
             murle.setStackTrace(e.getStackTrace());
             throw murle;
         }
 
-        doRESTRequest(documentId, deleteItemUrl, "DELETE", "".getBytes(), "application/json", "delete item");
+        try {
+            doRESTRequest(document.getId(), deleteItemUrl, "DELETE", "".getBytes(), "application/json", "delete item");
+        }
+        catch (IOException e) {
+            logout(document);
+            throw e;
+        }
+
+        broadcastDocument(document.getId(), PublishingType.WARNING, "Cleaned up item " + uuid + ".");
 
         // logout to kill session
-        logout(documentId);
+        logout(document);
     }
 
     class Bitstreams {

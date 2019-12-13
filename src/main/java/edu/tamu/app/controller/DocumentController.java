@@ -3,7 +3,6 @@ package edu.tamu.app.controller;
 import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -179,7 +178,7 @@ public class DocumentController {
         for (ProjectRepository repository : document.getProject().getRepositories()) {
             try {
                 document = ((Destination) projectServiceRegistry.getService(repository.getName())).push(document);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 document.isPublishing(false);
                 documentRepo.update(document);
 
