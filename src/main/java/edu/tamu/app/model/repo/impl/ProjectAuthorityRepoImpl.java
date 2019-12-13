@@ -30,7 +30,6 @@ public class ProjectAuthorityRepoImpl extends AbstractWeaverRepoImpl<ProjectAuth
 
     @Override
     public ProjectAuthority create(ProjectAuthority projectAuthority) {
-        projectAuthority.setPropertyProtectionService(propertyProtectionService);
         return super.create(processProjectAuthority(projectAuthority));
     }
 
@@ -45,7 +44,7 @@ public class ProjectAuthorityRepoImpl extends AbstractWeaverRepoImpl<ProjectAuth
         projectAuthority.setName(name);
         projectAuthority.setType(serviceType);
         projectAuthority.setSettings(settings);
-        return projectAuthorityRepo.create(projectAuthority);
+        return this.create(projectAuthority);
     }
 
     @Override
@@ -83,6 +82,7 @@ public class ProjectAuthorityRepoImpl extends AbstractWeaverRepoImpl<ProjectAuth
     }
 
     private ProjectAuthority processProjectAuthority(ProjectAuthority projectAuthority) {
+        projectAuthority.setPropertyProtectionService(propertyProtectionService);
         projectAuthority.getSettings().forEach(s -> {
             if (s.isProtect()) {
                 try {

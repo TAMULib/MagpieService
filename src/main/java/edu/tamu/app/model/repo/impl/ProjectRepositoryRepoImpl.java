@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.Project;
-import edu.tamu.app.model.ProjectAuthority;
 import edu.tamu.app.model.ProjectRepository;
 import edu.tamu.app.model.ProjectSetting;
 import edu.tamu.app.model.ServiceType;
@@ -31,7 +30,6 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
 
     @Override
     public ProjectRepository create(ProjectRepository projectRepository) {
-        projectRepository.setPropertyProtectionService(propertyProtectionService);
         return super.create(processProjectRepository(projectRepository));
     }
 
@@ -46,7 +44,7 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
         projectRepository.setName(name);
         projectRepository.setType(serviceType);
         projectRepository.setSettings(settings);
-        return projectRepositoryRepo.create(projectRepository);
+        return this.create(projectRepository);
     }
 
     @Override
@@ -84,6 +82,7 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
     }
 
     private ProjectRepository processProjectRepository(ProjectRepository projectRepository) {
+        projectRepository.setPropertyProtectionService(propertyProtectionService);
         projectRepository.getSettings().forEach(s -> {
             if (s.isProtect()) {
                 try {

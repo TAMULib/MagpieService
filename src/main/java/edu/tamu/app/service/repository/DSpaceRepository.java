@@ -14,7 +14,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,13 +53,11 @@ import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
 import edu.tamu.app.model.MetadataFieldValue;
 import edu.tamu.app.model.ProjectRepository;
-import edu.tamu.app.model.ProjectSetting;
 import edu.tamu.app.model.PublishedLocation;
 import edu.tamu.app.model.PublishingType;
 import edu.tamu.app.model.Resource;
 import edu.tamu.app.model.repo.DocumentRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
-import edu.tamu.app.service.PropertyProtectionService;
 
 public class DSpaceRepository extends PublishingRepository {
 
@@ -74,9 +71,6 @@ public class DSpaceRepository extends PublishingRepository {
 
     @Autowired
     private ResourceRepo resourceRepo;
-
-    @Autowired
-    private PropertyProtectionService propertyProtectionService;
 
     private ProjectRepository projectRepository;
 
