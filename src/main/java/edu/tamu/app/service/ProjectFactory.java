@@ -98,9 +98,6 @@ public class ProjectFactory {
     private ProjectAuthorityRepo projectAuthorityRepo;
 
     @Autowired
-    PropertyProtectionService propertyProtectionService;
-
-    @Autowired
     private FieldProfileRepo fieldProfileRepo;
 
     @Autowired

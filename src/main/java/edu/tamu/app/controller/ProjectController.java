@@ -40,6 +40,7 @@ import edu.tamu.app.model.repo.ProjectRepositoryRepo;
 import edu.tamu.app.model.repo.ProjectSuggestorRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.service.ProjectFactory;
+import edu.tamu.app.service.PropertyProtectionService;
 import edu.tamu.app.service.SyncService;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.service.repository.Destination;
@@ -86,6 +87,9 @@ public class ProjectController {
     @Autowired
     private SyncService syncService;
 
+    @Autowired
+    private PropertyProtectionService propertyProtectionService;
+
     /**
      * Endpoint to return list of projects.
      *
@@ -127,17 +131,29 @@ public class ProjectController {
         });
         project.setRepositories(projectRepositoryRepo.findAll(projectRepositoryIds));
 
+        project.getRepositories().forEach(r -> {
+            r.setPropertyProtectionService(propertyProtectionService);
+        });
+
         List<Long> projectAuthorityIds = new ArrayList<Long>();
         project.getAuthorities().forEach(pa -> {
             projectAuthorityIds.add(pa.getId());
         });
         project.setAuthorities(projectAuthorityRepo.findAll(projectAuthorityIds));
 
+        project.getAuthorities().forEach(a -> {
+            a.setPropertyProtectionService(propertyProtectionService);
+        });
+
         List<Long> projectSuggestorIds = new ArrayList<Long>();
         project.getSuggestors().forEach(ps -> {
             projectSuggestorIds.add(ps.getId());
         });
         project.setSuggestors(projectSuggestorRepo.findAll(projectSuggestorIds));
+
+        project.getSuggestors().forEach(s -> {
+            s.setPropertyProtectionService(propertyProtectionService);
+        });
 
         BeanUtils.copyProperties(project, currentProject, "documents","profiles");
         currentProject = projectRepo.update(currentProject);

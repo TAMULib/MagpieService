@@ -30,7 +30,6 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
 
     @Override
     public ProjectSuggestor create(ProjectSuggestor projectSuggestor) {
-        projectSuggestor.setPropertyProtectionService(propertyProtectionService);
         return super.create(processProjectSuggestor(projectSuggestor));
     }
 
@@ -45,7 +44,7 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
         projectSuggestor.setName(name);
         projectSuggestor.setType(serviceType);
         projectSuggestor.setSettings(settings);
-        return projectSuggestorRepo.create(projectSuggestor);
+        return this.create(projectSuggestor);
     }
 
     @Override
@@ -83,6 +82,7 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
     }
 
     private ProjectSuggestor processProjectSuggestor(ProjectSuggestor projectSuggestor) {
+        projectSuggestor.setPropertyProtectionService(propertyProtectionService);
         projectSuggestor.getSettings().forEach(s -> {
             if (s.isProtect()) {
                 try {
