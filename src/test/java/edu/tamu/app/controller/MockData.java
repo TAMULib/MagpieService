@@ -111,15 +111,18 @@ public class MockData {
     protected static Document TEST_DOCUMENT1 = new Document(TEST_PROJECT1, "Doc1 name", "documentPath1", "Unassigned");
     protected static Document TEST_DOCUMENT2 = new Document(TEST_PROJECT1, "Doc2 name", "documentPath2", "Pending");
     protected static Document TEST_DOCUMENT3 = new Document(TEST_PROJECT1, "Doc3 name", "documentPath3", "Accepted");
+    protected static Document TEST_DOCUMENT4 = new Document(TEST_PROJECT1, "Doc4 name", "documentPath4", "Accepted");
 
     static {
         TEST_DOCUMENT1.setId(1l);
         TEST_DOCUMENT2.setId(2l);
         TEST_DOCUMENT3.setId(3l);
+        TEST_DOCUMENT4.setId(4l);
+        TEST_DOCUMENT4.isPublishing(true);
         TEST_DOCUMENT1.setProject(TEST_PROJECT1);
     }
 
-    protected static List<Document> mockDocumentList = new ArrayList<Document>(Arrays.asList(new Document[] { TEST_DOCUMENT1, TEST_DOCUMENT2, TEST_DOCUMENT3 }));
+    protected static List<Document> mockDocumentList = new ArrayList<Document>(Arrays.asList(new Document[] { TEST_DOCUMENT1, TEST_DOCUMENT2, TEST_DOCUMENT3, TEST_DOCUMENT4 }));
 
     public Document saveDocument(Document modifiedDocument) {
         Document returnDocument = null;
@@ -128,6 +131,7 @@ public class MockData {
                 document.setProject(modifiedDocument.getProject());
                 document.setName(modifiedDocument.getName());
                 document.setStatus(modifiedDocument.getStatus());
+                document.isPublishing(modifiedDocument.isPublishing());
                 returnDocument = document;
                 break;
             }
@@ -138,6 +142,15 @@ public class MockData {
     public Document findDocumentByProjectNameandName(String projectName, String documentName) {
         for (Document document : mockDocumentList) {
             if (document.getName().equals(documentName) && document.getProject().getName().equals(projectName)) {
+                return document;
+            }
+        }
+        return null;
+    }
+
+    public Document findDocumentById(Long documentId) {
+        for (Document document: mockDocumentList) {
+            if (document.getId().equals(documentId)) {
                 return document;
             }
         }

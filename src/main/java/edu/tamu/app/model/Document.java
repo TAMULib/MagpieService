@@ -41,6 +41,9 @@ public class Document extends BaseEntity {
     @Column(nullable = true)
     private String path;
 
+    @Column(nullable = false)
+    private Boolean publishing;
+
     @ManyToOne(optional = false)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, scope = Project.class, resolver = ProjectByNameResolver.class, property = "name")
     @JsonIdentityReference(alwaysAsId = true)
@@ -57,6 +60,7 @@ public class Document extends BaseEntity {
     public Document() {
         fields = new ArrayList<MetadataFieldGroup>();
         publishedLocations = new ArrayList<PublishedLocation>();
+        publishing = false;
     }
 
     public Document(Project project, String name, String path, String status) {
@@ -168,6 +172,14 @@ public class Document extends BaseEntity {
             }
         }
         return targetField;
+    }
+
+    public Boolean isPublishing() {
+        return publishing;
+    }
+
+    public void isPublishing(Boolean publishing) {
+        this.publishing = publishing;
     }
 
 }

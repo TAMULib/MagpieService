@@ -3,7 +3,6 @@ package edu.tamu.app.controller;
 import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -169,15 +168,28 @@ public class DocumentController {
     public ApiResponse push(@PathVariable String projectName, @PathVariable String documentName) {
         Document document = documentRepo.findByProjectNameAndName(projectName, documentName);
 
+        if (document.isPublishing()) {
+            return new ApiResponse(ERROR, "Cannot publish because document is already pending publication");
+        }
+
+        document.isPublishing(true);
+        documentRepo.update(document);
+
         for (ProjectRepository repository : document.getProject().getRepositories()) {
             try {
                 document = ((Destination) projectServiceRegistry.getService(repository.getName())).push(document);
-            } catch (IOException e) {
+            } catch (Exception e) {
+                document.isPublishing(false);
+                documentRepo.update(document);
+
                 logger.error("Exception thrown attempting to push to " + repository.getName() + "!", e);
                 e.printStackTrace();
                 return new ApiResponse(ERROR, "There was an error publishing this item");
             }
         }
+
+        document.isPublishing(false);
+        documentRepo.update(document);
 
         return new ApiResponse(SUCCESS, "Your item has been successfully published", document);
     }
