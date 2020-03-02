@@ -5,6 +5,7 @@ import static edu.tamu.app.Initialization.ASSETS_PATH;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
@@ -231,97 +232,117 @@ public class DocumentFactory {
         // read dublin_core.xml and create the fields and their values
         // TODO: read other schemata's xml files as well
 
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        File documentDirectory = new File(documentPath);
+        FilenameFilter metadataXMLFileFilter = new FilenameFilter() {
+            public boolean accept(File directory, String fileName) {
+                return (fileName.endsWith(".xml") && fileName.startsWith("metadata_")) || fileName.equals("dublin_core.xml");
+            }
 
-        File dublinCoreFile = new File(String.join(File.separator, documentPath, "dublin_core.xml"));
-        org.w3c.dom.Document dublinCoreDocument = builder.parse(dublinCoreFile);
+        };
 
-        Node dublinCoreNode = dublinCoreDocument.getFirstChild();
-        NodeList valueNodes = dublinCoreNode.getChildNodes();
+        String[] metadataXMLFileNames = documentDirectory.list(metadataXMLFileFilter);
 
-        for (int i = 0; i < valueNodes.getLength(); i++) {
-            Node valueNode = valueNodes.item(i);
-            NamedNodeMap attributes = valueNode.getAttributes();
-            String label = "";
-            String value = "";
-            if (attributes != null && valueNode.getNodeType() != Node.TEXT_NODE) {
+        for (String metadataXMLFileName : metadataXMLFileNames) {
+            logger.debug("Reading Metadata XML File: " + metadataXMLFileName);
+            String schema = "dc";
+            if (!metadataXMLFileName.equals("dublin_core.xml")) {
+                // The extra metadata files in SAF are named "metadata_XXXX.xml" where XXXX would be the schema name
+                schema = metadataXMLFileName.substring(9, metadataXMLFileName.indexOf(".xml"));
+            }
+            logger.debug("Using schema " + schema);
 
-                Node element = attributes.getNamedItem("element");
-                Node qualifier = attributes.getNamedItem("qualifier");
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
-                label = "dc." + element.getNodeValue();
+            File dublinCoreFile = new File(String.join(File.separator, documentPath, metadataXMLFileName));
+            org.w3c.dom.Document dublinCoreDocument = builder.parse(dublinCoreFile);
 
-                if (qualifier != null && !qualifier.getNodeValue().equals("none")) {
-                    label += "." + qualifier.getNodeValue();
-                }
+            Node dublinCoreNode = dublinCoreDocument.getFirstChild();
+            NodeList valueNodes = dublinCoreNode.getChildNodes();
 
-                FieldProfile fieldProfile = null;
-                // If the project does not have a profile to accommodate
-                // this field, make one on it
-                if (!project.hasProfileWithLabel(label)) {
-                    String gloss = label;
-                    // TODO: how to determine if there are multiple values
-                    // and therefore it should be repeatable?
-                    Boolean isRepeatable = false;
-                    Boolean isReadOnly = false;
-                    Boolean isHidden = false;
-                    Boolean isRequired = false;
-                    InputType inputType = InputType.valueOf("TEXT");
-                    String defaultValue = "";
+            for (int i = 0; i < valueNodes.getLength(); i++) {
+                Node valueNode = valueNodes.item(i);
+                NamedNodeMap attributes = valueNode.getAttributes();
+                String label = "";
+                String value = "";
+                if (attributes != null && valueNode.getNodeType() != Node.TEXT_NODE) {
 
-                    fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
-                    if (fieldProfile == null) {
-                        fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
+                    Node element = attributes.getNamedItem("element");
+                    Node qualifier = attributes.getNamedItem("qualifier");
+
+                    label = schema + "." + element.getNodeValue();
+
+                    if (qualifier != null && !qualifier.getNodeValue().equals("none")) {
+                        label += "." + qualifier.getNodeValue();
                     }
 
-                    MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(label, fieldProfile);
-                    if (metadataFieldLabel == null) {
-                        metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
+                    FieldProfile fieldProfile = null;
+                    // If the project does not have a profile to accommodate
+                    // this field, make one on it
+                    if (!project.hasProfileWithLabel(label)) {
+                        String gloss = label;
+                        // TODO: how to determine if there are multiple values
+                        // and therefore it should be repeatable?
+                        Boolean isRepeatable = false;
+                        Boolean isReadOnly = false;
+                        Boolean isHidden = false;
+                        Boolean isRequired = false;
+                        InputType inputType = InputType.valueOf("TEXT");
+                        String defaultValue = "";
+
+                        fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, gloss);
+                        if (fieldProfile == null) {
+                            fieldProfile = fieldProfileRepo.create(project, gloss, isRepeatable, isReadOnly, isHidden, isRequired, inputType, defaultValue);
+                        }
+
+                        MetadataFieldLabel metadataFieldLabel = metadataFieldLabelRepo.findByNameAndProfile(label, fieldProfile);
+                        if (metadataFieldLabel == null) {
+                            metadataFieldLabel = metadataFieldLabelRepo.create(label, fieldProfile);
+                        }
+
+                        project.addProfile(fieldProfile);
+
+                        project = projectRepo.save(project);
+
+                    }
+                    // If the project has a field profile to accommodate this
+                    // field, use it
+                    else {
+                        fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, label);
                     }
 
-                    project.addProfile(fieldProfile);
+                    value = valueNode.getTextContent();
+                    MetadataFieldLabel mfl = metadataFieldLabelRepo.findByNameAndProfile(label, fieldProfile);
+                    MetadataFieldGroup mfg = metadataFieldGroupRepo.findByDocumentAndLabel(document, mfl);
 
-                    project = projectRepo.save(project);
+                    // if the document doesn't have a field group for this
+                    // field, then create it
+                    if (mfg == null) {
+                        mfg = metadataFieldGroupRepo.create(document, mfl);
 
-                }
-                // If the project has a field profile to accommodate this
-                // field, use it
-                else {
-                    fieldProfile = fieldProfileRepo.findByProjectAndGloss(project, label);
-                }
+                        mfg.setDocument(document);
 
-                value = valueNode.getTextContent();
-                MetadataFieldLabel mfl = metadataFieldLabelRepo.findByNameAndProfile(label, fieldProfile);
-                MetadataFieldGroup mfg = metadataFieldGroupRepo.findByDocumentAndLabel(document, mfl);
+                        mfg = metadataFieldGroupRepo.save(mfg);
 
-                // if the document doesn't have a field group for this
-                // field, then create it
-                if (mfg == null) {
-                    mfg = metadataFieldGroupRepo.create(document, mfl);
+                        document = documentRepo.findOne(docId);
 
-                    mfg.setDocument(document);
+                    }
+                    // otherwise, note that the field is being repeated on this
+                    // document (and therefore for the project as a whole)
+                    else {
+                        fieldProfile.setRepeatable(true);
+                        fieldProfile = fieldProfileRepo.save(fieldProfile);
+                    }
+
+                    MetadataFieldValue mfv = metadataFieldValueRepo.create(value, mfg);
+
+                    mfg.addValue(mfv);
 
                     mfg = metadataFieldGroupRepo.save(mfg);
 
-                    document = documentRepo.findOne(docId);
+                    document.addField(mfg);
 
+                    document = documentRepo.save(document);
                 }
-                // otherwise, note that the field is being repeated on this
-                // document (and therefore for the project as a whole)
-                else {
-                    fieldProfile.setRepeatable(true);
-                    fieldProfile = fieldProfileRepo.save(fieldProfile);
-                }
-
-                MetadataFieldValue mfv = metadataFieldValueRepo.create(value, mfg);
-
-                mfg.addValue(mfv);
-
-                mfg = metadataFieldGroupRepo.save(mfg);
-
-                document.addField(mfg);
-
-                document = documentRepo.save(document);
             }
         }
 
