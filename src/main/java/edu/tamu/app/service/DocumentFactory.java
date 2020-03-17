@@ -241,6 +241,7 @@ public class DocumentFactory {
         };
 
         String[] metadataXMLFileNames = documentDirectory.list(metadataXMLFileFilter);
+        logger.warn("Got xml files: " + metadataXMLFileNames.length);
 
         for (String metadataXMLFileName : metadataXMLFileNames) {
             logger.debug("Reading Metadata XML File: " + metadataXMLFileName);
@@ -358,7 +359,7 @@ public class DocumentFactory {
                 BufferedReader is = new BufferedReader(new FileReader(contentsFile));
 
                 while ((line = is.readLine()) != null) {
-                    logger.info("Got contents line: " + line);
+                    logger.debug("Got contents line: " + line);
                     if ("".equals(line.trim()) || line.contains("bundle:THUMBNAIL")) {
                         continue;
                     }
@@ -369,17 +370,17 @@ public class DocumentFactory {
 
                     File file = new File(filePath);
 
-                    logger.info("Attempting to add file from contents: " + filePath);
+                    logger.debug("Attempting to add file from contents: " + filePath);
                     if (file.exists() && file.isFile()) {
                         String name = file.getName();
-                        String path = ASSETS_PATH + document.getPath() + File.separator + file.getName();
-                        String mimeType = tika.detect(path);
-                        logger.info("Adding resource " + name + " - " + mimeType + " to document " + document.getName());
-                        resourceRepo.create(document, name, path, mimeType);
+                        String mimeType = tika.detect(filePath);
+                        logger.debug("Adding resource at path " + filePath + " with name " + name + " of mimeType " + mimeType + " to document " + document.getName());
+                        resourceRepo.create(document, name, filePath, mimeType);
                     } else {
-                        logger.warn("Could not find file " + file.getPath());
+                        logger.error("Could not find file " + file.getPath());
                     }
 
+                    logger.debug("We now have added a new resource" + resourceRepo.findAllByDocumentProjectNameAndDocumentName(document.getProject().getName(), file.getName()));
                 }
                 documentRepo.save(document);
                 is.close();
