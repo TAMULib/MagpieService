@@ -241,7 +241,7 @@ public class DocumentFactory {
         };
 
         String[] metadataXMLFileNames = documentDirectory.list(metadataXMLFileFilter);
-        logger.warn("Got xml files: " + metadataXMLFileNames.length);
+        logger.debug("Got xml files: " + metadataXMLFileNames.length);
 
         for (String metadataXMLFileName : metadataXMLFileNames) {
             logger.debug("Reading Metadata XML File: " + metadataXMLFileName);
