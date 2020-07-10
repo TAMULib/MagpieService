@@ -4,6 +4,7 @@ import static edu.tamu.app.Initialization.ASSETS_PATH;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -230,8 +231,7 @@ public class DocumentFactory {
         Long docId = document.getId();
 
         // read dublin_core.xml and create the fields and their values
-        // TODO: read other schemata's xml files as well
-
+        
         File documentDirectory = new File(documentPath);
         FilenameFilter metadataXMLFileFilter = new FilenameFilter() {
             public boolean accept(File directory, String fileName) {
@@ -241,7 +241,7 @@ public class DocumentFactory {
         };
 
         String[] metadataXMLFileNames = documentDirectory.list(metadataXMLFileFilter);
-        logger.warn("Got xml files: " + metadataXMLFileNames.length);
+        logger.debug("creating SAF Document with these metadata XML files: " + metadataXMLFileNames.length);
 
         for (String metadataXMLFileName : metadataXMLFileNames) {
             logger.debug("Reading Metadata XML File: " + metadataXMLFileName);
@@ -371,6 +371,8 @@ public class DocumentFactory {
                     File file = new File(filePath);
 
                     logger.debug("Attempting to add file from contents: " + filePath);
+                    System.out.println("Attempting to add file from contents: " + filePath);
+
                     if (file.exists() && file.isFile()) {
                         String name = file.getName();
                         String mimeType = tika.detect(filePath);
@@ -379,13 +381,11 @@ public class DocumentFactory {
                     } else {
                         logger.error("Could not find file " + file.getPath());
                     }
-
-                    logger.debug("We now have added a new resource" + resourceRepo.findAllByDocumentProjectNameAndDocumentName(document.getProject().getName(), file.getName()));
                 }
                 documentRepo.save(document);
                 is.close();
 
-            }
+            }            
         } catch (IOException e) {
             e.printStackTrace();
         }
