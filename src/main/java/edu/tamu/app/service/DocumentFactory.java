@@ -231,7 +231,7 @@ public class DocumentFactory {
         Long docId = document.getId();
 
         // read dublin_core.xml and create the fields and their values
-        
+
         File documentDirectory = new File(documentPath);
         FilenameFilter metadataXMLFileFilter = new FilenameFilter() {
             public boolean accept(File directory, String fileName) {
@@ -385,7 +385,7 @@ public class DocumentFactory {
                 documentRepo.save(document);
                 is.close();
 
-            }            
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
