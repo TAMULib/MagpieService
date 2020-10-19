@@ -241,7 +241,7 @@ public class DocumentFactory {
         };
 
         String[] metadataXMLFileNames = documentDirectory.list(metadataXMLFileFilter);
-        logger.debug("creating SAF Document with these metadata XML files: " + metadataXMLFileNames.length);
+        logger.debug("Creating SAF Document with these metadata XML files: " + metadataXMLFileNames.length);
 
         for (String metadataXMLFileName : metadataXMLFileNames) {
             logger.debug("Reading Metadata XML File: " + metadataXMLFileName);
