@@ -241,7 +241,7 @@ public class DocumentFactory {
         };
 
         String[] metadataXMLFileNames = documentDirectory.list(metadataXMLFileFilter);
-        logger.debug("Creating SAF Document with these metadata XML files: " + metadataXMLFileNames.length);
+        logger.debug("Creating SAF Document with metadata from " + metadataXMLFileNames.length + " XML files.");
 
         for (String metadataXMLFileName : metadataXMLFileNames) {
             logger.debug("Reading Metadata XML File: " + metadataXMLFileName);
@@ -371,7 +371,6 @@ public class DocumentFactory {
                     File file = new File(filePath);
 
                     logger.debug("Attempting to add file from contents: " + filePath);
-                    System.out.println("Attempting to add file from contents: " + filePath);
 
                     if (file.exists() && file.isFile()) {
                         String name = file.getName();

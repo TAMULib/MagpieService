@@ -212,7 +212,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
         // check for a responseCode between 200 and 299 for success
         if (!(responseCode - 200 > 0 && responseCode - 200 < 99)) {
-            logger.info("Server message: " + connection.getResponseMessage());
+            logger.debug("Server message: " + connection.getResponseMessage());
             throw new IOException("Could not complete PUT request. Server responded with " + responseCode);
         }
         return connection.getHeaderField("Location");
