@@ -67,7 +67,7 @@ public abstract class AbstractFedoraRepository implements Repository {
         try {
 
             String itemContainerPath = createItemContainer(document.getName(), tid);
-
+            logger.debug("Pushing document with itemContainerPath of " + itemContainerPath + " to Fedora.");
             File[] files = getFiles(document);
 
             pushFiles(document, itemContainerPath, files);
@@ -99,7 +99,9 @@ public abstract class AbstractFedoraRepository implements Repository {
         String itemPath = null;
         for (File file : files) {
             if (file.isFile() && !file.isHidden()) {
+                logger.debug("Pushing individual file " + file.getAbsolutePath() + "to Fedora.");
                 itemPath = createResource(ASSETS_PATH + File.separator + document.getPath() + "/" + file.getName(), itemContainerPath, file.getName());
+                logger.debug("After pushing individual file " + file.getName() + " to Fedora, got back an itemPath of " + itemPath);
             }
         }
         return itemPath;
@@ -162,6 +164,7 @@ public abstract class AbstractFedoraRepository implements Repository {
      * @throws IOException
      */
     private void updateMetadata(Document document, String itemContainerUrl) throws IOException {
+        logger.debug("updateMetadata for the item contained at " + itemContainerUrl);
         String updateQuery = "PREFIX dc: <http://purl.org/dc/elements/1.1/> PREFIX dcterms: <http://purl.org/dc/terms/> PREFIX local: <http://digital.library.tamu.edu/schemas/local/> INSERT { ";
         String cleanValue = null;
         for (MetadataFieldGroup group : document.getFields()) {
@@ -173,6 +176,7 @@ public abstract class AbstractFedoraRepository implements Repository {
             }
         }
         updateQuery += " } WHERE { }";
+
         executeSparqlUpdate(itemContainerUrl, updateQuery);
     }
 
@@ -188,13 +192,14 @@ public abstract class AbstractFedoraRepository implements Repository {
     }
 
     protected String createResource(String filePath, String itemContainerPath, String slug) throws IOException {
+        logger.debug("createResource with filePath " + filePath + " itemContainerPath " + itemContainerPath + " under slug " + slug + ".");
+
         File file = new File(filePath);
         FileInputStream fileStrm = new FileInputStream(file);
         byte[] fileBytes = IOUtils.toByteArray(fileStrm);
         HttpURLConnection connection = buildFedoraConnection(itemContainerPath, "POST");
         connection.setRequestProperty("CONTENT-TYPE", configurableMimeFileTypeMap.getContentType(file));
         connection.setRequestProperty("Accept", "*/*");
-
         if (slug != null) {
             connection.setRequestProperty("slug", slug);
         }
@@ -204,6 +209,13 @@ public abstract class AbstractFedoraRepository implements Repository {
         OutputStream os = connection.getOutputStream();
         os.write(fileBytes);
         os.close();
+
+        // record the headers from the response for logging purposes
+        String headers = "";
+        for (String hf : connection.getHeaderFields().keySet()) {
+            headers += (hf + ": " + connection.getHeaderField(hf) + "\n");
+        }
+        logger.debug("Connection got response code of " + connection.getResponseCode() + " with message " + connection.getResponseMessage() + "and headers: \n" + headers);
 
         return connection.getHeaderField("Location");
     }
