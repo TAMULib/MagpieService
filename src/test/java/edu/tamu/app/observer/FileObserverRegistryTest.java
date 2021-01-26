@@ -4,7 +4,6 @@ import static edu.tamu.app.Initialization.ASSETS_PATH;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -57,7 +56,7 @@ public class FileObserverRegistryTest {
     private File directory;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         directory = new File(ASSETS_PATH + File.separator + "temp");
     }
 
@@ -70,7 +69,7 @@ public class FileObserverRegistryTest {
         FileSystemUtility.createDirectory(testsPath);
 
         // wait for the file monitor to pick up the newly created directory
-        Thread.sleep(5000);
+        Thread.sleep(2500);
 
         assertEquals(3, registry.getObservers().size());
 
@@ -119,10 +118,12 @@ public class FileObserverRegistryTest {
     }
 
     @After
-    public void cleanUp() throws IOException {
+    public void cleanUp() throws Exception {
         if (directory.exists()) {
             FileSystemUtility.deleteDirectory(directory.getAbsolutePath());
         }
+        registry.stop();
+        registry.start();
         resourceRepo.deleteAll();
         documentRepo.deleteAll();
         projectRepo.deleteAll();
