@@ -70,7 +70,7 @@ public class FileObserverRegistryTest {
         FileSystemUtility.createDirectory(testsPath);
 
         // wait for the file monitor to pick up the newly created directory
-        Thread.sleep(2500);
+        Thread.sleep(5000);
 
         assertEquals(3, registry.getObservers().size());
 
