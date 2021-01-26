@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/TAMULib/MetadataAssignmentToolService.svg?branch=master)](https://travis-ci.org/TAMULib/MetadataAssignmentToolService)
+[![Build Status](https://github.com/TAMULib/MetadataAssignmentToolService/workflows/Build/badge.svg)](https://github.com/TAMULib/MetadataAssignmentToolService/actions?query=workflow%3ABuild)
 [![Coverage Status](https://coveralls.io/repos/github/TAMULib/MetadataAssignmentToolService/badge.svg)](https://coveralls.io/github/TAMULib/MetadataAssignmentToolService)
 
 Metadata Assignment Service
