@@ -58,6 +58,8 @@ public class FileObserverRegistryTest {
     @Before
     public void setUp() throws Exception {
         directory = new File(ASSETS_PATH + File.separator + "temp");
+        registry.stop();
+        registry.start();
     }
 
     @Test
