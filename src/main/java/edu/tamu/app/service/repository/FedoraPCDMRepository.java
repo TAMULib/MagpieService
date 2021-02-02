@@ -1,7 +1,5 @@
 package edu.tamu.app.service.repository;
 
-import static edu.tamu.app.Initialization.ASSETS_PATH;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -56,6 +54,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
     @Override
     protected String createResource(String filePath, String resourceContainerPath, String slugName) throws IOException {
+        logger.debug("Creating Fedora resource from file " + filePath + " in the Fedora container " + resourceContainerPath + " under slug " + slugName);
         generatePutRequest(resourceContainerPath, null, buildPCDMObject(resourceContainerPath));
 
         generatePutRequest(resourceContainerPath + "/" + filesEndpoint, null, buildPCDMFileContainer(resourceContainerPath + "/" + filesEndpoint, resourceContainerPath));
@@ -69,6 +68,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
     @Override
     protected String createItemContainer(String slugName, final String tid) throws FileNotFoundException, IOException {
+        logger.debug("Creating item container at slug " + slugName + " with tid " + tid);
         // Create the item container
         String desiredItemUrl = getObjectsUrl(tid) + "/" + slugName;
         String actualItemUrl = generatePutRequest(desiredItemUrl, null, buildPCDMObject(desiredItemUrl));
@@ -97,7 +97,9 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
         for (File file : files) {
             if (file.isFile() && !file.isHidden()) {
                 String pagePath = itemContainerPath + "/" + pagesEndpoint + "/" + "page_" + x;
-                createResource(ASSETS_PATH + File.separator + document.getPath() + "/" + file.getName(), pagePath, file.getName());
+
+                createResource(file.getAbsolutePath(), pagePath, file.getName());
+
                 proxyPages[x] = new ProxyPage(itemContainerPath + "/" + "orderProxies" + "/" + "page_" + x + "_proxy", pagePath, itemContainerPath);
                 logger.debug("About to generat PUT to push file " + file.getName() + " to document " + document.getName());
                 generatePutRequest(proxyPages[x].getProxyUrl(), null, buildPCDMPageProxy(proxyPages[x].getProxyUrl(), proxyPages[x].getProxyInUrl(), proxyPages[x].getProxyForUrl()));
