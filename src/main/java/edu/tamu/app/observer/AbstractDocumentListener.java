@@ -79,7 +79,13 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
 
     @Override
     public void onDirectoryDelete(File directory) {
-
+        if (!projectRepo.existsByName(directory.getName())) {
+            logger.debug("Document " + directory.getName() + " has been deleted");
+            String projectName = directory.getParentFile().getName();
+            Document doc = documentRepo.findByProjectNameAndName(projectName, directory.getName());
+            doc.isDeleted(true);
+            documentRepo.save(doc);
+        }
     }
 
     @Override

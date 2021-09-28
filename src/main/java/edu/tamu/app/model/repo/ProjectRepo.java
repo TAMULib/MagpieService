@@ -9,6 +9,8 @@ import edu.tamu.weaver.data.model.repo.WeaverRepo;
 @Repository
 public interface ProjectRepo extends WeaverRepo<Project>, ProjectRepoCustom {
 
+    public Boolean existsByName(String name);
+
     public Project findByName(String name);
 
 }
