@@ -1,0 +1,114 @@
+server:
+  port: 9000
+  contextPath:
+
+---
+logging:
+  level:
+    edu.tamu.app: INFO
+    org.hibernate: INFO
+    org.springframework: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.boot.actuate.audit.listener.AuditListener: INFO
+  file: magpie.log
+  path: /var/log
+
+---
+spring:
+  datasource:
+    platform: h2
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    # # url: jdbc:h2:file:./h2/app.db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    # platform: postgresql
+    # url: jdbc:postgresql://localhost:5432/magpie
+    # driverClassName: org.postgresql.Driver
+
+    username: spring
+    password: spring
+
+    validation-query: select version();
+    max-active: 100
+    max-idle: 8
+    min-idle: 8
+    initial-size: 10
+    test-on-borrow: false
+    test-on-return: false
+    test-while-idle: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    # database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+    show-sql: false
+    hibernate.ddl-auto: create-drop
+    hibernate.enable_lazy_load_no_trans: true
+
+---
+app:
+  host: http://localhost:${server.port}${server.contextPath}
+  projects.file: projects.json
+  document.create.wait: 10000
+  assets:
+    path: classpath:static/metadatatool
+    folders: archivematica, exports, maps, projects
+  polling.interval: 1000
+  monitor:
+    health:
+      interval: 900000
+      initDelay: 30000
+  security:
+    # edu.tamu.weaver.auth.service.CryptoService
+    secret: verysecretsecret
+    # package edu.tamu.app.service.PropertyProtectionService
+    propertySalt: 1rk3l7d*
+    # edu.tamu.weaver.filter.CorsFilter
+    allow-access: http://localhost,http://localhost:8080,http://labs.library.tamu.edu,http://machuff.tamu.edu,http://caerus.library.tamu.edu:8080,http://savell.evans.tamu.edu,http://jcreel.tamu.edu
+  # edu.tamu.weaver.auth.service.UserCredentialsService
+  authority:
+    admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789,512004707
+    managers:
+  management:
+    endpoints:
+      # spring-boot actuator endpoint: health set to true
+      enabled-by-default: false
+      health.enabled: true
+  # edu.tamu.weaver.email.config.WeaverEmailConfig
+  email:
+    host: relay.tamu.edu
+    from: admin@mailinator.com
+    replyTo: reply@mailinator.com
+  # edu.tamu.weaver.reporting.controller.ReportingController
+  reporting.address: report@mailinator.com
+  # edu.tamu.weaver.validation.controller.ValidationsController
+  model.packages: edu.tamu.app.model
+  # edu.tamu.weaver.utility.HttpUtility
+  http.timeout: 30000
+
+---
+#############################
+# Framework shib properties #
+#############################
+# edu.tamu.weaver.token.provider.controller.TokenController
+shib:
+  keys: netid,uin,lastName,firstName,email
+  subject: email
+  netid: edupersonprincipalnameunscoped
+  uin: tamuuin
+  lastName: tdl-sn
+  firstName: tdl-givenname
+  email: tdl-mail
+
+---
+#############################
+# Framework auth properties #
+#############################
+# edu.tamu.weaver.token.service.TokenService
+auth:
+  security:
+    jwt:
+      secret: verysecretsecret
+      issuer: localhost
+      duration: 1
+  path: /auth
