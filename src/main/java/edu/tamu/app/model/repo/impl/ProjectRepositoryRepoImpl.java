@@ -52,9 +52,9 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
         ProjectRepository currentProjectRepository = projectRepositoryRepo.findOne(projectRepository.getId());
         for (int i=0;i<projectRepository.getSettings().size();i++) {
             ProjectSetting setting = projectRepository.getSettings().get(i);
-            if (setting.isProtect() && setting.getValues().stream().allMatch(v -> v.equals(""))) {
+            if (setting.isProtect() && setting.getValueList().stream().allMatch(v -> v.equals(""))) {
                 try {
-                    setting.setValues(propertyProtectionService.decryptPropertyValues(currentProjectRepository.getSettingValues(setting.getKey())));
+                    setting.setValueList(propertyProtectionService.decryptPropertyValues(currentProjectRepository.getSettingValues(setting.getKey())));
                     projectRepository.getSettings().set(i, setting);
                 } catch (GeneralSecurityException | IOException e) {
                     e.printStackTrace();
@@ -86,7 +86,7 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
         projectRepository.getSettings().forEach(s -> {
             if (s.isProtect()) {
                 try {
-                    s.setValues(propertyProtectionService.encryptPropertyValues(s.getValues()));
+                    s.setValueList(propertyProtectionService.encryptPropertyValues(s.getValueList()));
                 } catch (GeneralSecurityException | IOException e1) {
                     e1.printStackTrace();
                 }

@@ -19,23 +19,23 @@ public class ProjectSetting extends BaseEntity {
     private String key;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> values;
+    private List<String> valueList;
 
     @Column
     private Boolean protect = false;
 
     public ProjectSetting() {
-        setValues(new ArrayList<String>());
+        setValueList(new ArrayList<String>());
     }
 
-    public ProjectSetting(String key, List<String> values) {
+    public ProjectSetting(String key, List<String> valueList) {
         setKey(key);
-        setValues(values);
+        setValueList(valueList);
     }
 
-    public ProjectSetting(String key, List<String> values, Boolean protect) {
+    public ProjectSetting(String key, List<String> valueList, Boolean protect) {
       setKey(key);
-      setValues(values);
+      setValueList(valueList);
       setProtect(protect);
     }
 
@@ -47,35 +47,35 @@ public class ProjectSetting extends BaseEntity {
         this.key = key;
     }
 
-    public List<String> getValues() {
-        return values;
+    public List<String> getValueList() {
+        return valueList;
     }
 
     @JsonGetter("values")
     protected List<String> getValuesForSerializer() {
         if (this.isProtect()) {
             ArrayList<String> protectedValues = new ArrayList<String>();
-            this.getValues().forEach(k -> {
+            this.getValueList().forEach(k -> {
                 protectedValues.add("");
             });
             return protectedValues;
         } else {
-            return getValues();
+            return getValueList();
         }
     }
 
-    public void setValues(List<String> values) {
-        this.values = values;
+    public void setValueList(List<String> valueList) {
+        this.valueList = valueList;
     }
 
     public void addValue(String value) {
-        if (!values.contains(value)) {
-            this.values.add(value);
+        if (!valueList.contains(value)) {
+            this.valueList.add(value);
         }
     }
 
     public void removeValue(String value) {
-        this.values.remove(value);
+        this.valueList.remove(value);
     }
 
     public Boolean isProtect() {

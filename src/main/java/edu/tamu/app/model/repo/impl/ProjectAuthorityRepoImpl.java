@@ -52,9 +52,9 @@ public class ProjectAuthorityRepoImpl extends AbstractWeaverRepoImpl<ProjectAuth
         ProjectAuthority currentProjectAuthority = projectAuthorityRepo.findOne(projectAuthority.getId());
         for (int i=0;i<projectAuthority.getSettings().size();i++) {
             ProjectSetting setting = projectAuthority.getSettings().get(i);
-            if (setting.isProtect() && setting.getValues().stream().allMatch(v -> v.equals(""))) {
+            if (setting.isProtect() && setting.getValueList().stream().allMatch(v -> v.equals(""))) {
                 try {
-                    setting.setValues(propertyProtectionService.decryptPropertyValues(currentProjectAuthority.getSettingValues(setting.getKey())));
+                    setting.setValueList(propertyProtectionService.decryptPropertyValues(currentProjectAuthority.getSettingValues(setting.getKey())));
                     projectAuthority.getSettings().set(i, setting);
                 } catch (GeneralSecurityException | IOException e) {
                     e.printStackTrace();
@@ -86,7 +86,7 @@ public class ProjectAuthorityRepoImpl extends AbstractWeaverRepoImpl<ProjectAuth
         projectAuthority.getSettings().forEach(s -> {
             if (s.isProtect()) {
                 try {
-                    s.setValues(propertyProtectionService.encryptPropertyValues(s.getValues()));
+                    s.setValueList(propertyProtectionService.encryptPropertyValues(s.getValueList()));
                 } catch (GeneralSecurityException | IOException e1) {
                     e1.printStackTrace();
                 }

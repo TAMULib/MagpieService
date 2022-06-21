@@ -52,9 +52,9 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
         ProjectSuggestor currentProjectSuggestor = projectSuggestorRepo.findOne(projectSuggestor.getId());
         for (int i=0;i<projectSuggestor.getSettings().size();i++) {
             ProjectSetting setting = projectSuggestor.getSettings().get(i);
-            if (setting.isProtect() && setting.getValues().stream().allMatch(v -> v.equals(""))) {
+            if (setting.isProtect() && setting.getValueList().stream().allMatch(v -> v.equals(""))) {
                 try {
-                    setting.setValues(propertyProtectionService.decryptPropertyValues(currentProjectSuggestor.getSettingValues(setting.getKey())));
+                    setting.setValueList(propertyProtectionService.decryptPropertyValues(currentProjectSuggestor.getSettingValues(setting.getKey())));
                     projectSuggestor.getSettings().set(i, setting);
                 } catch (GeneralSecurityException | IOException e) {
                     e.printStackTrace();
@@ -86,7 +86,7 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
         projectSuggestor.getSettings().forEach(s -> {
             if (s.isProtect()) {
                 try {
-                    s.setValues(propertyProtectionService.encryptPropertyValues(s.getValues()));
+                    s.setValueList(propertyProtectionService.encryptPropertyValues(s.getValueList()));
                 } catch (GeneralSecurityException | IOException e1) {
                     e1.printStackTrace();
                 }
