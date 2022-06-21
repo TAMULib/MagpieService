@@ -69,7 +69,7 @@ public abstract class ProjectService extends ValidatingBaseEntity {
         for (ProjectSetting setting : settings) {
             if (setting.getKey().equals(key)) {
                 isProtect = setting.isProtect();
-                targetSettingValues = setting.getValues();
+                targetSettingValues = setting.getValueList();
                 break;
             }
         }
