@@ -19,8 +19,8 @@ spring:
   datasource:
     platform: h2
     driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    # # url: jdbc:h2:file:./h2/app.db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    # url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:file:./h2/app.db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     # platform: postgresql
     # url: jdbc:postgresql://localhost:5432/magpie
     # driverClassName: org.postgresql.Driver
@@ -43,7 +43,8 @@ spring:
 
     show-sql: false
     hibernate.ddl-auto: create-drop
-    hibernate.enable_lazy_load_no_trans: true
+    properties:
+      hibernate.enable_lazy_load_no_trans: true
 
 ---
 app:
