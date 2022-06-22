@@ -46,7 +46,7 @@ public class ProjectAuthorityController {
     @RequestMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ApiResponse getProjectAuthority(@PathVariable Long id) {
-        return new ApiResponse(SUCCESS, projectAuthorityRepo.findOne(id));
+        return new ApiResponse(SUCCESS, projectAuthorityRepo.getById(id));
     }
 
     @RequestMapping("/create")
@@ -65,7 +65,6 @@ public class ProjectAuthorityController {
             file.transferTo(new File(filePath));
             return new ApiResponse(SUCCESS,"CSV upload successful", filePath);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return new ApiResponse(ERROR, "CSV upload failed");
         }
@@ -81,7 +80,7 @@ public class ProjectAuthorityController {
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse remove(@WeaverValidatedModel ProjectAuthority projectAuthority) {
         //TODO The WeaverValidatedModel isn't populating the projects associated with the projectAuthority, so we have to get it fresh from the repo here
-        projectAuthority = projectAuthorityRepo.getOne(projectAuthority.getId());
+        projectAuthority = projectAuthorityRepo.getById(projectAuthority.getId());
         if (projectAuthority.getSettingValues("paths") != null) {
             File csvFile = new File(projectAuthority.getSettingValues("paths").get(0));
             csvFile.delete();

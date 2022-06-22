@@ -22,7 +22,8 @@ import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 
@@ -38,7 +39,7 @@ import edu.tamu.app.service.TransactionService;
 
 public abstract class AbstractFedoraRepository implements Repository {
 
-    protected static final Logger logger = Logger.getLogger(AbstractFedoraRepository.class);
+    protected static final Logger logger = LoggerFactory.getLogger(AbstractFedoraRepository.class);
 
     private static final Pattern transactionPattern = Pattern.compile("^(.*)(tx:.*?)(/.*)$");
 

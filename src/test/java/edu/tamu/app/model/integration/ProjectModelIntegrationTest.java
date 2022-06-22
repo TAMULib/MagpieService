@@ -1,10 +1,10 @@
 package edu.tamu.app.model.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.tamu.app.model.AbstractModelTest;
 import edu.tamu.app.model.Document;
@@ -17,7 +17,7 @@ public class ProjectModelIntegrationTest extends AbstractModelTest {
 
     private ProjectRepository projectRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockDocument = new Document(testProject, "testDocument", "documentPath", "Unassigned");
     }
@@ -34,10 +34,10 @@ public class ProjectModelIntegrationTest extends AbstractModelTest {
 
         testProject = projectRepo.save(testProject);
 
-        assertNotNull("Test Project did not have the expected repository!", testProject.getRepositories().get(0));
+        assertNotNull(testProject.getRepositories().get(0), "Test Project did not have the expected repository!");
 
-        assertEquals("Test Project did not have the expected repository name!", "Test Repository", testProject.getRepositories().get(0).getName());
-        assertEquals("Test Project did not have the expected repository service type!", ServiceType.FEDORA_SPOTLIGHT, testProject.getRepositories().get(0).getType());
+        assertEquals("Test Repository", testProject.getRepositories().get(0).getName(), "Test Project did not have the expected repository name!");
+        assertEquals(ServiceType.FEDORA_SPOTLIGHT, testProject.getRepositories().get(0).getType(), "Test Project did not have the expected repository service type!");
     }
 
     @Test
@@ -48,11 +48,11 @@ public class ProjectModelIntegrationTest extends AbstractModelTest {
 
         testProject = projectRepo.findByName("testProject");
 
-        assertNotNull("Test Project did not have the expected document!", testProject.getDocuments().get(0));
+        assertNotNull(testProject.getDocuments().get(0), "Test Project did not have the expected document!");
 
-        assertEquals("Test Project did not have the expected document name!", mockDocument.getName(), testProject.getDocuments().get(0).getName());
-        assertEquals("Test Project did not have the expected document path!", mockDocument.getPath(), testProject.getDocuments().get(0).getPath());
-        assertEquals("Test Project did not have the expected document status!", mockDocument.getStatus(), testProject.getDocuments().get(0).getStatus());
+        assertEquals(mockDocument.getName(), testProject.getDocuments().get(0).getName(), "Test Project did not have the expected document name!");
+        assertEquals(mockDocument.getPath(), testProject.getDocuments().get(0).getPath(), "Test Project did not have the expected document path!");
+        assertEquals(mockDocument.getStatus(), testProject.getDocuments().get(0).getStatus(), "Test Project did not have the expected document status!");
     }
 
     @Test
@@ -65,11 +65,11 @@ public class ProjectModelIntegrationTest extends AbstractModelTest {
 
         testDocument = documentRepo.save(testDocument);
 
-        assertNotNull("Test Document did not have the expected published location!", testDocument.getPublishedLocations().get(0));
+        assertNotNull(testDocument.getPublishedLocations().get(0), "Test Document did not have the expected published location!");
 
-        assertEquals("Test Document did not have the expected published location repository name!", projectRepository.getName(), testDocument.getPublishedLocations().get(0).getRepository().getName());
-        assertEquals("Test Document did not have the expected published location repository service type!", projectRepository.getType(), testDocument.getPublishedLocations().get(0).getRepository().getType());
-        assertEquals("Test Document did not have the expected published location url!", publishedLocation.getUrl(), testDocument.getPublishedLocations().get(0).getUrl());
+        assertEquals(projectRepository.getName(), testDocument.getPublishedLocations().get(0).getRepository().getName(), "Test Document did not have the expected published location repository name!");
+        assertEquals(projectRepository.getType(), testDocument.getPublishedLocations().get(0).getRepository().getType(), "Test Document did not have the expected published location repository service type!");
+        assertEquals(publishedLocation.getUrl(), testDocument.getPublishedLocations().get(0).getUrl(), "Test Document did not have the expected published location url!");
     }
 
 }

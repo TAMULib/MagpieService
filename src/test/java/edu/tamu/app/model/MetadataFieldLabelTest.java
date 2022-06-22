@@ -1,49 +1,52 @@
 package edu.tamu.app.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 public class MetadataFieldLabelTest extends AbstractModelTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-        assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
+        assertEquals(0, metadataFieldLabelRepo.count(), "MetadataFieldLabelRepo is not empty.");
     }
 
     @Test
     public void testCreateMetadataFieldLabel() {
         metadataFieldLabelRepo.create("test", testProfile);
-        assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
+        assertEquals(1, metadataFieldLabelRepo.count(), "MetadataFieldLabel was not created.");
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void testDuplicateMetadataFieldLabel() {
-        metadataFieldLabelRepo.create("test", testProfile);
-        metadataFieldLabelRepo.create("test", testProfile);
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            metadataFieldLabelRepo.create("test", testProfile);
+            metadataFieldLabelRepo.create("test", testProfile);
+        });
     }
 
     @Test
     public void testFindMetadataFieldLabel() {
         MetadataFieldLabel assertLabel = metadataFieldLabelRepo.create("test", testProfile);
-        assertEquals("MetadataFieldLabel was not found.", assertLabel.getName(), metadataFieldLabelRepo.findByNameAndProfile("test", testProfile).getName());
+        assertEquals(assertLabel.getName(), metadataFieldLabelRepo.findByNameAndProfile("test", testProfile).getName(), "MetadataFieldLabel was not found.");
     }
 
     @Test
     @Transactional
     public void testDeleteMetadataFieldLabel() {
         metadataFieldLabelRepo.create("test", testProfile);
-        assertEquals("MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
+        assertEquals(1, metadataFieldLabelRepo.count(), "MetadataFieldLabel was not created.");
         MetadataFieldLabel label = metadataFieldLabelRepo.findByNameAndProfile("test", testProfile);
-        assertNotNull("Metadatafield was not retrieved!", label);
+        assertNotNull(label, "Metadatafield was not retrieved!");
         metadataFieldLabelRepo.delete(label);
-        assertEquals("MetadataFieldLabel was not deleted.", 0, metadataFieldLabelRepo.count());
+        assertEquals(0, metadataFieldLabelRepo.count(), "MetadataFieldLabel was not deleted.");
     }
 
 }

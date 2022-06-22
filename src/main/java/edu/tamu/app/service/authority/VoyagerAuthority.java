@@ -10,7 +10,8 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.Document;
@@ -30,7 +31,7 @@ import edu.tamu.weaver.utility.HttpUtility;
  */
 public class VoyagerAuthority implements Authority {
 
-    private static final Logger logger = Logger.getLogger(VoyagerAuthority.class);
+    private static final Logger logger = LoggerFactory.getLogger(VoyagerAuthority.class);
 
     @Autowired
     private MetadataFieldValueRepo metadataFieldValueRepo;

@@ -10,7 +10,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,10 +34,10 @@ import edu.tamu.weaver.response.ApiResponse;
 @RequestMapping("/cv")
 public class ControlledVocabularyController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ControlledVocabularyController.class);
+
     @Autowired
     private ObjectMapper objectMapper;
-
-    private static final Logger logger = Logger.getLogger(ControlledVocabularyController.class);
 
     /**
      * Get all controller vocabulary.

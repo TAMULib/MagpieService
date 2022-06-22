@@ -11,7 +11,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 
@@ -23,7 +24,7 @@ import edu.tamu.app.utilities.FileSystemUtility;
 
 public class CSVAuthority implements Authority {
 
-    private static final Logger logger = Logger.getLogger(CSVAuthority.class);
+    private static final Logger logger = LoggerFactory.getLogger(CSVAuthority.class);
 
     @Autowired
     private ResourceLoader resourceLoader;

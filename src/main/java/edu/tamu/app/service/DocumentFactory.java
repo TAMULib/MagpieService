@@ -16,8 +16,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
 import org.apache.tika.Tika;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -48,9 +49,9 @@ import edu.tamu.app.service.registry.MagpieServiceRegistry;
 @Service
 public class DocumentFactory {
 
-    private static final String PROJECTS_FOLDER_NAME = "projects";
+    private static final Logger logger = LoggerFactory.getLogger(DocumentFactory.class);
 
-    private static final Logger logger = Logger.getLogger(DocumentFactory.class);
+    private static final String PROJECTS_FOLDER_NAME = "projects";
 
     private final static Tika tika = new Tika();
 
@@ -324,7 +325,7 @@ public class DocumentFactory {
 
                         mfg = metadataFieldGroupRepo.save(mfg);
 
-                        document = documentRepo.findOne(docId);
+                        document = documentRepo.getById(docId);
 
                     }
                     // otherwise, note that the field is being repeated on this

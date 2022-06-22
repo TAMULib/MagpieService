@@ -1,8 +1,8 @@
 package edu.tamu.app.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import edu.tamu.weaver.auth.model.Credentials;
 
@@ -11,12 +11,12 @@ public class ShibTest extends AbstractModelTest {
     @Test
     public void testCreateShib() {
         Credentials shib = new Credentials(aggieJackToken);
-        assertEquals("Last name did not match.", "Daniels", shib.getLastName());
-        assertEquals("First name did not match.", "Jack", shib.getFirstName());
-        assertEquals("Netid did not match.", "aggiejack", shib.getNetid());
-        assertEquals("UIN did not match.", "123456789", shib.getUin());
-        assertEquals("Expiration did not match.", String.valueOf(timestamp), shib.getExp());
-        assertEquals("Email did not match.", "aggiejack@tamu.edu", shib.getEmail());
+        assertEquals("Daniels", shib.getLastName(), "Last name did not match.");
+        assertEquals("Jack", shib.getFirstName(), "First name did not match.");
+        assertEquals("aggiejack", shib.getNetid(), "Netid did not match.");
+        assertEquals("123456789", shib.getUin(), "UIN did not match.");
+        assertEquals(String.valueOf(timestamp), shib.getExp(), "Expiration did not match.");
+        assertEquals("aggiejack@tamu.edu", shib.getEmail(), "Email did not match.");
     }
 
 }

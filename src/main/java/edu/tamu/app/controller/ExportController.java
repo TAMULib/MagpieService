@@ -16,7 +16,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +41,7 @@ import edu.tamu.weaver.response.ApiResponse;
 @RequestMapping("/export")
 public class ExportController {
 
-    private static final Logger logger = Logger.getLogger(ExportController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExportController.class);
 
     @Autowired
     private ProjectRepo projectRepo;

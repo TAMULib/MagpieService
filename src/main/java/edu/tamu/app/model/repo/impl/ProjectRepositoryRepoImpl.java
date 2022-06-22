@@ -49,7 +49,7 @@ public class ProjectRepositoryRepoImpl extends AbstractWeaverRepoImpl<ProjectRep
 
     @Override
     public ProjectRepository update(ProjectRepository projectRepository) {
-        ProjectRepository currentProjectRepository = projectRepositoryRepo.findOne(projectRepository.getId());
+        ProjectRepository currentProjectRepository = projectRepositoryRepo.getById(projectRepository.getId());
         for (int i=0;i<projectRepository.getSettings().size();i++) {
             ProjectSetting setting = projectRepository.getSettings().get(i);
             if (setting.isProtect() && setting.getValueList().stream().allMatch(v -> v.equals(""))) {

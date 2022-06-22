@@ -1,7 +1,7 @@
 package edu.tamu.app.observer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,24 +10,21 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.utilities.FileSystemUtility;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
 public class FileMonitorManagerTest {
 
     private FileMonitorManager manager;
 
     private File directory;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         manager = new FileMonitorManager(10000);
         directory = new File("temp");
@@ -95,7 +92,7 @@ public class FileMonitorManagerTest {
         assertTrue(observer.isPresent());
     }
 
-    @After
+    @AfterEach
     public void cleanUp() throws IOException {
         if (directory.exists()) {
             FileSystemUtility.deleteDirectory(directory.getAbsolutePath());

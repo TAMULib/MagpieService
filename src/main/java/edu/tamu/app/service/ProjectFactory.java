@@ -13,7 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
@@ -51,7 +52,7 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @Service
 public class ProjectFactory {
 
-    private static final Logger logger = Logger.getLogger(ProjectFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProjectFactory.class);
 
     private static final String DEFAULT_PROJECT_KEY = "default";
     private static final String METADATA_KEY = "metadata";
@@ -403,7 +404,7 @@ public class ProjectFactory {
      * @param id ID of the project to initiate listener for.
      */
     public void startProjectFileListener(Long id) {
-        Project project = projectRepo.findOne(id);
+        Project project = projectRepo.getById(id);
         if (project != null) {
             this.startProjectFileListener(project);
         }

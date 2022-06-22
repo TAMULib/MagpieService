@@ -11,9 +11,10 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,6 +28,8 @@ import edu.tamu.app.model.repo.ResourceRepo;
 
 public class NALTSuggestor implements Suggestor {
 
+    private static final Logger logger = LoggerFactory.getLogger(NALTSuggestor.class);
+
     @Autowired
     private ResourceRepo resourceRepo;
 
@@ -34,8 +37,6 @@ public class NALTSuggestor implements Suggestor {
     private ObjectMapper objectMapper;
 
     private ProjectSuggestor projectSuggestor;
-
-    private static final Logger logger = Logger.getLogger(NALTSuggestor.class);
 
     public NALTSuggestor(ProjectSuggestor projectSuggestor) {
         this.projectSuggestor = projectSuggestor;

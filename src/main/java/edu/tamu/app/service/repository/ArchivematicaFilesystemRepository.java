@@ -23,7 +23,8 @@ import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Base64Utils;
 
@@ -37,6 +38,8 @@ import edu.tamu.app.utilities.CsvUtility;
 
 public class ArchivematicaFilesystemRepository implements Preservation {
 
+    private static final Logger logger = LoggerFactory.getLogger(ArchivematicaFilesystemRepository.class);
+
     @Autowired
     private DocumentRepo documentRepo;
 
@@ -46,8 +49,6 @@ public class ArchivematicaFilesystemRepository implements Preservation {
     private ProjectRepository projectRepository;
 
     private CsvUtility csvUtility;
-
-    private static final Logger logger = Logger.getLogger(ArchivematicaFilesystemRepository.class);
 
     public ArchivematicaFilesystemRepository(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;

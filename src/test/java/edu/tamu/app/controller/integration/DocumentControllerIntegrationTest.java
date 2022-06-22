@@ -1,13 +1,11 @@
 package edu.tamu.app.controller.integration;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.Document;
@@ -28,7 +26,6 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = WebServerInit.class)
 public class DocumentControllerIntegrationTest {
 
@@ -64,7 +61,7 @@ public class DocumentControllerIntegrationTest {
     private MetadataFieldValue mfv2;
     private FieldProfile mfp;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         // In order to realistically delete the Document, it needs to have some Resources and metadata on it, and be part of a Project.
         mockProject = projectRepo.create("Test Project", IngestType.STANDARD, false);
@@ -102,7 +99,7 @@ public class DocumentControllerIntegrationTest {
 //         assertEquals("Test MetadataFieldValues were not deleted from the Test Document when it was deleted.", 0, mfvRepo.findAll().size());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         mfvRepo.deleteAll();
         mflRepo.deleteAll();

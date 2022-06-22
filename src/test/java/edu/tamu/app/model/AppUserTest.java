@@ -1,59 +1,59 @@
 package edu.tamu.app.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
-
-import edu.tamu.app.model.Role;
 
 public class AppUserTest extends AbstractModelTest {
 
     @Test
     public void testSaveUser() {
         userRepo.save(testUser1);
-        assertEquals("Test user was not saved.", testUser1.getUsername(), userRepo.findByUsername(uin).get().getUsername());
+        assertEquals(testUser1.getUsername(), userRepo.findByUsername(uin).get().getUsername(), "Test user was not saved.");
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void testDuplicate() {
-        userRepo.save(testUser1);
-        userRepo.save(testUser2);
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            userRepo.save(testUser1);
+            userRepo.save(testUser2);
+        });
     }
 
     @Test
     public void testFindUser() {
         userRepo.save(testUser1);
-        assertEquals("User repository is empty.", 1, userRepo.findAll().size());
+        assertEquals(1, userRepo.findAll().size(), "User repository is empty.");
         Optional<AppUser> assertUser = userRepo.findByUsername(uin);
-        assertEquals("Test User was not found.", assertUser.get().getUsername(), testUser1.getUsername());
+        assertEquals(assertUser.get().getUsername(), testUser1.getUsername(), "Test User was not found.");
     }
 
     @Test
     public void testDeleteUser() {
         testUser1 = userRepo.save(testUser1);
-        Long id = testUser1.getId();
-        assertEquals("User repository is empty.", 1, userRepo.findAll().size());
+        assertEquals(1, userRepo.findAll().size(), "User repository is empty.");
         userRepo.delete(testUser1);
-        assertNull("Test User was not removed.", userRepo.findOne(id));
+        assertEquals(0, userRepo.findAll().size(),  "Test User was not removed.");
     }
 
     @Test
     public void testAppUserGetters() throws Exception {
         userRepo.save(testUser3);
         AppUser assertUser = userRepo.findByUsername(testUser3.getUsername()).get();
-        assertEquals("Test User 3  was not found.", assertUser.getUsername(), testUser3.getUsername());
+        assertEquals(assertUser.getUsername(), testUser3.getUsername(), "Test User 3  was not found.");
         assertUser.setFirstName("Another Jane");
         assertUser.setLastName("Another Daniel");
         assertUser.setRole(Role.ROLE_USER);
         userRepo.save(testUser3);
         assertUser = userRepo.findByUsername(testUser3.getUsername()).get();
-        assertEquals("Test User 3  firstName was not modified.", assertUser.getFirstName(), testUser3.getFirstName());
-        assertEquals("Test User 3  lastName was not modified.", assertUser.getLastName(), testUser3.getLastName());
-        assertEquals("Test User 3  role was not modified.", assertUser.getRole(), testUser3.getRole());
+        assertEquals(assertUser.getFirstName(), testUser3.getFirstName(), "Test User 3  firstName was not modified.");
+        assertEquals(assertUser.getLastName(), testUser3.getLastName(), "Test User 3  lastName was not modified.");
+        assertEquals(assertUser.getRole(), testUser3.getRole(), "Test User 3  role was not modified.");
     }
 
 }

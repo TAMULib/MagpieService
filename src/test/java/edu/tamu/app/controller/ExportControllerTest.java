@@ -1,12 +1,12 @@
 package edu.tamu.app.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import edu.tamu.weaver.response.ApiStatus;
 
@@ -18,39 +18,39 @@ public class ExportControllerTest extends AbstractControllerTest {
     @Test
     public void testRandomMetadataHeaderFormat() {
         response = exportController.getMetadataHeaders(TEST_PROJECT1.getName(), "randomFormat");
-        assertEquals(" The response was not suucessful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), " The response was not suucessful ");
         responseList = (List<String>) response.getPayload().get("ArrayList");
-        assertEquals(" The list of metadataheaders for random format is not empty ", 0, responseList.size());
+        assertEquals(0, responseList.size(), " The list of metadataheaders for random format is not empty ");
     }
 
     @Test
     public void testSpotlightExportedMetadataHeaders() {
         response = exportController.getMetadataHeaders(TEST_PROJECT1.getName(), "spotlight-csv");
         responseList = (List<String>) response.getPayload().get("ArrayList<String>");
-        assertEquals(" The spotlight exported metadataheaders list is empty ", mockSpotlightExportedMetadataHeaders.size(), responseList.size());
+        assertEquals(mockSpotlightExportedMetadataHeaders.size(), responseList.size(), " The spotlight exported metadataheaders list is empty ");
     }
 
     @Test
     public void testDspaceCsvExportedMetadataHeader() {
         response = exportController.getMetadataHeaders(TEST_PROJECT1.getName(), "dspace-csv");
         responseList = (List<String>) response.getPayload().get("ArrayList<String>");
-        assertEquals(" The spotlight exported metadataheaders list is empty ", mockDspaceCSVExportedMetadataHeaders.size(), responseList.size());
+        assertEquals(mockDspaceCSVExportedMetadataHeaders.size(), responseList.size(), " The spotlight exported metadataheaders list is empty ");
     }
 
     @Test
     public void testSpotlightCsvExport() {
         response = exportController.spotlightCsvExport(TEST_PROJECT1.getName());
-        assertEquals(" The response was not suucessful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), " The response was not suucessful ");
         List<List<String>> responseList = (List<List<String>>) response.getPayload().get("ArrayList<ArrayList>");
-        assertNotNull(" The spotlight exported metadata list is empty ", responseList.size());
+        assertNotNull(responseList.size(), " The spotlight exported metadata list is empty ");
     }
 
     @Test
     public void testDSpaceCsvExport() {
         response = exportController.dspaceCsvExport(TEST_PROJECT1.getName());
-        assertEquals(" The response was not suucessful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), " The response was not suucessful ");
         List<List<String>> responseList = (List<List<String>>) response.getPayload().get("ArrayList<ArrayList>");
-        assertNotNull(" The spotlight exported metadata list is empty ", responseList.size());
+        assertNotNull(responseList.size(), " The spotlight exported metadata list is empty ");
     }
 
     @Test
@@ -61,16 +61,16 @@ public class ExportControllerTest extends AbstractControllerTest {
     @Test
     public void testPublished() {
         response = metadataController.published(TEST_DOCUMENT1.getStatus());
-        assertEquals(" The response was not suucessful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), " The response was not suucessful ");
 
     }
 
     @Test
     public void testAllMetadataFieldGroup() {
         response = metadataController.all();
-        assertEquals(" The response was not suucessful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), " The response was not suucessful ");
         Map<String, Object> map = (Map<String, Object>) response.getPayload().get("HashMap");
         List<Object> list = (List<Object>) map.get("list");
-        assertEquals(" The metadataField Group list is empty ", mockMetadataFieldGroupList.size(), list.size());
+        assertEquals(mockMetadataFieldGroupList.size(), list.size(), " The metadataField Group list is empty ");
     }
 }

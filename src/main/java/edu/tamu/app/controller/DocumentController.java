@@ -8,7 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,7 +47,7 @@ import edu.tamu.weaver.response.ApiResponse;
 @RequestMapping("/document")
 public class DocumentController {
 
-    private static final Logger logger = Logger.getLogger(DocumentController.class);
+    private static final Logger logger = LoggerFactory.getLogger(DocumentController.class);
 
     @Autowired
     private DocumentRepo documentRepo;
@@ -114,7 +115,7 @@ public class DocumentController {
             sortDirection = Sort.Direction.DESC;
         }
 
-        Pageable request = new PageRequest(dataNode.get("page").get("number").asInt() - 1, dataNode.get("page").get("size").asInt(), sortDirection, dataNode.get("sort").get("field").asText());
+        Pageable request = PageRequest.of(dataNode.get("page").get("number").asInt() - 1, dataNode.get("page").get("size").asInt(), sortDirection, dataNode.get("sort").get("field").asText());
 
         Map<String, String[]> filters = new HashMap<String, String[]>();
 
@@ -213,7 +214,7 @@ public class DocumentController {
         try {
             List<Resource> resources = resourceRepo.findAllByDocumentProjectNameAndDocumentName(projectName, documentName);
             if (resources.size() > 0) {
-                resourceRepo.delete(resources);
+                resourceRepo.deleteAll(resources);
             }
             documentRepo.delete(document);
             project.removeDocument(document);

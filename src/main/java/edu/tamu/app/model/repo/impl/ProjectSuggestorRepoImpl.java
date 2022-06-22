@@ -49,7 +49,7 @@ public class ProjectSuggestorRepoImpl extends AbstractWeaverRepoImpl<ProjectSugg
 
     @Override
     public ProjectSuggestor update(ProjectSuggestor projectSuggestor) {
-        ProjectSuggestor currentProjectSuggestor = projectSuggestorRepo.findOne(projectSuggestor.getId());
+        ProjectSuggestor currentProjectSuggestor = projectSuggestorRepo.getById(projectSuggestor.getId());
         for (int i=0;i<projectSuggestor.getSettings().size();i++) {
             ProjectSetting setting = projectSuggestor.getSettings().get(i);
             if (setting.isProtect() && setting.getValueList().stream().allMatch(v -> v.equals(""))) {

@@ -1,18 +1,16 @@
 package edu.tamu.app.observer;
 
 import static edu.tamu.app.Initialization.ASSETS_PATH;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -25,7 +23,6 @@ import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = WebServerInit.class)
 public class FileObserverRegistryTest {
 
@@ -55,7 +52,7 @@ public class FileObserverRegistryTest {
 
     private File directory;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         directory = new File(ASSETS_PATH + File.separator + "temp");
         registry.stop();
@@ -119,7 +116,7 @@ public class FileObserverRegistryTest {
         registry.healthCheck();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() throws Exception {
         if (directory.exists()) {
             FileSystemUtility.deleteDirectory(directory.getAbsolutePath());

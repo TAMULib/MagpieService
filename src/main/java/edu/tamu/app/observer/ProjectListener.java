@@ -3,7 +3,8 @@ package edu.tamu.app.observer;
 import java.io.File;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.model.Project;
@@ -12,7 +13,7 @@ import edu.tamu.app.utilities.FileSystemUtility;
 
 public class ProjectListener extends AbstractFileListener {
 
-    private static final Logger logger = Logger.getLogger(ProjectListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProjectListener.class);
 
     @Autowired
     private ProjectFactory projectFactory;
