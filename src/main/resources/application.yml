@@ -1,29 +1,26 @@
 server:
   port: 9000
-  contextPath:
+  servlet:
+    context-path:
 
----
 logging:
+  file:
+    name: logs/magpie-service.log
   level:
-    edu.tamu.app: INFO
-    org.hibernate: INFO
+    edu.tamu: INFO
     org.springframework: INFO
-    org.springframework.web: INFO
-    org.springframework.security: INFO
-    org.springframework.boot.actuate.audit.listener.AuditListener: INFO
-  file: magpie.log
-  path: /var/log
 
----
 spring:
+  sql.init.platform: h2
+  # sql.init.platform: postgresql
+
   datasource:
-    platform: h2
     driverClassName: org.h2.Driver
-    # url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    url: jdbc:h2:file:./h2/app.db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    # platform: postgresql
-    # url: jdbc:postgresql://localhost:5432/magpie
+    url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    # url: jdbc:h2:file:./h2/app.db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+
     # driverClassName: org.postgresql.Driver
+    # url: jdbc:postgresql://localhost:5432/magpie
 
     username: spring
     password: spring
@@ -46,9 +43,16 @@ spring:
     properties:
       hibernate.enable_lazy_load_no_trans: true
 
----
+  main:
+
+    # Bean overriding is necessary for TokenAuthorizationFilter.
+    allow-bean-definition-overriding: true
+
+    # Circular bean dependency between appWebMvcConfig and userRepoImpl.
+    allow-circular-references: true
+
 app:
-  host: http://localhost:${server.port}${server.contextPath}
+  host: http://localhost:${server.port}${server.servlet.context-path}
   projects.file: projects.json
   document.create.wait: 10000
   assets:
@@ -87,7 +91,6 @@ app:
   # edu.tamu.weaver.utility.HttpUtility
   http.timeout: 30000
 
----
 #############################
 # Framework shib properties #
 #############################
@@ -101,7 +104,6 @@ shib:
   firstName: tdl-givenname
   email: tdl-mail
 
----
 #############################
 # Framework auth properties #
 #############################

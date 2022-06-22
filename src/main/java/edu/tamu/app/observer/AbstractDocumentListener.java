@@ -15,7 +15,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.exception.DocumentNotFoundException;
@@ -28,7 +29,7 @@ import edu.tamu.app.service.DocumentFactory;
 
 public abstract class AbstractDocumentListener extends AbstractFileListener {
 
-    private static final Logger logger = Logger.getLogger(AbstractDocumentListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractDocumentListener.class);
 
     private static final Map<String, List<String>> pendingResources = new ConcurrentHashMap<String, List<String>>();
 
@@ -133,7 +134,7 @@ public abstract class AbstractDocumentListener extends AbstractFileListener {
     protected Document createDocument(File directory) {
         Document document = null;
         try {
-        	logger.debug("Creating document (calling createDocument) during run of Sync Service"); 
+            logger.debug("Creating document (calling createDocument) during run of Sync Service"); 
             document = documentFactory.createDocument(directory);
             document = processResources(document, directory);
         } catch (Exception e) {

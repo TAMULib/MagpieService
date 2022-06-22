@@ -19,7 +19,7 @@ import org.springframework.web.servlet.config.annotation.ContentNegotiationConfi
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 
 import edu.tamu.app.model.AppUser;
@@ -32,7 +32,7 @@ import edu.tamu.weaver.validation.resolver.WeaverValidatedModelMethodProcessor;
 @Configuration
 @EntityScan(basePackages = { "edu.tamu.app.model", "edu.tamu.weaver.wro.model" })
 @EnableJpaRepositories(basePackages = { "edu.tamu.app.model.repo", "edu.tamu.weaver.wro.model.repo" })
-public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
+public class AppWebMvcConfig implements WebMvcConfigurer {
 
     @Value("${app.security.allow-access}")
     private String[] hosts;
@@ -55,8 +55,8 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public ServletRegistrationBean h2servletRegistration() {
-        ServletRegistrationBean registrationBean = new ServletRegistrationBean(new WebServlet());
+    public ServletRegistrationBean<WebServlet> h2servletRegistration() {
+        ServletRegistrationBean<WebServlet> registrationBean = new ServletRegistrationBean<WebServlet>(new WebServlet());
         registrationBean.addUrlMappings("/admin/h2console/*");
         registrationBean.addInitParameter("-webAllowOthers", "true");
         return registrationBean;

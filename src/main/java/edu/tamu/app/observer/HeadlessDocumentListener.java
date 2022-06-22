@@ -3,7 +3,8 @@ package edu.tamu.app.observer;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -18,7 +19,7 @@ import edu.tamu.app.service.repository.Destination;
 
 public class HeadlessDocumentListener extends AbstractDocumentListener {
 
-    private static final Logger logger = Logger.getLogger(HeadlessDocumentListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(HeadlessDocumentListener.class);
 
     @Value("${app.document.create.wait:10000}")
     private int documentCreationWait;

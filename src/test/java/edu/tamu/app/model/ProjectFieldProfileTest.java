@@ -1,58 +1,61 @@
 package edu.tamu.app.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 public class ProjectFieldProfileTest extends AbstractModelTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
-        assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
+        assertEquals(0, projectFieldProfileRepo.count(), "ProjectFieldProfileRepo is not empty.");
     }
 
     @Test
     public void testSaveProjectFieldProfile() {
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-        assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
+        assertEquals(1, projectFieldProfileRepo.count(), "Test ProjectFieldProfile was not created.");
 
-        assertEquals("Test ProjectFieldProfile with expected project was not created.", testProject.getName(), testProfile.getProject().getName());
+        assertEquals(testProject.getName(), testProfile.getProject().getName(), "Test ProjectFieldProfile with expected project was not created.");
 
         testProfile.setProject(testProject);
         projectFieldProfileRepo.save(testProfile);
         testProfile = projectFieldProfileRepo.findByProjectAndGloss(testProject, "testGloss");
-        assertEquals(" The testProfile project was not set ", testProfile.getProject().getName(), testProject.getName());
+        assertEquals(testProfile.getProject().getName(), testProject.getName(), " The testProfile project was not set ");
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void testDuplicateProjectFieldProfile() {
-        projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-        projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+            projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
+        });
     }
 
     @Test
     public void testFindProjectFieldProfile() {
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-        assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
+        assertEquals(1, projectFieldProfileRepo.count(), "Test ProjectFieldProfile was not created.");
         FieldProfile assertProfile = projectFieldProfileRepo.findByProjectAndGloss(testProject, "testGloss");
-        assertEquals("Test ProjectFieldProfile with expected project was not found.", testProfile.getProject().getName(), assertProfile.getProject().getName());
+        assertEquals(testProfile.getProject().getName(), assertProfile.getProject().getName(), "Test ProjectFieldProfile with expected project was not found.");
     }
 
     @Test
     @Transactional
     public void testDeleteProjectFieldProfile() {
         testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-        assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
+        assertEquals(1, projectFieldProfileRepo.count(), "Test ProjectFieldProfile was not created.");
         projectFieldProfileRepo.delete(testProfile);
-        assertEquals("Test ProjectFieldProfile was not deleted.", 0, projectFieldProfileRepo.count());
+        assertEquals(0, projectFieldProfileRepo.count(), "Test ProjectFieldProfile was not deleted.");
     }
 
     @Test
@@ -78,17 +81,17 @@ public class ProjectFieldProfileTest extends AbstractModelTest {
         assertTrue(testProfile.isReadOnly());
         assertTrue(testProfile.isHidden());
         assertTrue(testProfile.isRequired());
-        assertEquals("The field profile gloss is incorrect", "test Profile gloss", testProfile.getGloss());
-        assertEquals("The field profile input type is incorrect", InputType.TEXT, testProfile.getInputType());
-        assertEquals("The field profile default value is incorrect", "This is a default Value", testProfile.getDefaultValue());
-        assertEquals("The field profile does not have metadata field labels", labels.size(), testProfile.getLabels().size());
+        assertEquals("test Profile gloss", testProfile.getGloss(), "The field profile gloss is incorrect");
+        assertEquals(InputType.TEXT, testProfile.getInputType(), "The field profile input type is incorrect");
+        assertEquals("This is a default Value", testProfile.getDefaultValue(), "The field profile default value is incorrect");
+        assertEquals(labels.size(), testProfile.getLabels().size(), "The field profile does not have metadata field labels");
 
         testLabel = metadataFieldLabelRepo.create("Field Label Name 3", testProfile);
         testProfile.addLabel(testLabel);
         testProfile = projectFieldProfileRepo.save(testProfile);
         testProfile.removeLabel(testLabel);
         testProfile = projectFieldProfileRepo.save(testProfile);
-        assertEquals("The third metadata field label was not removed", labels.size(), testProfile.getLabels().size());
+        assertEquals(labels.size(), testProfile.getLabels().size(), "The third metadata field label was not removed");
 
     }
 

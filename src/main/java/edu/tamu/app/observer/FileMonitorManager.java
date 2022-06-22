@@ -5,11 +5,12 @@ import java.util.concurrent.ThreadFactory;
 
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileMonitorManager {
 
-    private static final Logger logger = Logger.getLogger(FileMonitorManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileMonitorManager.class);
 
     private final FileAlterationMonitor monitor;
 

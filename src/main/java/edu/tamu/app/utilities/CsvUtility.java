@@ -13,7 +13,8 @@ import java.util.Optional;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.app.model.MetadataFieldGroup;
@@ -23,7 +24,7 @@ import edu.tamu.app.model.PublishedLocation;
 
 public class CsvUtility {
 
-    private static final Logger logger = Logger.getLogger(CsvUtility.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsvUtility.class);
 
     private Optional<ProjectRepository> projectRepository;
 

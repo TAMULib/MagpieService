@@ -3,11 +3,12 @@ package edu.tamu.app.model.response.marc;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FlatMARC {
 
-    private static final Logger logger = Logger.getLogger(FlatMARC.class);
+    private static final Logger logger = LoggerFactory.getLogger(FlatMARC.class);
 
     private String dc_creator = "";
     private String dc_title = "";

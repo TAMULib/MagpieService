@@ -1,72 +1,75 @@
 package edu.tamu.app.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DocumentTest extends AbstractModelTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
         mockDocument = new Document(testProject, "testDocument", "documentPath", "Unassigned");
-        assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
+        assertEquals(0, documentRepo.count(), "DocumentRepo is not empty.");
     }
 
     @Test
     public void testCreateDocument() {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
-        assertEquals("Test Document was not created.", 1, documentRepo.count());
-        assertEquals("Expected Test Document was not created.", mockDocument.getName(), testDocument.getName());
+        assertEquals(1, documentRepo.count(), "Test Document was not created.");
+        assertEquals(mockDocument.getName(), testDocument.getName(), "Expected Test Document was not created.");
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void testDuplicateDocument() {
-        documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
-        documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
+            documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
+        });
     }
 
     @Test
     public void testFindDocument() {
-        assertEquals("Test Document already exists.", null, documentRepo.findByProjectNameAndName(testProject.getName(), "testFile"));
+        assertEquals(null, documentRepo.findByProjectNameAndName(testProject.getName(), "testFile"), "Test Document already exists.");
         documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
         testDocument = documentRepo.findByProjectNameAndName(mockDocument.getProject().getName(), mockDocument.getName());
-        assertEquals("Test Document was not found.", mockDocument.getName(), testDocument.getName());
+        assertEquals(mockDocument.getName(), testDocument.getName(), "Test Document was not found.");
     }
 
     @Test
     @Transactional
     public void testDeleteDocument() {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
-        assertEquals("DocumentRepo is empty.", 1, documentRepo.count());
+        assertEquals(1, documentRepo.count(), "DocumentRepo is empty.");
         documentRepo.delete(testDocument);
-        assertEquals("Test Document was not removed.", 0, documentRepo.count());
+        assertEquals(0, documentRepo.count(), "Test Document was not removed.");
     }
 
     @Test
     @Transactional
     public void testCascadeOnDeleteDocument() {
         testDocument = documentRepo.create(testProject, mockDocument.getName(), mockDocument.getPath(), mockDocument.getStatus());
-        assertEquals("Test Document was not created.", 1, documentRepo.count());
+        assertEquals(1, documentRepo.count(), "Test Document was not created.");
 
-        assertEquals("ProjectFieldProfileRepo is not empty.", 0, projectFieldProfileRepo.count());
+        assertEquals(0, projectFieldProfileRepo.count(), "ProjectFieldProfileRepo is not empty.");
         FieldProfile testProfile = projectFieldProfileRepo.create(testProject, "testGloss", false, false, false, false, InputType.TEXT, "default");
-        assertEquals("Test ProjectFieldProfile was not created.", 1, projectFieldProfileRepo.count());
+        assertEquals(1, projectFieldProfileRepo.count(), "Test ProjectFieldProfile was not created.");
 
-        assertEquals("MetadataFieldLabelRepo is not empty.", 0, metadataFieldLabelRepo.count());
+        assertEquals(0, metadataFieldLabelRepo.count(), "MetadataFieldLabelRepo is not empty.");
         MetadataFieldLabel testLabel = metadataFieldLabelRepo.create("testLabel", testProfile);
-        assertEquals("Test MetadataFieldLabel was not created.", 1, metadataFieldLabelRepo.count());
+        assertEquals(1, metadataFieldLabelRepo.count(), "Test MetadataFieldLabel was not created.");
 
-        assertEquals("MetadataFieldRepo is not empty.", 0, metadataFieldGroupRepo.count());
+        assertEquals(0, metadataFieldGroupRepo.count(), "MetadataFieldRepo is not empty.");
         MetadataFieldGroup testField = metadataFieldGroupRepo.create(testDocument, testLabel);
-        assertEquals("Test MetadataField was not created.", 1, metadataFieldGroupRepo.count());
+        assertEquals(1, metadataFieldGroupRepo.count(), "Test MetadataField was not created.");
 
-        assertEquals("MetadataFieldValue repository is not empty.", 0, metadataFieldValueRepo.count());
+        assertEquals(0, metadataFieldValueRepo.count(), "MetadataFieldValue repository is not empty.");
         MetadataFieldValue fieldValue = metadataFieldValueRepo.create("test", testField);
-        assertEquals("Test MetadataFieldValue was not created.", 1, metadataFieldValueRepo.count());
+        assertEquals(1, metadataFieldValueRepo.count(), "Test MetadataFieldValue was not created.");
 
         testField.addValue(fieldValue);
 
@@ -74,23 +77,23 @@ public class DocumentTest extends AbstractModelTest {
 
         testDocument = documentRepo.save(testDocument);
 
-        assertEquals("Test Document was not created.", 1, documentRepo.count());
+        assertEquals(1, documentRepo.count(), "Test Document was not created.");
 
-        assertEquals("Test Document had an incorrect number of fields.", 1, testDocument.getFields().size());
+        assertEquals(1, testDocument.getFields().size(), "Test Document had an incorrect number of fields.");
 
-        assertEquals("Test Document's field had an incorrect number of values.", 1, testDocument.getFields().get(0).getValues().size());
+        assertEquals(1, testDocument.getFields().get(0).getValues().size(), "Test Document's field had an incorrect number of values.");
 
         documentRepo.delete(testDocument);
 
-        assertEquals("Test Document was not deleted.", 0, documentRepo.count());
+        assertEquals(0, documentRepo.count(), "Test Document was not deleted.");
 
-        assertEquals("Test MetadataFieldLabel was deleted.", 1, metadataFieldLabelRepo.count());
+        assertEquals(1, metadataFieldLabelRepo.count(), "Test MetadataFieldLabel was deleted.");
 
-        assertEquals("Test ProjectFieldProfile was deleted.", 1, projectFieldProfileRepo.count());
+        assertEquals(1, projectFieldProfileRepo.count(), "Test ProjectFieldProfile was deleted.");
 
-        assertEquals("Test MetadataField was not deleted.", 0, metadataFieldGroupRepo.count());
+        assertEquals(0, metadataFieldGroupRepo.count(), "Test MetadataField was not deleted.");
 
-        assertEquals("Test MetadataFieldValue was not deleted.", 0, metadataFieldValueRepo.count());
+        assertEquals(0, metadataFieldValueRepo.count(), "Test MetadataFieldValue was not deleted.");
     }
 
     @Test
@@ -100,9 +103,9 @@ public class DocumentTest extends AbstractModelTest {
         testDocument.setStatus("Assigned");
         testDocument.setAnnotator("An Annotator");
         testDocument.setNotes("Notes for Test Document");
-        assertEquals(" The document name was not modified ", "Another name for test Document", testDocument.getName());
-        assertEquals(" The document name was not modified ", "An Annotator", testDocument.getAnnotator());
-        assertEquals(" The document name was not modified ", "Notes for Test Document", testDocument.getNotes());
+        assertEquals("Another name for test Document", testDocument.getName(), " The document name was not modified ");
+        assertEquals("An Annotator", testDocument.getAnnotator(), " The document name was not modified ");
+        assertEquals("Notes for Test Document", testDocument.getNotes(), " The document name was not modified ");
     }
 
 }

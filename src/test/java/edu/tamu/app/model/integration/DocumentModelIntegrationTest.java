@@ -1,11 +1,11 @@
 package edu.tamu.app.model.integration;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.tamu.app.model.AbstractModelTest;
 import edu.tamu.app.model.Document;
@@ -14,7 +14,7 @@ import edu.tamu.app.model.Resource;
 
 public class DocumentModelIntegrationTest extends AbstractModelTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockDocument = new Document(testProject, "testDocument", "documentPath", "Unassigned");
         mockResource1 = new Resource(mockDocument, "testResource1", "resourcePath1", "mime/type1");
@@ -32,17 +32,17 @@ public class DocumentModelIntegrationTest extends AbstractModelTest {
         resourceRepo.create(new Resource(testDocument, mockResource2.getName(), mockResource2.getPath(), mockResource2.getMimeType()));
 
         List<Resource> testResources = resourceRepo.findAllByDocumentProjectNameAndDocumentName(testProject.getName(), testDocument.getName());
-        assertEquals("Test Document did not have the expected number of resources!", 2, testResources.size());
+        assertEquals(2, testResources.size(), "Test Document did not have the expected number of resources!");
 
-        assertEquals("Test Document first Resource did not have the expected name!", mockResource1.getName(), testResources.get(0).getName());
-        assertEquals("Test Document first Resource did not have the expected path!", mockResource1.getPath(), testResources.get(0).getPath());
-        assertEquals("Test Document first Resource did not have the expected url!", mockResource1.getUrl(), testResources.get(0).getUrl());
-        assertEquals("Test Document first Resource did not have the expected mime type!", mockResource1.getMimeType(), testResources.get(0).getMimeType());
+        assertEquals(mockResource1.getName(), testResources.get(0).getName(), "Test Document first Resource did not have the expected name!");
+        assertEquals(mockResource1.getPath(), testResources.get(0).getPath(), "Test Document first Resource did not have the expected path!");
+        assertEquals(mockResource1.getUrl(), testResources.get(0).getUrl(), "Test Document first Resource did not have the expected url!");
+        assertEquals(mockResource1.getMimeType(), testResources.get(0).getMimeType(), "Test Document first Resource did not have the expected mime type!");
 
-        assertEquals("Test Document second Resource did not have the expected name!", mockResource2.getName(), testResources.get(1).getName());
-        assertEquals("Test Document second Resource did not have the expected path!", mockResource2.getPath(), testResources.get(1).getPath());
-        assertEquals("Test Document second Resource did not have the expected url!", mockResource2.getUrl(), testResources.get(1).getUrl());
-        assertEquals("Test Document second Resource did not have the expected mime type!", mockResource2.getMimeType(), testResources.get(1).getMimeType());
+        assertEquals(mockResource2.getName(), testResources.get(1).getName(), "Test Document second Resource did not have the expected name!");
+        assertEquals(mockResource2.getPath(), testResources.get(1).getPath(), "Test Document second Resource did not have the expected path!");
+        assertEquals(mockResource2.getUrl(), testResources.get(1).getUrl(), "Test Document second Resource did not have the expected url!");
+        assertEquals(mockResource2.getMimeType(), testResources.get(1).getMimeType(), "Test Document second Resource did not have the expected mime type!");
     }
 
 }

@@ -12,7 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,7 +53,7 @@ import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 @RequestMapping("/project")
 public class ProjectController {
 
-    private static final Logger logger = Logger.getLogger(ProjectController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
 
     @Autowired
     private ProjectRepo projectRepo;
@@ -104,7 +105,7 @@ public class ProjectController {
     @RequestMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ApiResponse getProject(@PathVariable Long id) {
-        return new ApiResponse(SUCCESS, projectRepo.findOne(id));
+        return new ApiResponse(SUCCESS, projectRepo.getById(id));
     }
 
     @RequestMapping("/create")
@@ -121,7 +122,7 @@ public class ProjectController {
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse update(@WeaverValidatedModel Project project) {
 
-        Project currentProject = projectRepo.findOne(project.getId());
+        Project currentProject = projectRepo.getById(project.getId());
         boolean refreshProjectListener = (currentProject.isHeadless() != project.isHeadless());
 
         //we need to populate the values of any protected ProjectService properties by getting the full entities from the repo
@@ -129,7 +130,7 @@ public class ProjectController {
         project.getRepositories().forEach(pr -> {
             projectRepositoryIds.add(pr.getId());
         });
-        project.setRepositories(projectRepositoryRepo.findAll(projectRepositoryIds));
+        project.setRepositories(projectRepositoryRepo.findAllById(projectRepositoryIds));
 
         project.getRepositories().forEach(r -> {
             r.setPropertyProtectionService(propertyProtectionService);
@@ -139,7 +140,7 @@ public class ProjectController {
         project.getAuthorities().forEach(pa -> {
             projectAuthorityIds.add(pa.getId());
         });
-        project.setAuthorities(projectAuthorityRepo.findAll(projectAuthorityIds));
+        project.setAuthorities(projectAuthorityRepo.findAllById(projectAuthorityIds));
 
         project.getAuthorities().forEach(a -> {
             a.setPropertyProtectionService(propertyProtectionService);
@@ -149,7 +150,7 @@ public class ProjectController {
         project.getSuggestors().forEach(ps -> {
             projectSuggestorIds.add(ps.getId());
         });
-        project.setSuggestors(projectSuggestorRepo.findAll(projectSuggestorIds));
+        project.setSuggestors(projectSuggestorRepo.findAllById(projectSuggestorIds));
 
         project.getSuggestors().forEach(s -> {
             s.setPropertyProtectionService(propertyProtectionService);
@@ -186,12 +187,12 @@ public class ProjectController {
         });
 
         //get the complete project, with documents
-        Project removableProject = projectRepo.findOne(project.getId());
+        Project removableProject = projectRepo.getById(project.getId());
 
         if (removableProject.getDocuments().isEmpty() != true) {
             final String projectName = removableProject.getName();
             removableProject.getDocuments().forEach(document -> {
-                resourceRepo.delete(resourceRepo.findAllByDocumentProjectNameAndDocumentName(projectName, document.getName()));
+                resourceRepo.deleteAll(resourceRepo.findAllByDocumentProjectNameAndDocumentName(projectName, document.getName()));
             });
         }
 
@@ -204,7 +205,7 @@ public class ProjectController {
     @RequestMapping("/{projectId}/add-field-profile")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse addFieldProfile(@PathVariable Long projectId, @RequestBody JsonNode data) {
-        Project currentProject = projectRepo.findOne(projectId);
+        Project currentProject = projectRepo.getById(projectId);
         FieldProfile existingFieldProfile = fieldProfileRepo.findByProjectAndGloss(currentProject, data.get("fieldProfile").get("gloss").toString());
         if (existingFieldProfile == null) {
             try {
@@ -236,7 +237,7 @@ public class ProjectController {
     @RequestMapping("/{projectId}/update-field-profile")
     @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse updateFieldProfile(@PathVariable Long projectId, @RequestBody JsonNode data) {
-        Project currentProject = projectRepo.findOne(projectId);
+        Project currentProject = projectRepo.getById(projectId);
 
         try {
             FieldProfile fieldProfile = objectMapper.readValue(data.get("fieldProfile").toString(), new TypeReference<FieldProfile>() {

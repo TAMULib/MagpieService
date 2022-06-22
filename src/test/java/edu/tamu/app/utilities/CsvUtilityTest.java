@@ -1,7 +1,7 @@
 package edu.tamu.app.utilities;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,13 +11,11 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.Document;
@@ -37,7 +35,6 @@ import edu.tamu.app.model.repo.ProjectRepo;
 import edu.tamu.app.model.repo.ResourceRepo;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = WebServerInit.class)
 public class CsvUtilityTest {
 
@@ -115,23 +112,23 @@ public class CsvUtilityTest {
 
         List<List<String>> csvContents = csvUtility.generateOneArchiveMaticaCSV(mockDocument, "temp");
 
-        assertEquals("There were the wrong number of column headings in the CSV.", 5, csvContents.get(0).size());
-        assertTrue("The column headings were missing the parts heading.", csvContents.get(0).contains("parts"));
-        assertTrue("The column headings were missing the description heading.", csvContents.get(0).contains("dc.description"));
-        assertTrue("The column headings were missing the date heading.", csvContents.get(0).contains("dc.date"));
+        assertEquals(5, csvContents.get(0).size(), "There were the wrong number of column headings in the CSV.");
+        assertTrue(csvContents.get(0).contains("parts"), "The column headings were missing the parts heading.");
+        assertTrue(csvContents.get(0).contains("dc.description"), "The column headings were missing the description heading.");
+        assertTrue(csvContents.get(0).contains("dc.date"), "The column headings were missing the date heading.");
 
         int i = 0;
         for (String columnHeading : csvContents.get(0)) {
 
             switch (columnHeading) {
             case "parts":
-                assertEquals("The parts column was incorrect.", "objects/testDocument", csvContents.get(1).get(i));
+                assertEquals("objects/testDocument", csvContents.get(1).get(i), "The parts column was incorrect.");
                 break;
             case "description":
-                assertTrue("One of the description columns was incorrect", (abstractValue.equals(csvContents.get(1).get(i))) || (descValue.equals(csvContents.get(1).get(i))));
+                assertTrue((abstractValue.equals(csvContents.get(1).get(i))) || (descValue.equals(csvContents.get(1).get(i))), "One of the description columns was incorrect");
                 break;
             case "date":
-                assertEquals("The date column was incorrect", dateValue, csvContents.get(1).get(i));
+                assertEquals(dateValue, csvContents.get(1).get(i), "The date column was incorrect");
                 break;
             }
             i++;
@@ -139,7 +136,7 @@ public class CsvUtilityTest {
 
         Path path = Paths.get("temp");
 
-        assertTrue("temp path is not a directory", Files.isDirectory(path));
+        assertTrue(Files.isDirectory(path), "temp path is not a directory");
 
         Files.walk(path).forEach(filePath -> {
             if (Files.isRegularFile(filePath)) {
@@ -152,7 +149,7 @@ public class CsvUtilityTest {
         FileUtils.deleteDirectory(new File("temp"));
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         metadataFieldValueRepo.deleteAll();
         metadataFieldLabelRepo.deleteAll();

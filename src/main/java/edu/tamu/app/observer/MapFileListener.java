@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.tamu.app.service.MapFileService;
@@ -13,7 +14,7 @@ import edu.tamu.app.service.registry.MagpieServiceRegistry;
 
 public class MapFileListener extends AbstractFileListener {
 
-    private static final Logger logger = Logger.getLogger(MapFileListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(MapFileListener.class);
 
     @Autowired
     private MagpieServiceRegistry magpieServiceRegistry;

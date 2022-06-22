@@ -40,7 +40,8 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 
@@ -61,7 +62,7 @@ import edu.tamu.app.model.repo.ResourceRepo;
 
 public class DSpaceRepository extends PublishingRepository {
 
-    private static final Logger logger = Logger.getLogger(DSpaceRepository.class);
+    private static final Logger logger = LoggerFactory.getLogger(DSpaceRepository.class);
 
     @Autowired
     private ObjectMapper objectMapper;

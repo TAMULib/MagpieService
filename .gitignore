@@ -1,15 +1,17 @@
-*.log*
+h2/
+bin/
+logs/
 target/
+
 .project
 .settings
 .classpath
 .factorypath
-.project/*
-.settings/*
-bin/
-src/main/resources/static/metadatatool/projects/*
-src/main/resources/static/metadatatool/exports/*
-src/main/resources/static/metadatatool/maps/*
-/target/
 
-/.apt_generated/
+.project/
+.settings/
+.apt_generated/
+
+src/main/resources/static/metadatatool/maps/*
+src/main/resources/static/metadatatool/exports/*
+src/main/resources/static/metadatatool/projects/*

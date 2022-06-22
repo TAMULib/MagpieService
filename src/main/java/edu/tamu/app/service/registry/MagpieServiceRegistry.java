@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ import edu.tamu.app.service.suggestor.NALTSuggestor;
 @Service
 public class MagpieServiceRegistry {
 
-    private static final Logger logger = Logger.getLogger(MagpieServiceRegistry.class);
+    private static final Logger logger = LoggerFactory.getLogger(MagpieServiceRegistry.class);
 
     @Autowired
     private AutowireCapableBeanFactory beanFactory;

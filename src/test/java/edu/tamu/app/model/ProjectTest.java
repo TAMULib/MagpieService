@@ -1,8 +1,9 @@
 package edu.tamu.app.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 
 public class ProjectTest extends AbstractModelTest {
@@ -10,51 +11,53 @@ public class ProjectTest extends AbstractModelTest {
     @Test
     public void testSaveProject() {
         assertProject = projectRepo.create("testProject", IngestType.STANDARD, false);
-        assertEquals("Test Project was not created.", 1, projectRepo.count());
-        assertEquals("Expected Test Project was not created.", "testProject", assertProject.getName());
+        assertEquals(1, projectRepo.count(), "Test Project was not created.");
+        assertEquals("testProject", assertProject.getName(), "Expected Test Project was not created.");
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test
     public void testDuplicateProject() {
-        projectRepo.create("testProject", IngestType.STANDARD, false);
-        projectRepo.create("testProject", IngestType.STANDARD, false);
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            projectRepo.create("testProject", IngestType.STANDARD, false);
+            projectRepo.create("testProject", IngestType.STANDARD, false);
+        });
     }
 
     @Test
     public void testFindProject() {
         testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
-        assertEquals("Test Project was not created.", 1, projectRepo.count());
+        assertEquals(1, projectRepo.count(), "Test Project was not created.");
         testProject = projectRepo.findByName("testProject");
-        assertEquals("Test Project was not found.", "testProject", testProject.getName());
+        assertEquals("testProject", testProject.getName(), "Test Project was not found.");
     }
 
     @Test
     public void testDeleteProject() {
         testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
-        assertEquals("Test Project was not created.", 1, projectRepo.count());
+        assertEquals(1, projectRepo.count(), "Test Project was not created.");
         projectRepo.delete(testProject);
-        assertEquals("Test Project was not deleted.", 0, projectRepo.count());
+        assertEquals(0, projectRepo.count(), "Test Project was not deleted.");
     }
 
     @Test
     public void testCascadeOnDeleteProject() {
         testProject = projectRepo.create("testProject", IngestType.STANDARD, false);
-        assertEquals("Test Project was not created.", 1, projectRepo.count());
+        assertEquals(1, projectRepo.count(), "Test Project was not created.");
 
-        assertEquals("DocumentRepo is not empty.", 0, documentRepo.count());
+        assertEquals(0, documentRepo.count(), "DocumentRepo is not empty.");
         testDocument = documentRepo.create(testProject, "testDocument", "documentPath", "Unassigned");
 
-        assertEquals("Test Document was not created.", 1, documentRepo.count());
+        assertEquals(1, documentRepo.count(), "Test Document was not created.");
 
         testProject.addDocument(testDocument);
 
         testProject = projectRepo.save(testProject);
 
-        assertEquals("Test Project does not have any documents.", 1, testProject.getDocuments().size());
+        assertEquals(1, testProject.getDocuments().size(), "Test Project does not have any documents.");
 
         projectRepo.delete(testProject);
 
-        assertEquals("Test Document was not deleted.", 0, documentRepo.count());
+        assertEquals(0, documentRepo.count(), "Test Document was not deleted.");
     }
 
 }

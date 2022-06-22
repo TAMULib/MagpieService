@@ -1,19 +1,17 @@
 package edu.tamu.app.observer;
 
 import static edu.tamu.app.Initialization.ASSETS_PATH;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.repo.DocumentRepo;
@@ -26,7 +24,6 @@ import edu.tamu.app.model.repo.ResourceRepo;
 import edu.tamu.app.utilities.FileSystemUtility;
 
 @ActiveProfiles("test")
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = WebServerInit.class)
 public class ProjectListenerTest {
 
@@ -60,8 +57,8 @@ public class ProjectListenerTest {
         // wait for the file monitor to pick up the newly created directory
         Thread.sleep(2500);
 
-        assertEquals("The project repo has the incorrect number of projects!", 1, projectRepo.count());
-        assertNotNull("The tests project was not created!", projectRepo.findByName("tests"));
+        assertEquals(1, projectRepo.count(), "The project repo has the incorrect number of projects!");
+        assertNotNull(projectRepo.findByName("tests"), "The tests project was not created!");
 
         String documentPath = testsPath + File.separator + "test_0";
         FileSystemUtility.createDirectory(documentPath);
@@ -71,18 +68,18 @@ public class ProjectListenerTest {
         // wait for the file monitor to pick up the newly created directory and files
         Thread.sleep(2500);
 
-        assertEquals("The document repo has the incorrect number of documents!", 1, documentRepo.count());
-        assertNotNull("The test_0 document was not created!", documentRepo.findByProjectNameAndName("tests", "test_0"));
+        assertEquals(1, documentRepo.count(), "The document repo has the incorrect number of documents!");
+        assertNotNull(documentRepo.findByProjectNameAndName("tests", "test_0"), "The test_0 document was not created!");
 
-        assertEquals("The resource repo has the incorrect number of resources!", 2, resourceRepo.count());
+        assertEquals(2, resourceRepo.count(), "The resource repo has the incorrect number of resources!");
 
-        assertNotNull("The test.pdf resource was not created!", resourceRepo.findByDocumentProjectNameAndDocumentNameAndName("tests", "test_0", "test.pdf"));
-        assertNotNull("The test.pdf.txt resource was not created!", resourceRepo.findByDocumentProjectNameAndDocumentNameAndName("tests", "test_0", "test.pdf.txt"));
+        assertNotNull(resourceRepo.findByDocumentProjectNameAndDocumentNameAndName("tests", "test_0", "test.pdf"), "The test.pdf resource was not created!");
+        assertNotNull(resourceRepo.findByDocumentProjectNameAndDocumentNameAndName("tests", "test_0", "test.pdf.txt"), "The test.pdf.txt resource was not created!");
 
         FileSystemUtility.deleteDirectory(testsPath);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() throws Exception {
         resourceRepo.deleteAll();
         documentRepo.deleteAll();

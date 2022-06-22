@@ -1,10 +1,10 @@
 package edu.tamu.app.controller;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import edu.tamu.app.model.Document;
 import edu.tamu.weaver.response.ApiStatus;
@@ -15,18 +15,18 @@ public class DocumentControllerTest extends AbstractControllerTest {
     @SuppressWarnings("unchecked")
     public void testAllDocuments() {
         response = documentController.allDocuments();
-        assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), " The response was not successful ");
         List<Document> list = (List<Document>) response.getPayload().get("ArrayList<Document>");
-        assertEquals(" The list had no documents in it ", mockDocumentList.size(), list.size());
+        assertEquals(mockDocumentList.size(), list.size(), " The list had no documents in it ");
     }
 
     @Test
     public void testDocumentByNameandProjectName() {
         response = documentController.documentByName(TEST_PROJECT1.getName(), TEST_DOCUMENT1.getName());
-        assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), " The response was not successful ");
         Document document = (Document) response.getPayload().get("Document");
-        assertEquals(" The document has a different document document name ", TEST_DOCUMENT1.getName(), document.getName());
-        assertEquals(" The document has a different project name ", TEST_PROJECT1.getName(), document.getProject().getName());
+        assertEquals(TEST_DOCUMENT1.getName(), document.getName(), " The document has a different document document name ");
+        assertEquals(TEST_PROJECT1.getName(), document.getProject().getName(), " The document has a different project name ");
     }
 
     @Test
@@ -37,35 +37,35 @@ public class DocumentControllerTest extends AbstractControllerTest {
     @Test
     public void testSaveDocument() {
         response = documentController.save(TEST_DOCUMENT1);
-        assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), " The response was not successful ");
     }
 
     @Test
     public void testPushDocument() {
         response = documentController.push(TEST_DOCUMENT1.getProject().getName(), TEST_DOCUMENT1.getName());
-        assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
-        assertEquals(" The document was not published ", "Your item has been successfully published", response.getMeta().getMessage());
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), " The response was not successful ");
+        assertEquals("Your item has been successfully published", response.getMeta().getMessage(), " The document was not published ");
         Document document = (Document) response.getPayload().get("Document");
-        assertEquals(" The document has a different document name ", TEST_DOCUMENT1.getName(), document.getName());
-        assertEquals(" The document has a different project name ", TEST_PROJECT1.getName(), document.getProject().getName());
-        assertEquals(" The document has isPublishing set to TRUE ", false, document.isPublishing());
+        assertEquals(TEST_DOCUMENT1.getName(), document.getName(), " The document has a different document name ");
+        assertEquals(TEST_PROJECT1.getName(), document.getProject().getName(), " The document has a different project name ");
+        assertEquals(false, document.isPublishing(), " The document has isPublishing set to TRUE ");
     }
 
     @Test
     public void testPushAlreadyPublishingDocument() {
         response = documentController.push(TEST_DOCUMENT4.getProject().getName(), TEST_DOCUMENT4.getName());
-        assertEquals(" The response did not error ", ApiStatus.ERROR, response.getMeta().getStatus());
-        assertEquals(" The document did not error due to pending publications ", "Cannot publish because document is already pending publication", response.getMeta().getMessage());
-        Document document = documentRepo.findOne(TEST_DOCUMENT4.getId());
-        assertEquals(" The document has isPublishing set to FALSE ", true, document.isPublishing());
+        assertEquals(ApiStatus.ERROR, response.getMeta().getStatus(), " The response did not error ");
+        assertEquals("Cannot publish because document is already pending publication", response.getMeta().getMessage(), " The document did not error due to pending publications ");
+        Document document = documentRepo.getById(TEST_DOCUMENT4.getId());
+        assertEquals(true, document.isPublishing(), " The document has isPublishing set to FALSE ");
     }
 
     @Test
     public void testRemoveDocument() {
         response = documentController.remove(TEST_DOCUMENT1.getProject().getName(), TEST_DOCUMENT1.getName());
-        assertEquals(" The response was not successful ", ApiStatus.SUCCESS, response.getMeta().getStatus());
+        assertEquals(ApiStatus.SUCCESS, response.getMeta().getStatus(), " The response was not successful ");
         String responseMessage = "Document " + TEST_DOCUMENT1.getName() + " has been removed (deleted) from project " + TEST_DOCUMENT1.getProject().getName();
-        assertEquals(" The document was not removed (deleted)", responseMessage, response.getMeta().getMessage());
+        assertEquals(responseMessage, response.getMeta().getMessage(), " The document was not removed (deleted)");
     }
 
 }

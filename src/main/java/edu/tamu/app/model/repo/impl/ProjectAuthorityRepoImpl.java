@@ -49,7 +49,7 @@ public class ProjectAuthorityRepoImpl extends AbstractWeaverRepoImpl<ProjectAuth
 
     @Override
     public ProjectAuthority update(ProjectAuthority projectAuthority) {
-        ProjectAuthority currentProjectAuthority = projectAuthorityRepo.findOne(projectAuthority.getId());
+        ProjectAuthority currentProjectAuthority = projectAuthorityRepo.getById(projectAuthority.getId());
         for (int i=0;i<projectAuthority.getSettings().size();i++) {
             ProjectSetting setting = projectAuthority.getSettings().get(i);
             if (setting.isProtect() && setting.getValueList().stream().allMatch(v -> v.equals(""))) {

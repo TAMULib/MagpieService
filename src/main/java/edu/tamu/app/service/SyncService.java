@@ -9,7 +9,8 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
@@ -29,7 +30,7 @@ import edu.tamu.app.utilities.FileSystemUtility;
 @Service
 public class SyncService {
 
-    private static final Logger logger = Logger.getLogger(SyncService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SyncService.class);
 
     @Autowired
     private DocumentRepo documentRepo;
@@ -54,7 +55,7 @@ public class SyncService {
         if (logger.isDebugEnabled()) {
             logger.debug("Running Sync Service for ID " + projectId);
         }
-        Project project = projectRepo.getOne(projectId);
+        Project project = projectRepo.getById(projectId);
         if (project != null) {
             logger.info("Found project: " + project.getName());
             processSync(project);
