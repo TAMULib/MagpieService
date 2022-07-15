@@ -5,7 +5,7 @@
 
   <groupId>edu.tamu</groupId>
   <artifactId>metadatatool</artifactId>
-  <version>1.6.2-RC1</version>
+  <version>1.6.3-RC1</version>
 
   <name>Scanned Document Metadata Tool</name>
 
