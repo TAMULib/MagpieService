@@ -47,7 +47,7 @@ spring:
 
 app:
   host: http://localhost:${server.port}${server.servlet.context-path}
-  projects.file: test-projects.json
+  projectsjson.path: classpath:config/test-projects.json
   document.create.wait: 10000
   assets:
     path: classpath:static/metadatatool

@@ -58,7 +58,7 @@ public class Initialization implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        setHost(host);
+        setHost();
         setAssetsPath();
         setProjectsJsonPath();
         setListenerParallelism();
@@ -71,12 +71,12 @@ public class Initialization implements CommandLineRunner {
         fileObserverRegistry.start();
     }
 
-    private void setHost(String host) {
+    private void setHost() {
         HOST = host;
     }
 
     private void setAssetsPath() {
-        logger.debug("Initialization runner setting assetsPath " + assetsPath);
+        logger.debug("Initialization runner setting assets path " + assetsPath);
         try {
             ASSETS_PATH = resourceLoader.getResource(assetsPath).getURI().getPath();
         } catch (IOException e) {
@@ -88,7 +88,7 @@ public class Initialization implements CommandLineRunner {
     }
 
     private void setProjectsJsonPath() {
-        logger.debug("Initialization runner setting projectsJsonPath" + projectsJsonPath);
+        logger.debug("Initialization runner setting initial projects json file path" + projectsJsonPath);
         try {
             PROJECTS_JSON_PATH = resourceLoader.getResource(projectsJsonPath).getURI().getPath();
 
@@ -98,12 +98,12 @@ public class Initialization implements CommandLineRunner {
     }
 
     private void setListenerParallelism() {
-        logger.debug("Initialization runner setting LISTENER_PARALLELISM " + listenerParallelism);
+        logger.debug("Initialization runner setting listener parallelism " + listenerParallelism);
         LISTENER_PARALLELISM = listenerParallelism;
     }
 
     private void setListenerInterval() {
-        logger.debug("Initialiazion runner setting LISTENER INTERVAL" + listenerInterval);
+        logger.debug("Initialiazion runner setting listener interval " + listenerInterval);
         LISTENER_INTERVAL = listenerInterval;
     }
 }
