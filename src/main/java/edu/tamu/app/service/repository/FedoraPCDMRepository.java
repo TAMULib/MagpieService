@@ -101,7 +101,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
                 createResource(file.getAbsolutePath(), pagePath, file.getName());
 
                 proxyPages[x] = new ProxyPage(itemContainerPath + "/" + "orderProxies" + "/" + "page_" + x + "_proxy", pagePath, itemContainerPath);
-                logger.debug("About to generat PUT to push file " + file.getName() + " to document " + document.getName());
+                logger.debug("About to generate PUT to push file " + file.getName() + " to document " + document.getName());
                 generatePutRequest(proxyPages[x].getProxyUrl(), null, buildPCDMPageProxy(proxyPages[x].getProxyUrl(), proxyPages[x].getProxyInUrl(), proxyPages[x].getProxyForUrl()));
             }
             x++;
@@ -109,6 +109,7 @@ public class FedoraPCDMRepository extends AbstractFedoraRepository {
 
         orderPageProxies(proxyPages);
         // set the first/last pages for the item
+        logger.debug("Setting first and last pages of the " + proxyPages.length + " proxy pages for document " + document.getName());
         executeSparqlUpdate(itemContainerPath, buildPCDMItemOrderUpdate(itemContainerPath, proxyPages[0].getProxyUrl(), proxyPages[proxyPages.length - 1].getProxyUrl()));
 
         return itemContainerPath;
