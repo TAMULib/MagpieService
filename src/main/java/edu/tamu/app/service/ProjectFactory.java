@@ -2,6 +2,7 @@ package edu.tamu.app.service;
 
 import static edu.tamu.app.Initialization.ASSETS_PATH;
 import static edu.tamu.app.Initialization.PROJECTS_PATH;
+import static edu.tamu.app.Initialization.PROJECTS_JSON_PATH;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +50,7 @@ import edu.tamu.app.service.registry.MagpieService;
 import edu.tamu.app.service.registry.MagpieServiceRegistry;
 import edu.tamu.app.utilities.FileSystemUtility;
 
+
 @Service
 public class ProjectFactory {
 
@@ -71,14 +73,11 @@ public class ProjectFactory {
     private static final String HEADLESS_KEY = "isHeadless";
     private static final String INGEST_TYPE_KEY = "ingestType";
 
-    @Value("${app.projects.file}")
+    @Value("${app.projectsjson.path}")
     private String initialProjectsFile;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
 
     @Autowired
     private FileObserverRegistry fileObserverRegistry;
@@ -110,7 +109,8 @@ public class ProjectFactory {
     public JsonNode readProjectsNode() {
         String json = null;
         try {
-            json = new String(Files.readAllBytes(FileSystemUtility.getWindowsSafePath(resourceLoader.getResource("classpath:config").getURL().getPath() + File.separator + initialProjectsFile)));
+            logger.debug("Loading initial project configuration from PROJECTS_JSON_PATH " + PROJECTS_JSON_PATH);
+            json = new String(Files.readAllBytes(FileSystemUtility.getWindowsSafePath(PROJECTS_JSON_PATH)));
         } catch (IOException e) {
             logger.error("Error reading metadata json file", e);
         }
