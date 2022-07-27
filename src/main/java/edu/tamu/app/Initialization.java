@@ -2,7 +2,8 @@ package edu.tamu.app;
 
 import java.io.File;
 import java.io.IOException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -20,18 +21,25 @@ public class Initialization implements CommandLineRunner {
     public static String ASSETS_PATH;
 
     public static String PROJECTS_PATH = "projects";
-    
+
+    public static String PROJECTS_JSON_PATH;
+
     public static String MAPS_PATH = "maps";
 
     public static int LISTENER_PARALLELISM = 10;
 
     public static long LISTENER_INTERVAL = 1000;
 
+    protected static final Logger logger = LoggerFactory.getLogger(Initialization.class);
+
     @Value("${app.host}")
     private String host;
 
     @Value("${app.assets.path}")
     private String assetsPath;
+
+    @Value("${app.projectsjson.path}")
+    private String projectsJsonPath;
 
     @Value("${app.listener.parallelism:10}")
     private int listenerParallelism;
@@ -50,10 +58,11 @@ public class Initialization implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        setHost(host);
-        setAssetsPath(assetsPath);
-        setListenerParallelism(listenerParallelism);
-        setListenerInterval(listenerInterval);
+        setHost();
+        setAssetsPath();
+        setProjectsJsonPath();
+        setListenerParallelism();
+        setListenerInterval();
 
         for (String folder : assetsFolders) {
             FileSystemUtility.createDirectory(ASSETS_PATH + File.separator + folder);
@@ -62,11 +71,12 @@ public class Initialization implements CommandLineRunner {
         fileObserverRegistry.start();
     }
 
-    private void setHost(String host) {
+    private void setHost() {
         HOST = host;
     }
 
-    private void setAssetsPath(String host) {
+    private void setAssetsPath() {
+        logger.debug("Initialization runner setting assets path " + assetsPath);
         try {
             ASSETS_PATH = resourceLoader.getResource(assetsPath).getURI().getPath();
         } catch (IOException e) {
@@ -77,12 +87,21 @@ public class Initialization implements CommandLineRunner {
         }
     }
 
-    private void setListenerParallelism(int parallelism) {
-        LISTENER_PARALLELISM = parallelism;
+    private void setProjectsJsonPath() {
+        logger.debug("Initialization runner setting initial projects json file path" + projectsJsonPath);
+        try {
+            PROJECTS_JSON_PATH = resourceLoader.getResource(projectsJsonPath).getURI().getPath();
+
+        } catch (IOException e) {
+            PROJECTS_JSON_PATH = projectsJsonPath;
+        }
     }
 
-    private void setListenerInterval(long interval) {
-        LISTENER_INTERVAL = interval;
+    private void setListenerParallelism() {
+        LISTENER_PARALLELISM = listenerParallelism;
     }
 
+    private void setListenerInterval() {
+        LISTENER_INTERVAL = listenerInterval;
+    }
 }
