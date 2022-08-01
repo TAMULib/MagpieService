@@ -55,9 +55,13 @@ USER $USER_NAME
 # Set deployment directory.
 WORKDIR $HOME_DIR
 
-# Copy over the built artifact from the maven image.
+# Copy over the built artifact and assets from the maven image.
 COPY --from=maven $SOURCE_DIR/target/ROOT.jar ./magpie.jar
+COPY --from=maven $SOURCE_DIR/src/main/resources/config ./config
+COPY --from=maven $SOURCE_DIR/src/main/resources/static ./static
 
+ENV APP_PROJECTSJSON_PATH ./config/projects.json
+ENV APP_ASSETS_PATH ./static/metadatatool
 
 # Run java command.
 CMD ["java", "-jar", "./magpie.jar"]

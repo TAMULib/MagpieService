@@ -285,7 +285,7 @@ Below is a sample for metadata json file
                {
                   "key":"pelicanUrl",
                   "values":[
-                     "http://localhost:9001/nalt/suggestions"
+                     "http://localhost:9000/nalt/suggestions"
                   ]
                },
                {
