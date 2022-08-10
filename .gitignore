@@ -1,4 +1,13 @@
+# Java project type gitignore
+
+# Compiled class file
 *.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -6,18 +15,20 @@
 # Package Files #
 *.jar
 *.war
+*.nar
 *.ear
+*.zip
+*.tar.gz
+*.rar
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-/target/
+replay_pid*
 
-.classpath
-.project
-.settings/
+# Docker gitignore
+
+# Application specific gitignore
+# Maven
+target/
+
 logs/
-.vscode/
-
-src/main/resources/static/metadatatool/maps/*
-src/main/resources/static/metadatatool/exports/*
-src/main/resources/static/metadatatool/projects/*
