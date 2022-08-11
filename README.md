@@ -10,10 +10,20 @@ Developed and maintained by [Texas A&M University Libraries][tamu-library].
 <details>
 <summary>Table of contents</summary>
 
+  - [Deployment](#deployment)
   - [Developer Documentation](developer-documentation)
   - [Additional Resources](additional-resources)
 
 </details>
+
+## Deployment
+
+For a quick and easy deployment using `docker-compose` consider using the [MAGPIE App Repo][app-repo].
+
+For _advanced use cases_, or when `docker-compose` is unavailable, the UI may be either started using `docker` directly or even manually started.
+This process is further described in the [Deployment Guide][deployment-guide].
+
+<div align="right">(<a href="#readme-top">back to top</a>)</div>
 
 <details>
 <summary>Sample for metadata json file</summary>
@@ -453,15 +463,16 @@ Developed and maintained by [Texas A&M University Libraries][tamu-library].
 
 ## Additional Resources
 
-Please feel free to file any issues concerning Auth Service to the issues section of the repository.
+Please feel free to file any issues concerning MAGPIE Service to the issues section of the repository.
 
-Any questions concerning Auth Service can be directed to helpdesk@library.tamu.edu.
+Any questions concerning MAGPIE Service can be directed to helpdesk@library.tamu.edu.
 
 <div align="right">(<a href="#readme-top">back to top</a>)</div>
 
 Copyright © 2022 Texas A&M University Libraries under the [The MIT License][license].
 
 <!-- LINKS -->
+[app-repo]: https://github.com/TAMULib/MAGPIE
 [build-badge]: https://github.com/TAMULib/MetadataAssignmentToolService/workflows/Build/badge.svg
 [build-status]: https://github.com/TAMULib/MetadataAssignmentToolService/actions?query=workflow%3ABuild
 [coverage-badge]: https://coveralls.io/repos/github/TAMULib/MetadataAssignmentToolService/badge.svg
