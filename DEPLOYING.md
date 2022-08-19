@@ -22,11 +22,11 @@ The **development** deployment can also use `docker-compose` in the same way.
 To manually use `docker` rather than `docker-compose`, run the following:
 
 ```shell
-docker image build -t project .
-docker run -it project
+docker image build -t magpieservice .
+docker run -it magpieservice
 ```
 
-<sub>_* Note: `-t project` and `-it project` may be changed to another tag name as desired, such as `-t developing_on_this` and `-it developing_on_this`._</sub><br>
+<sub>_* Note: `-t magpieservice` and `-it magpieservice` may be changed to another tag name as desired, such as `-t developing_on_this` and `-it developing_on_this`._</sub><br>
 
 <div align="right">(<a href="#readme-top">back to top</a>)</div>
 
