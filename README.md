@@ -1,20 +1,21 @@
 [![Build Status][build-badge]][build-status]
 [![Coverage Status][coverage-badge]][coverage-status]
 
-# Metadata Assignment GUI Providing Ingest and Export (MAGPIE)
+# Metadata Assignment GUI Providing Ingest and Export Service
 
 <a name="readme-top"></a>
 
-Developed and maintained by [Texas A&M University Libraries][tamu-library].
+A *Spring* backend for the *Metadata Assignment GUI Providing Ingest and Export (MAGPIE) Service* developed and maintained by [Texas A&M University Libraries][tamu-library].
 
 <details>
 <summary>Table of contents</summary>
 
   - [Deployment](#deployment)
-  - [Developer Documentation](developer-documentation)
-  - [Additional Resources](additional-resources)
+  - [Developer Documentation](#developer-documentation)
+  - [Additional Resources](#additional-resources)
 
 </details>
+
 
 ## Deployment
 
@@ -461,15 +462,17 @@ This process is further described in the [Deployment Guide][deployment-guide].
 
 <div align="right">(<a href="#readme-top">back to top</a>)</div>
 
+
 ## Additional Resources
 
 Please feel free to file any issues concerning MAGPIE Service to the issues section of the repository.
 
 Any questions concerning MAGPIE Service can be directed to helpdesk@library.tamu.edu.
 
+Copyright © 2022 Texas A&M University Libraries under the [MIT License][license].
+
 <div align="right">(<a href="#readme-top">back to top</a>)</div>
 
-Copyright © 2022 Texas A&M University Libraries under the [The MIT License][license].
 
 <!-- LINKS -->
 [app-repo]: https://github.com/TAMULib/MAGPIE
