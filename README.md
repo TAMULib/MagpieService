@@ -1,13 +1,34 @@
-[![Build Status](https://github.com/TAMULib/MetadataAssignmentToolService/workflows/Build/badge.svg)](https://github.com/TAMULib/MetadataAssignmentToolService/actions?query=workflow%3ABuild)
-[![Coverage Status](https://coveralls.io/repos/github/TAMULib/MetadataAssignmentToolService/badge.svg)](https://coveralls.io/github/TAMULib/MetadataAssignmentToolService)
+[![Build Status][build-badge]][build-status]
+[![Coverage Status][coverage-badge]][coverage-status]
 
-Metadata Assignment Service
-===========================
+# Metadata Assignment GUI Providing Ingest and Export Service
 
-Spring MVC applications which provides an interface to annotate documents.
+<a name="readme-top"></a>
+
+A *Spring* backend for the *Metadata Assignment GUI Providing Ingest and Export (MAGPIE) Service* developed and maintained by [Texas A&M University Libraries][tamu-library].
+
+<details>
+<summary>Table of contents</summary>
+
+  - [Deployment](#deployment)
+  - [Developer Documentation](#developer-documentation)
+  - [Additional Resources](#additional-resources)
+
+</details>
 
 
-Below is a sample for metadata json file
+## Deployment
+
+For a quick and easy deployment using `docker-compose` consider using the [MAGPIE App Repo][app-repo].
+
+For _advanced use cases_, or when `docker-compose` is unavailable, the UI may be either started using `docker` directly or even manually started.
+This process is further described in the [Deployment Guide][deployment-guide].
+
+<div align="right">(<a href="#readme-top">back to top</a>)</div>
+
+<details>
+<summary>Sample for metadata json file</summary>
+
 ```json
 {
    "dissertation":{
@@ -285,7 +306,7 @@ Below is a sample for metadata json file
                {
                   "key":"pelicanUrl",
                   "values":[
-                     "http://localhost:9001/nalt/suggestions"
+                     "http://localhost:9000/nalt/suggestions"
                   ]
                },
                {
@@ -431,15 +452,36 @@ Below is a sample for metadata json file
 }
 ```
 
+</details>
 
-Cobertura Reporting Tool
-------------------------
 
-Command used to see the code coverage by unit testing :
-```
-mvn cobertura:cobertura OR mvn site
-```
-Location of the generated report :
-```
-<Application>/target/site/index.html
-```
+## Developer Documentation
+
+- [Contributors Documentation][contribute-guide]
+- [Deployment Documentation][deployment-guide]
+
+<div align="right">(<a href="#readme-top">back to top</a>)</div>
+
+
+## Additional Resources
+
+Please feel free to file any issues concerning MAGPIE Service to the issues section of the repository.
+
+Any questions concerning MAGPIE Service can be directed to helpdesk@library.tamu.edu.
+
+Copyright © 2022 Texas A&M University Libraries under the [MIT License][license].
+
+<div align="right">(<a href="#readme-top">back to top</a>)</div>
+
+
+<!-- LINKS -->
+[app-repo]: https://github.com/TAMULib/MAGPIE
+[build-badge]: https://github.com/TAMULib/MetadataAssignmentToolService/workflows/Build/badge.svg
+[build-status]: https://github.com/TAMULib/MetadataAssignmentToolService/actions?query=workflow%3ABuild
+[coverage-badge]: https://coveralls.io/repos/github/TAMULib/MetadataAssignmentToolService/badge.svg
+[coverage-status]: https://coveralls.io/github/TAMULib/MetadataAssignmentToolService
+
+[tamu-library]: http://library.tamu.edu
+[deployment-guide]: DEPLOYING.md
+[contribute-guide]: CONTRIBUTING.md
+[license]: LICENSE

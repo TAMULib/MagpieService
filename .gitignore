@@ -1,17 +1,70 @@
-h2/
-bin/
+### Git ###
+!.gitkeep
+
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+
+/.nb-gradle/
+
+
+### VS Code ###
+.vscode/
+
+dump.rdb
+
+
+### OS Specific ###
+.DS_Store
+.tmp/
+
+tmp/
+
+
+### Maven ###
 logs/
 target/
 
+.classpth
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 .project
-.settings
-.classpath
-.factorypath
 
-.project/
-.settings/
-.apt_generated/
+buildNumber.properties
+dependency-reduced-pom.xml
+pom.xml.next
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
 
-src/main/resources/static/metadatatool/maps/*
-src/main/resources/static/metadatatool/exports/*
-src/main/resources/static/metadatatool/projects/*
+
+### Weaver ###
+dist/
+
+
+### Project Specific ###
+.env*
+
+!**/src/main/**
+!**/src/test/**
