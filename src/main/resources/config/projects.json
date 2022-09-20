@@ -43,8 +43,8 @@
       ]
     }],
     "authorities": [{
-      "name": "Voyager for Dissertations Authority",
-      "type": "VOYAGER",
+      "name": "FOLIO for Dissertations Authority",
+      "type": "FOLIO",
       "settings": [{
           "key": "host",
           "values": [

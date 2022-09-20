@@ -69,7 +69,7 @@ app:
     # package edu.tamu.app.service.PropertyProtectionService
     propertySalt: 1rk3l7d*
     # edu.tamu.weaver.filter.CorsFilter
-    allow-access: http://localhost,http://localhost:8080,http://labs.library.tamu.edu,http://machuff.tamu.edu,http://caerus.library.tamu.edu:8080,http://savell.evans.tamu.edu,http://jcreel.tamu.edu
+    allow-access: http://localhost,http://localhost:8080,http://labs.library.tamu.edu,http://machuff.tamu.edu,http://jcreel.tamu.edu
   # edu.tamu.weaver.auth.service.UserCredentialsService
   authority:
     admins: 402001311,613001223,102001721,222004429,709005486,523008230,724001395,123456789,512004707
